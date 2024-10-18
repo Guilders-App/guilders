@@ -18,6 +18,10 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["var(--font-geist-sans)"],
+        mono: ["var(--font-geist-mono)"],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -52,9 +56,13 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        navbar: {
-          DEFAULT: "hsl(var(--navbar))",
-        },
+        grey1: "#1e1f20",
+        grey2: "#2d2d2d",
+        grey3: "#131415",
+        grey4: "#1c1d1e",
+        grey_border: "#303031",
+        grey_highlight: "#0f1010",
+        grey_highlight_2: "#a0a0a0",
       },
       borderRadius: {
         lg: "var(--radius)",
