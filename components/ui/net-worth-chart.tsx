@@ -35,7 +35,7 @@ const chartConfig = {
 
 export function NetWorthChart() {
   return (
-    <ChartContainer config={chartConfig}>
+    <ChartContainer className="max-h-[240px] w-full" config={chartConfig}>
       <AreaChart data={chartData}>
         <CartesianGrid vertical={false} />
         <XAxis
@@ -45,7 +45,6 @@ export function NetWorthChart() {
           tickMargin={8}
           tickFormatter={(value: string) => value.slice(0, 3)}
         />
-        {/* <YAxis tickLine={false} axisLine={false} tickMargin={8} tickCount={3} /> */}
         <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
         <defs>
           <linearGradient id="fillValue" x1="0" y1="0" x2="0" y2="1">

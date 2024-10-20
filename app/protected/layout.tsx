@@ -1,12 +1,13 @@
-import { Sidebar } from "@/components/sidebar";
+import { AppSidebar } from "@/components/nav/app-sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import React from "react";
 
 const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="bg-grey3 flex">
-      <Sidebar />
-      <main className="flex-1 m-12">{children}</main>
-    </div>
+    <SidebarProvider>
+      <AppSidebar />
+      <main className="flex-1 my-8 mx-16">{children}</main>
+    </SidebarProvider>
   );
 };
 

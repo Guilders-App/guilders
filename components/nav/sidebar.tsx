@@ -1,7 +1,7 @@
 import { signOutAction } from "@/app/actions";
 import { Clipboard, InfoIcon, LayoutDashboard, Settings } from "lucide-react";
 import Link from "next/link";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 export const Sidebar = () => {
   return (

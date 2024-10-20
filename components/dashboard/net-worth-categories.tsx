@@ -28,7 +28,7 @@ const getCategoryDisplayName = (categoryName: Category["name"]): string => {
   return categoryDisplayNames[categoryName] || categoryName;
 };
 
-export function Categories({ categories }: { categories: Category[] }) {
+export function NetWorthCategories({ categories }: { categories: Category[] }) {
   categories = categories.filter((category) => category.value > 0);
   const totalSum = categories.reduce(
     (sum, category) => sum + category.value,
