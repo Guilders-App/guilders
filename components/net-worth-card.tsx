@@ -1,23 +1,26 @@
+import { Category } from "@/utils/types";
 import { ChevronUp } from "lucide-react";
-import { Categories, Category } from "./categories";
+import { Categories } from "./categories";
+import { Diversification } from "./diversification";
 import TimeRangeSelector from "./time-range-selector";
+import { TopNetWorth } from "./top-net-worth";
 import { NetWorthChart } from "./ui/net-worth-chart";
 
 export function NetWorthCard() {
   const categories: Category[] = [
-    { name: "Accounts", percentage: "38%", color: "bg-blue-400" },
-    { name: "Stocks", percentage: "17%", color: "bg-cyan-400" },
-    { name: "Crypto", percentage: "14%", color: "bg-green-400" },
-    { name: "Real Estate", percentage: "11%", color: "bg-purple-400" },
-    { name: "Cars", percentage: "10%", color: "bg-indigo-400" },
-    { name: "Other", percentage: "10%", color: "bg-red-400" },
+    { name: "depository", value: 40 },
+    { name: "brokerage", value: 17 },
+    { name: "crypto", value: 14 },
+    { name: "property", value: 11 },
+    { name: "vehicle", value: 10 },
+    { name: "creditcard", value: 10 },
+    { name: "loan", value: 0 },
   ];
 
   return (
-    <div className="bg-grey4 border border-grey_border shadow-md rounded-lg p-6 flex-grow">
+    <div className="bg-grey4 border border-grey_border shadow-md rounded-lg flex-grow">
       <div className="flex">
-        {/* Left side - 60% width */}
-        <div className="w-3/5 pr-6">
+        <div className="w-3/5 p-6">
           <div className="mb-6">
             <div className="flex items-baseline">
               <h2 className="text-lg font-light text-gray-400 mb-2">
@@ -40,35 +43,11 @@ export function NetWorthCard() {
             <NetWorthChart />
           </div>
         </div>
-        <div className="w-2/5">
-          <h2 className="text-lg font-light text-gray-400 mb-4">Categories</h2>
+        <div className="w-2/5 bg-[#232526] p-6 border-l border-grey_border">
           <Categories categories={categories} />
           <div className="border-t border-gray-700 my-6"></div>
-          <div className="mb-6">
-            <h2 className="text-lg font-light text-gray-400 mb-2">
-              Diversification Score
-            </h2>
-            <div className="flex items-center">
-              <div className="w-full bg-gray-700 rounded-full h-2.5 mr-2">
-                <div
-                  className="bg-green-400 h-2.5 rounded-full"
-                  style={{ width: "78%" }}
-                ></div>
-              </div>
-              <span className="text-green-400 font-mono">78</span>
-            </div>
-          </div>
-          <div>
-            <h2 className="text-lg font-light text-gray-400 mb-2">
-              Top 1.3% Net Worth in Poland
-            </h2>
-            <div className="w-full bg-gray-700 rounded-full h-2.5">
-              <div
-                className="bg-yellow-400 h-2.5 rounded-full"
-                style={{ width: "98.7%" }}
-              ></div>
-            </div>
-          </div>
+          <Diversification diversificationScore={7} />
+          <TopNetWorth />
         </div>
       </div>
     </div>
