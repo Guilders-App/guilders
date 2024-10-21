@@ -16,7 +16,7 @@ export function NetWorthInfo({
         <h2 className="text-lg font-light text-gray-400 mb-2">
           Total Net Worth
         </h2>
-        <ChangeIndicator change={change} />
+        <ChangeIndicator change={change} showAbsoluteChange />
       </div>
       <NetWorthDisplay value={netWorth} />
       <TimeRangeSelector />

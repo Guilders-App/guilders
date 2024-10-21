@@ -35,7 +35,7 @@ const chartConfig = {
 
 export function NetWorthChart() {
   return (
-    <ChartContainer className="max-h-[240px] w-full" config={chartConfig}>
+    <ChartContainer className="max-h-[216px] w-full" config={chartConfig}>
       <AreaChart data={chartData}>
         <CartesianGrid vertical={false} />
         <XAxis
