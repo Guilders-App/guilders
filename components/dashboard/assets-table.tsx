@@ -1,4 +1,3 @@
-import { Account } from "@/utils/types";
 import {
   Table,
   TableBody,
@@ -6,7 +5,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
+} from "@/components/ui/table";
+import { Account } from "@/utils/types";
 import { ChangeIndicator } from "./change-indicator";
 
 export function AssetsTable({ accounts }: { accounts: Account[] }) {

@@ -1,6 +1,6 @@
-import { NetWorthChart } from "../ui/net-worth-chart";
-import { ChangeIndicator } from "./change-indicator";
-import { NetWorthDisplay } from "./net-worth-display";
+import { ChangeIndicator } from "@/components/dashboard/change-indicator";
+import { NetWorthChart } from "@/components/dashboard/net-worth-chart";
+import { NetWorthDisplay } from "@/components/dashboard/net-worth-display";
 import TimeRangeSelector from "./time-range-selector";
 
 export function NetWorthInfo({
