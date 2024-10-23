@@ -3,13 +3,7 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { NetWorthCard } from "@/components/dashboard/net-worth-card";
 import { TransactionsCard } from "@/components/dashboard/net-worth-transactions";
 
-export default async function ProtectedPage() {
-  // const supabase = createClient();
-  //
-  // const {
-  //   data: { user },
-  // } = await supabase.auth.getUser();
-
+export default function ProtectedPage() {
   return (
     <div className="flex flex-col gap-6">
       <DashboardHeader />
