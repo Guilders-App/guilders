@@ -1,17 +1,8 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[];
-
 export type Database = {
   public: {
     Tables: {
       account: {
         Row: {
-          account_id: string;
           connection: number | null;
           cost: number | null;
           created_at: string;
@@ -28,10 +19,10 @@ export type Database = {
           taxability: Database["public"]["Enums"]["taxability"];
           ticker: string | null;
           type: Database["public"]["Enums"]["account_type"];
+          user_id: string;
           value: number;
         };
         Insert: {
-          account_id: string;
           connection?: number | null;
           cost?: number | null;
           created_at?: string;
@@ -48,10 +39,10 @@ export type Database = {
           taxability?: Database["public"]["Enums"]["taxability"];
           ticker?: string | null;
           type: Database["public"]["Enums"]["account_type"];
+          user_id: string;
           value: number;
         };
         Update: {
-          account_id?: string;
           connection?: number | null;
           cost?: number | null;
           created_at?: string;
@@ -68,6 +59,7 @@ export type Database = {
           taxability?: Database["public"]["Enums"]["taxability"];
           ticker?: string | null;
           type?: Database["public"]["Enums"]["account_type"];
+          user_id?: string;
           value?: number;
         };
         Relationships: [

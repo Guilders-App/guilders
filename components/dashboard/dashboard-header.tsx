@@ -1,4 +1,4 @@
-import { PlusIcon } from "lucide-react";
+import { AddAccountButton } from "../common/add-account-button";
 
 export const DashboardHeader = () => {
   return (
@@ -6,10 +6,7 @@ export const DashboardHeader = () => {
       <h1 className="scroll-m-20 text-3xl font-extralight tracking-tight lg:text-4xl">
         Dashboard
       </h1>
-      <button className="px-4 py-2 bg-white text-black rounded hover:bg-gray-200 transition-colors flex items-center gap-2">
-        <PlusIcon size={16} />
-        Add
-      </button>
+      <AddAccountButton />
     </div>
   );
 };

@@ -1,0 +1,241 @@
+"use client";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+import { snaptrade } from "@/lib/snaptrade";
+import { createClient } from "@/lib/supabase/client";
+import {
+  accountSubtypeLabels,
+  accountSubtypes,
+  currencies,
+} from "@/utils/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, PlusIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+
+const formSchema = z.object({
+  accountType: z.enum(accountSubtypes),
+  accountName: z.string().min(1, "Account name is required."),
+  value: z
+    .string()
+    .min(1, "Value is required.")
+    .regex(/^\d+(\.\d{1,2})?$/, "Invalid number format."),
+  currency: z.enum(currencies),
+});
+
+type FormSchema = z.infer<typeof formSchema>;
+
+export const AddAccountButton = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const supabase = createClient();
+  const { toast } = useToast();
+
+  snaptrade.apiStatus.check().then((status: any) => {
+    console.log("API status:", status.data);
+  });
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    fetchUser();
+  }, [supabase.auth]); // Add supabase.auth as a dependency
+
+  const form = useForm<FormSchema>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      accountType: undefined,
+      accountName: "",
+      value: "",
+      currency: "USD",
+    },
+  });
+
+  const handleSubmit = form.handleSubmit(async (data) => {
+    setIsLoading(true);
+
+    try {
+      if (!user) throw new Error("User not found");
+
+      const { data: newAccount, error } = await supabase
+        .from("account")
+        .insert({
+          name: data.accountName,
+          subtype: data.accountType,
+          value: parseFloat(data.value),
+          currency: data.currency,
+          type:
+            data.accountType === "creditcard" || data.accountType === "loan"
+              ? "liability"
+              : "asset",
+          user_id: user.id,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Account added!",
+        description: "Your account has been added successfully.",
+      });
+      console.log("Account added!", newAccount);
+      setIsOpen(false);
+      form.reset();
+    } catch (error) {
+      toast({
+        title: "Error adding account",
+        description:
+          "There was an error adding your account. Please try again later.",
+      });
+      console.error("Error adding account:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  });
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <PlusIcon />
+          Add
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Add Account</DialogTitle>
+          <DialogDescription>
+            Enter the details of the new account you want to add.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="accountType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Type</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select account type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {accountSubtypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {accountSubtypeLabels[type]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="accountName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter account name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="value"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Value</FormLabel>
+                  <div className="flex gap-2">
+                    <FormControl>
+                      <Input type="text" placeholder="Enter value" {...field} />
+                    </FormControl>
+                    <FormField
+                      control={form.control}
+                      name="currency"
+                      render={({ field }) => (
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-[100px]">
+                              <SelectValue placeholder="Currency" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {currencies.map((currency) => (
+                              <SelectItem key={currency} value={currency}>
+                                {currency}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter>
+              <Button type="submit" disabled={isLoading} className="w-full">
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  "Add Account"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+};
