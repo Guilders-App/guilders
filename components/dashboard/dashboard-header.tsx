@@ -1,4 +1,4 @@
-import { AddAccountButton } from "../common/add-account-button";
+import { AddAccountButton } from "./add-account-button";
 
 export const DashboardHeader = () => {
   return (

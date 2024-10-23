@@ -7,7 +7,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -18,7 +17,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { snaptrade } from "@/lib/snaptrade";
 import { createClient } from "@/lib/supabase/client";
 import {
   accountSubtypeLabels,
@@ -26,10 +24,10 @@ import {
   currencies,
 } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, PlusIcon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { z } from "zod";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import {
@@ -52,16 +50,17 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>;
 
-export const AddAccountButton = () => {
+export const AddAccountDialog = ({
+  isOpen,
+  setIsOpen,
+}: {
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const supabase = createClient();
   const { toast } = useToast();
-
-  snaptrade.apiStatus.check().then((status: any) => {
-    console.log("API status:", status.data);
-  });
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -71,7 +70,7 @@ export const AddAccountButton = () => {
       setUser(user);
     };
     fetchUser();
-  }, [supabase.auth]); // Add supabase.auth as a dependency
+  }, [supabase.auth]);
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
@@ -128,13 +127,7 @@ export const AddAccountButton = () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <PlusIcon />
-          Add
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle>Add Account</DialogTitle>
           <DialogDescription>

@@ -2,7 +2,7 @@ import { Category } from "@/utils/types";
 import { NetWorthDetails } from "./net-worth-details";
 import { NetWorthInfo } from "./net-worth-info";
 
-// Move categories data outside the component
+// TODO: Move categories data outside the component
 const categories: Category[] = [
   { name: "depository", value: 40 },
   { name: "brokerage", value: 17 },
