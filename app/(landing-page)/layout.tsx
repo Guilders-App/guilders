@@ -21,7 +21,7 @@ export default function LandingPageLayout({
         <div className="w-full max-w-7xl flex items-center p-3 px-5 relative">
           <div className="absolute left-5">
             <Link href="/" className="text-xl font-bold">
-              Koi
+              Guilders
             </Link>
           </div>
           <div className="flex-grow flex justify-center">
