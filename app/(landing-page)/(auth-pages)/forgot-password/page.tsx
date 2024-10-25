@@ -1,4 +1,3 @@
-import { SmtpMessage } from "@/app/(landing-page)/(auth-pages)/smtp-message";
 import { forgotPasswordAction } from "@/app/actions";
 import { FormMessage, Message } from "@/components/common/form-message";
 import { SubmitButton } from "@/components/common/submit-button";
@@ -31,7 +30,6 @@ export default async function ForgotPassword(props: {
           <FormMessage message={searchParams} />
         </div>
       </form>
-      <SmtpMessage />
     </>
   );
 }

@@ -1,4 +1,3 @@
-import { SmtpMessage } from "@/app/(landing-page)/(auth-pages)/smtp-message";
 import { signUpAction } from "@/app/actions";
 import { FormMessage, Message } from "@/components/common/form-message";
 import { SubmitButton } from "@/components/common/submit-button";
@@ -45,7 +44,6 @@ export default async function Signup(props: {
           <FormMessage message={searchParams} />
         </div>
       </form>
-      <SmtpMessage />
     </>
   );
 }

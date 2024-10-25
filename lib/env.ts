@@ -4,7 +4,6 @@ declare global {
       // Supabase (database)
       NEXT_PUBLIC_SUPABASE_URL: string;
       NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
-      SUPABASE_PROJECT_REF: string;
       // Resend (email)
       RESEND_API_KEY: string;
       // Snaptrade (brokerage provider)

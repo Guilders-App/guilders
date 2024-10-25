@@ -3,8 +3,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start",
-    "gen-supabase-types": "supabase gen types --lang=typescript --project-id \"$SUPABASE_PROJECT_REF\" --schema public > ./utils/supabase/database.types.ts"
+    "start": "next start"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
