@@ -19,9 +19,9 @@ export function AssetsCard() {
 
       {isInitialLoading ? (
         <div className="space-y-2">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
+          {[...Array(5)].map((_, index) => (
+            <Skeleton key={index} className="h-10 w-full mb-2" />
+          ))}
         </div>
       ) : accounts.length === 0 ? (
         <div className="text-center py-8">

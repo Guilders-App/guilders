@@ -1,7 +1,6 @@
 import { TablesUpdate } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
 import { AccountUpdate } from "@/lib/supabase/types";
-import { NextResponse } from "next/server";
 
 export async function GET(
   _: Request,
@@ -14,7 +13,7 @@ export async function GET(
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json(
+      return Response.json(
         { success: false, error: "User not authenticated" },
         { status: 401 }
       );
@@ -29,16 +28,16 @@ export async function GET(
 
     if (error) {
       console.error("Supabase error:", error);
-      return NextResponse.json(
+      return Response.json(
         { success: false, error: "Error fetching account" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ success: true, account });
+    return Response.json({ success: true, account });
   } catch (error) {
     console.error("Error fetching account:", error);
-    return NextResponse.json(
+    return Response.json(
       { success: false, error: "Error fetching account" },
       { status: 500 }
     );
@@ -57,7 +56,7 @@ export async function DELETE(
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json(
+      return Response.json(
         { success: false, error: "User not authenticated" },
         { status: 401 }
       );
@@ -71,16 +70,16 @@ export async function DELETE(
 
     if (error) {
       console.error("Supabase error:", error);
-      return NextResponse.json(
+      return Response.json(
         { success: false, error: "Error deleting account" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ success: true });
+    return Response.json({ success: true });
   } catch (error) {
     console.error("Error deleting account:", error);
-    return NextResponse.json(
+    return Response.json(
       { success: false, error: "Error deleting account" },
       { status: 500 }
     );
@@ -108,7 +107,7 @@ export async function PUT(
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json(
+      return Response.json(
         { success: false, error: "User not authenticated" },
         { status: 401 }
       );
@@ -124,16 +123,16 @@ export async function PUT(
 
     if (error) {
       console.error("Supabase error:", error);
-      return NextResponse.json(
+      return Response.json(
         { success: false, error: "Error updating account" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ success: true, account: updatedAccount });
+    return Response.json({ success: true, account: updatedAccount });
   } catch (error) {
     console.error("Error updating account:", error);
-    return NextResponse.json(
+    return Response.json(
       { success: false, error: "Error updating account" },
       { status: 500 }
     );

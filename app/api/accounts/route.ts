@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { AccountInsert } from "@/lib/supabase/types";
-import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
@@ -13,7 +12,7 @@ export async function POST(request: Request) {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json(
+      return Response.json(
         { success: false, error: "User not authenticated" },
         { status: 401 }
       );
@@ -37,16 +36,16 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error("Supabase error:", error);
-      return NextResponse.json(
+      return Response.json(
         { success: false, error: "Error adding account" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ success: true, account: newAccount });
+    return Response.json({ success: true, account: newAccount });
   } catch (error) {
     console.error("Error adding account:", error);
-    return NextResponse.json(
+    return Response.json(
       { success: false, error: "Error adding account" },
       { status: 500 }
     );
@@ -61,7 +60,7 @@ export async function GET(_: Request) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json(
+      return Response.json(
         { success: false, error: "User not authenticated" },
         { status: 401 }
       );
@@ -75,16 +74,16 @@ export async function GET(_: Request) {
 
     if (error) {
       console.error("Supabase error:", error);
-      return NextResponse.json(
+      return Response.json(
         { success: false, error: "Error fetching accounts" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ success: true, accounts });
+    return Response.json({ success: true, accounts });
   } catch (error) {
     console.error("Error fetching accounts:", error);
-    return NextResponse.json(
+    return Response.json(
       { success: false, error: "Error fetching accounts" },
       { status: 500 }
     );
