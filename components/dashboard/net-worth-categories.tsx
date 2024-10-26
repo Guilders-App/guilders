@@ -1,17 +1,14 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAccountStore } from "@/lib/store/accountStore";
 import {
   AccountSubtype,
   getCategoryColor,
   getCategoryDisplayName,
 } from "@/lib/supabase/types";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 
 export function NetWorthCategories() {
-  const { accounts, fetchAccounts } = useAccountStore();
-
-  useEffect(() => {
-    fetchAccounts();
-  }, [fetchAccounts]);
+  const { accounts, isInitialLoading } = useAccountStore();
 
   const categories = useMemo(() => {
     const categoryMap: Record<AccountSubtype, number> = {
@@ -37,6 +34,24 @@ export function NetWorthCategories() {
     () => categories.reduce((sum, category) => sum + category.value, 0),
     [categories]
   );
+
+  if (isInitialLoading) {
+    return (
+      <div>
+        <h2 className="text-xl font-light text-white mb-4">Categories</h2>
+        <Skeleton className="h-4 w-full mb-2" />
+        <div className="grid grid-cols-2 gap-3">
+          {[...Array(4)].map((_, index) => (
+            <div key={index} className="flex items-center">
+              <Skeleton className="w-3 h-3 rounded-full mr-2" />
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-8 ml-auto" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
