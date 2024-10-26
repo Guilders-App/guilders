@@ -48,7 +48,7 @@ const transactions = [
 
 export function TransactionsCard() {
   return (
-    <div className="bg-grey4 border border-grey_border shadow-md rounded-lg p-6">
+    <div className="bg-grey4 border border-grey_border shadow-md rounded-lg p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-white">Transactions</h2>
         <Button variant="secondary">

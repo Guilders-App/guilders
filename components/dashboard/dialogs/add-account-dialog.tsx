@@ -26,15 +26,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { createClient } from "@/lib/supabase/client";
+import { useAccountStore } from "@/lib/store/accountStore";
 import {
   accountSubtypeLabels,
   accountSubtypes,
   currencies,
-} from "@/utils/types";
+} from "@/lib/supabase/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -58,19 +58,8 @@ export const AddAccountDialog = ({
   setIsOpen: (open: boolean) => void;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const supabase = createClient();
   const { toast } = useToast();
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-    };
-    fetchUser();
-  }, [supabase.auth]);
+  const { addAccount } = useAccountStore();
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
@@ -86,33 +75,17 @@ export const AddAccountDialog = ({
     setIsLoading(true);
 
     try {
-      if (!user) throw new Error("User not found");
-
-      const { data: newAccount, error } = await supabase
-        .from("account")
-        .insert({
-          name: data.accountName,
-          subtype: data.accountType,
-          value: parseFloat(data.value),
-          currency: data.currency,
-          type:
-            data.accountType === "creditcard" || data.accountType === "loan"
-              ? "liability"
-              : "asset",
-          user_id: user.id,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      await addAccount({
+        name: data.accountName,
+        subtype: data.accountType,
+        value: parseFloat(data.value),
+        currency: data.currency,
+      });
 
       toast({
         title: "Account added!",
         description: "Your account has been added successfully.",
       });
-      console.log("Account added!", newAccount);
-      setIsOpen(false);
-      form.reset();
     } catch (error) {
       toast({
         title: "Error adding account",
@@ -122,6 +95,7 @@ export const AddAccountDialog = ({
       console.error("Error adding account:", error);
     } finally {
       setIsLoading(false);
+      setIsOpen(false);
     }
   });
 

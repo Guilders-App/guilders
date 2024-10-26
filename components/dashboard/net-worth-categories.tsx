@@ -1,38 +1,41 @@
-import { Category } from "@/utils/types";
+import { useAccountStore } from "@/lib/store/accountStore";
+import {
+  AccountSubtype,
+  getCategoryColor,
+  getCategoryDisplayName,
+} from "@/lib/supabase/types";
+import { useEffect, useMemo } from "react";
 
-const colorMap: Record<Category["name"], string> = {
-  depository: "#3e84f7",
-  brokerage: "#82d0fa",
-  crypto: "#83d1ce",
-  property: "#b263ea",
-  vehicle: "#5f5fde",
-  loan: "#eb4b63",
-  creditcard: "#FF9F45",
-};
+export function NetWorthCategories() {
+  const { accounts, fetchAccounts } = useAccountStore();
 
-const categoryDisplayNames: Record<Category["name"], string> = {
-  depository: "Accounts",
-  brokerage: "Stocks",
-  crypto: "Crypto",
-  property: "Real Estate",
-  vehicle: "Cars",
-  loan: "Loan",
-  creditcard: "Credit Card",
-};
+  useEffect(() => {
+    fetchAccounts();
+  }, [fetchAccounts]);
 
-const getCategoryColor = (categoryName: Category["name"]): string => {
-  return colorMap[categoryName] || "#808080"; // Default to gray if category not found
-};
+  const categories = useMemo(() => {
+    const categoryMap: Record<AccountSubtype, number> = {
+      depository: 0,
+      brokerage: 0,
+      crypto: 0,
+      property: 0,
+      vehicle: 0,
+      creditcard: 0,
+      loan: 0,
+    };
 
-const getCategoryDisplayName = (categoryName: Category["name"]): string => {
-  return categoryDisplayNames[categoryName] || categoryName;
-};
+    accounts.forEach((account) => {
+      categoryMap[account.subtype] += account.value;
+    });
 
-export function NetWorthCategories({ categories }: { categories: Category[] }) {
-  categories = categories.filter((category) => category.value > 0);
-  const totalSum = categories.reduce(
-    (sum, category) => sum + category.value,
-    0
+    return Object.entries(categoryMap)
+      .map(([name, value]) => ({ name: name as AccountSubtype, value }))
+      .filter((category) => category.value !== 0);
+  }, [accounts]);
+
+  const totalSum = useMemo(
+    () => categories.reduce((sum, category) => sum + category.value, 0),
+    [categories]
   );
 
   return (

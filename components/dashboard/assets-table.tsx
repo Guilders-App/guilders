@@ -6,10 +6,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Account } from "@/utils/types";
+import { useAccountStore } from "@/lib/store/accountStore";
 import { ChangeIndicator } from "./change-indicator";
 
-export function AssetsTable({ accounts }: { accounts: Account[] }) {
+export function AssetsTable() {
+  const { accounts } = useAccountStore();
   return (
     <Table className="border-collapse">
       <TableHeader>
@@ -23,7 +24,9 @@ export function AssetsTable({ accounts }: { accounts: Account[] }) {
       <TableBody>
         {accounts.map((account) => {
           const changePercentage =
-            ((account.value - account.cost) / account.cost) * 100;
+            account.cost !== null
+              ? ((account.value - account.cost) / account.cost) * 100
+              : 0;
 
           return (
             <TableRow key={account.name} className="border-none">
@@ -33,12 +36,15 @@ export function AssetsTable({ accounts }: { accounts: Account[] }) {
               <TableCell className="p-2 text-center">
                 <ChangeIndicator
                   change={{
-                    value: account.value - account.cost,
+                    value:
+                      account.cost !== null ? account.value - account.cost : 0,
                     percentage: changePercentage,
                   }}
                 />
               </TableCell>
-              <TableCell className="p-2 text-center">{account.cost}</TableCell>
+              <TableCell className="p-2 text-center">
+                {account.cost !== null ? account.cost : "N/A"}
+              </TableCell>
               <TableCell className="text-right p-2">{account.value}</TableCell>
             </TableRow>
           );
