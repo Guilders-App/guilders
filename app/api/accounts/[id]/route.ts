@@ -4,10 +4,11 @@ import { AccountUpdate } from "@/lib/supabase/types";
 
 export async function GET(
   _: Request,
-  { params: { id } }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
+    const { id } = await params;
 
     const {
       data: { user },
@@ -46,11 +47,11 @@ export async function GET(
 
 export async function DELETE(
   _: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
-    const accountId = params.id;
+    const { id } = await params;
 
     const {
       data: { user },
@@ -65,7 +66,7 @@ export async function DELETE(
     const { error } = await supabase
       .from("account")
       .delete()
-      .eq("id", accountId)
+      .eq("id", id)
       .eq("user_id", user.id);
 
     if (error) {
@@ -88,11 +89,12 @@ export async function DELETE(
 
 export async function PUT(
   request: Request,
-  { params: { id } }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient();
     const updatedData: AccountUpdate = await request.json();
+    const { id } = await params;
     const dataToUpdate: TablesUpdate<"account"> = { ...updatedData };
 
     // Check if subtype is present and update type accordingly
