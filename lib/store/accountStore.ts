@@ -10,12 +10,14 @@ interface AccountState {
   updateAccount: (updatedAccount: AccountUpdate) => Promise<void>;
   removeAccount: (accountId: number) => Promise<void>;
   initializeAccounts: () => Promise<void>;
+  isInitialLoading: boolean;
 }
 
 export const useAccountStore = create<AccountState>((set) => ({
   accounts: [],
   isLoading: false,
   error: null,
+  isInitialLoading: true,
 
   fetchAccounts: async () => {
     set({ isLoading: true, error: null });
@@ -86,15 +88,15 @@ export const useAccountStore = create<AccountState>((set) => ({
   },
 
   initializeAccounts: async () => {
-    set({ isLoading: true, error: null });
+    set({ isInitialLoading: true, error: null });
     try {
       const response = await fetch("/api/accounts");
       if (!response.ok) throw new Error("Failed to fetch accounts");
       const data = await response.json();
-      set({ accounts: data.accounts, isLoading: false });
+      set({ accounts: data.accounts, isInitialLoading: false });
       return data.accounts;
     } catch (error) {
-      set({ error: (error as Error).message, isLoading: false });
+      set({ error: (error as Error).message, isInitialLoading: false });
       return [];
     }
   },

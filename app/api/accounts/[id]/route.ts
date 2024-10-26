@@ -3,10 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 import { AccountUpdate } from "@/lib/supabase/types";
 import { NextResponse } from "next/server";
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  _: Request,
+  { params: { id } }: { params: { id: string } }
+) {
   try {
     const supabase = await createClient();
-    const accountId = params.id;
 
     const {
       data: { user },
@@ -21,7 +23,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
     const { data: account, error } = await supabase
       .from("account")
       .select("*")
-      .eq("id", accountId)
+      .eq("id", id)
       .eq("user_id", user.id)
       .single();
 
@@ -87,11 +89,10 @@ export async function DELETE(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params: { id } }: { params: { id: string } }
 ) {
   try {
     const supabase = await createClient();
-    const accountId = params.id;
     const updatedData: AccountUpdate = await request.json();
     const dataToUpdate: TablesUpdate<"account"> = { ...updatedData };
 
@@ -116,7 +117,7 @@ export async function PUT(
     const { data: updatedAccount, error } = await supabase
       .from("account")
       .update(dataToUpdate)
-      .eq("id", accountId)
+      .eq("id", id)
       .eq("user_id", user.id)
       .select()
       .single();
