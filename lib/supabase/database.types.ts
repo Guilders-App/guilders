@@ -1,158 +1,298 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          operationName?: string
+          query?: string
+          variables?: Json
+          extensions?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       account: {
         Row: {
-          connection: number | null;
-          cost: number | null;
-          created_at: string;
-          currency: string;
-          description: string;
-          id: number;
-          investable: Database["public"]["Enums"]["investable"];
-          name: string;
-          notes: string;
-          parent: number | null;
-          quantity: number | null;
-          subtype: Database["public"]["Enums"]["account_subtype"];
-          tax_rate: number | null;
-          taxability: Database["public"]["Enums"]["taxability"];
-          ticker: string | null;
-          type: Database["public"]["Enums"]["account_type"];
-          user_id: string;
-          value: number;
-        };
+          connection_id: number | null
+          cost: number | null
+          created_at: string
+          currency: string
+          description: string
+          exchange_rate: number
+          id: number
+          investable: Database["public"]["Enums"]["investable"]
+          name: string
+          notes: string
+          parent: number | null
+          quantity: number | null
+          subtype: Database["public"]["Enums"]["account_subtype"]
+          tax_rate: number | null
+          taxability: Database["public"]["Enums"]["taxability"]
+          ticker: string | null
+          type: Database["public"]["Enums"]["account_type"]
+          updated_at: string
+          user_id: string
+          value: number
+        }
         Insert: {
-          connection?: number | null;
-          cost?: number | null;
-          created_at?: string;
-          currency: string;
-          description?: string;
-          id?: number;
-          investable?: Database["public"]["Enums"]["investable"];
-          name: string;
-          notes?: string;
-          parent?: number | null;
-          quantity?: number | null;
-          subtype: Database["public"]["Enums"]["account_subtype"];
-          tax_rate?: number | null;
-          taxability?: Database["public"]["Enums"]["taxability"];
-          ticker?: string | null;
-          type: Database["public"]["Enums"]["account_type"];
-          user_id: string;
-          value: number;
-        };
+          connection_id?: number | null
+          cost?: number | null
+          created_at?: string
+          currency: string
+          description?: string
+          exchange_rate: number
+          id?: number
+          investable?: Database["public"]["Enums"]["investable"]
+          name: string
+          notes?: string
+          parent?: number | null
+          quantity?: number | null
+          subtype: Database["public"]["Enums"]["account_subtype"]
+          tax_rate?: number | null
+          taxability?: Database["public"]["Enums"]["taxability"]
+          ticker?: string | null
+          type: Database["public"]["Enums"]["account_type"]
+          updated_at?: string
+          user_id: string
+          value: number
+        }
         Update: {
-          connection?: number | null;
-          cost?: number | null;
-          created_at?: string;
-          currency?: string;
-          description?: string;
-          id?: number;
-          investable?: Database["public"]["Enums"]["investable"];
-          name?: string;
-          notes?: string;
-          parent?: number | null;
-          quantity?: number | null;
-          subtype?: Database["public"]["Enums"]["account_subtype"];
-          tax_rate?: number | null;
-          taxability?: Database["public"]["Enums"]["taxability"];
-          ticker?: string | null;
-          type?: Database["public"]["Enums"]["account_type"];
-          user_id?: string;
-          value?: number;
-        };
+          connection_id?: number | null
+          cost?: number | null
+          created_at?: string
+          currency?: string
+          description?: string
+          exchange_rate?: number
+          id?: number
+          investable?: Database["public"]["Enums"]["investable"]
+          name?: string
+          notes?: string
+          parent?: number | null
+          quantity?: number | null
+          subtype?: Database["public"]["Enums"]["account_subtype"]
+          tax_rate?: number | null
+          taxability?: Database["public"]["Enums"]["taxability"]
+          ticker?: string | null
+          type?: Database["public"]["Enums"]["account_type"]
+          updated_at?: string
+          user_id?: string
+          value?: number
+        }
         Relationships: [
           {
-            foreignKeyName: "account_connection_fkey";
-            columns: ["connection"];
-            isOneToOne: false;
-            referencedRelation: "connection";
-            referencedColumns: ["id"];
+            foreignKeyName: "account_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "connection"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "account_parent_fkey";
-            columns: ["parent"];
-            isOneToOne: false;
-            referencedRelation: "account";
-            referencedColumns: ["id"];
+            foreignKeyName: "account_parent_fkey"
+            columns: ["parent"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
           },
-        ];
-      };
+        ]
+      }
+      account_history: {
+        Row: {
+          account_id: number
+          connection_id: number | null
+          cost: number | null
+          created_at: string
+          currency: string
+          description: string
+          exchange_rate: number
+          id: number
+          investable: Database["public"]["Enums"]["investable"]
+          name: string
+          notes: string
+          parent: number | null
+          quantity: number | null
+          subtype: Database["public"]["Enums"]["account_subtype"]
+          tax_rate: number | null
+          taxability: Database["public"]["Enums"]["taxability"]
+          ticker: string | null
+          type: Database["public"]["Enums"]["account_type"]
+          updated_at: string
+          user_id: string
+          value: number
+        }
+        Insert: {
+          account_id: number
+          connection_id?: number | null
+          cost?: number | null
+          created_at?: string
+          currency: string
+          description?: string
+          exchange_rate: number
+          id?: number
+          investable?: Database["public"]["Enums"]["investable"]
+          name: string
+          notes?: string
+          parent?: number | null
+          quantity?: number | null
+          subtype: Database["public"]["Enums"]["account_subtype"]
+          tax_rate?: number | null
+          taxability?: Database["public"]["Enums"]["taxability"]
+          ticker?: string | null
+          type: Database["public"]["Enums"]["account_type"]
+          updated_at: string
+          user_id: string
+          value: number
+        }
+        Update: {
+          account_id?: number
+          connection_id?: number | null
+          cost?: number | null
+          created_at?: string
+          currency?: string
+          description?: string
+          exchange_rate?: number
+          id?: number
+          investable?: Database["public"]["Enums"]["investable"]
+          name?: string
+          notes?: string
+          parent?: number | null
+          quantity?: number | null
+          subtype?: Database["public"]["Enums"]["account_subtype"]
+          tax_rate?: number | null
+          taxability?: Database["public"]["Enums"]["taxability"]
+          ticker?: string | null
+          type?: Database["public"]["Enums"]["account_type"]
+          updated_at?: string
+          user_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_history_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connection: {
         Row: {
-          account_id: number;
-          aggregator: Database["public"]["Enums"]["aggregator"];
-          created_at: string;
-          id: number;
-          last_updated: string;
-          provider: string | null;
-        };
+          account_id: number
+          aggregator: Database["public"]["Enums"]["aggregator"]
+          created_at: string
+          id: number
+          last_updated: string
+          provider: string | null
+        }
         Insert: {
-          account_id: number;
-          aggregator: Database["public"]["Enums"]["aggregator"];
-          created_at?: string;
-          id?: number;
-          last_updated?: string;
-          provider?: string | null;
-        };
+          account_id: number
+          aggregator: Database["public"]["Enums"]["aggregator"]
+          created_at?: string
+          id?: number
+          last_updated?: string
+          provider?: string | null
+        }
         Update: {
-          account_id?: number;
-          aggregator?: Database["public"]["Enums"]["aggregator"];
-          created_at?: string;
-          id?: number;
-          last_updated?: string;
-          provider?: string | null;
-        };
+          account_id?: number
+          aggregator?: Database["public"]["Enums"]["aggregator"]
+          created_at?: string
+          id?: number
+          last_updated?: string
+          provider?: string | null
+        }
         Relationships: [
           {
-            foreignKeyName: "connection_account_id_fkey";
-            columns: ["account_id"];
-            isOneToOne: false;
-            referencedRelation: "account";
-            referencedColumns: ["id"];
+            foreignKeyName: "connection_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
           },
-        ];
-      };
+        ]
+      }
+      currency: {
+        Row: {
+          code: string
+          country: string
+          id: number
+          name: string
+        }
+        Insert: {
+          code: string
+          country: string
+          id?: number
+          name: string
+        }
+        Update: {
+          code?: string
+          country?: string
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
       document: {
         Row: {
-          account_id: number;
-          created_at: string;
-          id: number;
-          name: string;
-          size: number;
-        };
+          account_id: number
+          created_at: string
+          id: number
+          name: string
+          size: number
+        }
         Insert: {
-          account_id: number;
-          created_at?: string;
-          id?: number;
-          name: string;
-          size: number;
-        };
+          account_id: number
+          created_at?: string
+          id?: number
+          name: string
+          size: number
+        }
         Update: {
-          account_id?: number;
-          created_at?: string;
-          id?: number;
-          name?: string;
-          size?: number;
-        };
+          account_id?: number
+          created_at?: string
+          id?: number
+          name?: string
+          size?: number
+        }
         Relationships: [
           {
-            foreignKeyName: "document_account_id_fkey";
-            columns: ["account_id"];
-            isOneToOne: false;
-            referencedRelation: "account";
-            referencedColumns: ["id"];
+            foreignKeyName: "document_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
           },
-        ];
-      };
-    };
+        ]
+      }
+    }
     Views: {
-      [_ in never]: never;
-    };
+      [_ in never]: never
+    }
     Functions: {
-      [_ in never]: never;
-    };
+      [_ in never]: never
+    }
     Enums: {
       account_subtype:
         | "depository"
@@ -161,22 +301,22 @@ export type Database = {
         | "property"
         | "vehicle"
         | "creditcard"
-        | "loan";
-      account_type: "asset" | "liability";
-      aggregator: "Plaid" | "SnapTrade";
+        | "loan"
+      account_type: "asset" | "liability"
+      aggregator: "Plaid" | "SnapTrade"
       investable:
         | "non_investable"
         | "investable_easy_convert"
-        | "investable_cash";
-      taxability: "taxable" | "tax_free" | "tax_deferred";
-    };
+        | "investable_cash"
+      taxability: "taxable" | "tax_free" | "tax_deferred"
+    }
     CompositeTypes: {
-      [_ in never]: never;
-    };
-  };
-};
+      [_ in never]: never
+    }
+  }
+}
 
-type PublicSchema = Database[Extract<keyof Database, "public">];
+type PublicSchema = Database[Extract<keyof Database, "public">]
 
 export type Tables<
   PublicTableNameOrOptions extends
@@ -189,7 +329,7 @@ export type Tables<
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R;
+      Row: infer R
     }
     ? R
     : never
@@ -197,11 +337,11 @@ export type Tables<
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-        Row: infer R;
+        Row: infer R
       }
       ? R
       : never
-    : never;
+    : never
 
 export type TablesInsert<
   PublicTableNameOrOptions extends
@@ -212,17 +352,17 @@ export type TablesInsert<
     : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I;
+      Insert: infer I
     }
     ? I
     : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
     ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Insert: infer I;
+        Insert: infer I
       }
       ? I
       : never
-    : never;
+    : never
 
 export type TablesUpdate<
   PublicTableNameOrOptions extends
@@ -233,17 +373,17 @@ export type TablesUpdate<
     : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U;
+      Update: infer U
     }
     ? U
     : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
     ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Update: infer U;
+        Update: infer U
       }
       ? U
       : never
-    : never;
+    : never
 
 export type Enums<
   PublicEnumNameOrOptions extends
@@ -256,14 +396,14 @@ export type Enums<
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
     ? PublicSchema["Enums"][PublicEnumNameOrOptions]
-    : never;
+    : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof PublicSchema["CompositeTypes"]
     | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database;
+    schema: keyof Database
   }
     ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
@@ -271,4 +411,4 @@ export type CompositeTypes<
   ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never;
+    : never

@@ -27,14 +27,11 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useAccountStore } from "@/lib/store/accountStore";
-import {
-  accountSubtypeLabels,
-  accountSubtypes,
-  currencies,
-} from "@/lib/supabase/types";
+import { useCurrencyStore } from "@/lib/store/currencyStore";
+import { accountSubtypeLabels, accountSubtypes } from "@/lib/supabase/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -45,7 +42,7 @@ const formSchema = z.object({
     .string()
     .min(1, "Value is required.")
     .regex(/^\d+(\.\d{1,2})?$/, "Invalid number format."),
-  currency: z.enum(currencies),
+  currency: z.string(),
 });
 
 type FormSchema = z.infer<typeof formSchema>;
@@ -60,6 +57,7 @@ export const AddAccountDialog = ({
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { addAccount } = useAccountStore();
+  const { currencies } = useCurrencyStore();
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
@@ -67,7 +65,7 @@ export const AddAccountDialog = ({
       accountType: undefined,
       accountName: "",
       value: "",
-      currency: "USD",
+      currency: "usd",
     },
   });
 
@@ -98,6 +96,20 @@ export const AddAccountDialog = ({
       setIsOpen(false);
     }
   });
+
+  const customOrder = ["usd", "gbp", "eur"];
+
+  const sortedCurrencies = useMemo(() => {
+    const orderedCurrencies = customOrder
+      .map((code) => currencies.find((c) => c.code === code))
+      .filter((c) => c !== undefined);
+
+    const remainingCurrencies = currencies
+      .filter((c) => !customOrder.includes(c.code))
+      .sort((a, b) => a.code.localeCompare(b.code));
+
+    return [...orderedCurrencies, ...remainingCurrencies];
+  }, [currencies, customOrder]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -174,9 +186,12 @@ export const AddAccountDialog = ({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {currencies.map((currency) => (
-                              <SelectItem key={currency} value={currency}>
-                                {currency}
+                            {sortedCurrencies.map((currency) => (
+                              <SelectItem
+                                key={currency.code}
+                                value={currency.code}
+                              >
+                                {currency.code.toUpperCase()}
                               </SelectItem>
                             ))}
                           </SelectContent>

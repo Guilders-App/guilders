@@ -5,14 +5,20 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { NetWorthCard } from "@/components/dashboard/net-worth-card";
 import { TransactionsCard } from "@/components/dashboard/net-worth-transactions";
 import { useAccountStore } from "@/lib/store/accountStore";
+import { useCurrencyStore } from "@/lib/store/currencyStore";
+import { useExchangeRateStore } from "@/lib/store/exchangeRateStore";
 import { useEffect } from "react";
 
 export default function ProtectedPage() {
   const { initializeAccounts } = useAccountStore();
+  const { fetchCurrencies } = useCurrencyStore();
+  const { fetchExchangeRates } = useExchangeRateStore();
 
   useEffect(() => {
     initializeAccounts();
-  }, [initializeAccounts]);
+    fetchCurrencies();
+    fetchExchangeRates();
+  }, [initializeAccounts, fetchCurrencies, fetchExchangeRates]);
 
   return (
     <div className="flex flex-col gap-6">

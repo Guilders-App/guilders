@@ -11,8 +11,24 @@ export type Category = {
 };
 
 export type Account = Tables<"account">;
-export type AccountInsert = Omit<TablesInsert<"account">, "type" | "user_id">;
-export type AccountUpdate = Omit<TablesUpdate<"account">, "type" | "user_id">;
+export type AccountInsert = Omit<
+  TablesInsert<"account">,
+  | "type"
+  | "user_id"
+  | "exchange_rate"
+  | "created_at"
+  | "updated_at"
+  | "connection_id"
+>;
+export type AccountUpdate = Omit<
+  TablesUpdate<"account">,
+  | "type"
+  | "user_id"
+  | "exchange_rate"
+  | "created_at"
+  | "updated_at"
+  | "connection_id"
+>;
 export type AccountSubtype = Enums<"account_subtype">;
 
 // TODO: Should we fetch this from the database?
@@ -55,15 +71,3 @@ export const getCategoryDisplayName = (
 ): string => {
   return accountSubtypeLabels[categoryName] || categoryName;
 };
-
-export const currencies = [
-  "USD",
-  "EUR",
-  "GBP",
-  "CAD",
-  "JPY",
-  "AUD",
-  "CHF",
-] as const;
-
-export type Currency = (typeof currencies)[number];

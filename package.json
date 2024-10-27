@@ -3,7 +3,9 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "db:gen-types": "supabase gen types typescript --linked > ./lib/supabase/database.types.ts",
+    "db:pull": "supabase db pull"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

@@ -1,9 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { AccountInsert } from "@/lib/supabase/types";
+import { ExchangeRateResponse } from "../exchange-rates/[slug]/route";
 
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
+    const baseUrl = process.env.VERCEL_URL
+      ? "https://" + process.env.VERCEL_URL
+      : "http://localhost:3000";
 
     const { name, subtype, value, currency }: AccountInsert =
       await request.json();
@@ -18,6 +22,17 @@ export async function POST(request: Request) {
       );
     }
 
+    // Fetch the exchange rate
+    const exchangeRateResponse = await fetch(
+      `${baseUrl}/api/exchange-rates/${currency.toUpperCase()}`
+    );
+    if (!exchangeRateResponse.ok) {
+      throw new Error(`HTTP error! status: ${exchangeRateResponse.status}`);
+    }
+    const exchangeRateData =
+      (await exchangeRateResponse.json()) as ExchangeRateResponse;
+    const exchangeRate = exchangeRateData.rates[currency.toUpperCase()];
+
     const { data: newAccount, error } = await supabase
       .from("account")
       .insert({
@@ -30,6 +45,8 @@ export async function POST(request: Request) {
             ? "liability"
             : "asset",
         user_id: user.id,
+        exchange_rate: exchangeRate,
+        updated_at: new Date().toISOString(),
       })
       .select()
       .single();
