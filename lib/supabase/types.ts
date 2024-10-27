@@ -13,21 +13,11 @@ export type Category = {
 export type Account = Tables<"account">;
 export type AccountInsert = Omit<
   TablesInsert<"account">,
-  | "type"
-  | "user_id"
-  | "exchange_rate"
-  | "created_at"
-  | "updated_at"
-  | "connection_id"
+  "type" | "user_id" | "created_at" | "updated_at" | "connection_id"
 >;
 export type AccountUpdate = Omit<
   TablesUpdate<"account">,
-  | "type"
-  | "user_id"
-  | "exchange_rate"
-  | "created_at"
-  | "updated_at"
-  | "connection_id"
+  "type" | "user_id" | "created_at" | "updated_at" | "connection_id"
 >;
 export type AccountSubtype = Enums<"account_subtype">;
 

@@ -41,7 +41,6 @@ export type Database = {
           created_at: string
           currency: string
           description: string
-          exchange_rate: number
           id: number
           investable: Database["public"]["Enums"]["investable"]
           name: string
@@ -63,7 +62,6 @@ export type Database = {
           created_at?: string
           currency: string
           description?: string
-          exchange_rate: number
           id?: number
           investable?: Database["public"]["Enums"]["investable"]
           name: string
@@ -85,7 +83,6 @@ export type Database = {
           created_at?: string
           currency?: string
           description?: string
-          exchange_rate?: number
           id?: number
           investable?: Database["public"]["Enums"]["investable"]
           name?: string
@@ -126,7 +123,6 @@ export type Database = {
           created_at: string
           currency: string
           description: string
-          exchange_rate: number
           id: number
           investable: Database["public"]["Enums"]["investable"]
           name: string
@@ -149,7 +145,6 @@ export type Database = {
           created_at?: string
           currency: string
           description?: string
-          exchange_rate: number
           id?: number
           investable?: Database["public"]["Enums"]["investable"]
           name: string
@@ -172,7 +167,6 @@ export type Database = {
           created_at?: string
           currency?: string
           description?: string
-          exchange_rate?: number
           id?: number
           investable?: Database["public"]["Enums"]["investable"]
           name?: string
