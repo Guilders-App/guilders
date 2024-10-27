@@ -102,7 +102,7 @@ export const AddAccountDialog = ({
   const sortedCurrencies = useMemo(() => {
     const orderedCurrencies = customOrder
       .map((code) => currencies.find((c) => c.code === code))
-      .filter((c) => c !== undefined);
+      .filter((c): c is NonNullable<typeof c> => c !== undefined);
 
     const remainingCurrencies = currencies
       .filter((c) => !customOrder.includes(c.code))
