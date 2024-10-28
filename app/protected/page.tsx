@@ -7,18 +7,21 @@ import { TransactionsCard } from "@/components/dashboard/net-worth-transactions"
 import { useAccountStore } from "@/lib/store/accountStore";
 import { useCurrencyStore } from "@/lib/store/currencyStore";
 import { useExchangeRateStore } from "@/lib/store/exchangeRateStore";
+import { useSnapTradeStore } from "@/lib/store/snaptradeStore";
 import { useEffect } from "react";
 
 export default function ProtectedPage() {
   const { initializeAccounts } = useAccountStore();
   const { fetchCurrencies } = useCurrencyStore();
   const { fetchExchangeRates } = useExchangeRateStore();
+  const { registerUser } = useSnapTradeStore();
 
   useEffect(() => {
     initializeAccounts();
     fetchCurrencies();
     fetchExchangeRates();
-  }, [initializeAccounts, fetchCurrencies, fetchExchangeRates]);
+    registerUser();
+  }, [initializeAccounts, fetchCurrencies, fetchExchangeRates, registerUser]);
 
   return (
     <div className="flex flex-col gap-6">

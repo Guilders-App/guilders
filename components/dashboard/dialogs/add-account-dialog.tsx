@@ -98,7 +98,6 @@ export const AddAccountDialog = ({
   });
 
   const customOrder = ["usd", "gbp", "eur"];
-
   const sortedCurrencies = useMemo(() => {
     const orderedCurrencies = customOrder
       .map((code) => currencies.find((c) => c.code === code))

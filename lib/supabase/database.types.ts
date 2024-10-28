@@ -194,38 +194,30 @@ export type Database = {
       }
       connection: {
         Row: {
-          account_id: number
           aggregator: Database["public"]["Enums"]["aggregator"]
           created_at: string
           id: number
-          last_updated: string
-          provider: string | null
+          secret: string
+          updated_at: string
+          user_id: string
         }
         Insert: {
-          account_id: number
           aggregator: Database["public"]["Enums"]["aggregator"]
           created_at?: string
           id?: number
-          last_updated?: string
-          provider?: string | null
+          secret: string
+          updated_at?: string
+          user_id: string
         }
         Update: {
-          account_id?: number
           aggregator?: Database["public"]["Enums"]["aggregator"]
           created_at?: string
           id?: number
-          last_updated?: string
-          provider?: string | null
+          secret?: string
+          updated_at?: string
+          user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "connection_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "account"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       currency: {
         Row: {
