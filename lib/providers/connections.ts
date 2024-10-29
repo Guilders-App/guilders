@@ -1,4 +1,5 @@
-import { SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "../supabase/server";
+import { getProviders } from "../supabase/utils";
 import { snaptrade } from "./snaptrade";
 
 export interface ConnectionResult {
@@ -7,36 +8,53 @@ export interface ConnectionResult {
 }
 
 export interface ConnectionProviderFunction {
-  (supabase: SupabaseClient, userId: string): Promise<ConnectionResult>;
+  (userId: string): Promise<ConnectionResult>;
 }
 
 export const registerSnapTradeUser: ConnectionProviderFunction = async (
-  supabase: SupabaseClient,
   userId: string
 ) => {
+  const providerName = "SnapTrade";
+  const supabase = await createClient();
   const response = await snaptrade.authentication.registerSnapTradeUser({
     userId,
   });
 
   if (!response || !response.data || !response.data.userSecret) {
-    console.error("SnapTrade registration error:", response);
+    console.error(`${providerName} registration error:`, response);
     return {
       success: false,
       error: "Failed to register SnapTrade user",
     };
   }
 
+  const providers = await getProviders();
+  if (!providers) {
+    return {
+      success: false,
+      error: "Providers could not be retrieved",
+    };
+  }
+
+  const provider = providers?.find((p) => p.name === providerName);
+  if (!provider) {
+    return {
+      success: false,
+      error: `${providerName} provider not found`,
+    };
+  }
+
   const registerConnection = await supabase.from("connection").insert({
     user_id: userId,
     secret: response.data.userSecret,
-    aggregator: "SnapTrade",
+    provider_id: provider.id,
   });
 
   if (!registerConnection) {
-    console.error("SnapTrade registration error:", registerConnection);
+    console.error(`${providerName} registration error:`, registerConnection);
     return {
       success: false,
-      error: "Failed to save SnapTrade connection",
+      error: `Failed to save ${providerName} connection`,
     };
   }
 

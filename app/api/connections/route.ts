@@ -1,11 +1,10 @@
 import { registerSnapTradeUser } from "@/lib/providers/connections";
-import { Enums } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
 
-// Add aggregator registration function mapping
-const aggregatorRegistrationFunctions = {
+const providerRegistrationFunctions = {
   SnapTrade: registerSnapTradeUser,
-  // Plaid: registerPlaidUser, // Add other aggregator registration functions as needed
+  // Plaid: registerPlaidUser,
+  // GoCardless: registerGoCardlessUser,
 } as const;
 
 export async function POST(req: Request) {
@@ -22,42 +21,52 @@ export async function POST(req: Request) {
       );
     }
 
-    // Get all existing connections for the user
-    const connections = await supabase
-      .from("connection")
-      .select("*")
-      .eq("user_id", user.id);
+    // Get all existing connections with provider names
+    const { data: connections } = await supabase.from("connection").select(`
+        provider_id,
+        provider_details:provider(name)
+      `);
 
-    // Get all registered aggregators
-    const existingAggregators = new Set(
-      connections.data?.map((conn) => conn.aggregator) || []
+    // Get all existing provider names
+    const existingProviderNames = new Set(
+      connections?.map((conn) => conn.provider_details?.name) || []
     );
 
-    // Get all available aggregators from the enum
-    const allAggregators: Enums<"aggregator">[] = [
-      "SnapTrade",
-      "Plaid",
-    ] as const;
+    // Get all available providers
+    const { data: providers } = await supabase
+      .from("provider")
+      .select("id, name");
 
-    // Find missing aggregators
-    const missingAggregators = allAggregators.filter(
-      (agg) => !existingAggregators.has(agg)
+    if (!providers) {
+      return Response.json(
+        { success: false, error: "Failed to fetch providers" },
+        { status: 500 }
+      );
+    }
+
+    // Find missing providers
+    const missingProviders = providers.filter(
+      (provider) => !existingProviderNames.has(provider.name)
     );
 
-    // Register missing aggregators
-    for (const aggregator of missingAggregators) {
+    // Register missing providers
+    for (const provider of missingProviders) {
       const registrationFunction =
-        aggregatorRegistrationFunctions[
-          aggregator as keyof typeof aggregatorRegistrationFunctions
+        providerRegistrationFunctions[
+          provider.name as keyof typeof providerRegistrationFunctions
         ];
       if (registrationFunction) {
-        const result = await registrationFunction(supabase, user.id);
+        const result = await registrationFunction(user.id);
         if (!result.success) {
           return Response.json(
             { success: false, error: result.error },
             { status: 500 }
           );
         }
+      } else {
+        console.error(
+          `No registration function found for ${provider.name} provider`
+        );
       }
     }
 
