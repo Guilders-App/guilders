@@ -7,7 +7,7 @@ import React from "react";
 
 const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <AppSidebar />
       <main className="flex-1 my-8 mx-16">{children}</main>
       <Toaster />
