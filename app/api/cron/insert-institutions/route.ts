@@ -15,20 +15,8 @@ export async function GET(req: Request) {
     );
   }
   await insertSnapTradeInstitutions();
-  await insertGocardlessInstitutions();
   return new Response("OK");
 }
-
-const insertGocardlessInstitutions = async () => {
-  const providerName = "GoCardless";
-  const supabase = await createClient();
-  const providers = await getProviders();
-  const provider = providers?.find((p) => p.name === providerName);
-
-  if (!provider) {
-    return new Response("Provider not found", { status: 500 });
-  }
-};
 
 const insertSnapTradeInstitutions = async () => {
   const providerName = "SnapTrade";

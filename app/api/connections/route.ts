@@ -3,8 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 
 const providerRegistrationFunctions = {
   SnapTrade: registerSnapTradeUser,
-  // Plaid: registerPlaidUser,
-  // GoCardless: registerGoCardlessUser,
 } as const;
 
 export async function POST(req: Request) {
