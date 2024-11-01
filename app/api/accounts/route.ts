@@ -1,6 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
 import { AccountInsert } from "@/lib/supabase/types";
+import { NextResponse } from "next/server";
 
+/**
+ * @swagger
+ * /api/accounts:
+ *   post:
+ *     name: Create Account
+ *     description: Create a new account
+ */
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
@@ -12,7 +20,7 @@ export async function POST(request: Request) {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      return Response.json(
+      return NextResponse.json(
         { success: false, error: "User not authenticated" },
         { status: 401 }
       );
@@ -36,16 +44,16 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error("Supabase error:", error);
-      return Response.json(
+      return NextResponse.json(
         { success: false, error: "Error adding account" },
         { status: 500 }
       );
     }
 
-    return Response.json({ success: true, account: newAccount });
+    return NextResponse.json({ success: true, account: newAccount });
   } catch (error) {
     console.error("Error adding account:", error);
-    return Response.json(
+    return NextResponse.json(
       { success: false, error: "Error adding account" },
       { status: 500 }
     );
@@ -60,7 +68,7 @@ export async function GET(_: Request) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return Response.json(
+      return NextResponse.json(
         { success: false, error: "User not authenticated" },
         { status: 401 }
       );
@@ -74,16 +82,16 @@ export async function GET(_: Request) {
 
     if (error) {
       console.error("Supabase error:", error);
-      return Response.json(
+      return NextResponse.json(
         { success: false, error: "Error fetching accounts" },
         { status: 500 }
       );
     }
 
-    return Response.json({ success: true, accounts });
+    return NextResponse.json({ success: true, accounts });
   } catch (error) {
     console.error("Error fetching accounts:", error);
-    return Response.json(
+    return NextResponse.json(
       { success: false, error: "Error fetching accounts" },
       { status: 500 }
     );

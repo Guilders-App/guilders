@@ -1,5 +1,6 @@
 import { registerSnapTradeUser } from "@/lib/providers/connections";
 import { createClient } from "@/lib/supabase/server";
+import { NextResponse } from "next/server";
 
 const providerRegistrationFunctions = {
   SnapTrade: registerSnapTradeUser,
@@ -13,7 +14,7 @@ export async function POST(req: Request) {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return Response.json(
+      return NextResponse.json(
         { success: false, error: "User not authenticated" },
         { status: 401 }
       );
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
       .select("id, name");
 
     if (!providers) {
-      return Response.json(
+      return NextResponse.json(
         { success: false, error: "Failed to fetch providers" },
         { status: 500 }
       );
@@ -56,7 +57,7 @@ export async function POST(req: Request) {
       if (registrationFunction) {
         const result = await registrationFunction(user.id);
         if (!result.success) {
-          return Response.json(
+          return NextResponse.json(
             { success: false, error: result.error },
             { status: 500 }
           );
@@ -68,10 +69,10 @@ export async function POST(req: Request) {
       }
     }
 
-    return Response.json({ success: true });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Registration error:", error);
-    return Response.json(
+    return NextResponse.json(
       { success: false, error: "Error during registration" },
       { status: 500 }
     );

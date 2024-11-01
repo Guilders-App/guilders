@@ -1,11 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { anthropic } from "@ai-sdk/anthropic";
 import { convertToCoreMessages, streamText } from "ai";
+import { NextRequest, NextResponse } from "next/server";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const { messages } = await req.json();
   const supabase = await createClient();
 
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
   let accountsContext = "No account information available.";
 
   if (!user) {
-    return Response.json(
+    return NextResponse.json(
       { success: false, error: "User not authenticated" },
       { status: 401 }
     );

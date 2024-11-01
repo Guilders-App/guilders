@@ -25,6 +25,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="bg-background text-foreground">
+        {/* @ts-ignore */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
