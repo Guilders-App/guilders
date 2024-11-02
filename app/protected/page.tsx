@@ -23,11 +23,11 @@ export default function ProtectedPage() {
     registerUser();
   }, [initializeAccounts, fetchCurrencies, fetchExchangeRates, registerUser]);
 
-  // useEffect(() => {
-  //   fetch("/api/cron/insert-institutions", {
-  //     method: "GET",
-  //   });
-  // }, []);
+  useEffect(() => {
+    fetch("/api/test", {
+      method: "GET",
+    });
+  }, []);
 
   return (
     <div className="flex flex-col gap-6">

@@ -4,6 +4,20 @@ import { NextResponse } from "next/server";
 
 type CurrencyResponse = Omit<Tables<"currency">, "id">;
 
+/**
+ * @swagger
+ * /api/currencies:
+ *   get:
+ *     tags:
+ *       - Currencies
+ *     summary: Get all currencies
+ *     description: Get all supported currencies.
+ *     responses:
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ *       200:
+ *         description: Successfully fetched currencies
+ */
 export async function GET(_: Request) {
   try {
     const supabase = await createClient();

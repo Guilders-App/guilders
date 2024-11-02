@@ -1,21 +1,44 @@
 import { registerSnapTradeUser } from "@/lib/providers/connections";
 import { createClient } from "@/lib/supabase/server";
+import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 const providerRegistrationFunctions = {
   SnapTrade: registerSnapTradeUser,
 } as const;
 
-export async function POST(req: Request) {
+/**
+ * @swagger
+ * /api/connections:
+ *   post:
+ *     tags:
+ *       - Connections
+ *     summary: Register connections for the user
+ *     description: |
+ *       Register connections for the authenticated user.
+ *       This will register any missing providers for the user.
+ *       This is only necessary for providers that require registration.
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ *       200:
+ *         description: Successfully registered connections
+ */
+export async function POST(request: Request) {
   try {
     const supabase = await createClient();
+    const jwt = getJwt(request);
     const {
       data: { user },
-    } = await supabase.auth.getUser();
+    } = await supabase.auth.getUser(jwt);
 
     if (!user) {
       return NextResponse.json(
-        { success: false, error: "User not authenticated" },
+        { success: false, error: "Invalid credentials" },
         { status: 401 }
       );
     }
@@ -62,10 +85,6 @@ export async function POST(req: Request) {
             { status: 500 }
           );
         }
-      } else {
-        console.error(
-          `No registration function found for ${provider.name} provider`
-        );
       }
     }
 
