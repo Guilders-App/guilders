@@ -9,11 +9,13 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useAddAccountDialog } from "@/hooks/use-dialog";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 export function CommandMenu() {
   const [open, setOpen] = React.useState(false);
   const { setIsAddAccountOpen } = useAddAccountDialog();
+  const router = useRouter();
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -31,6 +33,11 @@ export function CommandMenu() {
     setTimeout(() => setIsAddAccountOpen(true), 80);
   };
 
+  const handleNavigate = (path: string) => {
+    setOpen(false);
+    setTimeout(() => router.push(path), 80);
+  };
+
   return (
     <>
       <CommandDialog open={open} onOpenChange={setOpen}>
@@ -43,11 +50,14 @@ export function CommandMenu() {
             <CommandItem>Add Category</CommandItem>
           </CommandGroup>
           <CommandGroup heading="Navigation">
-            <CommandItem>Go to Dashboard</CommandItem>
-            <CommandItem>Go to Accounts</CommandItem>
-            <CommandItem>Go to Transactions</CommandItem>
-            <CommandItem>Go to Categories</CommandItem>
-            <CommandItem>Go to Settings</CommandItem>
+            <CommandItem
+              onSelect={() => handleNavigate("/protected/dashboard")}
+            >
+              Go to Dashboard
+            </CommandItem>
+            <CommandItem onSelect={() => handleNavigate("/protected/advisor")}>
+              Go to Advisor
+            </CommandItem>
           </CommandGroup>
           <CommandGroup heading="Actions">
             <CommandItem>Export Data</CommandItem>
