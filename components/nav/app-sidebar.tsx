@@ -27,18 +27,18 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "/protected",
+      url: "/dashboard",
       icon: LayoutDashboard,
       isActive: true,
     },
     {
       title: "Advisor",
-      url: "/protected/advisor",
+      url: "/advisor",
       icon: ConciergeBell,
     },
     {
       title: "Forecast",
-      url: "/protected/forecast",
+      url: "/forecast",
       icon: ChartNoAxesCombined,
     },
   ],

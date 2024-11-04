@@ -50,12 +50,10 @@ export function CommandMenu() {
             <CommandItem>Add Category</CommandItem>
           </CommandGroup>
           <CommandGroup heading="Navigation">
-            <CommandItem
-              onSelect={() => handleNavigate("/protected/dashboard")}
-            >
+            <CommandItem onSelect={() => handleNavigate("/dashboard")}>
               Go to Dashboard
             </CommandItem>
-            <CommandItem onSelect={() => handleNavigate("/protected/advisor")}>
+            <CommandItem onSelect={() => handleNavigate("/advisor")}>
               Go to Advisor
             </CommandItem>
           </CommandGroup>
