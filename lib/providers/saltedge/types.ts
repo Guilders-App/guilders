@@ -124,6 +124,11 @@ type Customer = {
   updated_at: string;
 };
 
+type RemoveCustomerResponse = {
+  customer_id: string;
+  deleted: boolean;
+};
+
 interface Meta {
   next_id: string | null;
   next_page: string | null;

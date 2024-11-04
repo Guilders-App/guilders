@@ -36,7 +36,7 @@ export const registerConnection = async (
     }
 
     const { data: connection } = await supabase
-      .from("connection")
+      .from("provider_connection")
       .select("*")
       .eq("provider_id", provider.id)
       .eq("user_id", user.id)

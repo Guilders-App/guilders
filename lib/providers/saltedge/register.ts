@@ -17,23 +17,24 @@ export const registerSaltEdgeUser: ConnectionProviderFunction = async (
   }
 
   const response = await saltedge.createCustomer(userId);
+  console.log(response);
 
   if (!response) {
     console.error(`${providerName} registration error:`, response);
     return {
       success: false,
-      error: "Failed to register SnapTrade user",
+      error: `Failed to register ${providerName} user`,
     };
   }
 
-  const registerConnection = await supabase.from("connection").insert({
+  const { error } = await supabase.from("provider_connection").insert({
     user_id: userId,
     secret: response.customer_id,
     provider_id: provider.id,
   });
 
-  if (!registerConnection) {
-    console.error(`${providerName} registration error:`, registerConnection);
+  if (error) {
+    console.error(`${providerName} registration error:`, error);
     return {
       success: false,
       error: `Failed to save ${providerName} connection`,

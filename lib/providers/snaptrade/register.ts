@@ -15,7 +15,7 @@ export const registerSnapTradeUser: ConnectionProviderFunction = async (
     console.error(`${providerName} registration error:`, response);
     return {
       success: false,
-      error: "Failed to register SnapTrade user",
+      error: `Failed to register ${providerName} user`,
     };
   }
 
@@ -27,14 +27,14 @@ export const registerSnapTradeUser: ConnectionProviderFunction = async (
     };
   }
 
-  const registerConnection = await supabase.from("connection").insert({
+  const { error } = await supabase.from("provider_connection").insert({
     user_id: userId,
     secret: response.data.userSecret,
     provider_id: provider.id,
   });
 
-  if (!registerConnection) {
-    console.error(`${providerName} registration error:`, registerConnection);
+  if (error) {
+    console.error(`${providerName} registration error:`, error);
     return {
       success: false,
       error: `Failed to save ${providerName} connection`,

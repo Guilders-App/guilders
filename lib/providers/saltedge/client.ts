@@ -67,9 +67,10 @@ export class SaltEdgeClient {
       params?: Record<string, any>;
       data?: any;
       file?: Buffer;
+      isArray?: boolean;
     } = {}
   ): Promise<T> {
-    const { params, data, file, ...fetchOptions } = options;
+    const { params, data, file, isArray = false, ...fetchOptions } = options;
     let allData: any[] = [];
     let currentFromId: string | null = null;
 
@@ -106,7 +107,7 @@ export class SaltEdgeClient {
       currentFromId = result.meta?.next_id || null;
     } while (currentFromId);
 
-    return allData as T;
+    return isArray ? (allData as T) : (allData[0] as T);
   }
 
   // Countries
@@ -121,6 +122,7 @@ export class SaltEdgeClient {
         exclude_inactive: true,
         ...(countryCode ? { country_code: countryCode } : {}),
       },
+      isArray: true,
     });
   }
 
@@ -129,20 +131,26 @@ export class SaltEdgeClient {
     return this.request<Customer>("/customers", {
       method: "POST",
       data: { identifier },
+      isArray: false,
     });
   }
 
   async getCustomers(): Promise<Customer[]> {
-    return this.request<Customer[]>("/customers");
+    return this.request<Customer[]>("/customers", {
+      isArray: true,
+    });
   }
 
   async getCustomer(customerId: string): Promise<Customer> {
-    return this.request<Customer>(`/customers/${customerId}`);
+    return this.request<Customer>(`/customers/${customerId}`, {
+      isArray: false,
+    });
   }
 
-  async removeCustomer(customerId: string): Promise<void> {
-    return this.request<void>(`/customers/${customerId}`, {
+  async removeCustomer(customerId: string): Promise<RemoveCustomerResponse> {
+    return this.request<RemoveCustomerResponse>(`/customers/${customerId}`, {
       method: "DELETE",
+      isArray: false,
     });
   }
 }

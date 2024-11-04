@@ -103,7 +103,7 @@ export type Database = {
             foreignKeyName: "account_connection_id_fkey"
             columns: ["connection_id"]
             isOneToOne: false
-            referencedRelation: "connection"
+            referencedRelation: "provider_connection"
             referencedColumns: ["id"]
           },
           {
@@ -188,41 +188,6 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "account"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      connection: {
-        Row: {
-          created_at: string
-          id: number
-          provider_id: number
-          secret: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          provider_id: number
-          secret: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          provider_id?: number
-          secret?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "connection_provider_id_fkey"
-            columns: ["provider_id"]
-            isOneToOne: false
-            referencedRelation: "provider"
             referencedColumns: ["id"]
           },
         ]
@@ -332,6 +297,41 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      provider_connection: {
+        Row: {
+          created_at: string
+          id: number
+          provider_id: number
+          secret: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          provider_id: number
+          secret: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          provider_id?: number
+          secret?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connection_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "provider"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
