@@ -1,6 +1,13 @@
-import { snaptrade } from "@/lib/providers/snaptrade";
+import {
+  providerName as saltEdgeProviderName,
+  saltedge,
+} from "@/lib/providers/saltedge/client";
+import {
+  snaptrade,
+  providerName as snaptradeProviderName,
+} from "@/lib/providers/snaptrade/client";
 import { createClient } from "@/lib/supabase/server";
-import { getProviders } from "@/lib/supabase/utils";
+import { getProvider } from "@/lib/supabase/utils";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -15,27 +22,59 @@ export async function GET(req: Request) {
     );
   }
   await insertSnapTradeInstitutions();
+  await insertSaltEdgeInstitutions();
   return new Response("OK");
 }
 
-const insertSnapTradeInstitutions = async () => {
-  const providerName = "SnapTrade";
+const insertSaltEdgeInstitutions = async () => {
   const supabase = await createClient();
-
-  const providers = await getProviders();
-  const provider = providers?.find((p) => p.name === providerName);
+  const provider = await getProvider(saltEdgeProviderName);
 
   if (!provider) {
-    return new Response("Failed to fetch providers", { status: 500 });
+    console.error(`Failed to fetch providers for ${saltEdgeProviderName}`);
+    return new Response(
+      `Failed to fetch providers for ${saltEdgeProviderName}`,
+      {
+        status: 500,
+      }
+    );
   }
 
-  const brokerages = await snaptrade.referenceData.listAllBrokerages();
+  const institutions = await saltedge.getProviders();
 
-  if (!brokerages.data || brokerages.data.length === 0) {
+  const entries = institutions.map((institution) => ({
+    provider_id: provider.id,
+    institution_id: institution.id,
+    name: institution.name,
+    logo_url: institution.logo_url,
+    countries: [institution.country_code.toLowerCase()],
+  }));
+
+  await supabase.from("institution").upsert(entries);
+};
+
+const insertSnapTradeInstitutions = async () => {
+  const supabase = await createClient();
+
+  const provider = await getProvider(snaptradeProviderName);
+
+  if (!provider) {
+    console.error(`Failed to fetch providers for ${saltEdgeProviderName}`);
+    return new Response(
+      `Failed to fetch providers for ${saltEdgeProviderName}`,
+      {
+        status: 500,
+      }
+    );
+  }
+
+  const institutions = await snaptrade.referenceData.listAllBrokerages();
+
+  if (!institutions.data || institutions.data.length === 0) {
     return new Response("Failed to fetch brokerages", { status: 500 });
   }
 
-  const institutions = brokerages.data
+  const entries = institutions.data
     .filter(
       (institution) =>
         institution.id &&
@@ -52,5 +91,5 @@ const insertSnapTradeInstitutions = async () => {
       countries: [],
     }));
 
-  await supabase.from("institution").upsert(institutions);
+  await supabase.from("institution").upsert(entries);
 };

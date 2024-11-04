@@ -4,6 +4,10 @@ declare global {
       // Supabase (database)
       NEXT_PUBLIC_SUPABASE_URL: string;
       NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
+      // Cron (cron jobs)
+      CRON_SECRET: string;
+      // AI (Advisor)
+      ANTHROPIC_API_KEY: string;
       // Resend (email)
       RESEND_API_KEY: string;
       // Synth (financial data)
@@ -12,8 +16,11 @@ declare global {
       SNAPTRADE_CLIENT_ID: string;
       SNAPTRADE_CLIENT_SECRET: string;
       // GoCardless (banking provider)
-      GOCARDLESS_SECRET_ID: string;
-      GOCARDLESS_SECRET_KEY: string;
+      GOCARDLESS_CLIENT_ID: string;
+      GOCARDLESS_CLIENT_SECRET: string;
+      // SaltEdge (banking provider)
+      SALTEDGE_CLIENT_ID: string;
+      SALTEDGE_CLIENT_SECRET: string;
     }
   }
 }

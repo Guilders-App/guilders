@@ -1,20 +1,11 @@
-import { createClient } from "../supabase/server";
-import { getProviders } from "../supabase/utils";
-import { snaptrade } from "./snaptrade";
-
-export interface ConnectionResult {
-  success: boolean;
-  error?: string;
-}
-
-export interface ConnectionProviderFunction {
-  (userId: string): Promise<ConnectionResult>;
-}
+import { createClient } from "@/lib/supabase/server";
+import { getProvider } from "@/lib/supabase/utils";
+import { ConnectionProviderFunction } from "../types";
+import { providerName, snaptrade } from "./client";
 
 export const registerSnapTradeUser: ConnectionProviderFunction = async (
   userId: string
 ) => {
-  const providerName = "SnapTrade";
   const supabase = await createClient();
   const response = await snaptrade.authentication.registerSnapTradeUser({
     userId,
@@ -28,15 +19,7 @@ export const registerSnapTradeUser: ConnectionProviderFunction = async (
     };
   }
 
-  const providers = await getProviders();
-  if (!providers) {
-    return {
-      success: false,
-      error: "Providers could not be retrieved",
-    };
-  }
-
-  const provider = providers?.find((p) => p.name === providerName);
+  const provider = await getProvider(providerName);
   if (!provider) {
     return {
       success: false,
