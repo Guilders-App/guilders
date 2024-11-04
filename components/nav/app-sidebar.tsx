@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  ChartNoAxesCombined,
-  ConciergeBell,
-  LayoutDashboard,
-} from "lucide-react";
+import { ConciergeBell, LayoutDashboard } from "lucide-react";
 import * as React from "react";
 
 import { NavMain } from "@/components/nav/nav-main";
@@ -35,11 +31,6 @@ const data = {
       title: "Advisor",
       url: "/advisor",
       icon: ConciergeBell,
-    },
-    {
-      title: "Forecast",
-      url: "/forecast",
-      icon: ChartNoAxesCombined,
     },
   ],
 };
