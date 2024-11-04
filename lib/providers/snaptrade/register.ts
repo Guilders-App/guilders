@@ -7,6 +7,26 @@ export const registerSnapTradeUser: ConnectionProviderFunction = async (
   userId: string
 ) => {
   const supabase = await createClient();
+
+  const provider = await getProvider(providerName);
+  if (!provider) {
+    return {
+      success: false,
+      error: `${providerName} provider not found`,
+    };
+  }
+
+  const connection = await supabase
+    .from("provider_connection")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("provider_id", provider.id);
+
+  if (connection.data) {
+    return {
+      success: true,
+    };
+  }
   const response = await snaptrade.authentication.registerSnapTradeUser({
     userId,
   });
@@ -16,14 +36,6 @@ export const registerSnapTradeUser: ConnectionProviderFunction = async (
     return {
       success: false,
       error: `Failed to register ${providerName} user`,
-    };
-  }
-
-  const provider = await getProvider(providerName);
-  if (!provider) {
-    return {
-      success: false,
-      error: `${providerName} provider not found`,
     };
   }
 

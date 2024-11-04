@@ -16,6 +16,18 @@ export const registerSaltEdgeUser: ConnectionProviderFunction = async (
     };
   }
 
+  const connection = await supabase
+    .from("provider_connection")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("provider_id", provider.id);
+
+  if (connection.data) {
+    return {
+      success: true,
+    };
+  }
+
   const response = await saltedge.createCustomer(userId);
   console.log(response);
 
