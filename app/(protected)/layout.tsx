@@ -1,4 +1,4 @@
-import { CommandMenu } from "@/components/dashboard/command-menu";
+import { CommandMenu } from "@/components/common/command-menu";
 import { Dialogs } from "@/components/dashboard/dialogs";
 import { AppSidebar } from "@/components/nav/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";

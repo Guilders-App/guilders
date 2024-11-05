@@ -28,6 +28,23 @@
  *         updated_at:
  *           type: string
  *           format: date-time
+ *     Institution:
+ *       type: object
+ *       properties:
+ *         provider_id:
+ *           type: integer
+ *         institution_id:
+ *           type: string
+ *         name:
+ *           type: string
+ *         countries:
+ *           type: array
+ *           items:
+ *             type: string
+ *         enabled:
+ *           type: boolean
+ *         logo_url:
+ *           type: string
  *   responses:
  *     UnauthorizedError:
  *       description: Invalid credentials

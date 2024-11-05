@@ -9,7 +9,9 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useInstitutions } from "@/hooks/useInstitutions";
 import { useStore } from "@/lib/store";
+import { CommandLoading } from "cmdk";
 import {
   Banknote,
   ConciergeBell,
@@ -28,17 +30,27 @@ export function CommandMenu() {
   const setIsAddManualAccountOpen = useStore(
     (state) => state.setIsAddManualAccountOpen
   );
+  const { data: institutions, isLoading } = useInstitutions();
 
   const [pages, setPages] = React.useState<string[]>([]);
   const page = pages[pages.length - 1];
 
   const router = useRouter();
 
+  // TODO: Still having issues with the escape key. It closes the command menu when it shouldn't.
+  // Also clicking outside the command menu closes it without resetting the pages.
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         setIsCommandMenuOpen(!isCommandMenuOpen);
+      } else if (e.key === "Escape") {
+        e.preventDefault();
+        if (pages.length > 0) {
+          setPages((pages) => pages.slice(0, -1));
+        } else {
+          setIsCommandMenuOpen(false);
+        }
       }
     };
     document.addEventListener("keydown", down);
@@ -59,21 +71,10 @@ export function CommandMenu() {
     <Dialog open={isCommandMenuOpen} onOpenChange={setIsCommandMenuOpen}>
       <DialogTitle className="hidden">Command Menu</DialogTitle>
       <DialogContent className="overflow-hidden p-0 shadow-lg">
-        <Command
-          className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5"
-          onKeyDown={(e) => {
-            if (e.key === "Escape") {
-              e.preventDefault();
-              setPages((pages) => pages.slice(0, -1));
-            }
-          }}
-        >
+        <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
           {/* Hidden title for accessibility */}
           <CommandInput placeholder="Type a command or search..." />
           <CommandList>
-            {/* {isLoading && (
-              <CommandLoading>Loading institutions...</CommandLoading>
-            )} */}
             <CommandEmpty>No results found.</CommandEmpty>
             {!page && (
               <>
@@ -123,11 +124,14 @@ export function CommandMenu() {
             )}
             {page === "add-synced-account" && (
               <>
-                {/* {institutions.map((institution) => (
+                {isLoading && (
+                  <CommandLoading>Loading institutions...</CommandLoading>
+                )}
+                {institutions?.map((institution) => (
                   <CommandItem key={institution.institution_id}>
                     {institution.name}
                   </CommandItem>
-                ))} */}
+                ))}
               </>
             )}
           </CommandList>
