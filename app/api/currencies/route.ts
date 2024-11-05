@@ -2,8 +2,6 @@ import { Tables } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
-type CurrencyResponse = Omit<Tables<"currency">, "id">;
-
 /**
  * @swagger
  * /api/currencies:
@@ -36,7 +34,7 @@ export async function GET(_: Request) {
 
     return NextResponse.json({
       success: true,
-      currencies: currencies as CurrencyResponse[],
+      currencies: currencies as Tables<"currency">[],
     });
   } catch (error) {
     console.error("Error fetching currencies:", error);

@@ -1,5 +1,5 @@
-import * as React from "react";
 import { cn } from "@/lib/utils";
+import * as React from "react";
 
 interface ChatMessageListProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -8,14 +8,14 @@ const ChatMessageList = React.forwardRef<HTMLDivElement, ChatMessageListProps>(
     <div
       className={cn(
         "flex flex-col w-full h-full p-4 gap-6 overflow-y-auto",
-        className,
+        className
       )}
       ref={ref}
       {...props}
     >
       {children}
     </div>
-  ),
+  )
 );
 
 ChatMessageList.displayName = "ChatMessageList";

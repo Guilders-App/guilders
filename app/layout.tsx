@@ -1,6 +1,6 @@
+import { Providers } from "@/components/common/providers";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
-import { ThemeProvider } from "next-themes";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -25,15 +25,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="bg-background text-foreground">
-        {/* @ts-ignore */}
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

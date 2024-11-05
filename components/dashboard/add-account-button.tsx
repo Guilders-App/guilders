@@ -1,15 +1,17 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useAddAccountDialog } from "@/hooks/use-dialog";
+import { useStore } from "@/lib/store";
 import { PlusIcon } from "lucide-react";
 
 export const AddAccountButton = () => {
-  const { setIsAddAccountOpen } = useAddAccountDialog();
+  const setIsAddManualAccountOpen = useStore(
+    (state) => state.setIsAddManualAccountOpen
+  );
 
   return (
     <>
-      <Button onClick={() => setIsAddAccountOpen(true)}>
+      <Button onClick={() => setIsAddManualAccountOpen(true)}>
         <PlusIcon />
         Add
       </Button>

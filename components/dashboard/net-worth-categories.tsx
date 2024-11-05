@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAccountStore } from "@/lib/store/accountStore";
+import { useAccounts } from "@/hooks/useAccounts";
 import {
   AccountSubtype,
   getCategoryColor,
@@ -8,9 +8,11 @@ import {
 import { useMemo } from "react";
 
 export function NetWorthCategories() {
-  const { accounts, isInitialLoading } = useAccountStore();
+  const { data: accounts, isLoading, isError, error } = useAccounts();
 
   const categories = useMemo(() => {
+    if (!accounts) return [];
+
     const categoryMap: Record<AccountSubtype, number> = {
       depository: 0,
       brokerage: 0,
@@ -35,11 +37,17 @@ export function NetWorthCategories() {
     [categories]
   );
 
-  if (isInitialLoading) {
-    return (
-      <div>
-        <h2 className="text-xl font-light text-white mb-4">Categories</h2>
-        <Skeleton className="h-4 w-full mb-2" />
+  return (
+    <>
+      <h2 className="text-xl font-light text-white mb-4">Categories</h2>
+
+      {isError && (
+        <div className="text-red-500">
+          Error loading accounts: {error.message}
+        </div>
+      )}
+
+      {isLoading && (
         <div className="grid grid-cols-2 gap-3">
           {[...Array(4)].map((_, index) => (
             <div key={index} className="flex items-center">
@@ -49,52 +57,51 @@ export function NetWorthCategories() {
             </div>
           ))}
         </div>
-      </div>
-    );
-  }
+      )}
 
-  return (
-    <div>
-      <h2 className="text-xl font-light text-white mb-4">Categories</h2>
-      <div className="flex mb-2">
-        {categories.map((category, index) => {
-          const percentage = ((category.value / totalSum) * 100).toFixed(0);
-          return (
-            <div
-              key={category.name}
-              className={`h-4
-                ${index > 0 ? "ml-0.5" : ""} 
-                ${index < categories.length - 1 ? "mr-0.5" : ""}
-                ${index == 0 ? "rounded-l-sm" : ""}
-                ${index == categories.length - 1 ? "rounded-r-sm" : ""}
-                `}
-              style={{
-                width: `${percentage}%`,
-                backgroundColor: getCategoryColor(category.name),
-              }}
-            ></div>
-          );
-        })}
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        {categories.map((category) => {
-          const percentage = ((category.value / totalSum) * 100).toFixed(0);
-          return (
-            <div key={category.name} className="flex items-center">
-              <div
-                className="w-3 h-3 rounded-full mr-2"
-                style={{ backgroundColor: getCategoryColor(category.name) }}
-              ></div>
-              <span className="text-white text-sm font-light">
-                {getCategoryDisplayName(category.name)}
-              </span>
-              <span className="text-gray-400 font-light text-sm ml-auto">
-                {percentage}%
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+      {!isLoading && !isError && (
+        <>
+          <div className="flex mb-2">
+            {categories.map((category, index) => {
+              const percentage = ((category.value / totalSum) * 100).toFixed(0);
+              return (
+                <div
+                  key={category.name}
+                  className={`h-4
+                    ${index > 0 ? "ml-0.5" : ""}
+                    ${index < categories.length - 1 ? "mr-0.5" : ""}
+                    ${index == 0 ? "rounded-l-sm" : ""}
+                    ${index == categories.length - 1 ? "rounded-r-sm" : ""}
+                    `}
+                  style={{
+                    width: `${percentage}%`,
+                    backgroundColor: getCategoryColor(category.name),
+                  }}
+                ></div>
+              );
+            })}
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {categories.map((category) => {
+              const percentage = ((category.value / totalSum) * 100).toFixed(0);
+              return (
+                <div key={category.name} className="flex items-center">
+                  <div
+                    className="w-3 h-3 rounded-full mr-2"
+                    style={{ backgroundColor: getCategoryColor(category.name) }}
+                  ></div>
+                  <span className="text-white text-sm font-light">
+                    {getCategoryDisplayName(category.name)}
+                  </span>
+                  <span className="text-gray-400 font-light text-sm ml-auto">
+                    {percentage}%
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </>
   );
 }

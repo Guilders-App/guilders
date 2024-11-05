@@ -4,7 +4,7 @@ import React, { useState } from "react";
 
 type TimeRange = "1 Day" | "1 Week" | "1 Month" | "1 Year" | "All";
 
-const TimeRangeSelector: React.FC = () => {
+export const TimeRangeSelector: React.FC = () => {
   const [selectedRange, setSelectedRange] = useState<TimeRange>("1 Month");
   const ranges: TimeRange[] = ["1 Day", "1 Week", "1 Month", "1 Year", "All"];
 
@@ -26,5 +26,3 @@ const TimeRangeSelector: React.FC = () => {
     </div>
   );
 };
-
-export default TimeRangeSelector;

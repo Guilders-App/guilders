@@ -25,9 +25,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { useAccountStore } from "@/lib/store/accountStore";
-import { useCurrencyStore } from "@/lib/store/currencyStore";
+import { useAddAccount } from "@/hooks/useAccounts";
+import { useCurrencies } from "@/hooks/useCurrencies";
+import { useToast } from "@/hooks/useToast";
 import { accountSubtypeLabels, accountSubtypes } from "@/lib/supabase/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -56,8 +56,20 @@ export const AddAccountDialog = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { addAccount } = useAccountStore();
-  const { currencies } = useCurrencyStore();
+  const { mutate: addAccount } = useAddAccount();
+  const {
+    data: currencies,
+    isLoading: isCurrenciesLoading,
+    error: currenciesError,
+  } = useCurrencies();
+
+  if (currenciesError) {
+    toast({
+      title: "Error loading currencies",
+      description: "Unable to load currency options. Please try again later.",
+      variant: "destructive",
+    });
+  }
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
@@ -99,6 +111,8 @@ export const AddAccountDialog = ({
 
   const customOrder = ["usd", "gbp", "eur"];
   const sortedCurrencies = useMemo(() => {
+    if (!currencies) return [];
+
     const orderedCurrencies = customOrder
       .map((code) => currencies.find((c) => c.code === code))
       .filter((c): c is NonNullable<typeof c> => c !== undefined);
@@ -108,7 +122,7 @@ export const AddAccountDialog = ({
       .sort((a, b) => a.code.localeCompare(b.code));
 
     return [...orderedCurrencies, ...remainingCurrencies];
-  }, [currencies, customOrder]);
+  }, [currencies]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -178,10 +192,17 @@ export const AddAccountDialog = ({
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
+                          disabled={isCurrenciesLoading || !currencies}
                         >
                           <FormControl>
                             <SelectTrigger className="w-[100px]">
-                              <SelectValue placeholder="Currency" />
+                              <SelectValue
+                                placeholder={
+                                  isCurrenciesLoading
+                                    ? "Loading..."
+                                    : "Currency"
+                                }
+                              />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>

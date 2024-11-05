@@ -100,13 +100,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "account_connection_id_fkey"
-            columns: ["connection_id"]
-            isOneToOne: false
-            referencedRelation: "provider_connection"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "account_parent_fkey"
             columns: ["parent"]
             isOneToOne: false
@@ -196,19 +189,16 @@ export type Database = {
         Row: {
           code: string
           country: string
-          id: number
           name: string
         }
         Insert: {
           code: string
           country: string
-          id?: number
           name: string
         }
         Update: {
           code?: string
           country?: string
-          id?: number
           name?: string
         }
         Relationships: []
@@ -301,25 +291,22 @@ export type Database = {
       provider_connection: {
         Row: {
           created_at: string
-          id: number
           provider_id: number
-          secret: string
+          secret: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
-          id?: number
           provider_id: number
-          secret: string
+          secret?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
-          id?: number
           provider_id?: number
-          secret?: string
+          secret?: string | null
           updated_at?: string
           user_id?: string
         }

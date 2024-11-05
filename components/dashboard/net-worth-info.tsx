@@ -1,7 +1,7 @@
 import { ChangeIndicator } from "@/components/dashboard/change-indicator";
 import { NetWorthChart } from "@/components/dashboard/net-worth-chart";
 import { NetWorthDisplay } from "@/components/dashboard/net-worth-display";
-import TimeRangeSelector from "./time-range-selector";
+import { TimeRangeSelector } from "./time-range-selector";
 
 export function NetWorthInfo({
   netWorth,
