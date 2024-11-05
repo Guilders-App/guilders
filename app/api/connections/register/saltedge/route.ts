@@ -1,6 +1,6 @@
 import { providerName } from "@/lib/providers/saltedge/client";
 import { registerSaltEdgeUser } from "@/lib/providers/saltedge/register";
-import { registerConnection } from "../common";
+import { registerConnection } from "../../common";
 
 /**
  * @swagger

@@ -1,6 +1,6 @@
 import { providerName } from "@/lib/providers/snaptrade/client";
 import { registerSnapTradeUser } from "@/lib/providers/snaptrade/register";
-import { registerConnection } from "../common";
+import { registerConnection } from "../../common";
 
 /**
  * @swagger
