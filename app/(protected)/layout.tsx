@@ -1,5 +1,5 @@
-import { CommandMenu } from "@/components/common/command-menu";
-import { Dialogs } from "@/components/dashboard/dialogs";
+import { CommandMenu } from "@/components/dialogs/command-menu";
+import { Dialogs } from "@/components/dialogs/dialogs";
 import { AppSidebar } from "@/components/nav/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/toaster";

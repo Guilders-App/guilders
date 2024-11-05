@@ -1,11 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { getProvider } from "@/lib/supabase/utils";
-import { ConnectionProviderFunction } from "../types";
+import { ConnectionProviderFunction, ConnectionResult } from "../types";
 import { providerName, saltedge } from "./client";
 
 export const registerSaltEdgeUser: ConnectionProviderFunction = async (
   userId: string
-) => {
+): Promise<ConnectionResult> => {
   const supabase = await createClient();
   const provider = await getProvider(providerName);
 
@@ -39,11 +39,15 @@ export const registerSaltEdgeUser: ConnectionProviderFunction = async (
     };
   }
 
-  const { error } = await supabase.from("provider_connection").insert({
-    user_id: userId,
-    secret: response.customer_id,
-    provider_id: provider.id,
-  });
+  const { data: registeredConnection, error } = await supabase
+    .from("provider_connection")
+    .insert({
+      user_id: userId,
+      secret: response.customer_id,
+      provider_id: provider.id,
+    })
+    .select()
+    .single();
 
   if (error) {
     console.error(`${providerName} registration error:`, error);
@@ -53,5 +57,5 @@ export const registerSaltEdgeUser: ConnectionProviderFunction = async (
     };
   }
 
-  return { success: true };
+  return { success: true, data: registeredConnection };
 };

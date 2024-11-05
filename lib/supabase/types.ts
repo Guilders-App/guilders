@@ -10,7 +10,10 @@ export type Category = {
   value: number;
 };
 
+export type Institution = Tables<"institution">;
+export type Provider = Tables<"provider">;
 export type Account = Tables<"account">;
+
 export type AccountInsert = Omit<
   TablesInsert<"account">,
   "type" | "user_id" | "created_at" | "updated_at" | "connection_id"

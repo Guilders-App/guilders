@@ -40,7 +40,9 @@ const insertSaltEdgeInstitutions = async () => {
     );
   }
 
-  const institutions = await saltedge.getProviders();
+  const institutions = (await saltedge.getProviders()).filter(
+    (inst) => inst.supported_iframe_embedding
+  );
 
   const entries = institutions.map((institution) => ({
     provider_id: provider.id,

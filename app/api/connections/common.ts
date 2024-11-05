@@ -43,7 +43,7 @@ export const registerConnection = async (
       .single();
 
     if (connection) {
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true, data: connection });
     }
 
     await registerFunction(user.id);

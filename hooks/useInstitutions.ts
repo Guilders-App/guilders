@@ -1,4 +1,4 @@
-import { Tables } from "@/lib/supabase/database.types";
+import { Institution } from "@/lib/supabase/types";
 import { useQuery } from "@tanstack/react-query";
 
 const queryKey = ["institutions"] as const;
@@ -13,7 +13,7 @@ export function useInstitutions() {
       if (!data.success) {
         throw new Error(data.error || "Failed to fetch institutions");
       }
-      return data.data as Tables<"institution">[];
+      return data.data as Institution[];
     },
   });
 }

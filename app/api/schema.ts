@@ -45,6 +45,15 @@
  *           type: boolean
  *         logo_url:
  *           type: string
+ *     Provider:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         name:
+ *           type: string
+ *         logo_url:
+ *           type: string
  *   responses:
  *     UnauthorizedError:
  *       description: Invalid credentials

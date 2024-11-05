@@ -11,6 +11,7 @@ import {
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useInstitutions } from "@/hooks/useInstitutions";
 import { useStore } from "@/lib/store";
+import { Institution } from "@/lib/supabase/types";
 import { CommandLoading } from "cmdk";
 import {
   Banknote,
@@ -21,6 +22,7 @@ import {
   Link2,
   SquarePen,
 } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React from "react";
 
@@ -29,6 +31,12 @@ export function CommandMenu() {
   const setIsCommandMenuOpen = useStore((state) => state.setIsCommandMenuOpen);
   const setIsAddManualAccountOpen = useStore(
     (state) => state.setIsAddManualAccountOpen
+  );
+  const setSelectedInstitution = useStore(
+    (state) => state.setSelectedInstitution
+  );
+  const setIsAddLinkedAccountOpen = useStore(
+    (state) => state.setIsAddLinkedAccountOpen
   );
   const { data: institutions, isLoading } = useInstitutions();
 
@@ -60,6 +68,12 @@ export function CommandMenu() {
   const handleAddAccount = () => {
     setIsCommandMenuOpen(false);
     setTimeout(() => setIsAddManualAccountOpen(true), 40);
+  };
+
+  const handleAddLinkedAccount = (institution: Institution) => {
+    setIsCommandMenuOpen(false);
+    setSelectedInstitution(institution);
+    setTimeout(() => setIsAddLinkedAccountOpen(true), 40);
   };
 
   const handleNavigate = (path: string) => {
@@ -128,7 +142,17 @@ export function CommandMenu() {
                   <CommandLoading>Loading institutions...</CommandLoading>
                 )}
                 {institutions?.map((institution) => (
-                  <CommandItem key={institution.institution_id}>
+                  <CommandItem
+                    key={institution.institution_id}
+                    onSelect={() => handleAddLinkedAccount(institution)}
+                  >
+                    <Image
+                      src={institution.logo_url}
+                      alt={`${institution.name} logo`}
+                      width={24}
+                      height={24}
+                      className="mr-2 rounded-sm"
+                    />
                     {institution.name}
                   </CommandItem>
                 ))}

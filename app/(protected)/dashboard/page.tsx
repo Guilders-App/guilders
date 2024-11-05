@@ -6,6 +6,9 @@ import { NetWorthCard } from "@/components/dashboard/net-worth-card";
 import { TransactionsCard } from "@/components/dashboard/net-worth-transactions";
 
 export default function ProtectedPage() {
+  // useEffect(() => {
+  //   fetch("/api/cron/insert-institutions");
+  // }, []);
   return (
     <div className="flex flex-col gap-6">
       <DashboardHeader />
