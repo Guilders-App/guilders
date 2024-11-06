@@ -9,9 +9,8 @@ export function useCreateConnection(providerName: string) {
       });
       const data = await response.json();
       if (!data.success) {
-        throw new Error(
-          data.error || `Failed to create a ${providerName} connection`
-        );
+        console.error(data.error);
+        throw new Error(`Failed to create a ${providerName} connection`);
       }
       return data;
     },

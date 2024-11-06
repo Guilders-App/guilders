@@ -270,6 +270,41 @@ export type Database = {
           },
         ]
       }
+      institution_connection: {
+        Row: {
+          connection_id: string | null
+          created_at: string
+          id: number
+          institution_id: string
+          provider_id: number
+          user_id: string
+        }
+        Insert: {
+          connection_id?: string | null
+          created_at?: string
+          id?: number
+          institution_id: string
+          provider_id: number
+          user_id: string
+        }
+        Update: {
+          connection_id?: string | null
+          created_at?: string
+          id?: number
+          institution_id?: string
+          provider_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "institution_connection_institution_fkey"
+            columns: ["institution_id", "provider_id"]
+            isOneToOne: false
+            referencedRelation: "institution"
+            referencedColumns: ["institution_id", "provider_id"]
+          },
+        ]
+      }
       provider: {
         Row: {
           id: number

@@ -16,8 +16,6 @@ export function ProviderDialog({
   isOpen,
   setIsOpen,
   redirectUri,
-  onSuccess,
-  onError,
 }: ProviderDialogProps) {
   const { toast } = useToast();
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -27,8 +25,9 @@ export function ProviderDialog({
       if (e.data) {
         const data = e.data;
         if (data.status === "SUCCESS") {
-          console.log(data);
-          onSuccess?.();
+          const authorizationId = data.authorizationId;
+          console.log("Authorization ID:", authorizationId);
+          // Create connected account
           setIsOpen(false);
           toast({
             title: "Success",
@@ -36,7 +35,6 @@ export function ProviderDialog({
           });
         }
         if (data.status === "ERROR") {
-          onError?.(data.detail);
           toast({
             title: "Error",
             description: "There was an error connecting to the institution.",
@@ -58,7 +56,7 @@ export function ProviderDialog({
     return () => {
       window.removeEventListener("message", handleMessageEvent, false);
     };
-  }, [onSuccess, onError, setIsOpen]);
+  }, [setIsOpen]);
 
   if (!isOpen) return null;
 

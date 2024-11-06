@@ -41,10 +41,11 @@ export function AddLinkedAccountDialog({
       institution.institution_id
     );
     if (success) {
-      console.log(redirectUrl);
       setRedirectUri(redirectUrl);
-      setIsProviderDialogOpen(true);
+      setIsOpen(false);
+      setTimeout(() => setIsProviderDialogOpen(true), 40);
     } else {
+      setIsOpen(false);
       toast({
         title: "Failed to create connection",
         description: "Unable to create connection. Please try again later.",
