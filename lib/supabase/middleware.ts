@@ -37,13 +37,17 @@ export const updateSession = async (request: NextRequest) => {
   const user = await supabase.auth.getUser();
 
   const publicRoutes = ["/", "/forgot-password", "/sign-in", "/sign-up"];
-  const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname);
+
+  const isPublicRoute =
+    publicRoutes.includes(request.nextUrl.pathname) ||
+    request.nextUrl.pathname.startsWith("/callback/");
 
   if (isPublicRoute && !user.error) {
-    return NextResponse.redirect(new URL("/protected", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   if (!isPublicRoute && user.error) {
+    console.log("Redirecting to sign-in from middleware");
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
