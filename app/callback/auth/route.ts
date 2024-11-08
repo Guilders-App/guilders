@@ -28,6 +28,5 @@ export async function GET(request: Request) {
     }
   }
 
-  console.log("Nothing done, redirecting to ", `${origin}/sign-in`);
-  return NextResponse.redirect(`${origin}/`);
+  return NextResponse.redirect(`${origin}/sign-in`);
 }

@@ -23,7 +23,7 @@ export const deregisterSaltEdgeUser: ConnectionProviderFunction = async (
     .eq("provider_id", provider.id)
     .single();
 
-  if (secretError) {
+  if (secretError || !secret?.secret) {
     console.error(`${providerName} deregistration error:`, secretError);
     return {
       success: false,
