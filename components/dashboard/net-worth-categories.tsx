@@ -39,7 +39,7 @@ export function NetWorthCategories() {
 
   return (
     <>
-      <h2 className="text-xl font-light text-white mb-4">Categories</h2>
+      {/* <h2 className="text-xl font-light text-white mb-4">Categories</h2> */}
 
       {isError && (
         <div className="text-red-500">
@@ -90,10 +90,10 @@ export function NetWorthCategories() {
                     className="w-3 h-3 rounded-full mr-2"
                     style={{ backgroundColor: getCategoryColor(category.name) }}
                   ></div>
-                  <span className="text-white text-sm font-light">
+                  <span className="text-sm font-light">
                     {getCategoryDisplayName(category.name)}
                   </span>
-                  <span className="text-gray-400 font-light text-sm ml-auto">
+                  <span className="text-foreground/60 font-light text-sm ml-auto">
                     {percentage}%
                   </span>
                 </div>

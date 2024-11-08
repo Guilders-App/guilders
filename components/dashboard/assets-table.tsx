@@ -14,10 +14,10 @@ export function AssetsTable() {
   const { data: accounts, isLoading, error } = useAccounts();
 
   return (
-    <>
+    <div className={`min-h-[200px] flex flex-col`}>
       {isLoading ? (
         <div className="space-y-2">
-          {[...Array(5)].map((_, index) => (
+          {[...Array(4)].map((_, index) => (
             <Skeleton key={index} className="h-10 w-full mb-2" />
           ))}
         </div>
@@ -78,6 +78,6 @@ export function AssetsTable() {
           </TableBody>
         </Table>
       )}
-    </>
+    </div>
   );
 }

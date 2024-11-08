@@ -1,6 +1,11 @@
 "use client";
 
-import { Briefcase, ConciergeBell, LayoutDashboard } from "lucide-react";
+import {
+  ArrowRightLeft,
+  Briefcase,
+  ConciergeBell,
+  LayoutDashboard,
+} from "lucide-react";
 import * as React from "react";
 
 import { NavMain } from "@/components/nav/nav-main";
@@ -36,6 +41,11 @@ const data = {
       title: "Accounts",
       url: "/accounts",
       icon: Briefcase,
+    },
+    {
+      title: "Transactions",
+      url: "/transactions",
+      icon: ArrowRightLeft,
     },
   ],
 };

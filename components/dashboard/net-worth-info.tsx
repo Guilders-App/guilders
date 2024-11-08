@@ -1,26 +1,24 @@
 import { ChangeIndicator } from "@/components/dashboard/change-indicator";
 import { NetWorthChart } from "@/components/dashboard/net-worth-chart";
 import { NetWorthDisplay } from "@/components/dashboard/net-worth-display";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { TimeRangeSelector } from "./time-range-selector";
 
-export function NetWorthInfo({
-  netWorth,
-  change,
-}: {
-  netWorth: number;
-  change: { value: number; percentage: number };
-}) {
+export function NetWorthInfo({ className }: { className?: string }) {
+  const change = { value: 543.42, percentage: 0.18 };
   return (
-    <div className="w-3/5 pt-6 px-6">
-      <div className="flex items-baseline">
-        <h2 className="text-lg font-light text-gray-400 mb-2">
-          Total Net Worth
-        </h2>
-        <ChangeIndicator change={change} showAbsoluteChange />
-      </div>
-      <NetWorthDisplay value={netWorth} />
-      <TimeRangeSelector />
-      <NetWorthChart />
-    </div>
+    <Card className={className}>
+      <CardHeader className="flex flex-col p-6 space-y-0">
+        <div className="flex flex-row justify-between items-center">
+          <CardTitle className="text-md font-medium">Net Worth</CardTitle>
+          <ChangeIndicator change={change} showAbsoluteChange />
+        </div>
+        <NetWorthDisplay />
+      </CardHeader>
+      <CardContent>
+        <TimeRangeSelector />
+        <NetWorthChart />
+      </CardContent>
+    </Card>
   );
 }

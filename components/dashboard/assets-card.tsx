@@ -1,18 +1,24 @@
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { AssetsTable } from "./assets-table";
 
 export function AssetsCard() {
   return (
-    <div className="bg-grey4 border border-grey_border shadow-md rounded-lg p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-light">Assets</h2>
-        <Button variant="secondary">
-          View All
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
-      </div>
-      <AssetsTable />
-    </div>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <CardTitle>Assets</CardTitle>
+        <Link href="/accounts">
+          <Button variant="secondary">
+            View All
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </Link>
+      </CardHeader>
+      <CardContent>
+        <AssetsTable />
+      </CardContent>
+    </Card>
   );
 }

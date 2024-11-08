@@ -1,3 +1,3 @@
-export function AssetsPage() {
-  return <div>Assets</div>;
+export default function AccountsPage() {
+  return <div>Accounts</div>;
 }
