@@ -49,19 +49,28 @@ export async function POST(request: Request) {
       .single();
 
     if (!providerConnection || !providerConnection.secret) {
-      const { data: registeredConnection, error } = await registerSnapTradeUser(
-        user.id
-      );
-      if (error) {
+      try {
+        const { data: registeredConnection, error } =
+          await registerSnapTradeUser(user.id);
+        if (error) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: `Failed to register SnapTrade user: ${error}`,
+            },
+            { status: 500 }
+          );
+        }
+        secret = registeredConnection?.secret ?? null;
+      } catch (error) {
         return NextResponse.json(
           {
             success: false,
-            error: `Failed to register SnapTrade user: ${error}`,
+            error: `Error registering SnapTrade user: ${error}`,
           },
           { status: 500 }
         );
       }
-      secret = registeredConnection?.secret ?? null;
     } else {
       secret = providerConnection.secret;
     }

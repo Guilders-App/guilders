@@ -25,9 +25,6 @@ export function ProviderDialog({
       if (e.data) {
         const data = e.data;
         if (data.status === "SUCCESS") {
-          const authorizationId = data.authorizationId;
-          console.log("Authorization ID:", authorizationId);
-          // Create connected account
           setIsOpen(false);
           toast({
             title: "Success",
