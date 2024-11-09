@@ -15,6 +15,7 @@ declare global {
       // Snaptrade (brokerage provider)
       SNAPTRADE_CLIENT_ID: string;
       SNAPTRADE_CLIENT_SECRET: string;
+      SNAPTRADE_WEBHOOK_SECRET: string;
       // GoCardless (banking provider)
       GOCARDLESS_CLIENT_ID: string;
       GOCARDLESS_CLIENT_SECRET: string;

@@ -29,8 +29,6 @@ export const registerSaltEdgeUser: ConnectionProviderFunction = async (
   }
 
   const response = await saltedge.createCustomer(userId);
-  console.log(response);
-
   if (!response) {
     console.error(`${providerName} registration error:`, response);
     return {

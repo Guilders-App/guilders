@@ -47,7 +47,6 @@ export const updateSession = async (request: NextRequest) => {
   }
 
   if (!isPublicRoute && user.error) {
-    console.log("Redirecting to sign-in from middleware");
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 

@@ -39,7 +39,6 @@ export default function AdvisorPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const {
     messages,
-    setMessages,
     input,
     handleInputChange,
     handleSubmit,
@@ -48,7 +47,6 @@ export default function AdvisorPage() {
   } = useChat({
     onResponse(response) {
       if (response) {
-        console.log(response);
         setIsGenerating(false);
       }
     },
@@ -84,7 +82,6 @@ export default function AdvisorPage() {
   };
 
   const handleActionClick = async (action: string, messageIndex: number) => {
-    console.log("Action clicked:", action, "Message index:", messageIndex);
     if (action === "Refresh") {
       setIsGenerating(true);
       try {

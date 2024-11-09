@@ -32,8 +32,6 @@ export const deregisterSaltEdgeUser: ConnectionProviderFunction = async (
   }
 
   const response = await saltedge.removeCustomer(secret.secret);
-  console.log(response);
-
   if (!response.deleted) {
     console.error(`${providerName} deregistration error:`, response);
     return {
