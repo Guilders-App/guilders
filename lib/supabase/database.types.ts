@@ -36,7 +36,7 @@ export type Database = {
     Tables: {
       account: {
         Row: {
-          connection_id: number | null
+          account_connection_id: number | null
           cost: number | null
           created_at: string
           currency: string
@@ -57,7 +57,7 @@ export type Database = {
           value: number
         }
         Insert: {
-          connection_id?: number | null
+          account_connection_id?: number | null
           cost?: number | null
           created_at?: string
           currency: string
@@ -78,7 +78,7 @@ export type Database = {
           value: number
         }
         Update: {
-          connection_id?: number | null
+          account_connection_id?: number | null
           cost?: number | null
           created_at?: string
           currency?: string
@@ -100,10 +100,50 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "account_account_connection_id_fkey"
+            columns: ["account_connection_id"]
+            isOneToOne: true
+            referencedRelation: "account_connection"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "account_currency_fkey"
+            columns: ["currency"]
+            isOneToOne: false
+            referencedRelation: "currency"
+            referencedColumns: ["code"]
+          },
+          {
             foreignKeyName: "account_parent_fkey"
             columns: ["parent"]
             isOneToOne: false
             referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      account_connection: {
+        Row: {
+          account_id: string
+          id: number
+          institution_connection_id: number
+        }
+        Insert: {
+          account_id: string
+          id?: number
+          institution_connection_id: number
+        }
+        Update: {
+          account_id?: string
+          id?: number
+          institution_connection_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_connection_institution_connection_id_fkey"
+            columns: ["institution_connection_id"]
+            isOneToOne: false
+            referencedRelation: "institution_connection"
             referencedColumns: ["id"]
           },
         ]
@@ -276,7 +316,6 @@ export type Database = {
           created_at: string
           id: number
           institution_id: string
-          provider_id: number
           user_id: string
         }
         Insert: {
@@ -284,7 +323,6 @@ export type Database = {
           created_at?: string
           id?: number
           institution_id: string
-          provider_id: number
           user_id: string
         }
         Update: {
@@ -292,18 +330,9 @@ export type Database = {
           created_at?: string
           id?: number
           institution_id?: string
-          provider_id?: number
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "institution_connection_institution_fkey"
-            columns: ["institution_id", "provider_id"]
-            isOneToOne: false
-            referencedRelation: "institution"
-            referencedColumns: ["institution_id", "provider_id"]
-          },
-        ]
+        Relationships: []
       }
       provider: {
         Row: {
