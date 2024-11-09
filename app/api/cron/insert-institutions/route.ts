@@ -46,13 +46,15 @@ const insertSaltEdgeInstitutions = async () => {
 
   const entries = institutions.map((institution) => ({
     provider_id: provider.id,
-    institution_id: institution.id,
+    provider_institution_id: institution.id,
     name: institution.name,
     logo_url: institution.logo_url,
     countries: [institution.country_code.toLowerCase()],
   }));
 
-  await supabase.from("institution").upsert(entries);
+  await supabase.from("institution").upsert(entries, {
+    onConflict: "provider_id,provider_institution_id",
+  });
 };
 
 const insertSnapTradeInstitutions = async () => {
@@ -86,12 +88,14 @@ const insertSnapTradeInstitutions = async () => {
     )
     .map((institution) => ({
       provider_id: provider.id,
-      institution_id: institution.id!,
+      provider_institution_id: institution.id!,
       name: institution.name!,
       logo_url: institution.aws_s3_square_logo_url!,
       enabled: institution.enabled!,
       countries: [],
     }));
 
-  await supabase.from("institution").upsert(entries);
+  await supabase.from("institution").upsert(entries, {
+    onConflict: "provider_id,provider_institution_id",
+  });
 };

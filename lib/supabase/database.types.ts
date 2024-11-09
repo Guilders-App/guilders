@@ -279,26 +279,29 @@ export type Database = {
         Row: {
           countries: string[] | null
           enabled: boolean
-          institution_id: string
+          id: number
           logo_url: string
           name: string
           provider_id: number
+          provider_institution_id: string
         }
         Insert: {
           countries?: string[] | null
           enabled?: boolean
-          institution_id: string
+          id?: number
           logo_url: string
           name: string
           provider_id: number
+          provider_institution_id: string
         }
         Update: {
           countries?: string[] | null
           enabled?: boolean
-          institution_id?: string
+          id?: number
           logo_url?: string
           name?: string
           provider_id?: number
+          provider_institution_id?: string
         }
         Relationships: [
           {
@@ -315,24 +318,32 @@ export type Database = {
           connection_id: string | null
           created_at: string
           id: number
-          institution_id: string
+          institution_id: number
           user_id: string
         }
         Insert: {
           connection_id?: string | null
           created_at?: string
           id?: number
-          institution_id: string
+          institution_id: number
           user_id: string
         }
         Update: {
           connection_id?: string | null
           created_at?: string
           id?: number
-          institution_id?: string
+          institution_id?: number
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "institution_connection_institution_id_fkey"
+            columns: ["institution_id"]
+            isOneToOne: false
+            referencedRelation: "institution"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       provider: {
         Row: {

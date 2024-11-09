@@ -11,6 +11,7 @@ interface BaseWebhook {
 // All possible webhook event types
 type WebhookEventType =
   | "USER_REGISTERED"
+  | "USER_DELETED"
   | "CONNECTION_ATTEMPTED"
   | "CONNECTION_ADDED"
   | "CONNECTION_DELETED"
@@ -40,6 +41,10 @@ type ConnectionAttemptResult =
 // Specific event interfaces
 interface UserRegisteredWebhook extends BaseWebhook {
   eventType: "USER_REGISTERED";
+}
+
+interface UserDeletedWebhook extends BaseWebhook {
+  eventType: "USER_DELETED";
 }
 
 interface ConnectionAttemptedWebhook extends BaseWebhook {
@@ -130,6 +135,7 @@ interface AccountHoldingsUpdatedWebhook extends BaseWebhook {
 // Union type of all possible webhook payloads
 type SnapTradeWebhook =
   | UserRegisteredWebhook
+  | UserDeletedWebhook
   | ConnectionAttemptedWebhook
   | ConnectionAddedWebhook
   | ConnectionDeletedWebhook
@@ -160,6 +166,7 @@ export type {
   NewAccountAvailableWebhook,
   SnapTradeWebhook,
   TradesPlacedWebhook,
+  UserDeletedWebhook,
   // Individual webhook types
   UserRegisteredWebhook,
   WebhookEventType,

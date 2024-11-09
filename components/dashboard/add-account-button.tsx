@@ -10,11 +10,9 @@ export const AddAccountButton = () => {
   );
 
   return (
-    <>
-      <Button onClick={() => setIsAddManualAccountOpen(true)}>
-        <PlusIcon />
-        Add
-      </Button>
-    </>
+    <Button onClick={() => setIsAddManualAccountOpen(true)}>
+      <PlusIcon />
+      Add
+    </Button>
   );
 };

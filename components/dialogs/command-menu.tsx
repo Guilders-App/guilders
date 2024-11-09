@@ -143,7 +143,7 @@ export function CommandMenu() {
                 )}
                 {institutions?.map((institution) => (
                   <CommandItem
-                    key={institution.institution_id}
+                    key={institution.id}
                     onSelect={() => handleAddLinkedAccount(institution)}
                   >
                     <Image

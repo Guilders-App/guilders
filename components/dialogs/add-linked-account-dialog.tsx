@@ -38,7 +38,7 @@ export function AddLinkedAccountDialog({
 
   const onContinue = async () => {
     const { success, data: redirectUrl } = await createConnection(
-      institution.institution_id
+      institution.id
     );
     if (success) {
       setRedirectUri(redirectUrl);

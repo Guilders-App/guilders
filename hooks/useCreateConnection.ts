@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 
 export function useCreateConnection(providerName: string) {
   return useMutation({
-    mutationFn: async (institutionId: string) => {
+    mutationFn: async (institutionId: number) => {
       const response = await fetch(`/api/connections/connect/${providerName}`, {
         method: "POST",
         body: JSON.stringify({ institution_id: institutionId }),

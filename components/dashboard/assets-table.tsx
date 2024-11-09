@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/table";
 import { useAccounts } from "@/hooks/useAccounts";
 import { Skeleton } from "../ui/skeleton";
+import { AssetsEmptyPlaceholder } from "./assets-placeholder";
 import { ChangeIndicator } from "./change-indicator";
 
 export function AssetsTable() {
@@ -28,11 +29,7 @@ export function AssetsTable() {
           </p>
         </div>
       ) : accounts && accounts.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="mb-4">
-            No assets found. Add your first account to get started!
-          </p>
-        </div>
+        <AssetsEmptyPlaceholder />
       ) : (
         <Table className="border-collapse">
           <TableHeader>

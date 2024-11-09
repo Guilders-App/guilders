@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     const { data: institution } = await supabase
       .from("institution")
       .select("*")
-      .eq("institution_id", institution_id)
+      .eq("id", institution_id)
       .single();
 
     if (!institution) {
@@ -49,9 +49,18 @@ export async function POST(request: Request) {
       .single();
 
     if (!providerConnection || !providerConnection.secret) {
-      const { data: registeredConnection } = await registerSnapTradeUser(
+      const { data: registeredConnection, error } = await registerSnapTradeUser(
         user.id
       );
+      if (error) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Failed to register SnapTrade user: ${error}`,
+          },
+          { status: 500 }
+        );
+      }
       secret = registeredConnection?.secret ?? null;
     } else {
       secret = providerConnection.secret;
@@ -66,7 +75,7 @@ export async function POST(request: Request) {
 
     const brokerages = await snaptrade.referenceData.listAllBrokerages();
     const brokerage = brokerages.data?.find(
-      (brokerage) => brokerage.id === institution.institution_id
+      (brokerage) => brokerage.id === institution.provider_institution_id
     );
 
     const response = await snaptrade.authentication.loginSnapTradeUser({

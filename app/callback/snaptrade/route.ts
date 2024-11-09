@@ -10,6 +10,7 @@ import type {
   ConnectionDeletedWebhook,
   NewAccountAvailableWebhook,
   SnapTradeWebhook,
+  UserDeletedWebhook,
 } from "./types";
 
 export async function POST(request: Request) {
@@ -31,6 +32,9 @@ export async function POST(request: Request) {
   switch (body.eventType) {
     case "USER_REGISTERED":
       // User registration is handled when we /register or /connect
+      break;
+    case "USER_DELETED":
+      await handleUserDeleted(body);
       break;
     case "CONNECTION_ATTEMPTED":
       // Ignore
@@ -87,11 +91,71 @@ export async function POST(request: Request) {
   return NextResponse.json({ success: true });
 }
 
+async function handleUserDeleted(body: UserDeletedWebhook) {
+  const supabase = await createClient();
+
+  // Remove _deleted suffix from userId
+  const userId = body.userId.replace("_deleted", "");
+
+  const { data: provider } = await supabase
+    .from("provider")
+    .select("*")
+    .eq("name", providerName)
+    .single();
+
+  if (!provider) {
+    console.error("Provider not found");
+    return NextResponse.json({ error: "Provider not found" }, { status: 500 });
+  }
+
+  const { error } = await supabase
+    .from("provider_connection")
+    .delete()
+    .eq("user_id", userId)
+    .eq("provider_id", provider.id);
+
+  if (error) {
+    console.error("Error deleting provider connection:", error);
+    return NextResponse.json(
+      { error: "Error deleting provider connection" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ success: true });
+}
+
 async function handleConnectionAdded(body: ConnectionAddedWebhook) {
   const supabase = await createClient();
 
+  const { data: provider } = await supabase
+    .from("provider")
+    .select("*")
+    .eq("name", providerName)
+    .single();
+
+  if (!provider) {
+    console.error("Provider not found");
+    return NextResponse.json({ error: "Provider not found" }, { status: 500 });
+  }
+
+  const { data: institution } = await supabase
+    .from("institution")
+    .select()
+    .eq("provider_id", provider.id)
+    .eq("provider_institution_id", body.brokerageId)
+    .single();
+
+  if (!institution) {
+    console.error("Institution not found");
+    return NextResponse.json(
+      { error: "Institution not found" },
+      { status: 500 }
+    );
+  }
+
   const { error } = await supabase.from("institution_connection").upsert({
-    institution_id: body.brokerageId,
+    institution_id: institution.id,
     user_id: body.userId,
     connection_id: body.brokerageAuthorizationId,
   });
@@ -160,7 +224,7 @@ async function handleAccountUpdate(
   const { data: provider } = await supabase
     .from("provider")
     .select()
-    .eq("provider_name", providerName)
+    .eq("name", providerName)
     .single();
 
   if (!provider) {
@@ -183,11 +247,26 @@ async function handleAccountUpdate(
     );
   }
 
+  const { data: institution, error: institution_error } = await supabase
+    .from("institution")
+    .select()
+    .eq("provider_id", provider.id)
+    .eq("provider_institution_id", body.brokerageId)
+    .single();
+
+  if (institution_error) {
+    console.error("Error getting institution:", institution_error);
+    return NextResponse.json(
+      { error: "Error getting institution" },
+      { status: 500 }
+    );
+  }
+
   const { data: institutionConnection } = await supabase
     .from("institution_connection")
     .select()
     .eq("user_id", body.userId)
-    .eq("institution_id", body.brokerageId)
+    .eq("institution_id", institution.id)
     .single();
 
   if (!institutionConnection) {
