@@ -13,8 +13,6 @@ import type {
 } from "./types";
 
 export async function POST(request: Request) {
-  console.log("=== SnapTrade POST callback ===");
-
   const body = (await request
     .json()
     .catch(() => null)) as SnapTradeWebhook | null;
@@ -26,8 +24,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const supabase = await createClient();
-
+  console.log("=== SnapTrade POST callback ===");
   console.log("Event type:", body.eventType);
   console.log("Event data:", body);
 
@@ -45,12 +42,16 @@ export async function POST(request: Request) {
       await handleConnectionDeleted(body);
       break;
     case "CONNECTION_BROKEN":
+      // TODO: Handle?
       break;
     case "CONNECTION_FIXED":
+      // TODO: Handle?
       break;
     case "CONNECTION_UPDATED":
+      // TODO: Handle?
       break;
     case "CONNECTION_FAILED":
+      // TODO: Handle?
       break;
     case "NEW_ACCOUNT_AVAILABLE":
       await handleAccountUpdate(body);
