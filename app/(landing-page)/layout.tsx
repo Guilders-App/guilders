@@ -18,8 +18,8 @@ export default function LandingPageLayout({
   return (
     <main className="min-h-screen flex flex-col items-center">
       <nav className="w-full flex justify-center h-16 bg-background text-primary">
-        <div className="w-full max-w-7xl flex items-center p-3 px-5 relative">
-          <div className="absolute left-5">
+        <div className="w-full max-w-7xl flex items-center p-3 relative">
+          <div className="absolute left-4">
             <Link href="/" className="text-xl font-bold">
               Guilders
             </Link>
@@ -57,12 +57,12 @@ export default function LandingPageLayout({
               </NavigationMenuList>
             </NavigationMenu>
           </div>
-          <div className="absolute right-5 flex items-center space-x-4">
+          <div className="absolute right-3 flex items-center space-x-2">
             <Button variant="ghost" asChild>
               <Link href="/sign-in">Login</Link>
             </Button>
-            <Button variant="secondary" asChild>
-              <Link href="/sign-up">Sign Up</Link>
+            <Button variant="default" asChild>
+              <Link href="/sign-up">Get Started</Link>
             </Button>
           </div>
         </div>

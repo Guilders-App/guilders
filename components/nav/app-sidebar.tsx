@@ -5,26 +5,24 @@ import {
   Briefcase,
   ConciergeBell,
   LayoutDashboard,
+  LogOut,
+  Settings,
 } from "lucide-react";
 import * as React from "react";
 
-import { NavMain } from "@/components/nav/nav-main";
-import { NavUser } from "@/components/nav/nav-user";
+import { signOutAction } from "@/app/actions";
+import { NavItems } from "@/components/nav/nav-main";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { AppSidebarHeader } from "./app-sidebar-header";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/assets/user.png",
-  },
   navMain: [
     {
       title: "Dashboard",
@@ -48,6 +46,18 @@ const data = {
       icon: ArrowRightLeft,
     },
   ],
+  navFooter: [
+    {
+      title: "Settings",
+      url: "/settings",
+      icon: Settings,
+    },
+    {
+      title: "Log Out",
+      icon: LogOut,
+      onClick: signOutAction,
+    },
+  ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -57,10 +67,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <AppSidebarHeader />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <SidebarGroup>
+          <NavItems items={data.navMain} />
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavItems items={data.navFooter} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

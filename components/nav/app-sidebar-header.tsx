@@ -16,7 +16,7 @@ export function AppSidebarHeader() {
   const { state, isMobile } = useSidebar();
   return (
     <SidebarMenu>
-      <SidebarMenuItem>
+      <SidebarMenuItem className="flex justify-center">
         <Tooltip>
           <TooltipTrigger asChild>{<SidebarTrigger />}</TooltipTrigger>
           <TooltipContent
