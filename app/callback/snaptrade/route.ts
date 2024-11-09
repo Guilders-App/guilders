@@ -25,10 +25,6 @@ export async function POST(request: Request) {
     );
   }
 
-  console.log("=== SnapTrade POST callback ===");
-  console.log("Event type:", body.eventType);
-  console.log("Event data:", body);
-
   switch (body.eventType) {
     case "USER_REGISTERED":
       // User registration is handled when we /register or /connect
