@@ -1,8 +1,9 @@
 import { signInAction } from "@/app/actions";
 import { FormMessage, Message } from "@/components/common/form-message";
-import { SubmitButton } from "@/components/common/submit-button";
+import { SubmitButton } from "@/components/dashboard/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password-input";
 import Link from "next/link";
 
 export default async function Login(props: { searchParams: Promise<Message> }) {
@@ -28,11 +29,11 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
             Forgot Password?
           </Link>
         </div>
-        <Input
-          type="password"
+        <PasswordInput
           name="password"
           placeholder="Your password"
           required
+          autoComplete="current-password"
         />
         <SubmitButton pendingText="Signing In..." formAction={signInAction}>
           Sign in

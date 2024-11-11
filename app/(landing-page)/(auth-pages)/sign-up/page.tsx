@@ -1,8 +1,9 @@
 import { signUpAction } from "@/app/actions";
 import { FormMessage, Message } from "@/components/common/form-message";
-import { SubmitButton } from "@/components/common/submit-button";
+import { SubmitButton } from "@/components/dashboard/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password-input";
 import Link from "next/link";
 
 export default async function Signup(props: {
@@ -31,11 +32,11 @@ export default async function Signup(props: {
           <Label htmlFor="email">Email</Label>
           <Input name="email" placeholder="you@example.com" required />
           <Label htmlFor="password">Password</Label>
-          <Input
-            type="password"
+          <PasswordInput
             name="password"
             placeholder="Your password"
             minLength={6}
+            autoComplete="new-password"
             required
           />
           <SubmitButton pendingText="Signing up..." formAction={signUpAction}>
