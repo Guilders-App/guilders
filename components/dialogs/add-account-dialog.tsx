@@ -28,10 +28,11 @@ import {
 import { useAddAccount } from "@/hooks/useAccounts";
 import { useCurrencies } from "@/hooks/useCurrencies";
 import { useToast } from "@/hooks/useToast";
+import { useUser } from "@/hooks/useUser";
 import { accountSubtypeLabels, accountSubtypes } from "@/lib/supabase/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -55,6 +56,7 @@ export const AddAccountDialog = ({
   setIsOpen: (open: boolean) => void;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const { data: user } = useUser();
   const { toast } = useToast();
   const { mutate: addAccount } = useAddAccount();
   const {
@@ -77,9 +79,13 @@ export const AddAccountDialog = ({
       accountType: undefined,
       accountName: "",
       value: "",
-      currency: "usd",
+      currency: user?.currency,
     },
   });
+
+  useEffect(() => {
+    form.setValue("currency", user?.currency ?? "");
+  }, [user?.currency, form]);
 
   const handleSubmit = form.handleSubmit(async (data) => {
     setIsLoading(true);
@@ -109,7 +115,7 @@ export const AddAccountDialog = ({
     }
   });
 
-  const customOrder = ["usd", "gbp", "eur"];
+  const customOrder = ["USD", "GBP", "EUR"];
   const sortedCurrencies = useMemo(() => {
     if (!currencies) return [];
 
@@ -202,6 +208,7 @@ export const AddAccountDialog = ({
                                     ? "Loading..."
                                     : "Currency"
                                 }
+                                defaultValue={user?.currency ?? ""}
                               />
                             </SelectTrigger>
                           </FormControl>
@@ -211,7 +218,7 @@ export const AddAccountDialog = ({
                                 key={currency.code}
                                 value={currency.code}
                               >
-                                {currency.code.toUpperCase()}
+                                {currency.code}
                               </SelectItem>
                             ))}
                           </SelectContent>

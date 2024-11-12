@@ -1,11 +1,13 @@
+"use client";
+
 import { CommandMenu } from "@/components/dialogs/command-menu";
 import { Dialogs } from "@/components/dialogs/dialogs";
 import { AppSidebar } from "@/components/nav/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "@/components/ui/toaster";
-import React from "react";
+import { ReactNode } from "react";
 
-const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
+const ProtectedLayout = ({ children }: { children: ReactNode }) => {
   return (
     <SidebarProvider defaultOpen={false}>
       <AppSidebar />
