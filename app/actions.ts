@@ -26,7 +26,7 @@ export const signUpAction = async (formData: FormData) => {
     options: {
       emailRedirectTo: `${origin}/auth/callback`,
       data: {
-        currency: "eur",
+        currency: "EUR",
       },
     },
   });

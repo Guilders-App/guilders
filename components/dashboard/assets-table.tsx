@@ -48,7 +48,7 @@ export function AssetsTable() {
                   : 0;
 
               return (
-                <TableRow key={account.name} className="border-none">
+                <TableRow key={account.id} className="border-none">
                   <TableCell className="font-medium p-2 text-left">
                     {account.name}
                   </TableCell>

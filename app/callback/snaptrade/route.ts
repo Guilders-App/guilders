@@ -339,7 +339,7 @@ async function handleAccountUpdate(
       name: snapTradeAccount.institution_name,
       value: snapTradeAccount.balance.total?.amount ?? 0,
       currency:
-        snapTradeAccount.balance.total?.currency?.toLocaleLowerCase() ?? "usd",
+        snapTradeAccount.balance.total?.currency?.toUpperCase() ?? "USD",
       account_connection_id: account_connection.id,
     },
     { onConflict: "user_id,account_connection_id" }
