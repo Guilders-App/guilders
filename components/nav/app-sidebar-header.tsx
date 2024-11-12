@@ -4,28 +4,18 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarTrigger,
-  useSidebar,
 } from "@/components/ui/sidebar";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export function AppSidebarHeader() {
-  const { state, isMobile } = useSidebar();
   return (
     <SidebarMenu>
-      <SidebarMenuItem className="flex justify-center">
+      <SidebarMenuItem>
         <Tooltip>
-          <TooltipTrigger asChild>{<SidebarTrigger />}</TooltipTrigger>
-          <TooltipContent
-            side="right"
-            align="center"
-            hidden={state !== "collapsed" || isMobile}
-          >
-            Toggle Sidebar
-          </TooltipContent>
+          <TooltipTrigger asChild>
+            <SidebarTrigger className="w-8 h-8" />
+          </TooltipTrigger>
+          <TooltipContent side="right">Toggle Sidebar</TooltipContent>
         </Tooltip>
       </SidebarMenuItem>
     </SidebarMenu>
