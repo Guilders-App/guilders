@@ -54,5 +54,7 @@ export const deregisterSaltEdgeUser: ConnectionProviderFunction = async (
     };
   }
 
-  return { success: true };
+  return {
+    success: true,
+  };
 };

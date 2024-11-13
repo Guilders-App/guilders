@@ -1,4 +1,5 @@
-import { useMutation } from "@tanstack/react-query";
+import { Tables } from "@/lib/supabase/database.types";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function useRegisterUser() {
   return useMutation({
@@ -24,7 +25,7 @@ export function useDeregisterUser() {
   return useMutation({
     mutationFn: async (providerName: string) => {
       const response = await fetch(
-        `/api/connections/deregister/${providerName}`,
+        `/api/connections/deregister/${providerName.toLowerCase()}`,
         {
           method: "POST",
         }
@@ -36,6 +37,24 @@ export function useDeregisterUser() {
         );
       }
       return data;
+    },
+  });
+}
+
+type Connection = Tables<"provider_connection"> & {
+  provider: Tables<"provider">;
+};
+
+export function useGetConnections() {
+  return useQuery<Connection[]>({
+    queryKey: ["connections"],
+    queryFn: async () => {
+      const response = await fetch("/api/connections");
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.error || "Failed to fetch connections");
+      }
+      return data.data;
     },
   });
 }

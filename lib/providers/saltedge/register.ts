@@ -20,11 +20,13 @@ export const registerSaltEdgeUser: ConnectionProviderFunction = async (
     .from("provider_connection")
     .select("*")
     .eq("user_id", userId)
-    .eq("provider_id", provider.id);
+    .eq("provider_id", provider.id)
+    .single();
 
-  if (connection.data) {
+  if (connection && connection.data) {
     return {
       success: true,
+      data: connection.data,
     };
   }
 
@@ -55,5 +57,8 @@ export const registerSaltEdgeUser: ConnectionProviderFunction = async (
     };
   }
 
-  return { success: true, data: registeredConnection };
+  return {
+    success: true,
+    data: registeredConnection,
+  };
 };

@@ -60,5 +60,8 @@ export const registerSnapTradeUser: ConnectionProviderFunction = async (
     };
   }
 
-  return { success: true, data: registeredConnection };
+  return {
+    success: true,
+    data: registeredConnection,
+  };
 };

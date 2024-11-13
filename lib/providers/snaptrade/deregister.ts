@@ -1,3 +1,6 @@
+"use server";
+
+import { createClient } from "@/lib/supabase/server";
 import { getProvider } from "@/lib/supabase/utils";
 import { ConnectionProviderFunction } from "../types";
 import { providerName, snaptrade } from "./client";
@@ -5,6 +8,7 @@ import { providerName, snaptrade } from "./client";
 export const deregisterSnapTradeUser: ConnectionProviderFunction = async (
   userId: string
 ) => {
+  const supabase = await createClient();
   const provider = await getProvider(providerName);
 
   if (!provider) {
@@ -19,11 +23,28 @@ export const deregisterSnapTradeUser: ConnectionProviderFunction = async (
   });
   if (!response || response.status !== 200) {
     console.error(`${providerName} deregistration error:`, response);
+    console.log(await response.data);
     return {
       success: false,
       error: `Failed to deregister ${providerName} user`,
     };
   }
 
-  return { success: true };
+  const { error } = await supabase
+    .from("provider_connection")
+    .delete()
+    .eq("provider_id", provider.id)
+    .eq("user_id", userId);
+
+  if (error) {
+    console.error(`${providerName} deregistration error:`, error);
+    return {
+      success: false,
+      error: `Failed to deregister ${providerName} user`,
+    };
+  }
+
+  return {
+    success: true,
+  };
 };
