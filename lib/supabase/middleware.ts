@@ -40,7 +40,9 @@ export const updateSession = async (request: NextRequest) => {
 
   const isPublicRoute =
     publicRoutes.includes(request.nextUrl.pathname) ||
-    request.nextUrl.pathname.startsWith("/callback/");
+    request.nextUrl.pathname.startsWith("/callback/") ||
+    request.nextUrl.pathname.startsWith("/api/") ||
+    request.nextUrl.pathname.startsWith("/swagger");
 
   if (isPublicRoute && !user.error) {
     return NextResponse.redirect(new URL("/dashboard", request.url));

@@ -1,5 +1,13 @@
 import * as crypto from "crypto";
 import * as fs from "fs/promises";
+import {
+  Country,
+  Customer,
+  RemoveCustomerResponse,
+  SaltEdgeConfig,
+  SaltEdgeResponse,
+  SignedHeaders,
+} from "./types";
 
 export class SaltEdgeClient {
   private baseUrl: string;

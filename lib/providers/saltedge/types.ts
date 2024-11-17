@@ -1,4 +1,4 @@
-interface SaltEdgeConfig {
+export interface SaltEdgeConfig {
   appId: string;
   secret: string;
   privateKeyPath: string;
@@ -6,16 +6,15 @@ interface SaltEdgeConfig {
   baseUrl?: string;
 }
 
-interface SignedHeaders {
+export interface SignedHeaders {
   Accept: string;
   "App-id": string;
   "Content-Type": string;
   "Expires-at": string;
   Secret: string;
-  // Signature: string;
 }
 
-type Country = {
+export type Country = {
   /** Name of the country */
   name: string;
   /** Country code as dated in ISO 3166-1 alpha-2 */
@@ -24,7 +23,7 @@ type Country = {
   refresh_start_time: number;
 };
 
-type Provider = {
+export type Provider = {
   /** The id of the Provider */
   id: string;
   /** A distinct code for identifying a Provider */
@@ -111,7 +110,7 @@ type Provider = {
   interactive_fields: Record<string, any>[];
 };
 
-type Customer = {
+export type Customer = {
   /** The id of the User */
   customer_id: string;
   /** The unique external identifier of a Customer (e.g email, id on the Client's side) */
@@ -124,17 +123,17 @@ type Customer = {
   updated_at: string;
 };
 
-type RemoveCustomerResponse = {
+export type RemoveCustomerResponse = {
   customer_id: string;
   deleted: boolean;
 };
 
-interface Meta {
+export interface Meta {
   next_id: string | null;
   next_page: string | null;
 }
 
-interface SaltEdgeResponse<T> {
+export interface SaltEdgeResponse<T> {
   data: T;
   meta?: Meta;
 }

@@ -148,83 +148,6 @@ export type Database = {
           },
         ]
       }
-      account_history: {
-        Row: {
-          account_id: number
-          connection_id: number | null
-          cost: number | null
-          created_at: string
-          currency: string
-          description: string
-          id: number
-          investable: Database["public"]["Enums"]["investable"]
-          name: string
-          notes: string
-          parent: number | null
-          quantity: number | null
-          subtype: Database["public"]["Enums"]["account_subtype"]
-          tax_rate: number | null
-          taxability: Database["public"]["Enums"]["taxability"]
-          ticker: string | null
-          type: Database["public"]["Enums"]["account_type"]
-          updated_at: string
-          user_id: string
-          value: number
-        }
-        Insert: {
-          account_id: number
-          connection_id?: number | null
-          cost?: number | null
-          created_at?: string
-          currency: string
-          description?: string
-          id?: number
-          investable?: Database["public"]["Enums"]["investable"]
-          name: string
-          notes?: string
-          parent?: number | null
-          quantity?: number | null
-          subtype: Database["public"]["Enums"]["account_subtype"]
-          tax_rate?: number | null
-          taxability?: Database["public"]["Enums"]["taxability"]
-          ticker?: string | null
-          type: Database["public"]["Enums"]["account_type"]
-          updated_at: string
-          user_id: string
-          value: number
-        }
-        Update: {
-          account_id?: number
-          connection_id?: number | null
-          cost?: number | null
-          created_at?: string
-          currency?: string
-          description?: string
-          id?: number
-          investable?: Database["public"]["Enums"]["investable"]
-          name?: string
-          notes?: string
-          parent?: number | null
-          quantity?: number | null
-          subtype?: Database["public"]["Enums"]["account_subtype"]
-          tax_rate?: number | null
-          taxability?: Database["public"]["Enums"]["taxability"]
-          ticker?: string | null
-          type?: Database["public"]["Enums"]["account_type"]
-          updated_at?: string
-          user_id?: string
-          value?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "account_history_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "account"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       currency: {
         Row: {
           code: string
@@ -278,6 +201,7 @@ export type Database = {
       institution: {
         Row: {
           countries: string[] | null
+          demo: boolean
           enabled: boolean
           id: number
           logo_url: string
@@ -287,6 +211,7 @@ export type Database = {
         }
         Insert: {
           countries?: string[] | null
+          demo?: boolean
           enabled?: boolean
           id?: number
           logo_url: string
@@ -296,6 +221,7 @@ export type Database = {
         }
         Update: {
           countries?: string[] | null
+          demo?: boolean
           enabled?: boolean
           id?: number
           logo_url?: string
