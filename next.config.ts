@@ -19,6 +19,10 @@ const nextConfig: NextConfig = {
       {
         hostname: "d1uuj3mi6rzwpm.cloudfront.net",
       },
+      // Tink
+      {
+        hostname: "cdn.tink.se",
+      },
     ],
   },
 };
