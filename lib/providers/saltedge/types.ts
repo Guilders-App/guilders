@@ -1,8 +1,6 @@
 export interface SaltEdgeConfig {
   appId: string;
   secret: string;
-  privateKeyPath: string;
-  publicKeyPath?: string;
   baseUrl?: string;
 }
 
@@ -12,6 +10,7 @@ export interface SignedHeaders {
   "Content-Type": string;
   "Expires-at": string;
   Secret: string;
+  Signature: string;
 }
 
 export type Country = {

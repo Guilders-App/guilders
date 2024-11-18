@@ -22,6 +22,10 @@ declare global {
       // SaltEdge (banking provider)
       SALTEDGE_CLIENT_ID: string;
       SALTEDGE_CLIENT_SECRET: string;
+      SALTEDGE_PRIVATE_KEY: string;
+      SALTEDGE_PUBLIC_KEY: string;
+      SALTEDGE_CALLBACK_USERNAME: string;
+      SALTEDGE_CALLBACK_PASSWORD: string;
       // Tink (banking provider)
       TINK_CLIENT_ID: string;
       TINK_CLIENT_SECRET: string;
