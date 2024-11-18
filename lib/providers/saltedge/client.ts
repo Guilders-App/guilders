@@ -3,6 +3,7 @@ import * as fs from "fs/promises";
 import {
   Country,
   Customer,
+  Provider,
   RemoveCustomerResponse,
   SaltEdgeConfig,
   SaltEdgeResponse,
