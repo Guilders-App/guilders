@@ -89,8 +89,6 @@ export async function POST(request: Request) {
       }
     );
 
-    console.log(connection);
-
     if (!connection.connect_url) {
       return NextResponse.json(
         { success: false, error: "Failed to create connection" },

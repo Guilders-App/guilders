@@ -42,8 +42,6 @@ export const insertSnapTradeInstitutions = async (): Promise<Response> => {
     onConflict: "provider_id,provider_institution_id",
   });
 
-  console.log("SnapTrade insert response", response);
-
   if (response.error) {
     return new Response("Failed to insert institutions", { status: 500 });
   }

@@ -22,8 +22,7 @@ export const deregisterSnapTradeUser: ConnectionProviderFunction = async (
     userId,
   });
   if (!response || response.status !== 200) {
-    console.error(`${providerName} deregistration error:`, response);
-    console.log(await response.data);
+    console.error(`${providerName} deregistration error:`, await response.data);
     return {
       success: false,
       error: `Failed to deregister ${providerName} user`,

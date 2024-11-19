@@ -62,9 +62,7 @@ export function ProviderDialog({
           }
         }
       } else if (e.origin === "https://www.saltedge.com") {
-        console.log("SaltEdge iframe message event received");
         const { data }: SaltEdgeCallback = JSON.parse(e.data);
-        console.log(data);
         if (data.stage === "success") {
           setIsOpen(false);
           toast({

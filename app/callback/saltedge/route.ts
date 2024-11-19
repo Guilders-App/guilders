@@ -8,10 +8,7 @@ import { NATURE_TO_TYPE_SUBTYPE } from "./utils";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 export async function POST(request: NextRequest) {
-  console.log("SaltEdge callback received");
   const { data }: SaltEdgeCallbackBody = await request.json();
-  console.log("Headers:", request.headers);
-  console.log("Data:", data);
 
   if (data.stage !== "finish") {
     return NextResponse.json({ message: "Hello, World!" });
@@ -71,6 +68,7 @@ export async function POST(request: NextRequest) {
     data.connection_id
   );
 
+  // TODO: Remove debug logs
   console.log("Accounts:", accounts);
   const { error: accountsError } = await supabase.from("account").upsert(
     accounts.map((account) => {

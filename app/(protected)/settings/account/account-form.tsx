@@ -38,7 +38,6 @@ type AccountFormValues = z.infer<typeof accountFormSchema>;
 
 export function AccountForm() {
   const { data: user, isLoading: isUserLoading, error: userError } = useUser();
-  console.log("user", user);
 
   const {
     data: currencies,
