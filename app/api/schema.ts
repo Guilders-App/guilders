@@ -80,3 +80,5 @@
  *                 type: string
  *                 example: "Server error"
  */
+
+export {};
