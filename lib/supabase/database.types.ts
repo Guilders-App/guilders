@@ -125,32 +125,6 @@ export type Database = {
           },
         ]
       }
-      account_connection: {
-        Row: {
-          account_id: string
-          id: number
-          institution_connection_id: number
-        }
-        Insert: {
-          account_id: string
-          id?: number
-          institution_connection_id: number
-        }
-        Update: {
-          account_id?: string
-          id?: number
-          institution_connection_id?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "account_connection_institution_connection_id_fkey"
-            columns: ["institution_connection_id"]
-            isOneToOne: false
-            referencedRelation: "institution_connection"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       currency: {
         Row: {
           code: string
@@ -248,21 +222,21 @@ export type Database = {
           created_at: string
           id: number
           institution_id: number
-          user_id: string
+          provider_connection_id: number | null
         }
         Insert: {
           connection_id?: string | null
           created_at?: string
           id?: number
           institution_id: number
-          user_id: string
+          provider_connection_id?: number | null
         }
         Update: {
           connection_id?: string | null
           created_at?: string
           id?: number
           institution_id?: number
-          user_id?: string
+          provider_connection_id?: number | null
         }
         Relationships: [
           {
@@ -270,6 +244,13 @@ export type Database = {
             columns: ["institution_id"]
             isOneToOne: false
             referencedRelation: "institution"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institution_connection_provider_connection_id_fkey"
+            columns: ["provider_connection_id"]
+            isOneToOne: false
+            referencedRelation: "provider_connection"
             referencedColumns: ["id"]
           },
         ]
@@ -295,6 +276,7 @@ export type Database = {
       provider_connection: {
         Row: {
           created_at: string
+          id: number
           provider_id: number
           secret: string | null
           updated_at: string
@@ -302,6 +284,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          id?: number
           provider_id: number
           secret?: string | null
           updated_at?: string
@@ -309,6 +292,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          id?: number
           provider_id?: number
           secret?: string | null
           updated_at?: string

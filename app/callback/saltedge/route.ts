@@ -1,92 +1,54 @@
-import { saltedge } from "@/lib/providers/saltedge/client";
-import { Account as SaltEdgeAccount } from "@/lib/providers/saltedge/types";
-import { Database } from "@/lib/supabase/database.types";
+import { providerName, saltedge } from "@/lib/providers/saltedge/client";
+
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
-
-export type SaltEdgeCallbackBody = {
-  data: {
-    connection_id: string;
-    customer_id: string;
-    custom_fields: {
-      institution_id: string;
-      user_id: string;
-    };
-    stage:
-      | "connect"
-      | "start"
-      | "fetch_accounts"
-      | "fetch_transactions"
-      | "finish_fetching"
-      | "finish"
-      | "error";
-  };
-  meta: {
-    version: string;
-    time: string;
-  };
-};
-
-const NATURE_TO_TYPE_SUBTYPE: Record<
-  SaltEdgeAccount["nature"],
-  {
-    type: Database["public"]["Enums"]["account_type"];
-    subtype: Database["public"]["Enums"]["account_subtype"];
-  }
-> = {
-  checking: { type: "asset", subtype: "depository" },
-  savings: { type: "asset", subtype: "depository" },
-  account: { type: "asset", subtype: "depository" },
-  card: { type: "asset", subtype: "depository" },
-  ewallet: { type: "asset", subtype: "depository" },
-
-  investment: { type: "asset", subtype: "brokerage" },
-
-  credit: { type: "liability", subtype: "loan" },
-  loan: { type: "liability", subtype: "loan" },
-  mortgage: { type: "liability", subtype: "loan" },
-
-  credit_card: { type: "liability", subtype: "creditcard" },
-  debit_card: { type: "asset", subtype: "depository" },
-
-  bonus: { type: "asset", subtype: "depository" },
-  insurance: { type: "asset", subtype: "depository" },
-};
+import { SaltEdgeCallbackBody } from "./types";
+import { NATURE_TO_TYPE_SUBTYPE } from "./utils";
 
 export async function POST(request: NextRequest) {
   console.log("SaltEdge callback received");
   const { data }: SaltEdgeCallbackBody = await request.json();
-  console.log("Headers:");
-  console.log(request.headers);
-  console.log("Data:");
-  console.log(data);
+  console.log("Headers:", request.headers);
+  console.log("Data:", data);
 
   if (data.stage !== "finish") {
     return NextResponse.json({ message: "Hello, World!" });
   }
 
-  // const supabase = await createClient();
-
-  // const { error } = await supabase.from("institution_connection").upsert({
-  //   institution_id: institution.id,
-  //   user_id: body.userId,
-  //   connection_id: data.connection_id,
-  // });
-
-  // const { data: accounts } = await saltedge.getAccounts(
-  //   data.customer_id,
-  //   data.connection_id
-  // );
-
   const supabase = await createClient();
+  const { data: provider } = await supabase
+    .from("provider")
+    .select()
+    .eq("name", providerName)
+    .single();
+
+  if (!provider) {
+    console.error("Provider not found");
+    return NextResponse.json({ error: "Provider not found" }, { status: 500 });
+  }
+
+  const { data: providerConnection } = await supabase
+    .from("provider_connection")
+    .select()
+    .eq("provider_id", provider.id)
+    .eq("user_id", data.custom_fields.user_id)
+    .single();
+
+  if (!providerConnection) {
+    console.error("Provider connection not found");
+    return NextResponse.json(
+      { error: "Provider connection not found" },
+      { status: 500 }
+    );
+  }
 
   const { data: institutionConnection, error: institutionConnectionError } =
     await supabase
       .from("institution_connection")
       .upsert({
         institution_id: Number(data.custom_fields.institution_id),
-        user_id: data.custom_fields.user_id,
         connection_id: data.connection_id,
+        provider_connection_id: providerConnection.id,
       })
       .select()
       .single();
@@ -107,8 +69,7 @@ export async function POST(request: NextRequest) {
     data.connection_id
   );
 
-  console.log("Accounts:");
-  console.log(accounts);
+  console.log("Accounts:", accounts);
   const { error: accountsError } = await supabase.from("account").upsert(
     accounts.map((account) => {
       const typeMapping = NATURE_TO_TYPE_SUBTYPE[account.nature];

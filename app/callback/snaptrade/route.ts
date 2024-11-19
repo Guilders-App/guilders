@@ -157,9 +157,24 @@ async function handleConnectionAdded(body: ConnectionAddedWebhook) {
     );
   }
 
+  const { data: provider_connection } = await supabase
+    .from("provider_connection")
+    .select()
+    .eq("user_id", body.userId)
+    .eq("provider_id", provider.id)
+    .single();
+
+  if (!provider_connection) {
+    console.error("Provider connection not found");
+    return NextResponse.json(
+      { error: "Provider connection not found" },
+      { status: 500 }
+    );
+  }
+
   const { error } = await supabase.from("institution_connection").upsert({
     institution_id: institution.id,
-    user_id: body.userId,
+    provider_connection_id: provider_connection.id,
     connection_id: body.brokerageAuthorizationId,
   });
 
@@ -198,20 +213,19 @@ async function handleAccountRemoved(body: AccountRemovedWebhook) {
   const supabase = await createClient();
 
   const { error } = await supabase
-    .from("account_connection")
+    .from("account")
     .delete()
     .eq("account_id", body.accountId)
     .eq("institution_connection_id", body.brokerageId);
 
   if (error) {
-    console.error("Error deleting account connection:", error);
+    console.error("Error deleting account:", error);
     return NextResponse.json(
-      { error: "Error deleting institution connection" },
+      { error: "Error deleting account" },
       { status: 500 }
     );
   }
 
-  // Account is deleted by cascade
   return NextResponse.json({ success: true });
 }
 
