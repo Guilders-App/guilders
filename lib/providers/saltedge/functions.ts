@@ -1,11 +1,11 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getProvider } from "@/lib/supabase/utils";
 import { providerName, saltedge } from "./client";
 
 export const insertSaltEdgeInstitutions = async (): Promise<Response> => {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   const provider = await getProvider(providerName);
 
   if (!provider) {

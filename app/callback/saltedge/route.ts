@@ -1,10 +1,12 @@
+"use server";
+
 import { providerName, saltedge } from "@/lib/providers/saltedge/client";
 
-import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { SaltEdgeCallbackBody } from "./types";
 import { NATURE_TO_TYPE_SUBTYPE } from "./utils";
 
+import { createAdminClient } from "@/lib/supabase/admin";
 export async function POST(request: NextRequest) {
   console.log("SaltEdge callback received");
   const { data }: SaltEdgeCallbackBody = await request.json();
@@ -15,7 +17,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "Hello, World!" });
   }
 
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   const { data: provider } = await supabase
     .from("provider")
     .select()

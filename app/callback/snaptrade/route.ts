@@ -1,5 +1,7 @@
+"use server";
+
 import { providerName, snaptrade } from "@/lib/providers/snaptrade/client";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import type {
   AccountHoldingsUpdatedWebhook,
@@ -95,7 +97,7 @@ export async function POST(request: Request) {
 }
 
 async function handleUserDeleted(body: UserDeletedWebhook) {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
 
   // Remove _deleted suffix from userId
   const userId = body.userId.replace("_deleted", "");
@@ -129,7 +131,7 @@ async function handleUserDeleted(body: UserDeletedWebhook) {
 }
 
 async function handleConnectionAdded(body: ConnectionAddedWebhook) {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
 
   const { data: provider } = await supabase
     .from("provider")
@@ -190,13 +192,39 @@ async function handleConnectionAdded(body: ConnectionAddedWebhook) {
 }
 
 async function handleConnectionDeleted(body: ConnectionDeletedWebhook) {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
+
+  const { data: provider } = await supabase
+    .from("provider")
+    .select()
+    .eq("name", providerName)
+    .single();
+
+  if (!provider) {
+    console.error("Provider not found");
+    return NextResponse.json({ error: "Provider not found" }, { status: 500 });
+  }
+
+  const { data: providerConnection } = await supabase
+    .from("provider_connection")
+    .select()
+    .eq("provider_id", provider.id)
+    .eq("user_id", body.userId)
+    .single();
+
+  if (!providerConnection) {
+    console.error("Provider connection not found");
+    return NextResponse.json(
+      { error: "Provider connection not found" },
+      { status: 500 }
+    );
+  }
 
   const { error } = await supabase
     .from("institution_connection")
     .delete()
     .eq("institution_id", body.brokerageId)
-    .eq("user_id", body.userId);
+    .eq("provider_connection_id", providerConnection.id);
 
   if (error) {
     console.error("Error deleting institution connection:", error);
@@ -210,7 +238,7 @@ async function handleConnectionDeleted(body: ConnectionDeletedWebhook) {
 }
 
 async function handleAccountRemoved(body: AccountRemovedWebhook) {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
 
   const { error } = await supabase
     .from("account")
@@ -236,7 +264,7 @@ async function handleAccountUpdate(
     | AccountTransactionsInitialUpdateWebhook
     | AccountTransactionsUpdatedWebhook
 ) {
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
 
   const { data: provider } = await supabase
     .from("provider")
@@ -282,7 +310,7 @@ async function handleAccountUpdate(
   const { data: institutionConnection } = await supabase
     .from("institution_connection")
     .select()
-    .eq("user_id", body.userId)
+    .eq("provider_connection_id", providerConnection.id)
     .eq("institution_id", institution.id)
     .single();
 
