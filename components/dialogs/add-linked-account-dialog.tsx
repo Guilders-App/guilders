@@ -76,7 +76,7 @@ export function AddLinkedAccountDialog({
             <Image
               src={provider.logo_url}
               alt={`${provider.name} logo`}
-              width={100}
+              width={96}
               height={24}
               className="object-contain"
             />

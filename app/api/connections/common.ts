@@ -3,6 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
+export type ConnectBody = {
+  institution_id: string;
+};
+
 export const registerConnection = async (
   providerName: string,
   registerFunction: ConnectionProviderFunction,

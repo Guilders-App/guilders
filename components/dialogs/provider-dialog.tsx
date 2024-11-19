@@ -12,6 +12,16 @@ interface ProviderDialogProps {
   onError?: (error: string) => void;
 }
 
+type SaltEdgeCallback = {
+  data: {
+    connection_id: string;
+    stage: "fetching" | "success" | "error";
+    secret: string;
+    custom_fields: Record<string, string>;
+    api_stage: string;
+  };
+};
+
 export function ProviderDialog({
   isOpen,
   setIsOpen,
@@ -22,27 +32,50 @@ export function ProviderDialog({
 
   useEffect(() => {
     const handleMessageEvent = (e: MessageEvent) => {
-      if (e.data) {
-        const data = e.data;
-        if (data.status === "SUCCESS") {
+      // Ignore messages from localhost
+      if (e.origin === "http://localhost:3000") return;
+
+      if (e.origin === "https://app.snaptrade.com") {
+        if (e.data) {
+          const data = e.data;
+          if (data.status === "SUCCESS") {
+            setIsOpen(false);
+            toast({
+              title: "Success",
+              description:
+                "You have successfully connected to the institution!",
+            });
+          }
+          if (data.status === "ERROR") {
+            toast({
+              title: "Error",
+              description: "There was an error connecting to the institution.",
+            });
+            setIsOpen(false);
+          }
+          if (
+            data === "CLOSED" ||
+            data === "CLOSE_MODAL" ||
+            data === "ABANDONED"
+          ) {
+            setIsOpen(false);
+          }
+        }
+      } else if (e.origin === "https://www.saltedge.com") {
+        console.log("SaltEdge iframe message event received");
+        const { data }: SaltEdgeCallback = JSON.parse(e.data);
+        console.log(data);
+        if (data.stage === "success") {
           setIsOpen(false);
           toast({
             title: "Success",
             description: "You have successfully connected to the institution!",
           });
-        }
-        if (data.status === "ERROR") {
+        } else if (data.stage === "error") {
           toast({
             title: "Error",
             description: "There was an error connecting to the institution.",
           });
-          setIsOpen(false);
-        }
-        if (
-          data === "CLOSED" ||
-          data === "CLOSE_MODAL" ||
-          data === "ABANDONED"
-        ) {
           setIsOpen(false);
         }
       }

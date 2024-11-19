@@ -136,3 +136,235 @@ export interface SaltEdgeResponse<T> {
   data: T;
   meta?: Meta;
 }
+
+export type Connection = {
+  /** The id of the created Connection */
+  id: string;
+  /** The id of the Customer to which the Connection belongs */
+  customer_id: string;
+  /** The unique external identifier of a Customer (e.g email, id on the Client's side) */
+  customer_identifier: string;
+  /** The code assigned by Salt Edge for a particular Provider */
+  provider_code: string;
+  /** The Provider's name used to establish the Connection */
+  provider_name: string;
+  /** Country code of the Provider */
+  country_code: string;
+  /** The current status of the Connection */
+  status: "active" | "inactive" | "disabled";
+  /** The categorization type applied to transactions from this Connection */
+  categorization: "none" | "personal" | "business";
+  /** The categorization vendor used for transactions' categorization */
+  categorization_vendor: "saltedge" | "fino";
+  /** Whether the refresh is automatically performed for this Connection */
+  automatic_refresh: boolean;
+  /** Determines when the next refresh will be available */
+  next_refresh_possible_at: string | null;
+  /** The date and time in UTC when the Connection was created */
+  created_at: string;
+  /** The date and time in UTC when the Connection was updated */
+  updated_at: string;
+  /** The id of the last provided PSD2 consent */
+  last_consent_id: string;
+  /** Information about the latest executed attempt */
+  last_attempt: Record<string, any>;
+  /** Information about the holder of this Connection */
+  holder_info: {
+    /** Account holder's name(s) */
+    names: string[];
+    /** Account holder's email(s) */
+    emails: string[];
+    /** Account holder's phone number(s) */
+    phone_numbers: string[];
+    /** Account holder's address(es) */
+    addresses: Array<{
+      city: string;
+      state: string;
+      street: string;
+      country_code: string;
+      post_code: string;
+    }>;
+    /** Additional holder information */
+    extra: {
+      /** Social Security Number shortened (last 4 digits) */
+      ssn?: string;
+      /** Cadastro de Pessoas Físicas (specific to Brazil) */
+      cpf?: string;
+      /** Account holder's date of birth */
+      birth_date?: string;
+      /** Account holder's identification number */
+      document_number?: string;
+    };
+  };
+};
+
+interface ConnectionConsent {
+  /** Data to be allowed for fetching */
+  scopes: Array<"holder_info" | "accounts" | "transactions">;
+  /** Allows to fetch data starting from a specified date */
+  from_date?: string;
+  /** Allows to fetch data up until a specified date */
+  to_date?: string;
+  /** Allows to specify the duration of consent validity (in days) */
+  period_days?: number;
+}
+
+interface ConnectionAttempt {
+  /** A list of scopes requested by Clients from the Provider */
+  fetch_scopes?: Array<"holder_info" | "accounts" | "balance" | "transactions">;
+  /** The starting date for fetching the data */
+  fetch_from_date?: string;
+  /** The ending date for fetching the data */
+  fetch_to_date?: string;
+  /** The types of accounts to fetch */
+  account_natures?: Array<
+    | "account"
+    | "bonus"
+    | "card"
+    | "checking"
+    | "credit"
+    | "credit_card"
+    | "debit_card"
+    | "ewallet"
+    | "insurance"
+    | "investment"
+    | "loan"
+    | "mortgage"
+    | "savings"
+  >;
+  /** A JSON object that will be sent back on any of the Client's callbacks */
+  custom_fields?: Record<string, any>;
+  /** The language of the Widget and the language of the returned error message(s).
+   *  Possible values: any locale in ISO 639-1 format */
+  locale?: string;
+  /** Whether credentials are stored on Salt Edge's side or not.
+   *  Relevant for Providers with mode: web and api */
+  store_credentials?: boolean;
+  /** The unduplication strategy used for duplicated transactions.
+   *  The provided value remains unchanged until another value is sent during Connections/reconnect or Connections/refresh.
+   *  `mark_as_pending`: leaves identified duplicated transactions in Pending status for clients that establish connections with providers having a non-null custom_pendings_period.
+   *  `mark_as_duplicate`: identifies transactions as duplicated and sets the duplicated flag to true.
+   *  `delete_duplicated`: removes identified duplicated transactions.
+
+   *  Possible values: `mark_as_pending`, `mark_as_duplicate`, `delete_duplicated`
+   *  Default value: `mark_as_pending` */
+  unduplication_strategy?:
+    | "mark_as_pending"
+    | "mark_as_duplicate"
+    | "delete_duplicated";
+  /** The URL to redirect to after the Connection is created. Default: App Home URL */
+  return_to?: string;
+}
+
+interface ConnectionWidget {
+  /** Displays information about connected accounts in the Widget */
+  show_account_overview?: boolean;
+  /** Shows confirmation of the Connection */
+  show_consent_confirmation?: boolean;
+  /** The strategy for storing the User's credentials */
+  credentials_strategy?: "store" | "do_not_store" | "ask";
+  /** How the Widget interacts with the opener/parent window */
+  javascript_callback_type?: "iframe" | "post_message";
+  /** Enables Clients to disable Provider searches for Users */
+  disable_provider_search?: boolean;
+  /** Enables Users to skip the Provider selection page */
+  skip_provider_selection?: boolean;
+  /** Allows Users to skip the stage screen */
+  skip_stages_screen?: boolean;
+  /** Enables Clients to specify the template for the Widget */
+  template?: string;
+  /** Allows Clients to specify the theme for the Widget. Default: `default` */
+  theme?: "dark" | "default" | "light";
+  /** Displays Providers only from specified countries */
+  allowed_countries?: string[];
+  /** Display in the Widget the most popular Providers from a specified country */
+  popular_providers_country?: string;
+}
+
+interface ConnectionProvider {
+  /** The code of the required Provider */
+  code?: string;
+  /** Whether to display Sandboxes and Fake Providers in Provider search or not */
+  include_sandboxes?: boolean;
+  /** Restricts the list of Providers to only those that have the mode included in the array */
+  modes?: Array<"oauth" | "web" | "api">;
+}
+
+interface ConnectionKyc {
+  /** The type of Account to be connected, only for KYC purposes */
+  type_of_account: "personal" | "shared" | "business";
+}
+
+export interface CreateConnectionRequest {
+  /** A unique id of the User assigned by Salt Edge */
+  customer_id: string;
+  /** A unique external identifier of a Customer (e.g email, id on the Client's side) */
+  customer_identifier?: string;
+  /** Data to be allowed for fetching */
+  consent: ConnectionConsent;
+  /** A list of scopes requested by Clients from the Provider */
+  attempt?: ConnectionAttempt;
+  /** Widget configuration */
+  widget?: ConnectionWidget;
+  /** Provider configuration */
+  provider?: ConnectionProvider;
+  /** KYC configuration */
+  kyc: ConnectionKyc;
+  /** Appends connection_id to the `return_to` URL. Default: `false` */
+  return_connection_id?: boolean;
+  /** Appends error_class to the return_to URL. Default: `false` */
+  return_error_class?: boolean;
+  /** The categorization type applied to transactions from this Connection */
+  categorization?: "none" | "personal" | "business";
+  /** The categorization vendor used for transactions' categorization. Default: `saltedge` */
+  categorization_vendor?: "saltedge" | "fino";
+  /** Whether the refresh is automatically performed for this Connection.
+   *  Default value: `false` (Client), `true` (Partner)
+   */
+  automatic_refresh?: boolean;
+}
+
+export interface CreateConnectionResponse {
+  expires_at: string;
+  connect_url: string;
+  customer_id: string;
+}
+
+export type Account = {
+  /** The id of the Account */
+  id: string;
+  /** The id of the Connection the Account belongs to */
+  connection_id: string;
+  /** The unique name of the Account */
+  name: string;
+  /** The type of the Account */
+  nature:
+    | "account"
+    | "bonus"
+    | "card"
+    | "checking"
+    | "credit"
+    | "credit_card"
+    | "debit_card"
+    | "ewallet"
+    | "insurance"
+    | "investment"
+    | "loan"
+    | "mortgage"
+    | "savings";
+  /** The latest Account balance */
+  balance: number;
+  /** The currency code of the Account in ISO 4217 format */
+  currency_code: string;
+  /** Accounts extra associated with the Account */
+  extra: Record<string, any>;
+  /** The date and time in UTC when the Account was imported */
+  created_at: string;
+  /** The date and time in UTC when the Account's balance has changed or new transactions have been fetched */
+  updated_at: string;
+};
+
+export interface GetAccountsResponse {
+  data: Account[];
+  meta: Meta;
+}

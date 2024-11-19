@@ -306,30 +306,6 @@ async function handleAccountUpdate(
     );
   }
 
-  const { data: account_connection, error: account_connection_error } =
-    await supabase
-      .from("account_connection")
-      .upsert(
-        {
-          account_id: body.accountId,
-          institution_connection_id: institutionConnection.id,
-        },
-        { onConflict: "account_id,institution_connection_id" }
-      )
-      .select()
-      .single();
-
-  if (account_connection_error) {
-    console.error(
-      "Error inserting account connection:",
-      account_connection_error
-    );
-    return NextResponse.json(
-      { error: "Error inserting account connection" },
-      { status: 500 }
-    );
-  }
-
   const snapTradeAccount = accountResponse.data;
   const { error } = await supabase.from("account").upsert(
     {
@@ -340,9 +316,10 @@ async function handleAccountUpdate(
       value: snapTradeAccount.balance.total?.amount ?? 0,
       currency:
         snapTradeAccount.balance.total?.currency?.toUpperCase() ?? "USD",
-      account_connection_id: account_connection.id,
+      institution_connection_id: institutionConnection.id,
+      account_id: snapTradeAccount.id,
     },
-    { onConflict: "user_id,account_connection_id" }
+    { onConflict: "institution_connection_id,account_id" }
   );
 
   if (error) {

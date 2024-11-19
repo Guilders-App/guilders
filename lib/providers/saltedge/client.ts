@@ -1,6 +1,9 @@
 import * as crypto from "crypto";
 import {
+  Account,
   Country,
+  CreateConnectionRequest,
+  CreateConnectionResponse,
   Customer,
   Provider,
   RemoveCustomerResponse,
@@ -146,6 +149,48 @@ export class SaltEdgeClient {
     return this.request<RemoveCustomerResponse>(`/customers/${customerId}`, {
       method: "DELETE",
       isArray: false,
+    });
+  }
+
+  async createConnection(
+    customerId: string,
+    institutionId: string,
+    customFields?: Record<string, any>
+  ): Promise<CreateConnectionResponse> {
+    return this.request<CreateConnectionResponse>("/connections/connect", {
+      method: "POST",
+      data: {
+        customer_id: customerId,
+        provider: {
+          code: institutionId,
+        },
+        consent: {
+          scopes: ["accounts", "transactions"],
+        },
+        kyc: {
+          type_of_account: "personal",
+        },
+        widget: {
+          javascript_callback_type: "post_message",
+        },
+        attempt: {
+          custom_fields: customFields,
+        },
+      } as CreateConnectionRequest,
+      isArray: false,
+    });
+  }
+
+  async getAccounts(
+    customerId: string,
+    connectionId: string
+  ): Promise<Account[]> {
+    return this.request<Account[]>(`/accounts`, {
+      params: {
+        customer_id: customerId,
+        connection_id: connectionId,
+      },
+      isArray: true,
     });
   }
 }

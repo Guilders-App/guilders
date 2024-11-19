@@ -36,12 +36,13 @@ export type Database = {
     Tables: {
       account: {
         Row: {
-          account_connection_id: number | null
+          account_id: string | null
           cost: number | null
           created_at: string
           currency: string
           description: string
           id: number
+          institution_connection_id: number | null
           investable: Database["public"]["Enums"]["investable"]
           name: string
           notes: string
@@ -57,12 +58,13 @@ export type Database = {
           value: number
         }
         Insert: {
-          account_connection_id?: number | null
+          account_id?: string | null
           cost?: number | null
           created_at?: string
           currency: string
           description?: string
           id?: number
+          institution_connection_id?: number | null
           investable?: Database["public"]["Enums"]["investable"]
           name: string
           notes?: string
@@ -78,12 +80,13 @@ export type Database = {
           value: number
         }
         Update: {
-          account_connection_id?: number | null
+          account_id?: string | null
           cost?: number | null
           created_at?: string
           currency?: string
           description?: string
           id?: number
+          institution_connection_id?: number | null
           investable?: Database["public"]["Enums"]["investable"]
           name?: string
           notes?: string
@@ -100,18 +103,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "account_account_connection_id_fkey"
-            columns: ["account_connection_id"]
-            isOneToOne: true
-            referencedRelation: "account_connection"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "account_currency_fkey"
             columns: ["currency"]
             isOneToOne: false
             referencedRelation: "currency"
             referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "account_institution_connection_id_fkey"
+            columns: ["institution_connection_id"]
+            isOneToOne: false
+            referencedRelation: "institution_connection"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "account_parent_fkey"

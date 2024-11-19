@@ -1,5 +1,5 @@
-import { snaptrade } from "@/lib/providers/snaptrade/client";
-import { registerSnapTradeUser } from "@/lib/providers/snaptrade/register";
+import { saltedge } from "@/lib/providers/saltedge/client";
+import { registerSaltEdgeUser } from "@/lib/providers/saltedge/register";
 import { createClient } from "@/lib/supabase/server";
 import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       );
     }
 
-    let secret: string | null = null;
+    let customerId: string | null = null;
 
     let { data: providerConnection } = await supabase
       .from("provider_connection")
@@ -48,62 +48,63 @@ export async function POST(request: Request) {
     if (!providerConnection || !providerConnection.secret) {
       try {
         const { data: registeredConnection, error } =
-          await registerSnapTradeUser(user.id);
+          await registerSaltEdgeUser(user.id);
         if (error) {
           return NextResponse.json(
             {
               success: false,
-              error: `Failed to register SnapTrade user: ${error}`,
+              error: `Failed to register SaltEdge user: ${error}`,
             },
             { status: 500 }
           );
         }
-        secret = registeredConnection?.secret ?? null;
+        customerId = registeredConnection?.secret ?? null;
       } catch (error) {
         return NextResponse.json(
           {
             success: false,
-            error: `Error registering SnapTrade user: ${error}`,
+            error: `Error registering SaltEdge user: ${error}`,
           },
           { status: 500 }
         );
       }
     } else {
-      secret = providerConnection.secret;
+      customerId = providerConnection.secret;
     }
 
-    if (!secret) {
+    if (!customerId) {
       return NextResponse.json(
-        { success: false, error: "Failed to get user secret" },
+        { success: false, error: "Failed to get user customer id" },
         { status: 500 }
       );
     }
 
-    const brokerages = await snaptrade.referenceData.listAllBrokerages();
-    const brokerage = brokerages.data?.find(
-      (brokerage) => brokerage.id === institution.provider_institution_id
+    // Use institution id to prefill connection data
+    const connection = await saltedge.createConnection(
+      customerId,
+      institution.provider_institution_id,
+      {
+        institution_id: institution.id.toString(),
+        user_id: user.id,
+      }
     );
 
-    const response = await snaptrade.authentication.loginSnapTradeUser({
-      userId: user.id,
-      userSecret: secret,
-      broker: brokerage?.slug,
-    });
+    console.log(connection);
 
-    if (!response.data || !("redirectURI" in response.data)) {
+    if (!connection.connect_url) {
       return NextResponse.json(
-        { success: false, error: "Failed to generate redirect URL" },
+        { success: false, error: "Failed to create connection" },
         { status: 500 }
       );
     }
 
-    const redirectUrl = response.data.redirectURI;
-
+    const redirectUrl = connection.connect_url;
     return NextResponse.json(
       { success: true, data: redirectUrl },
       { status: 200 }
     );
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ success: false, error: error }, { status: 500 });
   }
 }

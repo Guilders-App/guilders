@@ -21,7 +21,7 @@ export const insertSaltEdgeInstitutions = async (): Promise<Response> => {
 
   const entries = institutions.map((institution) => ({
     provider_id: provider.id,
-    provider_institution_id: institution.id,
+    provider_institution_id: institution.code,
     name: institution.name,
     logo_url: institution.logo_url,
     countries: [institution.country_code.toLowerCase()],
