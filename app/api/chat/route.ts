@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
   Use this information to provide personalized advice when relevant.
   `;
 
-  const result = await streamText({
+  const result = streamText({
     model: anthropic("claude-3-5-sonnet-20241022"),
     system: systemMessage,
     messages: convertToCoreMessages(messages),
