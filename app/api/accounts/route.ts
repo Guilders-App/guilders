@@ -64,17 +64,17 @@ export async function POST(request: Request) {
       );
     }
 
+    const type =
+      subtype === "creditcard" || subtype === "loan" ? "liability" : "asset";
+
     const { data: newAccount, error } = await supabase
       .from("account")
       .insert({
         name,
         subtype,
-        value,
+        value: type === "liability" && value >= 0 ? -value : value,
         currency,
-        type:
-          subtype === "creditcard" || subtype === "loan"
-            ? "liability"
-            : "asset",
+        type,
         user_id: user.id,
       })
       .select()
