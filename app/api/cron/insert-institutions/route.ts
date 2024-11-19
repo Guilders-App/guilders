@@ -1,3 +1,4 @@
+import { insertSaltEdgeInstitutions } from "@/lib/providers/saltedge/functions";
 import { insertSnapTradeInstitutions } from "@/lib/providers/snaptrade/functions";
 import { NextResponse } from "next/server";
 
@@ -13,7 +14,6 @@ export async function GET(req: Request) {
     );
   }
   await insertSnapTradeInstitutions();
-  // await insertTinkInstitutions();
-  // await insertSaltEdgeInstitutions();
+  await insertSaltEdgeInstitutions();
   return new Response("OK");
 }
