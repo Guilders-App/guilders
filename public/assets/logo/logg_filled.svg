@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-  viewBox="0 0 575.06 575.27">
+  viewBox="0 0 576 576">
   <defs>
     <style>
       .cls-1 {
@@ -31,7 +31,7 @@
     </linearGradient>
   </defs>
   <g id="Layer_1-2" data-name="Layer 1">
-    <rect class="cls-bg" width="575.06" height="575.27" />
+    <rect class="cls-bg" width="576" height="576" />
     <g transform="translate(57.5, 57.5) scale(0.8)">
       <g>
         <g>

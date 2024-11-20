@@ -5,14 +5,20 @@ declare global {
       NEXT_PUBLIC_SUPABASE_URL: string;
       NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
       SUPABASE_SERVICE_ROLE_KEY: string;
-      // Cron (cron jobs)
-      CRON_SECRET: string;
-      // AI (Advisor)
-      ANTHROPIC_API_KEY: string;
+      // Posthog (analytics)
+      NEXT_PUBLIC_POSTHOG_KEY: string;
+      NEXT_PUBLIC_POSTHOG_HOST: string;
       // Resend (email)
       RESEND_API_KEY: string;
       // Synth (financial data)
       SYNTH_API_KEY: string;
+      // Cron (cron jobs)
+      CRON_SECRET: string;
+      // AI (Advisor)
+      ANTHROPIC_API_KEY: string;
+      // Ngrok (local development)
+      NGROK_AUTH_TOKEN: string;
+      NGROK_URL: string;
       // Snaptrade (brokerage provider)
       SNAPTRADE_CLIENT_ID: string;
       SNAPTRADE_CLIENT_SECRET: string;

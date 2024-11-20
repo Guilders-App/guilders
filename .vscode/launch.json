@@ -11,7 +11,13 @@
       "name": "Ngrok Tunnel",
       "type": "node-terminal",
       "request": "launch",
-      "command": "ngrok http 3000 --url=https://badly-mutual-pigeon.ngrok-free.app"
+      "command": "ngrok http 3000 --url=${env:NGROK_URL}"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Next.js + Ngrok",
+      "configurations": ["Next.js Debug", "Ngrok Tunnel"]
     }
   ]
 }

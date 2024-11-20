@@ -1,5 +1,6 @@
 {
   "cSpell.words": [
+    "authtoken",
     "clsx",
     "cmdk",
     "creditcard",
@@ -9,6 +10,8 @@
     "GOCARDLESS",
     "hookform",
     "lucide",
+    "NGROK",
+    "POSTHOG",
     "SALTEDGE",
     "SNAPTRADE",
     "supabase",
