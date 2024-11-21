@@ -14,8 +14,8 @@ const sidebarNavItems = [
     href: "/settings/account",
   },
   {
-    title: "Appearance",
-    href: "/settings/appearance",
+    title: "Security",
+    href: "/settings/security",
   },
   {
     title: "Connections",
