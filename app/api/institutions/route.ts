@@ -28,13 +28,20 @@ import { NextResponse } from "next/server";
  */
 export async function GET(_: Request) {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("institution").select("*");
+  let { data, error } = await supabase.from("institution").select("*");
 
-  if (error) {
+  if (error || !data) {
     return NextResponse.json(
-      { success: false, error: error.message },
+      {
+        success: false,
+        error: error?.message || "Error fetching institutions",
+      },
       { status: 500 }
     );
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    data = data.filter((institution) => !institution.demo);
   }
 
   return NextResponse.json({ success: true, data });
