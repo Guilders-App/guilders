@@ -44,7 +44,7 @@ export default function ConnectionsPage() {
                     <Skeleton className="h-4 w-48" />
                   </div>
                 </div>
-                <Skeleton className="h-9 w-[70px]" />
+                <Skeleton className="h-9 w-[77px]" />
               </div>
             </Card>
           ))}

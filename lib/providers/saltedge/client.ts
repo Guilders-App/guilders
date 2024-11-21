@@ -10,6 +10,7 @@ import {
   SaltEdgeConfig,
   SaltEdgeResponse,
   SignedHeaders,
+  Transaction,
 } from "./types";
 
 export class SaltEdgeClient {
@@ -189,6 +190,19 @@ export class SaltEdgeClient {
       params: {
         customer_id: customerId,
         connection_id: connectionId,
+      },
+      isArray: true,
+    });
+  }
+
+  async getTransactions(
+    connectionId: string,
+    accountId: string
+  ): Promise<Transaction[]> {
+    return this.request<Transaction[]>(`/transactions`, {
+      params: {
+        connection_id: connectionId,
+        account_id: accountId,
       },
       isArray: true,
     });

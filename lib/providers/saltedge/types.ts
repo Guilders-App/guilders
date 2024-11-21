@@ -368,3 +368,32 @@ export interface GetAccountsResponse {
   data: Account[];
   meta: Meta;
 }
+
+export type Transaction = {
+  /** The id of the transaction */
+  id: string;
+  /** The id of the Account the transaction belongs to */
+  account_id: string;
+  /** Whether the transaction is a duplicate or not */
+  duplicated: boolean;
+  /** Possible values: normal, fee, transfer */
+  mode: "normal" | "fee" | "transfer";
+  /** Possible values: posted, pending */
+  status: "posted" | "pending";
+  /** The date when the transaction was made */
+  made_on: string;
+  /** Transaction's amount */
+  amount: number;
+  /** Transaction's currency code */
+  currency_code: string;
+  /** Transaction's description */
+  description: string;
+  /** Transaction's category */
+  category: string;
+  /** Extra data associated with the transaction */
+  extra: Record<string, any>;
+  /** Time and date when the transaction was imported */
+  created_at: string;
+  /** The last time the transaction's attributes were changed by the Client */
+  updated_at: string;
+};
