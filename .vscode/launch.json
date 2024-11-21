@@ -11,7 +11,8 @@
       "name": "Ngrok Tunnel",
       "type": "node-terminal",
       "request": "launch",
-      "command": "ngrok http 3000 --url=${env:NGROK_URL}"
+      "envFile": "${workspaceFolder}/.env",
+      "command": "ngrok http 3000 --url=$NGROK_URL"
     }
   ],
   "compounds": [
