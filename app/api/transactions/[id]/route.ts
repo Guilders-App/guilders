@@ -1,17 +1,16 @@
-import { TablesUpdate } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
-import { AccountUpdate } from "@/lib/supabase/types";
+import { TransactionUpdate } from "@/lib/supabase/types";
 import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 /**
  * @swagger
- * /api/accounts/{id}:
+ * /api/transactions/{id}:
  *   get:
  *     tags:
- *       - Accounts
- *     summary: Get an account by ID
- *     description: Get an account by ID for the authenticated user
+ *       - Transactions
+ *     summary: Get a transaction by ID
+ *     description: Get a transaction by ID for the authenticated user
  *     security:
  *       - BearerAuth: []
  *     parameters:
@@ -25,7 +24,7 @@ import { NextResponse } from "next/server";
  *       500:
  *         $ref: '#/components/responses/ServerError'
  *       200:
- *         description: Successfully fetched account
+ *         description: Successfully fetched transaction
  *         content:
  *           application/json:
  *             schema:
@@ -33,8 +32,8 @@ import { NextResponse } from "next/server";
  *               properties:
  *                 success:
  *                   type: boolean
- *                 account:
- *                   $ref: '#/components/schemas/Account'
+ *                 transaction:
+ *                   $ref: '#/components/schemas/Transaction'
  */
 export async function GET(
   request: Request,
@@ -56,8 +55,8 @@ export async function GET(
     }
 
     // Filtered by RLS for the user
-    const { data: account, error } = await supabase
-      .from("account")
+    const { data: transaction, error } = await supabase
+      .from("transaction")
       .select("*")
       .eq("id", id)
       .single();
@@ -65,16 +64,16 @@ export async function GET(
     if (error) {
       console.error("Supabase error:", error);
       return NextResponse.json(
-        { success: false, error: "Error fetching account" },
+        { success: false, error: "Error fetching transaction" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ success: true, account });
+    return NextResponse.json({ success: true, transaction });
   } catch (error) {
-    console.error("Error fetching account:", error);
+    console.error("Error fetching transaction:", error);
     return NextResponse.json(
-      { success: false, error: "Error fetching account" },
+      { success: false, error: "Error fetching transaction" },
       { status: 500 }
     );
   }
@@ -82,12 +81,12 @@ export async function GET(
 
 /**
  * @swagger
- * /api/accounts/{id}:
+ * /api/transactions/{id}:
  *   delete:
  *     tags:
- *       - Accounts
- *     summary: Delete an account by ID
- *     description: Delete an account by ID for the authenticated user
+ *       - Transactions
+ *     summary: Delete a transaction by ID
+ *     description: Delete a transaction by ID for the authenticated user
  *     security:
  *       - BearerAuth: []
  *     parameters:
@@ -101,7 +100,7 @@ export async function GET(
  *       500:
  *         $ref: '#/components/responses/ServerError'
  *       200:
- *         description: Successfully deleted account
+ *         description: Successfully deleted transaction
  *         content:
  *           application/json:
  *             schema:
@@ -130,21 +129,21 @@ export async function DELETE(
     }
 
     // Filtered by RLS for the user
-    const { error } = await supabase.from("account").delete().eq("id", id);
+    const { error } = await supabase.from("transaction").delete().eq("id", id);
 
     if (error) {
       console.error("Supabase error:", error);
       return NextResponse.json(
-        { success: false, error: "Error deleting account" },
+        { success: false, error: "Error deleting transaction" },
         { status: 500 }
       );
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deleting account:", error);
+    console.error("Error deleting transaction:", error);
     return NextResponse.json(
-      { success: false, error: "Error deleting account" },
+      { success: false, error: "Error deleting transaction" },
       { status: 500 }
     );
   }
@@ -152,12 +151,12 @@ export async function DELETE(
 
 /**
  * @swagger
- * /api/accounts/{id}:
+ * /api/transactions/{id}:
  *   put:
  *     tags:
- *       - Accounts
- *     summary: Update an account by ID
- *     description: Update an account by ID for the authenticated user
+ *       - Transactions
+ *     summary: Update a transaction by ID
+ *     description: Update a transaction by ID for the authenticated user
  *     security:
  *       - BearerAuth: []
  *     parameters:
@@ -171,7 +170,7 @@ export async function DELETE(
  *       500:
  *         $ref: '#/components/responses/ServerError'
  *       200:
- *         description: Successfully updated account
+ *         description: Successfully updated transaction
  *         content:
  *           application/json:
  *             schema:
@@ -179,8 +178,8 @@ export async function DELETE(
  *               properties:
  *                 success:
  *                   type: boolean
- *                 account:
- *                   $ref: '#/components/schemas/Account'
+ *                 transaction:
+ *                   $ref: '#/components/schemas/Transaction'
  */
 export async function PUT(
   request: Request,
@@ -188,18 +187,10 @@ export async function PUT(
 ) {
   try {
     const supabase = await createClient();
-    const updatedData: AccountUpdate = await request.json();
+    const updatedData: TransactionUpdate = await request.json();
     const { id } = await params;
     const jwt = getJwt(request);
-    const dataToUpdate: TablesUpdate<"account"> = { ...updatedData };
-
-    // Check if subtype is present and update type accordingly
-    if (updatedData.subtype) {
-      dataToUpdate.type =
-        dataToUpdate.subtype === "creditcard" || dataToUpdate.subtype === "loan"
-          ? "liability"
-          : "asset";
-    }
+    const dataToUpdate: TransactionUpdate = { ...updatedData };
 
     const {
       data: { user },
@@ -212,8 +203,8 @@ export async function PUT(
     }
 
     // Filtered by RLS for the user
-    const { data: updatedAccount, error } = await supabase
-      .from("account")
+    const { data: updatedTransaction, error } = await supabase
+      .from("transaction")
       .update(dataToUpdate)
       .eq("id", id)
       .select()
@@ -222,16 +213,19 @@ export async function PUT(
     if (error) {
       console.error("Supabase error:", error);
       return NextResponse.json(
-        { success: false, error: "Error updating account" },
+        { success: false, error: "Error updating transaction" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json({ success: true, account: updatedAccount });
+    return NextResponse.json({
+      success: true,
+      transaction: updatedTransaction,
+    });
   } catch (error) {
-    console.error("Error updating account:", error);
+    console.error("Error updating transaction:", error);
     return NextResponse.json(
-      { success: false, error: "Error updating account" },
+      { success: false, error: "Error updating transaction" },
       { status: 500 }
     );
   }

@@ -1,6 +1,5 @@
-import { Tables } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
-import { AccountInsert } from "@/lib/supabase/types";
+import { Account, AccountInsert } from "@/lib/supabase/types";
 import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
@@ -143,11 +142,11 @@ export async function GET(request: Request) {
     }
 
     // Fetch all accounts for the user
+    // Filtered by RLS for the user
     const { data: accounts, error } = await supabase
       .from("account")
       .select("*")
-      .eq("user_id", user.id)
-      .returns<Tables<"account">[]>();
+      .returns<Account[]>();
 
     if (error) {
       console.error("Supabase error:", error);

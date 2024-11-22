@@ -28,6 +28,26 @@
  *         updated_at:
  *           type: string
  *           format: date-time
+ *     Transaction:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: number
+ *         date:
+ *           type: string
+ *           format: date-time
+ *         amount:
+ *           type: number
+ *         currency:
+ *           type: string
+ *         description:
+ *           type: string
+ *         category:
+ *           type: string
+ *         account_id:
+ *           type: number
+ *         provider_transaction_id:
+ *           type: string
  *     Institution:
  *       type: object
  *       properties:

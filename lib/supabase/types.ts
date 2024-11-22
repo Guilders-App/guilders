@@ -64,3 +64,13 @@ export const getCategoryDisplayName = (
 ): string => {
   return accountSubtypeLabels[categoryName] || categoryName;
 };
+
+export type Transaction = Tables<"transaction">;
+export type TransactionInsert = Omit<
+  TablesInsert<"transaction">,
+  "account_id" | "provider_transaction_id"
+>;
+export type TransactionUpdate = Omit<
+  TablesUpdate<"transaction">,
+  "account_id" | "provider_transaction_id"
+>;

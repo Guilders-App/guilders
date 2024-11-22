@@ -1,3 +1,4 @@
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getJwt } from "@/lib/utils";
 import { anthropic } from "@ai-sdk/anthropic";
@@ -48,7 +49,6 @@ export async function POST(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser(jwt);
-  let accountsContext = "No account information available.";
 
   if (!user) {
     return NextResponse.json(
@@ -57,17 +57,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const { data: accounts } = await supabase
-    .from("account")
-    .select("*")
-    .eq("user_id", user.id);
-
-  if (accounts && accounts.length > 0) {
-    accountsContext = `User's accounts:\n${accounts
-      .map((acc) => `- ${acc.name} (${acc.type}): ${acc.value} ${acc.currency}`)
-      .join("\n")}`;
-  }
-
+  const accountsContext = await getAccountsContext(user.id);
   const systemMessage = `
   You aim to provide accurate, helpful responses while being direct and concise.
   You are a financial advisor and can help with questions about personal finance, investments, and retirement planning.
@@ -85,3 +75,50 @@ export async function POST(request: NextRequest) {
 
   return result.toDataStreamResponse();
 }
+
+// TODO: Change to use "use cache" when upgrading to Next.js 15.0.4
+// const getAccountsContextCached = unstable_cache(
+//   async (id) => getAccountsContext(id),
+//   ["accounts-context"],
+//   {
+//     revalidate: 60 * 60 * 24, // 24 hours
+//   }
+// );
+
+const getAccountsContext = async (user_id: string): Promise<string> => {
+  // "use cache";
+  const supabase = await createAdminClient();
+  let accountsContext = "No account information available.";
+
+  const { data: accounts } = await supabase
+    .from("account")
+    .select("*")
+    .eq("user_id", user_id);
+
+  // Filtered by RLS
+  const { data: transactions } = await supabase
+    .from("transaction")
+    .select("*, account!inner(*)")
+    .eq("account.user_id", user_id);
+
+  if (accounts && accounts.length > 0) {
+    accountsContext = "User's accounts:\n";
+    for (const account of accounts) {
+      const accountTransactions = transactions?.filter(
+        (t) => account.id === t.account_id
+      );
+
+      accountsContext += `- ${account.name} (${account.type}): ${account.value} ${account.currency}\n`;
+      if (accountTransactions && accountTransactions.length > 0) {
+        accountsContext += `- Transactions:\n${accountTransactions
+          .map(
+            (t) =>
+              `- ${t.date}: ${t.amount} ${t.currency}, category: ${t.category}\nDescription: ${t.description}`
+          )
+          .join("\n")}`;
+      }
+    }
+  }
+
+  return accountsContext;
+};
