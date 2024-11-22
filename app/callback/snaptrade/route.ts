@@ -359,9 +359,9 @@ async function handleAccountUpdate(
       currency:
         snapTradeAccount.balance.total?.currency?.toUpperCase() ?? "USD",
       institution_connection_id: institutionConnection.id,
-      account_id: snapTradeAccount.id,
+      provider_account_id: snapTradeAccount.id,
     },
-    { onConflict: "institution_connection_id,account_id" }
+    { onConflict: "institution_connection_id,provider_account_id" }
   );
 
   if (error) {

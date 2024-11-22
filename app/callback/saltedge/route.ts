@@ -69,7 +69,6 @@ export async function POST(request: NextRequest) {
   );
 
   // TODO: Remove debug logs
-  console.log("Accounts:", accounts);
   const { error: accountsError } = await supabase.from("account").upsert(
     accounts.map((account) => {
       const typeMapping = NATURE_TO_TYPE_SUBTYPE[account.nature];
@@ -81,11 +80,56 @@ export async function POST(request: NextRequest) {
         value: account.balance,
         currency: account.currency_code,
         institution_connection_id: institutionConnection.id,
-        account_id: account.id,
+        provider_account_id: account.id,
       };
     }),
-    { onConflict: "institution_connection_id,account_id" }
+    { onConflict: "institution_connection_id,provider_account_id" }
   );
+
+  accounts.map(async (account) => {
+    const transactions = await saltedge.getTransactions(
+      data.connection_id,
+      account.id
+    );
+
+    // Get the account record from the database
+    const { data: dbAccount } = await supabase
+      .from("account")
+      .select()
+      .eq("provider_account_id", account.id)
+      .eq("institution_connection_id", institutionConnection.id)
+      .single();
+
+    if (!dbAccount) {
+      console.error("Account not found:", account.id);
+      return;
+    }
+
+    const { error: transactionsError } = await supabase
+      .from("transaction")
+      .upsert(
+        transactions.map((transaction) => {
+          return {
+            date: transaction.made_on,
+            amount: transaction.amount,
+            currency: transaction.currency_code,
+            description: transaction.description,
+            category: transaction.category,
+            account_id: dbAccount.id,
+            provider_transaction_id: transaction.id,
+          };
+        }),
+        { onConflict: "provider_transaction_id,account_id" }
+      );
+
+    if (transactionsError) {
+      console.error("Error inserting transactions:", transactionsError);
+      return NextResponse.json(
+        { success: false, error: "Error inserting transactions" },
+        { status: 500 }
+      );
+    }
+  });
 
   if (accountsError) {
     console.error("Error inserting accounts:", accountsError);

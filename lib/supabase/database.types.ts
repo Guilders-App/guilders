@@ -1,3 +1,4 @@
+
 export type Json =
   | string
   | number
@@ -36,7 +37,6 @@ export type Database = {
     Tables: {
       account: {
         Row: {
-          account_id: string | null
           cost: number | null
           created_at: string
           currency: string
@@ -47,6 +47,7 @@ export type Database = {
           name: string
           notes: string
           parent: number | null
+          provider_account_id: string | null
           quantity: number | null
           subtype: Database["public"]["Enums"]["account_subtype"]
           tax_rate: number | null
@@ -58,7 +59,6 @@ export type Database = {
           value: number
         }
         Insert: {
-          account_id?: string | null
           cost?: number | null
           created_at?: string
           currency: string
@@ -69,6 +69,7 @@ export type Database = {
           name: string
           notes?: string
           parent?: number | null
+          provider_account_id?: string | null
           quantity?: number | null
           subtype: Database["public"]["Enums"]["account_subtype"]
           tax_rate?: number | null
@@ -80,7 +81,6 @@ export type Database = {
           value: number
         }
         Update: {
-          account_id?: string | null
           cost?: number | null
           created_at?: string
           currency?: string
@@ -91,6 +91,7 @@ export type Database = {
           name?: string
           notes?: string
           parent?: number | null
+          provider_account_id?: string | null
           quantity?: number | null
           subtype?: Database["public"]["Enums"]["account_subtype"]
           tax_rate?: number | null
@@ -142,38 +143,6 @@ export type Database = {
           name?: string
         }
         Relationships: []
-      }
-      document: {
-        Row: {
-          account_id: number
-          created_at: string
-          id: number
-          name: string
-          size: number
-        }
-        Insert: {
-          account_id: number
-          created_at?: string
-          id?: number
-          name: string
-          size: number
-        }
-        Update: {
-          account_id?: number
-          created_at?: string
-          id?: number
-          name?: string
-          size?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "document_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "account"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       institution: {
         Row: {
@@ -305,6 +274,54 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "provider"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      transaction: {
+        Row: {
+          account_id: number
+          amount: number
+          category: string
+          currency: string
+          date: string
+          description: string
+          id: number
+          provider_transaction_id: string | null
+        }
+        Insert: {
+          account_id: number
+          amount: number
+          category?: string
+          currency: string
+          date: string
+          description: string
+          id?: number
+          provider_transaction_id?: string | null
+        }
+        Update: {
+          account_id?: number
+          amount?: number
+          category?: string
+          currency?: string
+          date?: string
+          description?: string
+          id?: number
+          provider_transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "account"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transaction_currency_fkey"
+            columns: ["currency"]
+            isOneToOne: false
+            referencedRelation: "currency"
+            referencedColumns: ["code"]
           },
         ]
       }

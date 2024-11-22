@@ -63,10 +63,10 @@ supabase login
 supabase link
 
 # Pull the latest database schema
-bun run db:pull
+bun db:pull
 
 # Generate TypeScript types
-bun run db:gen-types
+bun db:gen-types
 ```
 
 ## Infrastructure
