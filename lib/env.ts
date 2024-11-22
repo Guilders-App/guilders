@@ -10,8 +10,6 @@ declare global {
       NEXT_PUBLIC_POSTHOG_HOST: string;
       // Resend (email)
       RESEND_API_KEY: string;
-      // Synth (financial data)
-      SYNTH_API_KEY: string;
       // Cron (cron jobs)
       CRON_SECRET: string;
       // AI (Advisor)
