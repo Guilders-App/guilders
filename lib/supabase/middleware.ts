@@ -36,7 +36,14 @@ export const updateSession = async (request: NextRequest) => {
   // https://supabase.com/docs/guides/auth/server-side/nextjs
   const user = await supabase.auth.getUser();
 
-  const publicRoutes = ["/", "/forgot-password", "/sign-in", "/sign-up"];
+  const publicRoutes = [
+    "/",
+    "/forgot-password",
+    "/sign-in",
+    "/sign-up",
+    "/terms-of-service",
+    "/privacy-policy",
+  ];
 
   const isPublicRoute =
     publicRoutes.includes(request.nextUrl.pathname) ||

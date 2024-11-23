@@ -21,9 +21,6 @@ declare global {
       SNAPTRADE_CLIENT_ID: string;
       SNAPTRADE_CLIENT_SECRET: string;
       SNAPTRADE_WEBHOOK_SECRET: string;
-      // GoCardless (banking provider)
-      GOCARDLESS_CLIENT_ID: string;
-      GOCARDLESS_CLIENT_SECRET: string;
       // SaltEdge (banking provider)
       SALTEDGE_CLIENT_ID: string;
       SALTEDGE_CLIENT_SECRET: string;
@@ -31,9 +28,8 @@ declare global {
       SALTEDGE_PUBLIC_KEY: string;
       SALTEDGE_CALLBACK_USERNAME: string;
       SALTEDGE_CALLBACK_PASSWORD: string;
-      // Tink (banking provider)
-      TINK_CLIENT_ID: string;
-      TINK_CLIENT_SECRET: string;
+      // Other
+      NEXT_PUBLIC_CAL_URL: string;
     }
   }
 }
