@@ -11,37 +11,22 @@ import { MoveRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-const navigationItems = [
+type NavigationItem = {
+  title: string;
+  href?: string;
+  description?: string;
+  items?: NavigationItem[];
+};
+
+const navigationItems: NavigationItem[] = [
   {
     title: "Home",
     href: "/",
     description: "",
   },
   // {
-  //   title: "Product",
-  //   description: "Managing a small business today is already tough.",
-  //   items: [
-  //     {
-  //       title: "Reports",
-  //       href: "/reports",
-  //     },
-  //     {
-  //       title: "Statistics",
-  //       href: "/statistics",
-  //     },
-  //     {
-  //       title: "Dashboards",
-  //       href: "/dashboards",
-  //     },
-  //     {
-  //       title: "Recordings",
-  //       href: "/recordings",
-  //     },
-  //   ],
-  // },
-  // {
   //   title: "Company",
-  //   description: "Managing a small business today is already tough.",
+  //   description: ".",
   //   items: [
   //     {
   //       title: "About us",
