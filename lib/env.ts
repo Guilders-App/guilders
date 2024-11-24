@@ -10,6 +10,7 @@ declare global {
       NEXT_PUBLIC_POSTHOG_HOST: string;
       // Resend (email)
       RESEND_API_KEY: string;
+      RESEND_WAITLIST_AUDIENCE_ID: string;
       // Cron (cron jobs)
       CRON_SECRET: string;
       // AI (Advisor)

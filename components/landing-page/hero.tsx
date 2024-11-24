@@ -5,8 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
 
 import { Button } from "@/components/ui/button";
-import { MoveRight, PhoneCall } from "lucide-react";
-import Link from "next/link";
+import { MoveRight } from "lucide-react";
+import NewsletterForm from "./newsletter-form";
 
 export const Hero = () => {
   const [titleNumber, setTitleNumber] = useState(0);
@@ -63,11 +63,11 @@ export const Hero = () => {
 
             <p className="text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-2xl text-center">
               Guilders is a platform that helps you manage your finances and
-              investments. It is built for the modern world, with a focus on
+              investments. Built for the modern world, with a focus on
               simplicity, privacy, and security.
             </p>
           </div>
-          <div className="flex flex-row gap-3">
+          {/* <div className="flex flex-row gap-3">
             <Link href={process.env.NEXT_PUBLIC_CAL_URL}>
               <Button size="lg" variant="outline">
                 Jump on a call <PhoneCall className="w-4 h-4" />
@@ -78,7 +78,8 @@ export const Hero = () => {
                 Sign up here <MoveRight className="w-4 h-4" />
               </Button>
             </Link>
-          </div>
+          </div> */}
+          <NewsletterForm className="px-8" />
         </div>
       </div>
     </div>

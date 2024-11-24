@@ -18,6 +18,7 @@
     "tailwindcss",
     "tanstack",
     "Tink",
+    "waitlist",
     "zustand"
   ]
 }

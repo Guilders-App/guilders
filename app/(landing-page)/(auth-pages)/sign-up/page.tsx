@@ -39,7 +39,11 @@ export default async function Signup(props: {
             autoComplete="new-password"
             required
           />
-          <SubmitButton pendingText="Signing up..." formAction={signUpAction}>
+          <SubmitButton
+            disabled
+            pendingText="Signing up..."
+            formAction={signUpAction}
+          >
             Sign up
           </SubmitButton>
           <FormMessage message={searchParams} />
