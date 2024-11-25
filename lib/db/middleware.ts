@@ -45,13 +45,14 @@ export const updateSession = async (request: NextRequest) => {
     "/privacy-policy",
   ];
 
-  const isPublicRoute =
-    publicRoutes.includes(request.nextUrl.pathname) ||
-    request.nextUrl.pathname.startsWith("/callback/");
+  const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname);
+
+  console.log("Is public route:", isPublicRoute);
 
   const isApiRoute =
-    request.nextUrl.pathname.startsWith("/api/") ||
-    request.nextUrl.pathname.startsWith("/swagger");
+    request.nextUrl.pathname.startsWith("/api") ||
+    request.nextUrl.pathname.startsWith("/swagger") ||
+    request.nextUrl.pathname.startsWith("/callback");
 
   if (isApiRoute) {
     return response;
