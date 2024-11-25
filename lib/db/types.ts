@@ -43,6 +43,7 @@ export const accountSubtypeLabels: Record<AccountSubtype, string> = {
   vehicle: "Vehicle",
   creditcard: "Credit Card",
   loan: "Loan",
+  stock: "Stock",
 };
 
 export const colorMap: Record<AccountSubtype, string> = {
@@ -53,6 +54,7 @@ export const colorMap: Record<AccountSubtype, string> = {
   vehicle: "#5f5fde",
   loan: "#eb4b63",
   creditcard: "#FF9F45",
+  stock: "#83d1ce",
 };
 
 export const getCategoryColor = (categoryName: AccountSubtype): string => {

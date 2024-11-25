@@ -21,6 +21,7 @@ export function NetWorthCategories() {
       vehicle: 0,
       creditcard: 0,
       loan: 0,
+      stock: 0,
     };
 
     accounts.forEach((account) => {
