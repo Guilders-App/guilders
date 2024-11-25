@@ -1,6 +1,6 @@
+import { createClient } from "@/lib/db/server";
 import { saltedge } from "@/lib/providers/saltedge/client";
 import { registerSaltEdgeUser } from "@/lib/providers/saltedge/register";
-import { createClient } from "@/lib/supabase/server";
 import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 import { ConnectBody } from "../../common";

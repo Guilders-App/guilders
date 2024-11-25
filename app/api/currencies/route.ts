@@ -1,5 +1,5 @@
-import { Tables } from "@/lib/supabase/database.types";
-import { createClient } from "@/lib/supabase/server";
+import { Tables } from "@/lib/db/database.types";
+import { createClient } from "@/lib/db/server";
 import { NextResponse } from "next/server";
 
 /**

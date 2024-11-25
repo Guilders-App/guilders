@@ -15,8 +15,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useInstitutions } from "@/hooks/useInstitutions";
+import { Institution } from "@/lib/db/types";
 import { useStore } from "@/lib/store";
-import { Institution } from "@/lib/supabase/types";
 import { CommandLoading } from "cmdk";
 import {
   Banknote,

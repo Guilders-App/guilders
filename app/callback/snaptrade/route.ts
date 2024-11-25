@@ -1,7 +1,7 @@
 "use server";
 
+import { createAdminClient } from "@/lib/db/admin";
 import { providerName, snaptrade } from "@/lib/providers/snaptrade/client";
-import { createAdminClient } from "@/lib/supabase/admin";
 import { NextResponse } from "next/server";
 import type {
   AccountHoldingsUpdatedWebhook,

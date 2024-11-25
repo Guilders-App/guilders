@@ -1,4 +1,4 @@
-import { Institution } from "@/lib/supabase/types";
+import { Institution } from "@/lib/db/types";
 import { useQuery } from "@tanstack/react-query";
 
 const queryKey = ["institutions"] as const;

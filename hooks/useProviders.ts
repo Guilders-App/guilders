@@ -1,4 +1,4 @@
-import { Provider } from "@/lib/supabase/types";
+import { Provider } from "@/lib/db/types";
 import { useQuery } from "@tanstack/react-query";
 const queryKey = ["providers"] as const;
 export function useProviders() {

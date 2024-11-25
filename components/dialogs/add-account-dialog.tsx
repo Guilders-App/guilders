@@ -29,7 +29,7 @@ import { useAddAccount } from "@/hooks/useAccounts";
 import { useCurrencies } from "@/hooks/useCurrencies";
 import { useToast } from "@/hooks/useToast";
 import { useUser } from "@/hooks/useUser";
-import { accountSubtypeLabels, accountSubtypes } from "@/lib/supabase/types";
+import { accountSubtypeLabels, accountSubtypes } from "@/lib/db/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";

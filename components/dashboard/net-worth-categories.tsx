@@ -4,7 +4,7 @@ import {
   AccountSubtype,
   getCategoryColor,
   getCategoryDisplayName,
-} from "@/lib/supabase/types";
+} from "@/lib/db/types";
 import { useMemo } from "react";
 
 export function NetWorthCategories() {

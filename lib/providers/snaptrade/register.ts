@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
-import { getProvider } from "@/lib/supabase/utils";
+import { createClient } from "@/lib/db/server";
+import { getProvider } from "@/lib/db/utils";
 import { ConnectionProviderFunction, ConnectionResult } from "../types";
 import { providerName, snaptrade } from "./client";
 

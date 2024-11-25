@@ -1,6 +1,6 @@
+import { createClient } from "@/lib/db/server";
 import { snaptrade } from "@/lib/providers/snaptrade/client";
 import { registerSnapTradeUser } from "@/lib/providers/snaptrade/register";
-import { createClient } from "@/lib/supabase/server";
 import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 import { ConnectBody } from "../../common";

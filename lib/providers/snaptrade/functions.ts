@@ -1,7 +1,7 @@
 "use server";
 
-import { createAdminClient } from "@/lib/supabase/admin";
-import { getProvider } from "@/lib/supabase/utils";
+import { createAdminClient } from "@/lib/db/admin";
+import { getProvider } from "@/lib/db/utils";
 import { providerName, snaptrade } from "./client";
 
 export const insertSnapTradeInstitutions = async (): Promise<Response> => {

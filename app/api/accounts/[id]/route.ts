@@ -1,6 +1,6 @@
-import { TablesUpdate } from "@/lib/supabase/database.types";
-import { createClient } from "@/lib/supabase/server";
-import { AccountUpdate } from "@/lib/supabase/types";
+import { TablesUpdate } from "@/lib/db/database.types";
+import { createClient } from "@/lib/db/server";
+import { AccountUpdate } from "@/lib/db/types";
 import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 

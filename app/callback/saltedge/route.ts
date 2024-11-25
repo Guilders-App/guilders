@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { SaltEdgeCallbackBody } from "./types";
 import { NATURE_TO_TYPE_SUBTYPE } from "./utils";
 
-import { createAdminClient } from "@/lib/supabase/admin";
+import { createAdminClient } from "@/lib/db/admin";
 export async function POST(request: NextRequest) {
   const { data }: SaltEdgeCallbackBody = await request.json();
 

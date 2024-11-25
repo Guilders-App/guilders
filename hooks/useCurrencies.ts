@@ -1,4 +1,4 @@
-import { Tables } from "@/lib/supabase/database.types";
+import { Tables } from "@/lib/db/database.types";
 import { useQuery } from "@tanstack/react-query";
 
 const queryKey = ["currencies"] as const;

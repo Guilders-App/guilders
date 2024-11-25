@@ -2,7 +2,7 @@ import {
   Transaction,
   TransactionInsert,
   TransactionUpdate,
-} from "@/lib/supabase/types";
+} from "@/lib/db/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const queryKey = ["transactions"] as const;

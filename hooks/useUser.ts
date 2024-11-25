@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/client";
+import { createClient } from "@/lib/db/client";
 import { useQuery } from "@tanstack/react-query";
 
 const queryKey = ["user-metadata"] as const;

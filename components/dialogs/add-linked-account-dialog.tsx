@@ -8,8 +8,8 @@ import {
 import { useCreateConnection } from "@/hooks/useCreateConnection";
 import { useProvider } from "@/hooks/useProviders";
 import { useToast } from "@/hooks/useToast";
+import { Institution } from "@/lib/db/types";
 import { useStore } from "@/lib/store";
-import { Institution } from "@/lib/supabase/types";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 

@@ -3,7 +3,7 @@ import {
   Tables,
   TablesInsert,
   TablesUpdate,
-} from "@/lib/supabase/database.types";
+} from "@/lib/db/database.types";
 
 export type Category = {
   name: Enums<"account_subtype">;

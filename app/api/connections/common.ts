@@ -1,5 +1,5 @@
+import { createClient } from "@/lib/db/server";
 import { ConnectionProviderFunction } from "@/lib/providers/types";
-import { createClient } from "@/lib/supabase/server";
 import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 

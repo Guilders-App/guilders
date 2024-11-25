@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
-import { Account, AccountInsert } from "@/lib/supabase/types";
+import { createClient } from "@/lib/db/server";
+import { Account, AccountInsert } from "@/lib/db/types";
 import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
