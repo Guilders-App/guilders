@@ -4,7 +4,7 @@ import { Newsletter } from "@/components/landing-page/newsletter";
 
 export default function Index() {
   return (
-    <main className="flex flex-col items-center min-h-screen bg-background text-foreground">
+    <main className="flex flex-col items-center bg-background text-foreground">
       <Hero />
       <FAQ />
       <Newsletter />
