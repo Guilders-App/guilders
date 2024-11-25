@@ -1,4 +1,4 @@
-import { Tables } from "../supabase/database.types";
+import { Tables } from "@/lib/db/database.types";
 
 export interface ConnectionResult {
   success: boolean;

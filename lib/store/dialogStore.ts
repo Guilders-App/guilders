@@ -1,5 +1,5 @@
+import { Institution } from "@/lib/db/types";
 import { StateSlice } from "../store";
-import { Institution } from "../supabase/types";
 
 type DialogState = {
   commandMenuPages: string[];
