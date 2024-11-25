@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { useCurrencies } from "@/hooks/useCurrencies";
 import { toast } from "@/hooks/useToast";
-import { useUser } from "@/hooks/useUser";
+import { useUpdateUserSettings, useUser } from "@/hooks/useUser";
 
 const accountFormSchema = z.object({
   email: z.string().email(),
@@ -38,6 +38,7 @@ type AccountFormValues = z.infer<typeof accountFormSchema>;
 
 export function AccountForm() {
   const { data: user, isLoading: isUserLoading, error: userError } = useUser();
+  const { mutateAsync: updateUserSettings } = useUpdateUserSettings();
 
   const {
     data: currencies,
@@ -45,34 +46,22 @@ export function AccountForm() {
     error: currenciesError,
   } = useCurrencies();
 
-  if (currenciesError || userError) {
-    toast({
-      title: "Error loading settings",
-      description: "Unable to load settings. Please try again later.",
-      variant: "destructive",
-    });
-  }
-
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
-    defaultValues: useMemo(() => {
-      return {
-        email: user?.email ?? "",
-        currency: user?.currency ?? "",
-      };
-    }, [user]),
+    defaultValues: {
+      email: "",
+      currency: "",
+    },
   });
 
-  function onSubmit(data: AccountFormValues) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
-  }
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        email: user.email,
+        currency: user.currency,
+      });
+    }
+  }, [user, form]);
 
   const customOrder = ["USD", "GBP", "EUR"];
   const sortedCurrencies = useMemo(() => {
@@ -88,6 +77,42 @@ export function AccountForm() {
 
     return [...orderedCurrencies, ...remainingCurrencies];
   }, [currencies]);
+
+  if (isUserLoading || isCurrenciesLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (currenciesError || userError) {
+    return (
+      <div className="text-destructive">
+        Error loading settings. Please try again later.
+      </div>
+    );
+  }
+
+  async function onSubmit(data: AccountFormValues) {
+    try {
+      await updateUserSettings({ email: data.email, currency: data.currency });
+
+      if (data.email !== user?.email) {
+        toast({
+          title: "Email verification sent",
+          description: "Please check your email for a verification link.",
+        });
+      } else {
+        toast({
+          title: "Account updated",
+          description: "Your account has been updated successfully.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update account. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }
 
   return (
     <Form {...form}>

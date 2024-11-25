@@ -22,7 +22,7 @@ export async function GET(_: Request) {
 
     const { data: currencies, error } = await supabase
       .from("currency")
-      .select("code, name, country");
+      .select();
 
     if (error) {
       console.error("Supabase error:", error);
