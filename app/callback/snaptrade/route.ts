@@ -362,6 +362,13 @@ async function handleAccountUpdate(
         value: snapTradeAccount.balance.total?.amount ?? 0,
         currency:
           snapTradeAccount.balance.total?.currency?.toUpperCase() ?? "USD",
+        cost:
+          accountResponse.positions?.reduce(
+            (acc, holding) =>
+              acc +
+              (holding.average_purchase_price ?? 0) * (holding.units ?? 0),
+            0
+          ) ?? 0,
         institution_connection_id: institutionConnection.id,
         provider_account_id: snapTradeAccount.id,
         image: institution.logo_url,
@@ -382,7 +389,7 @@ async function handleAccountUpdate(
   // Add account holdings
   if (accountResponse.positions && accountResponse.positions.length > 0) {
     for (const holding of accountResponse.positions) {
-      const { data: accountHolding, error } = await supabase
+      const { error } = await supabase
         .from("account")
         .upsert(
           {
@@ -390,19 +397,27 @@ async function handleAccountUpdate(
             subtype: "stock",
             user_id: body.userId,
             parent: account.id,
-            name: holding.symbol?.symbol?.symbol ?? "Stock",
-            value: holding.price ?? 0,
-            cost: holding.average_purchase_price ?? 0,
+            name: holding.symbol?.symbol?.description ?? "Stock",
+            value: (holding.price ?? 0) * (holding.units ?? 0),
+            cost: (holding.average_purchase_price ?? 0) * (holding.units ?? 0),
             units: holding.units ?? 0,
             currency:
               holding.symbol?.symbol?.currency.code?.toUpperCase() ?? "USD",
-            ticker: holding.symbol?.symbol?.symbol ?? null,
+            ticker: holding.symbol?.symbol?.raw_symbol ?? null,
             institution_connection_id: institutionConnection.id,
             image: holding.symbol?.symbol?.logo_url,
           },
-          { onConflict: "institution_connection_id,provider_account_id" }
+          { onConflict: "parent,name" }
         )
         .single();
+
+      if (error) {
+        console.error("Error inserting account holding:", error);
+        return NextResponse.json(
+          { error: "Error inserting account holding" },
+          { status: 500 }
+        );
+      }
     }
   }
 

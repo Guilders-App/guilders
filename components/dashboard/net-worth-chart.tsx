@@ -33,7 +33,17 @@ const chartConfig = {
 
 export function NetWorthChart() {
   return (
-    <ChartContainer className="max-h-[216px] w-full" config={chartConfig}>
+    //@ts-ignore
+    <ChartContainer
+      className="max-h-[216px] w-full relative"
+      config={chartConfig}
+    >
+      <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
+        <p className="text-muted-foreground text-sm">
+          Historical data not supported yet
+        </p>
+      </div>
+
       <AreaChart data={chartData}>
         <CartesianGrid vertical={false} />
         <XAxis

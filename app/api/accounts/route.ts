@@ -142,8 +142,7 @@ export async function GET(request: Request) {
     }
 
     // Fetch all accounts for the user
-    // Filtered by RLS for the user
-    const { data: accounts, error } = await supabase
+    const { data: allAccounts, error } = await supabase
       .from("account")
       .select("*")
       .returns<Account[]>();
@@ -156,7 +155,24 @@ export async function GET(request: Request) {
       );
     }
 
-    return NextResponse.json({ success: true, accounts });
+    const accountsMap = new Map<number, Account>();
+    allAccounts.forEach((account) => {
+      accountsMap.set(account.id, { ...account, children: [] });
+    });
+
+    const topLevelAccounts: Account[] = [];
+    allAccounts.forEach((account) => {
+      if (account.parent) {
+        const parentAccount = accountsMap.get(account.parent);
+        if (parentAccount) {
+          parentAccount.children.push(accountsMap.get(account.id)!);
+        }
+      } else {
+        topLevelAccounts.push(accountsMap.get(account.id)!);
+      }
+    });
+
+    return NextResponse.json({ success: true, accounts: topLevelAccounts });
   } catch (error) {
     console.error("Error fetching accounts:", error);
     return NextResponse.json(

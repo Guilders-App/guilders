@@ -108,7 +108,7 @@ const getAccountsContext = async (user_id: string): Promise<string> => {
         (t) => account.id === t.account_id
       );
 
-      accountsContext += `- ${account.name} (${account.type}): ${account.value} ${account.currency}\n`;
+      accountsContext += `- ${account.name} (${account.type}): ${account.value} ${account.currency} (cost: ${account.cost})\n`;
       if (accountTransactions && accountTransactions.length > 0) {
         accountsContext += `- Transactions:\n${accountTransactions
           .map(
