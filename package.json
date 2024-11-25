@@ -4,7 +4,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "db:gen-types": "supabase gen types typescript --linked > ./lib/supabase/database.types.ts",
+    "db:gen-types": "supabase gen types typescript --linked > ./lib/db/database.types.ts",
     "db:pull": "supabase db pull",
     "ngrok": "ngrok http 3000 --url=${NGROK_URL}"
   },

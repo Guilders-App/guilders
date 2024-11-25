@@ -322,14 +322,14 @@ async function handleAccountUpdate(
     );
   }
 
-  const accountResponse =
-    await snaptrade.accountInformation.getUserAccountDetails({
+  const { data: accountResponse } =
+    await snaptrade.accountInformation.getUserHoldings({
       userId: body.userId,
       userSecret: providerConnection.secret,
       accountId: body.accountId,
     });
 
-  if (!accountResponse || !accountResponse.data) {
+  if (!accountResponse || !accountResponse.account) {
     console.error("SnapTrade account not found");
     return NextResponse.json(
       { error: "SnapTrade account not found" },
@@ -339,7 +339,9 @@ async function handleAccountUpdate(
 
   if (
     body.eventType === "NEW_ACCOUNT_AVAILABLE" &&
-    !accountResponse.data.sync_status.holdings?.initial_sync_completed
+    (!accountResponse.account?.sync_status.holdings?.initial_sync_completed ||
+      !accountResponse.account?.sync_status.transactions
+        ?.initial_sync_completed)
   ) {
     console.error("SnapTrade account not fully synced");
     return NextResponse.json(
@@ -348,21 +350,26 @@ async function handleAccountUpdate(
     );
   }
 
-  const snapTradeAccount = accountResponse.data;
-  const { error } = await supabase.from("account").upsert(
-    {
-      type: "asset",
-      subtype: "brokerage",
-      user_id: body.userId,
-      name: snapTradeAccount.institution_name,
-      value: snapTradeAccount.balance.total?.amount ?? 0,
-      currency:
-        snapTradeAccount.balance.total?.currency?.toUpperCase() ?? "USD",
-      institution_connection_id: institutionConnection.id,
-      provider_account_id: snapTradeAccount.id,
-    },
-    { onConflict: "institution_connection_id,provider_account_id" }
-  );
+  const snapTradeAccount = accountResponse.account;
+  const { data: account, error } = await supabase
+    .from("account")
+    .upsert(
+      {
+        type: "asset",
+        subtype: "brokerage",
+        user_id: body.userId,
+        name: snapTradeAccount.institution_name,
+        value: snapTradeAccount.balance.total?.amount ?? 0,
+        currency:
+          snapTradeAccount.balance.total?.currency?.toUpperCase() ?? "USD",
+        institution_connection_id: institutionConnection.id,
+        provider_account_id: snapTradeAccount.id,
+        image: institution.logo_url,
+      },
+      { onConflict: "institution_connection_id,provider_account_id" }
+    )
+    .select()
+    .single();
 
   if (error) {
     console.error("Error inserting account:", error);
@@ -370,6 +377,33 @@ async function handleAccountUpdate(
       { error: "Error inserting account" },
       { status: 500 }
     );
+  }
+
+  // Add account holdings
+  if (accountResponse.positions && accountResponse.positions.length > 0) {
+    for (const holding of accountResponse.positions) {
+      const { data: accountHolding, error } = await supabase
+        .from("account")
+        .upsert(
+          {
+            type: "asset",
+            subtype: "stock",
+            user_id: body.userId,
+            parent: account.id,
+            name: holding.symbol?.symbol?.symbol ?? "Stock",
+            value: holding.price ?? 0,
+            cost: holding.average_purchase_price ?? 0,
+            units: holding.units ?? 0,
+            currency:
+              holding.symbol?.symbol?.currency.code?.toUpperCase() ?? "USD",
+            ticker: holding.symbol?.symbol?.symbol ?? null,
+            institution_connection_id: institutionConnection.id,
+            image: holding.symbol?.symbol?.logo_url,
+          },
+          { onConflict: "institution_connection_id,provider_account_id" }
+        )
+        .single();
+    }
   }
 
   return NextResponse.json({ success: true });

@@ -1,4 +1,3 @@
-
 export type Json =
   | string
   | number
@@ -42,18 +41,19 @@ export type Database = {
           currency: string
           description: string
           id: number
+          image: string | null
           institution_connection_id: number | null
           investable: Database["public"]["Enums"]["investable"]
           name: string
           notes: string
           parent: number | null
           provider_account_id: string | null
-          quantity: number | null
           subtype: Database["public"]["Enums"]["account_subtype"]
           tax_rate: number | null
           taxability: Database["public"]["Enums"]["taxability"]
           ticker: string | null
           type: Database["public"]["Enums"]["account_type"]
+          units: number | null
           updated_at: string
           user_id: string
           value: number
@@ -64,18 +64,19 @@ export type Database = {
           currency: string
           description?: string
           id?: number
+          image?: string | null
           institution_connection_id?: number | null
           investable?: Database["public"]["Enums"]["investable"]
           name: string
           notes?: string
           parent?: number | null
           provider_account_id?: string | null
-          quantity?: number | null
           subtype: Database["public"]["Enums"]["account_subtype"]
           tax_rate?: number | null
           taxability?: Database["public"]["Enums"]["taxability"]
           ticker?: string | null
           type: Database["public"]["Enums"]["account_type"]
+          units?: number | null
           updated_at?: string
           user_id: string
           value: number
@@ -86,18 +87,19 @@ export type Database = {
           currency?: string
           description?: string
           id?: number
+          image?: string | null
           institution_connection_id?: number | null
           investable?: Database["public"]["Enums"]["investable"]
           name?: string
           notes?: string
           parent?: number | null
           provider_account_id?: string | null
-          quantity?: number | null
           subtype?: Database["public"]["Enums"]["account_subtype"]
           tax_rate?: number | null
           taxability?: Database["public"]["Enums"]["taxability"]
           ticker?: string | null
           type?: Database["public"]["Enums"]["account_type"]
+          units?: number | null
           updated_at?: string
           user_id?: string
           value?: number
@@ -341,6 +343,7 @@ export type Database = {
         | "vehicle"
         | "creditcard"
         | "loan"
+        | "stock"
       account_type: "asset" | "liability"
       investable:
         | "non_investable"
