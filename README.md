@@ -16,7 +16,7 @@
 - API keys for:
   - Resend (email service)
   - Anthropic (AI provider)
-  - PostHog (analytics)
+  - Umami (analytics)
 
 ## Development
 
@@ -75,4 +75,4 @@ bun db:gen-types
 - **[Supabase](https://supabase.com)**: Provides PostgreSQL database and authentication services
 - **[Resend](https://resend.com)**: Email service provider
 - **[Anthropic](https://anthropic.com)**: AI capabilities
-- **[PostHog](https://posthog.com)**: Analytics platform
+- **[Umami](https://umami.is)**: Analytics platform

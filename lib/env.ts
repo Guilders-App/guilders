@@ -5,9 +5,6 @@ declare global {
       NEXT_PUBLIC_SUPABASE_URL: string;
       NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
       SUPABASE_SERVICE_ROLE_KEY: string;
-      // Posthog (analytics)
-      NEXT_PUBLIC_POSTHOG_KEY: string;
-      NEXT_PUBLIC_POSTHOG_HOST: string;
       // Resend (email)
       RESEND_API_KEY: string;
       RESEND_WAITLIST_AUDIENCE_ID: string;
