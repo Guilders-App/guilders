@@ -5,6 +5,10 @@ interface MarkdownProps {
 }
 
 export function Markdown({ content }: MarkdownProps) {
+  if (!content) {
+    return null;
+  }
+
   return (
     <ReactMarkdown
       components={{
