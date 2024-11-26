@@ -14,9 +14,9 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useInstitutions } from "@/hooks/useInstitutions";
 import { Institution } from "@/lib/db/types";
 import { useStore } from "@/lib/store";
+import { trpc } from "@/lib/trpc/client";
 import { CommandLoading } from "cmdk";
 import {
   Banknote,
@@ -43,7 +43,7 @@ export function CommandMenu() {
   const setIsAddLinkedAccountOpen = useStore(
     (state) => state.setIsAddLinkedAccountOpen
   );
-  const { data: institutions, isLoading } = useInstitutions();
+  const { data: institutions, isLoading } = trpc.institution.getAll.useQuery();
 
   const [pages, setPages] = useState<string[]>([]);
   const page = pages[pages.length - 1];

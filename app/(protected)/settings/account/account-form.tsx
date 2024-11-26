@@ -23,9 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCurrencies } from "@/hooks/useCurrencies";
-import { toast } from "@/hooks/useToast";
-import { useUpdateUserSettings, useUser } from "@/hooks/useUser";
+import { toast } from "@/lib/hooks/useToast";
+import { trpc } from "@/lib/trpc/client";
 
 const accountFormSchema = z.object({
   email: z.string().email(),
@@ -37,14 +36,18 @@ const accountFormSchema = z.object({
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
 export function AccountForm() {
-  const { data: user, isLoading: isUserLoading, error: userError } = useUser();
-  const { mutateAsync: updateUserSettings } = useUpdateUserSettings();
+  const {
+    data: user,
+    isLoading: isUserLoading,
+    error: userError,
+  } = trpc.user.get.useQuery();
+  const { mutateAsync: updateUserSettings } = trpc.user.update.useMutation();
 
   const {
     data: currencies,
     isLoading: isCurrenciesLoading,
     error: currenciesError,
-  } = useCurrencies();
+  } = trpc.currency.getAll.useQuery();
 
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),

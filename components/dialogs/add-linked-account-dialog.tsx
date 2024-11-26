@@ -5,11 +5,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useCreateConnection } from "@/hooks/useCreateConnection";
-import { useProvider } from "@/hooks/useProviders";
-import { useToast } from "@/hooks/useToast";
 import { Institution } from "@/lib/db/types";
+import { useToast } from "@/lib/hooks/useToast";
 import { useStore } from "@/lib/store";
+import { trpc } from "@/lib/trpc/client";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 
@@ -24,10 +23,11 @@ export function AddLinkedAccountDialog({
   setIsOpen,
   institution,
 }: AddLinkedAccountDialogProps) {
-  const { data: provider } = useProvider(institution?.provider_id);
-  const { mutateAsync: createConnection, isPending } = useCreateConnection(
-    provider?.name.toLocaleLowerCase() ?? ""
+  const { data: provider } = trpc.provider.getById.useQuery(
+    institution?.provider_id ?? -1
   );
+  const { mutateAsync: createConnection, isLoading } =
+    trpc.connection.connect.useMutation();
   const { toast } = useToast();
   const setRedirectUri = useStore((state) => state.setRedirectUri);
   const setIsProviderDialogOpen = useStore(
@@ -37,9 +37,10 @@ export function AddLinkedAccountDialog({
   if (!isOpen || !provider || !institution) return <></>;
 
   const onContinue = async () => {
-    const { success, data: redirectUrl } = await createConnection(
-      institution.id
-    );
+    const { success, data: redirectUrl } = await createConnection({
+      providerName: provider.name.toLocaleLowerCase(),
+      institutionId: institution.id,
+    });
     if (success) {
       setRedirectUri(redirectUrl);
       setIsOpen(false);
@@ -89,7 +90,7 @@ export function AddLinkedAccountDialog({
           </p>
         </div>
 
-        {isPending ? (
+        {isLoading ? (
           <Button disabled>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Please wait

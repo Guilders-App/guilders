@@ -1,17 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useSubscribeNewsletter } from "@/hooks/useSubscribeNewsletter";
+import { trpc } from "@/lib/trpc/client";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 
 export default function NewsletterForm({ className }: { className?: string }) {
   const {
     mutate: subscribe,
-    isPending,
+    isLoading,
     error,
     data,
-  } = useSubscribeNewsletter();
+  } = trpc.newsletter.subscribe.useMutation();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -39,7 +39,7 @@ export default function NewsletterForm({ className }: { className?: string }) {
             data-1p-ignore="true"
           />
         </div>
-        {isPending ? (
+        {isLoading ? (
           <Button disabled className="w-full sm:w-auto">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Please wait

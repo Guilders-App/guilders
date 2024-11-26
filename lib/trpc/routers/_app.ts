@@ -1,12 +1,22 @@
 import { router } from "../server";
 import { accountRouter } from "./account";
-// import { transactionRouter } from "./transaction";
-// Import other routers
+import { connectionRouter } from "./connection";
+import { currencyRouter } from "./currency";
+import { institutionRouter } from "./institution";
+import { newsletterRouter } from "./newsletter";
+import { providerRouter } from "./provider";
+import { transactionRouter } from "./transaction";
+import { userRouter } from "./user";
 
 export const appRouter = router({
   account: accountRouter,
-  // transaction: transactionRouter,
-  // Add other routers
+  connection: connectionRouter,
+  currency: currencyRouter,
+  institution: institutionRouter,
+  newsletter: newsletterRouter,
+  provider: providerRouter,
+  transaction: transactionRouter,
+  user: userRouter,
 });
 
 export type AppRouter = typeof appRouter;

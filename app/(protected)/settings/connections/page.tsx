@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDeregisterUser, useGetConnections } from "@/hooks/useConnections";
-import { useToast } from "@/hooks/useToast";
+import { useToast } from "@/lib/hooks/useToast";
+import { trpc } from "@/lib/trpc/client";
 import { format } from "date-fns";
 import { Loader2, XCircle } from "lucide-react";
 import Image from "next/image";
@@ -17,9 +17,10 @@ export default function ConnectionsPage() {
     isLoading,
     isError,
     refetch,
-  } = useGetConnections();
+  } = trpc.connection.getAll.useQuery();
   const { toast } = useToast();
-  const { mutate: deregisterConnection } = useDeregisterUser();
+  const { mutate: deregisterConnection } =
+    trpc.connection.deregister.useMutation();
   const [deregisteringId, setDeregisteringId] = useState<number | null>(null);
   const [removedIds, setRemovedIds] = useState<number[]>([]);
 

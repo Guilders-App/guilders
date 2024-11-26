@@ -1,9 +1,13 @@
-import { useTransactions } from "@/hooks/useTransactions";
+import { trpc } from "@/lib/trpc/client";
 import { Skeleton } from "../ui/skeleton";
 import { TransactionsEmptyPlaceholder } from "./transactions-placeholder";
 
 export function TransactionsTable() {
-  const { data: transactions, isLoading, error } = useTransactions();
+  const {
+    data: transactions,
+    isLoading,
+    error,
+  } = trpc.transaction.getAll.useQuery();
   return (
     <div className="space-y-4 min-h-[200px]">
       {isLoading ? (

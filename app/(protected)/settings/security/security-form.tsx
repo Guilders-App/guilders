@@ -15,8 +15,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/useToast";
-import { useUpdateUserSettings } from "@/hooks/useUser";
+import { toast } from "@/lib/hooks/useToast";
+import { trpc } from "@/lib/trpc/client";
 
 const securityFormSchema = z
   .object({
@@ -37,7 +37,7 @@ const securityFormSchema = z
 type SecurityFormValues = z.infer<typeof securityFormSchema>;
 
 export function SecurityForm() {
-  const { mutateAsync: updateUserSettings } = useUpdateUserSettings();
+  const { mutateAsync: updateUserSettings } = trpc.user.update.useMutation();
 
   const form = useForm<SecurityFormValues>({
     resolver: zodResolver(securityFormSchema),
