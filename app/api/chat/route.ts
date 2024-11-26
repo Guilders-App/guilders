@@ -8,6 +8,26 @@ import { NextRequest, NextResponse } from "next/server";
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
+interface FinancialSummary {
+  netWorth: number;
+  accounts: {
+    id: number;
+    name: string;
+    type: string;
+    subtype: string;
+    value: number;
+    currency: string;
+    cost?: number;
+    recentTransactions: {
+      date: string;
+      amount: number;
+      category: string;
+      description: string;
+    }[];
+  }[];
+  primaryCurrency: string;
+}
+
 /**
  * @swagger
  * /api/chat:
@@ -59,12 +79,15 @@ export async function POST(request: NextRequest) {
 
   const accountsContext = await getAccountsContext(user.id);
   const systemMessage = `
-  You aim to provide accurate, helpful responses while being direct and concise.
-  You are a financial advisor and can help with questions about personal finance, investments, and retirement planning.
-  Here is the current user's financial information:
+  You are a knowledgeable financial advisor with access to the user's current financial data.
+  Provide accurate, actionable advice while being direct and concise.
+  Focus on personal finance, investments, and retirement planning.
+
   ${accountsContext}
 
-  Use this information to provide personalized advice when relevant.
+  When discussing amounts, always specify the currency but used the symbol where applicable.
+  Base your advice on the user's actual financial situation as shown in their data.
+  If asked about topics outside of the provided financial data, make that clear in your response.
   `;
 
   const result = streamText({
@@ -76,49 +99,79 @@ export async function POST(request: NextRequest) {
   return result.toDataStreamResponse();
 }
 
-// TODO: Change to use "use cache" when upgrading to Next.js 15.0.4
-// const getAccountsContextCached = unstable_cache(
-//   async (id) => getAccountsContext(id),
-//   ["accounts-context"],
-//   {
-//     revalidate: 60 * 60 * 24, // 24 hours
-//   }
-// );
-
 const getAccountsContext = async (user_id: string): Promise<string> => {
-  // "use cache";
   const supabase = await createAdminClient();
-  let accountsContext = "No account information available.";
 
   const { data: accounts } = await supabase
     .from("account")
     .select("*")
     .eq("user_id", user_id);
 
-  // Filtered by RLS
   const { data: transactions } = await supabase
     .from("transaction")
     .select("*, account!inner(*)")
-    .eq("account.user_id", user_id);
+    .eq("account.user_id", user_id)
+    .order("date", { ascending: false })
+    .limit(50);
 
-  if (accounts && accounts.length > 0) {
-    accountsContext = "User's accounts:\n";
-    for (const account of accounts) {
-      const accountTransactions = transactions?.filter(
-        (t) => account.id === t.account_id
-      );
-
-      accountsContext += `- ${account.name} (${account.type}): ${account.value} ${account.currency} (cost: ${account.cost})\n`;
-      if (accountTransactions && accountTransactions.length > 0) {
-        accountsContext += `- Transactions:\n${accountTransactions
-          .map(
-            (t) =>
-              `- ${t.date}: ${t.amount} ${t.currency}, category: ${t.category}\nDescription: ${t.description}`
-          )
-          .join("\n")}`;
-      }
-    }
+  if (!accounts || accounts.length === 0) {
+    return "No financial information available.";
   }
 
-  return accountsContext;
+  // Create structured financial summary
+  const summary: FinancialSummary = {
+    netWorth: accounts.reduce(
+      (sum, acc) => sum + (acc.type === "asset" ? acc.value : -acc.value),
+      0
+    ),
+    accounts: accounts.map((account) => ({
+      id: account.id,
+      name: account.name,
+      type: account.type,
+      subtype: account.subtype,
+      value: account.value,
+      currency: account.currency,
+      cost: account.cost || undefined,
+      recentTransactions:
+        transactions
+          ?.filter((t) => t.account_id === account.id)
+          .slice(0, 5) // Only include 5 most recent transactions per account
+          .map((t) => ({
+            date: t.date,
+            amount: t.amount,
+            category: t.category,
+            description: t.description,
+          })) || [],
+    })),
+    primaryCurrency: accounts[0]?.currency || "USD", // Assume first account's currency as primary
+  };
+
+  // Convert to a structured prompt
+  return `
+Financial Overview:
+- Net Worth: ${summary.netWorth} ${summary.primaryCurrency}
+- Number of Accounts: ${summary.accounts.length}
+
+Account Details:
+${summary.accounts
+  .map(
+    (acc) => `
+• ${acc.name} (${acc.type}/${acc.subtype})
+  - Value: ${acc.value} ${acc.currency}
+  ${acc.cost ? `  - Cost Basis: ${acc.cost} ${acc.currency}` : ""}
+  ${
+    acc.recentTransactions.length > 0
+      ? `
+  Recent Activity:
+  ${acc.recentTransactions
+    .map((t) => `  - ${t.date}: ${t.amount} ${acc.currency} (${t.category})`)
+    .join("\n")}`
+      : ""
+  }
+`
+  )
+  .join("")}
+
+Use this financial data to provide personalized advice and insights when relevant.
+`;
 };
