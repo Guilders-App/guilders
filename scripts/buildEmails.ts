@@ -1,13 +1,16 @@
 import { render } from "@react-email/render";
-import { Glob } from "bun";
+import fs from "fs/promises";
 import path from "path";
 
 async function getAllEmails() {
   const emailsDir = path.join(process.cwd(), "emails");
   const templatesDir = path.join(process.cwd(), "supabase", "templates");
-  const glob = new Glob("*.tsx");
 
-  for await (const template of glob.scan(emailsDir)) {
+  // Read directory and filter for .tsx files
+  const files = await fs.readdir(emailsDir);
+  const templates = files.filter((file) => file.endsWith(".tsx"));
+
+  for (const template of templates) {
     const { default: EmailComponent } = await import(`../emails/${template}`);
     const supabaseProps = EmailComponent.SupabaseProps;
 
@@ -16,17 +19,15 @@ async function getAllEmails() {
       continue;
     }
 
-    const html = await render(EmailComponent({ ...supabaseProps }), {
-      pretty: true,
-    });
+    const html = await render(EmailComponent({ ...supabaseProps }));
 
     const outputPath = path.join(
       templatesDir,
       `${path.parse(template).name}.html`
     );
 
-    await Bun.write(outputPath, html);
+    await fs.writeFile(outputPath, html);
   }
 }
 
-await getAllEmails();
+getAllEmails().catch(console.error);
