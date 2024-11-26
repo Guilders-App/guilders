@@ -49,8 +49,8 @@ export function AccountForm() {
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(accountFormSchema),
     defaultValues: {
-      email: "",
-      currency: "",
+      email: user?.email ?? "",
+      currency: user?.currency ?? "",
     },
   });
 
@@ -79,13 +79,23 @@ export function AccountForm() {
   }, [currencies]);
 
   if (isUserLoading || isCurrenciesLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center py-6">Loading...</div>
+    );
   }
 
-  if (currenciesError || userError) {
+  if (userError) {
     return (
       <div className="text-destructive">
-        Error loading settings. Please try again later.
+        Error loading user data. Please try again later.
+      </div>
+    );
+  }
+
+  if (currenciesError) {
+    return (
+      <div className="text-destructive">
+        Error loading currencies. Please try again later.
       </div>
     );
   }
@@ -141,24 +151,20 @@ export function AccountForm() {
               <FormLabel>Currency</FormLabel>
               <Select
                 onValueChange={field.onChange}
+                defaultValue={field.value}
                 value={field.value}
-                disabled={isCurrenciesLoading || isUserLoading || !currencies}
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue
-                      placeholder={
-                        isCurrenciesLoading || isUserLoading
-                          ? "Loading..."
-                          : "Select currency"
-                      }
-                    />
+                    <SelectValue placeholder="Select currency">
+                      {field.value}
+                    </SelectValue>
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   {sortedCurrencies.map((currency) => (
                     <SelectItem key={currency.code} value={currency.code}>
-                      {currency.code}
+                      {currency.code} - {currency.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -170,7 +176,12 @@ export function AccountForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Update account</Button>
+        <Button
+          type="submit"
+          disabled={!form.formState.isDirty || form.formState.isSubmitting}
+        >
+          {form.formState.isSubmitting ? "Updating..." : "Update account"}
+        </Button>
       </form>
     </Form>
   );

@@ -15,6 +15,12 @@
       "command": "bun run ngrok"
     },
     {
+      "name": "Emails Server",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "bun run emails:dev"
+    },
+    {
       "name": "Supabase",
       "type": "node-terminal",
       "request": "launch",
@@ -23,8 +29,8 @@
   ],
   "compounds": [
     {
-      "name": "Next.js + Ngrok",
-      "configurations": ["Next.js Debug", "Ngrok Tunnel"]
+      "name": "Next.js + Ngrok + Emails + Supabase",
+      "configurations": ["Next.js Debug", "Ngrok Tunnel", "Emails Server", "Supabase"]
     }
   ]
 }

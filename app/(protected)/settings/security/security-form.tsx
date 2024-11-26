@@ -45,6 +45,7 @@ export function SecurityForm() {
       newPassword: "",
       confirmPassword: "",
     },
+    mode: "onChange",
   });
 
   async function onSubmit(data: SecurityFormValues) {
@@ -53,11 +54,17 @@ export function SecurityForm() {
         password: data.newPassword,
       });
 
+      form.reset({
+        newPassword: "",
+        confirmPassword: "",
+      });
+
       toast({
-        title: "Success",
+        title: "Password updated",
         description: "Your password has been updated successfully.",
       });
     } catch (error) {
+      console.error("Failed to update password:", error);
       toast({
         title: "Error",
         description: "Failed to update password. Please try again.",
@@ -76,7 +83,12 @@ export function SecurityForm() {
             <FormItem>
               <FormLabel>New Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  {...field}
+                  autoComplete="new-password"
+                />
               </FormControl>
               <FormDescription>
                 Password must be at least 8 characters and contain at least one
@@ -93,7 +105,12 @@ export function SecurityForm() {
             <FormItem>
               <FormLabel>Confirm New Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  {...field}
+                  autoComplete="new-password"
+                />
               </FormControl>
               <FormDescription>
                 Please confirm your new password.
@@ -102,7 +119,16 @@ export function SecurityForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Update password</Button>
+        <Button
+          type="submit"
+          disabled={
+            !form.formState.isDirty ||
+            form.formState.isSubmitting ||
+            !form.formState.isValid
+          }
+        >
+          {form.formState.isSubmitting ? "Updating..." : "Update password"}
+        </Button>
       </form>
     </Form>
   );

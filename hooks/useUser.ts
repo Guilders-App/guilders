@@ -21,9 +21,20 @@ export function useUser() {
       if (error) throw error;
       if (!user) throw new Error("No user found");
 
+      const currency = user.user_metadata.currency?.toUpperCase();
+      if (!currency) {
+        const { error: updateError } = await supabase.auth.updateUser({
+          data: { currency: "EUR" },
+        });
+
+        if (updateError) {
+          console.error("Failed to set default currency:", updateError);
+        }
+      }
+
       return {
-        email: user.email,
-        currency: user.user_metadata.currency?.toUpperCase() ?? "EUR",
+        email: user.email ?? "",
+        currency: currency ?? "EUR",
       } as UserMetadata;
     },
   });
