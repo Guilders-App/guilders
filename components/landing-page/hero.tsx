@@ -62,9 +62,9 @@ export const Hero = () => {
             </h1>
 
             <p className="text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-2xl text-center">
-              Guilders is a platform that helps you manage your finances and
-              investments. Built for the modern world, with a focus on
-              simplicity, privacy, and security.
+              Your personal AI financial advisor. Guilders connects all your
+              bank accounts and investments in one place, providing smart
+              insights and personalized recommendations to optimize your wealth.
             </p>
           </div>
           {/* <div className="flex flex-row gap-3">
