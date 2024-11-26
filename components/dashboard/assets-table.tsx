@@ -4,8 +4,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useAccounts } from "@/hooks/useAccounts";
 import { Account } from "@/lib/db/types";
+import { trpc } from "@/lib/trpc/client";
 import {
   Bitcoin,
   CarFront,
@@ -24,7 +24,7 @@ import { AssetsEmptyPlaceholder } from "./assets-placeholder";
 import { ChangeIndicator } from "./change-indicator";
 
 export function AssetsTable() {
-  const { data: accounts, isLoading, error } = useAccounts();
+  const { data: accounts, isLoading, error } = trpc.account.getAll.useQuery();
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
   const renderAccount = (account: Account, isChild = false) => {

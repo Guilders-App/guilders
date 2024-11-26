@@ -25,11 +25,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAddAccount } from "@/hooks/useAccounts";
 import { useCurrencies } from "@/hooks/useCurrencies";
 import { useToast } from "@/hooks/useToast";
 import { useUser } from "@/hooks/useUser";
 import { accountSubtypeLabels, accountSubtypes } from "@/lib/db/types";
+import { trpc } from "@/lib/trpc/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -58,7 +58,7 @@ export const AddAccountDialog = ({
   const [isLoading, setIsLoading] = useState(false);
   const { data: user } = useUser();
   const { toast } = useToast();
-  const { mutate: addAccount } = useAddAccount();
+  const { mutate: addAccount } = trpc.account.create.useMutation();
   const {
     data: currencies,
     isLoading: isCurrenciesLoading,

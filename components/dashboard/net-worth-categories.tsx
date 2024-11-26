@@ -1,14 +1,19 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAccounts } from "@/hooks/useAccounts";
 import {
   AccountSubtype,
   getCategoryColor,
   getCategoryDisplayName,
 } from "@/lib/db/types";
+import { trpc } from "@/lib/trpc/client";
 import { useMemo } from "react";
 
 export function NetWorthCategories() {
-  const { data: accounts, isLoading, isError, error } = useAccounts();
+  const {
+    data: accounts,
+    isLoading,
+    isError,
+    error,
+  } = trpc.account.getAll.useQuery();
 
   const categories = useMemo(() => {
     if (!accounts) return [];

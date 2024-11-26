@@ -3,10 +3,10 @@
 import { AssetsEmptyPlaceholder } from "@/components/dashboard/assets-placeholder";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAccounts } from "@/hooks/useAccounts";
+import { trpc } from "@/lib/trpc/client";
 
 export default function AccountsPage() {
-  const { data: accounts, isLoading, error } = useAccounts();
+  const { data: accounts, isLoading, error } = trpc.account.getAll.useQuery();
 
   return (
     <div className="p-4">

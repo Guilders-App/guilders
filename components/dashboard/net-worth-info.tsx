@@ -1,12 +1,12 @@
 import { ChangeIndicator } from "@/components/dashboard/change-indicator";
 import { NetWorthChart } from "@/components/dashboard/net-worth-chart";
 import { NetWorthDisplay } from "@/components/dashboard/net-worth-display";
-import { useAccounts } from "@/hooks/useAccounts";
+import { trpc } from "@/lib/trpc/client";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { TimeRangeSelector } from "./time-range-selector";
 
 export function NetWorthInfo({ className }: { className?: string }) {
-  const { data: accounts } = useAccounts();
+  const { data: accounts } = trpc.account.getAll.useQuery();
 
   const totalValue =
     accounts?.reduce((acc, account) => {

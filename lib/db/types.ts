@@ -4,6 +4,7 @@ import {
   TablesInsert,
   TablesUpdate,
 } from "@/lib/db/database.types";
+import { z } from "zod";
 
 export type Category = {
   name: Enums<"account_subtype">;
@@ -23,6 +24,17 @@ export type AccountUpdate = Omit<
   "type" | "user_id" | "created_at" | "updated_at" | "connection_id"
 >;
 export type AccountSubtype = Enums<"account_subtype">;
+export const AccountSubtypeZod = z.enum([
+  "depository",
+  "brokerage",
+  "crypto",
+  "property",
+  "vehicle",
+  "creditcard",
+  "loan",
+  "stock",
+]);
+export type AccountType = "asset" | "liability";
 
 // TODO: Should we fetch this from the database?
 export const accountSubtypes = [

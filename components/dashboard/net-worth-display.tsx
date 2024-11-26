@@ -1,7 +1,7 @@
-import { useAccounts } from "@/hooks/useAccounts";
+import { trpc } from "@/lib/trpc/client";
 
 export function NetWorthDisplay() {
-  const { data: accounts } = useAccounts();
+  const { data: accounts } = trpc.account.getAll.useQuery();
   const totalValue = accounts?.reduce((acc, curr) => acc + curr.value, 0);
 
   return (
