@@ -2,15 +2,12 @@
 
 import { createClient } from "@/lib/db/server";
 import { encodedRedirect } from "@/lib/utils";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
   const supabase = await createClient();
-  const headersList = await headers();
-  const origin = headersList.get("origin");
 
   if (!email || !password) {
     return encodedRedirect(
@@ -24,7 +21,6 @@ export const signUpAction = async (formData: FormData) => {
     email,
     password,
     options: {
-      emailRedirectTo: `${origin}/callback/auth`,
       data: {
         currency: "EUR",
       },
@@ -63,17 +59,13 @@ export const signInAction = async (formData: FormData) => {
 export const forgotPasswordAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const supabase = await createClient();
-  const headersList = await headers();
-  const origin = headersList.get("origin");
   const callbackUrl = formData.get("callbackUrl")?.toString();
 
   if (!email) {
     return encodedRedirect("error", "/forgot-password", "Email is required");
   }
 
-  const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${origin}/callback/auth?redirect_to=/reset-password`,
-  });
+  const { error } = await supabase.auth.resetPasswordForEmail(email);
 
   if (error) {
     console.error(error.message);

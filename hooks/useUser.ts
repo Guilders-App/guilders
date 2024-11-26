@@ -48,7 +48,7 @@ export function useUpdateUserSettings() {
         email: input.email,
         password: input.password,
         data: {
-          currency: input.currency?.toUpperCase(),
+          currency: input.currency?.toUpperCase() ?? "EUR",
         },
       });
 

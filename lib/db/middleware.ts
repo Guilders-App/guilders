@@ -2,7 +2,6 @@ import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const updateSession = async (request: NextRequest) => {
-  // Create an unmodified response
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -32,10 +31,7 @@ export const updateSession = async (request: NextRequest) => {
     }
   );
 
-  // This will refresh session if expired - required for Server Components
-  // https://supabase.com/docs/guides/auth/server-side/nextjs
-  const user = await supabase.auth.getUser();
-
+  const { error } = await supabase.auth.getUser();
   const publicRoutes = [
     "/",
     "/forgot-password",
@@ -44,11 +40,7 @@ export const updateSession = async (request: NextRequest) => {
     "/terms-of-service",
     "/privacy-policy",
   ];
-
   const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname);
-
-  console.log("Is public route:", isPublicRoute);
-
   const isApiRoute =
     request.nextUrl.pathname.startsWith("/api") ||
     request.nextUrl.pathname.startsWith("/swagger") ||
@@ -56,13 +48,9 @@ export const updateSession = async (request: NextRequest) => {
 
   if (isApiRoute) {
     return response;
-  }
-
-  if (isPublicRoute && !user.error) {
+  } else if (isPublicRoute && !error) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
-
-  if (!isPublicRoute && user.error) {
+  } else if (!isPublicRoute && error) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 
