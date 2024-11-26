@@ -6,7 +6,6 @@ async function getAllEmails() {
   const emailsDir = path.join(process.cwd(), "emails");
   const templatesDir = path.join(process.cwd(), "supabase", "templates");
 
-  // Read directory and filter for .tsx files
   const files = await fs.readdir(emailsDir);
   const templates = files.filter((file) => file.endsWith(".tsx"));
 
