@@ -1,4 +1,13 @@
 {
+  "name": "guilders",
+  "version": "0.0.1",
+  "description": "Guilders - AI-powered financial companion",
+  "homepage": "https://guilders.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Guilders-App/guilders.git"
+  },
+  "license": "UNLICENSED",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -7,6 +16,8 @@
     "db:gen-types": "supabase gen types typescript --linked > ./lib/db/database.types.ts",
     "db:pull": "supabase db pull",
     "db:start": "supabase stop && supabase start",
+    "emails:dev": "email dev -p 3001",
+    "emails:build": "bun run scripts/buildEmails.ts",
     "ngrok": "ngrok http 3000 --url=${NGROK_URL}"
   },
   "dependencies": {
@@ -27,6 +38,8 @@
     "@radix-ui/react-tabs": "^1.1.1",
     "@radix-ui/react-toast": "^1.2.2",
     "@radix-ui/react-tooltip": "^1.1.3",
+    "@react-email/components": "0.0.28",
+    "@react-email/render": "1.0.2",
     "@scalar/nextjs-api-reference": "^0.4.100",
     "@supabase/ssr": "^0.5.2",
     "@tanstack/react-query": "^5.60.6",
@@ -58,6 +71,7 @@
     "clsx": "^2.1.1",
     "postcss": "8.4.49",
     "prettier": "^3.3.3",
+    "react-email": "3.0.2",
     "supabase": "^1.223.10",
     "tailwind-merge": "^2.5.2",
     "tailwindcss": "3.4.15",
