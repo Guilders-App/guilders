@@ -40,7 +40,7 @@ export default async function Signup(props: {
             required
           />
           <SubmitButton
-            disabled
+            disabled={process.env.NODE_ENV !== "development"}
             pendingText="Signing up..."
             formAction={signUpAction}
           >

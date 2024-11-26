@@ -67,7 +67,16 @@ bun db:pull
 
 # Generate TypeScript types
 bun db:gen-types
+
+# Start local Supabase Studio
+bun db:start
 ```
+
+### Email Testing
+
+When you start supabase locally, it will also send emails to Inbucket, which is
+configured to run on `localhost:54324`. It acts as a local SMTP server and captures
+all emails sent to it for inspection.
 
 ## Infrastructure
 

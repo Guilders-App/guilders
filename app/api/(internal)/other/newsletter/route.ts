@@ -12,15 +12,12 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  console.log(email);
-
   const { error } = await resend.contacts.create({
     email,
     audienceId: process.env.RESEND_WAITLIST_AUDIENCE_ID,
   });
 
   if (error) {
-    console.log("error", error);
     return NextResponse.json({ success: false, error: error });
   }
 

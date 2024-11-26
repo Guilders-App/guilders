@@ -12,7 +12,13 @@
       "type": "node-terminal",
       "request": "launch",
       "envFile": "${workspaceFolder}/.env",
-      "command": "ngrok http 3000 --url=$NGROK_URL"
+      "command": "bun run ngrok"
+    },
+    {
+      "name": "Supabase",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "bun run db:start"
     }
   ],
   "compounds": [
