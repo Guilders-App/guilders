@@ -1,24 +1,19 @@
-"use server";
-
 import { createAdminClient } from "@/lib/db/admin";
 import { getProvider } from "@/lib/db/utils";
 import { providerName, snaptrade } from "./client";
 
-export const insertSnapTradeInstitutions = async (): Promise<Response> => {
+export const insertSnapTradeInstitutions = async () => {
   const supabase = await createAdminClient();
   const provider = await getProvider(providerName);
 
   if (!provider) {
-    console.error(`Failed to fetch providers for ${providerName}`);
-    return new Response(`Failed to fetch providers for ${providerName}`, {
-      status: 500,
-    });
+    throw new Error(`Failed to fetch providers for ${providerName}`);
   }
 
   const institutions = await snaptrade.referenceData.listAllBrokerages();
 
   if (!institutions.data || institutions.data.length === 0) {
-    return new Response("Failed to fetch brokerages", { status: 500 });
+    throw new Error("Failed to fetch brokerages");
   }
 
   const entries = institutions.data
@@ -38,13 +33,9 @@ export const insertSnapTradeInstitutions = async (): Promise<Response> => {
       countries: [],
     }));
 
-  const response = await supabase.from("institution").upsert(entries, {
+  const { error } = await supabase.from("institution").upsert(entries, {
     onConflict: "provider_id,provider_institution_id",
   });
 
-  if (response.error) {
-    return new Response("Failed to insert institutions", { status: 500 });
-  }
-
-  return new Response("OK");
+  if (error) throw error;
 };

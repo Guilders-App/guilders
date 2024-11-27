@@ -1,18 +1,13 @@
-"use server";
-
 import { createAdminClient } from "@/lib/db/admin";
 import { getProvider } from "@/lib/db/utils";
 import { providerName, saltedge } from "./client";
 
-export const insertSaltEdgeInstitutions = async (): Promise<Response> => {
+export const insertSaltEdgeInstitutions = async () => {
   const supabase = await createAdminClient();
   const provider = await getProvider(providerName);
 
   if (!provider) {
-    console.error(`Failed to fetch providers for ${providerName}`);
-    return new Response(`Failed to fetch providers for ${providerName}`, {
-      status: 500,
-    });
+    throw new Error(`Failed to fetch providers for ${providerName}`);
   }
 
   const institutions = (await saltedge.getProviders()).filter(
@@ -28,9 +23,9 @@ export const insertSaltEdgeInstitutions = async (): Promise<Response> => {
     demo: true,
   }));
 
-  await supabase.from("institution").upsert(entries, {
+  const { error } = await supabase.from("institution").upsert(entries, {
     onConflict: "provider_id,provider_institution_id",
   });
 
-  return new Response("OK");
+  if (error) throw error;
 };

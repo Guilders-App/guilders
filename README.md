@@ -70,6 +70,9 @@ bun db:gen-types
 
 # Start local Supabase Studio
 bun db:start
+
+# Seed institutions
+bun db:seed
 ```
 
 ### Email Testing

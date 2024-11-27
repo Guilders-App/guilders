@@ -1,11 +1,9 @@
-"use server";
-
-import { createClient } from "./server";
+import { createAdminClient } from "./admin";
 
 export const getProviders = async () => {
   // TODO: Add proper caching
   // "use cache";
-  const supabase = await createClient();
+  const supabase = await createAdminClient();
   const { data: providers } = await supabase.from("provider").select("*");
 
   if (!providers) {
