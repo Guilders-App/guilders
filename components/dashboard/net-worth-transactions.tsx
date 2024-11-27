@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { TransactionsTable } from "./transactions-table";
+import { TransactionsTable } from "./transactions/transactions-table";
 
 export function TransactionsCard() {
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { AssetsEmptyPlaceholder } from "@/components/dashboard/assets-placeholder";
+import { AssetsEmptyPlaceholder } from "@/components/dashboard/assets/assets-placeholder";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAccounts } from "@/hooks/useAccounts";

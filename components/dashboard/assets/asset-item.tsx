@@ -17,7 +17,7 @@ import {
   Landmark,
 } from "lucide-react";
 import Image from "next/image";
-import { ChangeIndicator } from "./change-indicator";
+import { ChangeIndicator } from "../change-indicator";
 
 interface AssetItemProps {
   account: Account;

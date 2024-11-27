@@ -1,6 +1,6 @@
 "use client";
 
-import { TransactionsEmptyPlaceholder } from "@/components/dashboard/transactions-placeholder";
+import { TransactionsEmptyPlaceholder } from "@/components/dashboard/transactions/transactions-placeholder";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTransactions } from "@/hooks/useTransactions";

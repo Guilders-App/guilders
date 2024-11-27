@@ -1,6 +1,6 @@
 "use client";
 
-import { AssetsCard } from "@/components/dashboard/assets-card";
+import { AssetsCard } from "@/components/dashboard/assets/assets-card";
 import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { NetWorthDetails } from "@/components/dashboard/net-worth-details";
 import { NetWorthInfo } from "@/components/dashboard/net-worth-info";

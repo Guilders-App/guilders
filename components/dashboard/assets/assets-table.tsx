@@ -1,6 +1,6 @@
 import { useAccounts } from "@/hooks/useAccounts";
 import { useState } from "react";
-import { Skeleton } from "../ui/skeleton";
+import { Skeleton } from "../../ui/skeleton";
 import { AssetItem } from "./asset-item";
 import { AssetsEmptyPlaceholder } from "./assets-placeholder";
 
