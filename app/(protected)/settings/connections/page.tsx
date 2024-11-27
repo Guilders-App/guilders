@@ -79,7 +79,7 @@ export default function ConnectionsPage() {
                   <div className="flex items-center space-x-4">
                     <div className="relative h-8 w-24">
                       <Image
-                        src={connection.provider.logo_url}
+                        src={connection.provider.logo_url!}
                         alt={`${connection.provider.name} logo`}
                         fill
                         className="object-contain"
@@ -106,7 +106,7 @@ export default function ConnectionsPage() {
                       size="sm"
                       onClick={() => {
                         setDeregisteringId(connection.provider_id);
-                        deregisterConnection(connection.provider.name, {
+                        deregisterConnection(connection.provider.name!, {
                           onSuccess: () => {
                             setRemovedIds((prev) => [
                               ...prev,

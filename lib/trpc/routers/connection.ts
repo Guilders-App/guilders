@@ -28,6 +28,7 @@ export const connectionRouter = router({
   register: protectedProcedure
     .input(z.string())
     .mutation(async ({ ctx, input: providerName }) => {
+      providerName = providerName.toLowerCase();
       const { data: provider } = await ctx.supabase
         .from("provider")
         .select("id")
@@ -49,10 +50,16 @@ export const connectionRouter = router({
         return connection;
       }
 
-      const registerFunction =
-        providerName === "saltedge"
-          ? registerSaltEdgeUser
-          : registerSnapTradeUser;
+      const registerFunction = (() => {
+        switch (providerName) {
+          case "saltedge":
+            return registerSaltEdgeUser;
+          case "snaptrade":
+            return registerSnapTradeUser;
+          default:
+            throw new Error(`Provider ${providerName} not supported`);
+        }
+      })();
 
       return await registerFunction(ctx.user.id);
     }),
