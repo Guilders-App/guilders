@@ -11,8 +11,10 @@ export const providerRouter = router({
   }),
 
   getById: publicProcedure
-    .input(z.number())
+    .input(z.number().nullable())
     .query(async ({ ctx, input: id }) => {
+      if (!id) return null;
+
       const { data, error } = await ctx.supabase
         .from("provider")
         .select("*")

@@ -24,7 +24,7 @@ export function AddLinkedAccountDialog({
   institution,
 }: AddLinkedAccountDialogProps) {
   const { data: provider } = trpc.provider.getById.useQuery(
-    institution?.provider_id ?? -1
+    institution?.provider_id ?? null
   );
   const { mutateAsync: createConnection, isLoading } =
     trpc.connection.connect.useMutation();
@@ -37,11 +37,12 @@ export function AddLinkedAccountDialog({
   if (!isOpen || !provider || !institution) return <></>;
 
   const onContinue = async () => {
-    const { success, data: redirectUrl } = await createConnection({
+    const { redirectUrl } = await createConnection({
       providerName: provider.name.toLocaleLowerCase(),
       institutionId: institution.id,
     });
-    if (success) {
+
+    if (redirectUrl) {
       setRedirectUri(redirectUrl);
       setIsOpen(false);
       setTimeout(() => setIsProviderDialogOpen(true), 40);

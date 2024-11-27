@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils/utils";
+import { cn } from "@/lib/utils";
 import * as React from "react";
 import { Textarea } from "./textarea";
 

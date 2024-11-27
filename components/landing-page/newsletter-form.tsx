@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc/client";
-import { cn } from "@/lib/utils/utils";
+import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 
 export default function NewsletterForm({ className }: { className?: string }) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils/utils";
+import { cn } from "@/lib/utils";
 import { MessageCircle, X } from "lucide-react";
 import React, { useRef, useState } from "react";
 
