@@ -1,4 +1,4 @@
-import { getApiDocs } from "@/lib/swagger";
+import { getApiDocs } from "@/lib/utils/swagger";
 import { ApiReference } from "@scalar/nextjs-api-reference";
 
 const config = {

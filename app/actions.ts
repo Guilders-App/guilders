@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/db/server";
-import { encodedRedirect } from "@/lib/utils";
+import { encodedRedirect } from "@/lib/utils/utils";
 import { redirect } from "next/navigation";
 
 export const signUpAction = async (formData: FormData) => {

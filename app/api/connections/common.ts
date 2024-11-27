@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/db/server";
 import { ConnectionProviderFunction } from "@/lib/providers/types";
-import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export type ConnectBody = {
@@ -14,10 +13,9 @@ export const registerConnection = async (
 ) => {
   try {
     const supabase = await createClient();
-    const jwt = getJwt(request);
     const {
       data: { user },
-    } = await supabase.auth.getUser(jwt);
+    } = await supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json(
@@ -69,10 +67,9 @@ export const deregisterConnection = async (
 ) => {
   try {
     const supabase = await createClient();
-    const jwt = getJwt(request);
     const {
       data: { user },
-    } = await supabase.auth.getUser(jwt);
+    } = await supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json(

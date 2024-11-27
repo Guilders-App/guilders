@@ -1,4 +1,4 @@
-import { resend } from "@/lib/resend";
+import { resend } from "@/lib/utils/resend";
 
 import { NextRequest, NextResponse } from "next/server";
 

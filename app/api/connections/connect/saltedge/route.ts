@@ -1,20 +1,16 @@
 import { createClient } from "@/lib/db/server";
 import { saltedge } from "@/lib/providers/saltedge/client";
 import { registerSaltEdgeUser } from "@/lib/providers/saltedge/register";
-import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 import { ConnectBody } from "../../common";
 
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
-    const jwt = getJwt(request);
-
     const { institution_id }: ConnectBody = await request.json();
-
     const {
       data: { user },
-    } = await supabase.auth.getUser(jwt);
+    } = await supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json(
