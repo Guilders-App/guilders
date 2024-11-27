@@ -1,4 +1,4 @@
-import { Institution } from "@/lib/db/types";
+import { Account, Institution, Transaction } from "@/lib/db/types";
 import { StateSlice } from "../store";
 
 type DialogState = {
@@ -9,6 +9,12 @@ type DialogState = {
   isAddLinkedAccountOpen: boolean;
   redirectUri: string;
   isProviderDialogOpen: boolean;
+  isEditAccountDialogOpen: boolean;
+  setIsEditAccountDialogOpen: (open: boolean) => void;
+  selectedAccount: Account | null;
+  setSelectedAccount: (account: Account | null) => void;
+  isEditTransactionDialogOpen: boolean;
+  selectedTransaction: Transaction | null;
 };
 
 type DialogActions = {
@@ -18,6 +24,8 @@ type DialogActions = {
   setSelectedInstitution: (institution: Institution | null) => void;
   setRedirectUri: (uri: string) => void;
   setIsProviderDialogOpen: (open: boolean) => void;
+  setIsEditTransactionDialogOpen: (open: boolean) => void;
+  setSelectedTransaction: (transaction: Transaction | null) => void;
 };
 
 export const createDialogStore: StateSlice<DialogState & DialogActions> = (
@@ -30,6 +38,10 @@ export const createDialogStore: StateSlice<DialogState & DialogActions> = (
   isAddLinkedAccountOpen: false,
   isProviderDialogOpen: false,
   redirectUri: "",
+  isEditAccountDialogOpen: false,
+  selectedAccount: null,
+  isEditTransactionDialogOpen: false,
+  selectedTransaction: null,
   setIsCommandMenuOpen: (open) => {
     set({ isCommandMenuOpen: open });
     if (!open) {
@@ -42,4 +54,10 @@ export const createDialogStore: StateSlice<DialogState & DialogActions> = (
     set({ selectedInstitution: institution }),
   setIsProviderDialogOpen: (open) => set({ isProviderDialogOpen: open }),
   setRedirectUri: (uri) => set({ redirectUri: uri }),
+  setIsEditAccountDialogOpen: (open) => set({ isEditAccountDialogOpen: open }),
+  setSelectedAccount: (account) => set({ selectedAccount: account }),
+  setIsEditTransactionDialogOpen: (open) =>
+    set({ isEditTransactionDialogOpen: open }),
+  setSelectedTransaction: (transaction) =>
+    set({ selectedTransaction: transaction }),
 });

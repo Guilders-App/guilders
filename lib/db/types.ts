@@ -33,6 +33,7 @@ export const accountSubtypes = [
   "vehicle",
   "creditcard",
   "loan",
+  "stock",
 ] as const;
 
 export const accountSubtypeLabels: Record<AccountSubtype, string> = {

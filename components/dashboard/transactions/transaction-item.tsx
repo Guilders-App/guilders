@@ -1,12 +1,28 @@
 import { Transaction } from "@/lib/db/types";
+import { useStore } from "@/lib/store";
 
 interface TransactionItemProps {
   transaction: Transaction;
 }
 
 export function TransactionItem({ transaction }: TransactionItemProps) {
+  const setIsEditTransactionDialogOpen = useStore(
+    (state) => state.setIsEditTransactionDialogOpen
+  );
+  const setSelectedTransaction = useStore(
+    (state) => state.setSelectedTransaction
+  );
+
+  const handleClick = () => {
+    setSelectedTransaction(transaction);
+    setIsEditTransactionDialogOpen(true);
+  };
+
   return (
-    <div className="flex justify-between items-center">
+    <div
+      className="flex justify-between items-center p-2 hover:bg-secondary rounded-lg cursor-pointer"
+      onClick={handleClick}
+    >
       <div className="flex items-center">
         <div
           className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
@@ -42,7 +58,7 @@ export function TransactionItem({ transaction }: TransactionItemProps) {
             ${Math.abs(transaction.amount).toFixed(2)}
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            {transaction.category}
+            {transaction.description}
           </p>
         </div>
       </div>

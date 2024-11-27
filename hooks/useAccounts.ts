@@ -23,6 +23,18 @@ export function useAccounts() {
   });
 }
 
+export function useAccount(accountId: number) {
+  return useQuery<Account, Error>({
+    queryKey: [queryKey, accountId],
+    queryFn: async (): Promise<Account> => {
+      const response = await fetch(`/api/accounts/${accountId}`);
+      if (!response.ok) throw new Error("Failed to fetch account");
+      const data = (await response.json()) as SingleAccountResponse;
+      return data.account;
+    },
+  });
+}
+
 export function useAddAccount() {
   const queryClient = useQueryClient();
   return useMutation<Account, Error, AccountInsert>({

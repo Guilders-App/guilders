@@ -39,7 +39,6 @@ export type Database = {
           cost: number | null
           created_at: string
           currency: string
-          description: string
           id: number
           image: string | null
           institution_connection_id: number | null
@@ -62,7 +61,6 @@ export type Database = {
           cost?: number | null
           created_at?: string
           currency: string
-          description?: string
           id?: number
           image?: string | null
           institution_connection_id?: number | null
@@ -85,7 +83,6 @@ export type Database = {
           cost?: number | null
           created_at?: string
           currency?: string
-          description?: string
           id?: number
           image?: string | null
           institution_connection_id?: number | null

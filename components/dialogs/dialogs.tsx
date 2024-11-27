@@ -3,6 +3,8 @@
 import { useStore } from "@/lib/store";
 import { AddAccountDialog } from "./add-account-dialog";
 import { AddLinkedAccountDialog } from "./add-linked-account-dialog";
+import { EditAccountDialog } from "./edit-account-dialog";
+import { EditTransactionDialog } from "./edit-transaction-dialog";
 import { ProviderDialog } from "./provider-dialog";
 
 export const Dialogs = () => {
@@ -25,6 +27,22 @@ export const Dialogs = () => {
     (state) => state.setIsProviderDialogOpen
   );
 
+  const isEditAccountDialogOpen = useStore(
+    (state) => state.isEditAccountDialogOpen
+  );
+  const setIsEditAccountDialogOpen = useStore(
+    (state) => state.setIsEditAccountDialogOpen
+  );
+  const selectedAccount = useStore((state) => state.selectedAccount);
+
+  const isEditTransactionDialogOpen = useStore(
+    (state) => state.isEditTransactionDialogOpen
+  );
+  const setIsEditTransactionDialogOpen = useStore(
+    (state) => state.setIsEditTransactionDialogOpen
+  );
+  const selectedTransaction = useStore((state) => state.selectedTransaction);
+
   return (
     <>
       <AddAccountDialog
@@ -40,6 +58,16 @@ export const Dialogs = () => {
         isOpen={isProviderDialogOpen}
         setIsOpen={setIsProviderDialogOpen}
         redirectUri={redirectUri}
+      />
+      <EditAccountDialog
+        isOpen={isEditAccountDialogOpen}
+        setIsOpen={setIsEditAccountDialogOpen}
+        account={selectedAccount}
+      />
+      <EditTransactionDialog
+        isOpen={isEditTransactionDialogOpen}
+        setIsOpen={setIsEditTransactionDialogOpen}
+        transaction={selectedTransaction}
       />
     </>
   );

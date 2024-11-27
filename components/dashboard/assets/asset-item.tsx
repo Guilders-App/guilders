@@ -5,6 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Account } from "@/lib/db/types";
+import { useStore } from "@/lib/store";
 import {
   Bitcoin,
   CarFront,
@@ -32,6 +33,18 @@ export function AssetItem({
   imageErrors,
   onImageError,
 }: AssetItemProps) {
+  const setIsEditAccountDialogOpen = useStore(
+    (state) => state.setIsEditAccountDialogOpen
+  );
+  const setSelectedAccount = useStore((state) => state.setSelectedAccount);
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation(); // Prevent accordion from toggling when clicking the row
+    setSelectedAccount(account);
+    setIsEditAccountDialogOpen(true);
+  };
+
   const changePercentage =
     account.cost !== null
       ? ((account.value - account.cost) / account.cost) * 100
@@ -106,8 +119,14 @@ export function AssetItem({
               isChild ? "ml-6" : ""
             }`}
           >
-            <AccordionTrigger className="flex items-center w-full px-2 py-2 no-underline hover:no-underline [&[data-state=open]]:no-underline">
-              <div className="flex flex-1 items-center justify-between">
+            <AccordionTrigger
+              className="flex items-center w-full px-2 py-2 no-underline hover:no-underline [&[data-state=open]]:no-underline"
+              onClick={(e) => e.stopPropagation()} // Prevent double-firing of click events
+            >
+              <div
+                className="flex flex-1 items-center justify-between cursor-pointer"
+                onClick={handleClick}
+              >
                 {commonRowContent}
               </div>
             </AccordionTrigger>
@@ -130,7 +149,8 @@ export function AssetItem({
 
   return (
     <div
-      className={`flex items-center justify-between px-2 py-2 pr-6 rounded-lg hover:bg-secondary dark:hover:bg-secondary ${
+      onClick={handleClick}
+      className={`flex items-center justify-between px-2 py-2 pr-6 rounded-lg hover:bg-secondary dark:hover:bg-secondary cursor-pointer ${
         isChild ? "ml-6" : ""
       }`}
     >

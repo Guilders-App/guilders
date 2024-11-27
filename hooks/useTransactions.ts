@@ -27,6 +27,18 @@ export function useTransactions() {
   });
 }
 
+export function useTransaction(transactionId: number) {
+  return useQuery<Transaction, Error>({
+    queryKey: [queryKey, transactionId],
+    queryFn: async (): Promise<Transaction> => {
+      const response = await fetch(`/api/transactions/${transactionId}`);
+      if (!response.ok) throw new Error("Failed to fetch transaction");
+      const data = (await response.json()) as SingleTransactionResponse;
+      return data.transaction;
+    },
+  });
+}
+
 export function useAddTransaction() {
   const queryClient = useQueryClient();
   return useMutation<Transaction, Error, TransactionInsert>({
