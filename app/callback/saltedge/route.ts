@@ -68,7 +68,6 @@ export async function POST(request: NextRequest) {
     data.connection_id
   );
 
-  // TODO: Remove debug logs
   const { error: accountsError } = await supabase.from("account").upsert(
     accounts.map((account) => {
       const typeMapping = NATURE_TO_TYPE_SUBTYPE[account.nature];

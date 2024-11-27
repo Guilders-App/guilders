@@ -16,14 +16,8 @@ export const getProviders = async () => {
 };
 
 export const getProvider = async (providerName: string) => {
-  // TODO: Add proper caching
-  // "use cache";
-  const supabase = await createClient();
-  const { data: provider } = await supabase
-    .from("provider")
-    .select("*")
-    .eq("name", providerName)
-    .single();
+  const providers = await getProviders();
+  const provider = providers?.find((p) => p.name === providerName);
 
   if (!provider) {
     return null;
