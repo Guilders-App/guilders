@@ -18,7 +18,9 @@
     "tanstack",
     "Tink",
     "Umami",
+    "Vezgo",
     "waitlist",
     "zustand"
-  ]
+  ],
+  "svg.preview.background": "editor"
 }
