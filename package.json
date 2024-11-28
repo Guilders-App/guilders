@@ -61,6 +61,7 @@
     "recharts": "^2.13.0",
     "resend": "^4.0.1",
     "snaptrade-typescript-sdk": "^9.0.57",
+    "vezgo-sdk-js": "^1.1.9",
     "zod": "^3.23.8",
     "zustand": "^5.0.0"
   },
