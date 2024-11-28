@@ -324,6 +324,32 @@ export type Database = {
           },
         ]
       }
+      user_settings: {
+        Row: {
+          api_key: string | null
+          currency: string
+          user_id: string
+        }
+        Insert: {
+          api_key?: string | null
+          currency?: string
+          user_id: string
+        }
+        Update: {
+          api_key?: string | null
+          currency?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_settings_currency_fkey"
+            columns: ["currency"]
+            isOneToOne: false
+            referencedRelation: "currency"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

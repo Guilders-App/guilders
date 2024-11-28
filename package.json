@@ -16,6 +16,7 @@
     "db:gen-types": "supabase gen types typescript --linked > ./lib/db/database.types.ts",
     "db:pull": "supabase db pull",
     "db:start": "supabase stop && supabase start",
+    "db:stop": "supabase stop",
     "db:seed": "bun run scripts/seedDatabase.ts",
     "emails:dev": "email dev -p 3001",
     "emails:build": "bun run scripts/buildEmails.ts",

@@ -13,15 +13,23 @@ export async function GET(request: NextRequest) {
   if (token_hash && type) {
     const supabase = await createClient();
 
-    const { error } = await supabase.auth.verifyOtp({
+    const { data, error } = await supabase.auth.verifyOtp({
       type,
       token_hash,
     });
 
-    console.log("Error:", error);
     if (!error) {
-      if (type === "email_change") {
-        console.log("Email change");
+      // Create user settings if they don't exist
+      if (data?.user) {
+        const { error: settingsError } = await supabase
+          .from("user_settings")
+          .upsert({
+            user_id: data.user.id,
+          });
+
+        if (settingsError) {
+          console.error("Failed to create user settings:", settingsError);
+        }
       }
 
       redirect(redirectTo);
