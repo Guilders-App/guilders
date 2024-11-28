@@ -30,11 +30,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  useAccount,
-  useRemoveAccount,
-  useUpdateAccount,
-} from "@/hooks/useAccounts";
+import { useRemoveAccount, useUpdateAccount } from "@/hooks/useAccounts";
 import { useCurrencies } from "@/hooks/useCurrencies";
 import { useToast } from "@/hooks/useToast";
 import { Account, accountSubtypeLabels, accountSubtypes } from "@/lib/db/types";
@@ -86,7 +82,6 @@ export function EditAccountDialog({
   setIsOpen,
   account,
 }: EditAccountDialogProps) {
-  const { data: accountData } = useAccount(account?.id ?? 0);
   const { mutate: updateAccount, isPending: isUpdating } = useUpdateAccount();
   const { mutate: removeAccount, isPending: isDeleting } = useRemoveAccount();
   const { toast } = useToast();
@@ -95,36 +90,31 @@ export function EditAccountDialog({
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      accountType:
-        accountData?.subtype ?? account?.subtype ?? accountSubtypes[0],
-      accountName: accountData?.name ?? account?.name ?? "",
-      value: accountData?.value.toString() ?? account?.value.toString() ?? "",
-      currency: accountData?.currency ?? account?.currency ?? "",
-      investable:
-        accountData?.investable ?? account?.investable ?? "non_investable",
-      taxability: accountData?.taxability ?? account?.taxability ?? "taxable",
-      taxRate:
-        accountData?.tax_rate?.toString() ??
-        account?.tax_rate?.toString() ??
-        "",
-      notes: accountData?.notes ?? account?.notes ?? "",
+      accountType: account?.subtype ?? accountSubtypes[0],
+      accountName: account?.name ?? "",
+      value: account?.value.toString() ?? "",
+      currency: account?.currency ?? "",
+      investable: account?.investable ?? "non_investable",
+      taxability: account?.taxability ?? "taxable",
+      taxRate: account?.tax_rate?.toString() ?? "",
+      notes: account?.notes ?? "",
     },
   });
 
   useEffect(() => {
-    if (accountData) {
+    if (account) {
       form.reset({
-        accountType: accountData.subtype,
-        accountName: accountData.name,
-        value: accountData.value.toString(),
-        currency: accountData.currency,
-        investable: accountData.investable,
-        taxability: accountData.taxability,
-        taxRate: accountData.tax_rate?.toString() ?? "",
-        notes: accountData.notes,
+        accountType: account.subtype,
+        accountName: account.name,
+        value: account.value.toString(),
+        currency: account.currency,
+        investable: account.investable,
+        taxability: account.taxability,
+        taxRate: account.tax_rate?.toString() ?? "",
+        notes: account.notes,
       });
     }
-  }, [accountData, form]);
+  }, [account, form]);
 
   const isSyncedAccount = !!account?.institution_connection_id;
 
