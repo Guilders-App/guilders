@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   const body: VezgoCallbackBody = await request.json();
 
+  // TODO: Remove this after testing
   console.log(body);
   console.log(request.body);
   console.log(request.headers);
