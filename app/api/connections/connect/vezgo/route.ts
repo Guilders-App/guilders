@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/db/server";
-import { vezgo } from "@/lib/providers/vezgo/client";
+import { vezgoClient } from "@/lib/providers/vezgo/client";
 import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 import { ConnectBody } from "../../common";
@@ -22,29 +22,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data: institution } = await supabase
-      .from("institution")
-      .select("*")
-      .eq("id", institution_id)
-      .single();
-
-    if (!institution) {
-      return NextResponse.json(
-        { success: false, error: "Institution not found" },
-        { status: 404 }
-      );
-    }
-
     // Get the connect URL from Vezgo for the specific institution
-    const login = vezgo.login(user.id);
-
-    // @ts-ignore
-    const connectData = await login.getConnectData({
-      provider: institution.provider_institution_id,
-    });
+    const connectUrl = vezgoClient.getConnectUrl(user.id, institution_id);
 
     return NextResponse.json(
-      { success: true, data: connectData.url + "&token=" + connectData.token },
+      { success: true, data: connectUrl },
       { status: 200 }
     );
   } catch (error) {

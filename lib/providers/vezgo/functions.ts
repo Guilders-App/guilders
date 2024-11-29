@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/db/admin";
 import { getProvider } from "@/lib/db/utils";
-import { providerName, vezgo } from "./client";
+import { providerName, vezgoClient } from "./client";
 
 export const insertVezgoInstitutions = async () => {
   const supabase = await createAdminClient();
@@ -9,7 +9,7 @@ export const insertVezgoInstitutions = async () => {
   if (!provider) {
     throw new Error(`Failed to fetch providers for ${providerName}`);
   }
-  const institutions = await vezgo.providers.getList();
+  const institutions = await vezgoClient.getProviders();
 
   if (!institutions || institutions.length === 0) {
     throw new Error("Failed to fetch crypto providers");
