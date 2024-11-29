@@ -70,7 +70,7 @@ export function AddLinkedAccountDialog({
               alt={`${institution.name} logo`}
               width={40}
               height={40}
-              className="object-contain"
+              className="object-contain w-[40px] h-[40px]"
             />
             <h2 className="text-2xl font-semibold">{institution.name}</h2>
           </div>
@@ -84,7 +84,7 @@ export function AddLinkedAccountDialog({
               alt={`${provider.name} logo`}
               width={96}
               height={24}
-              className="object-contain"
+              className="object-contain w-[96px] h-[24px]"
             />
           </div>
 
