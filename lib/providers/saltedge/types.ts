@@ -397,3 +397,10 @@ export type Transaction = {
   /** The last time the transaction's attributes were changed by the Client */
   updated_at: string;
 };
+
+export type Rate = {
+  currency_code: string;
+  rate: number;
+  // If the currency didn't get updated today, it will get a previous rate and set fail to true
+  fail: boolean;
+};

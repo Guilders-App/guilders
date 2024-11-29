@@ -74,6 +74,13 @@
  *           type: string
  *         logo_url:
  *           type: string
+ *     Rate:
+ *       type: object
+ *       properties:
+ *         currency_code:
+ *           type: string
+ *         rate:
+ *           type: number
  *   responses:
  *     UnauthorizedError:
  *       description: Invalid credentials

@@ -6,6 +6,7 @@ import {
   CreateConnectionResponse,
   Customer,
   Provider,
+  Rate,
   RemoveCustomerResponse,
   SaltEdgeConfig,
   SaltEdgeResponse,
@@ -211,6 +212,12 @@ export class SaltEdgeClient {
         connection_id: connectionId,
         account_id: accountId,
       },
+      isArray: true,
+    });
+  }
+
+  async getRates(): Promise<Rate[]> {
+    return this.request<Rate[]>("/rates", {
       isArray: true,
     });
   }
