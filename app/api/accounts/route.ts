@@ -186,7 +186,6 @@ export async function GET(request: Request) {
       }
     });
 
-    console.log(topLevelAccounts);
     return NextResponse.json({ success: true, accounts: topLevelAccounts });
   } catch (error) {
     console.error("Error fetching accounts:", error);
