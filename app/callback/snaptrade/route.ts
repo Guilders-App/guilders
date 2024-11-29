@@ -22,17 +22,21 @@ export async function POST(request: Request) {
     .json()
     .catch(() => null)) as SnapTradeWebhook | null;
 
-  if (!body || !body.eventType || !body.webhookSecret) {
+  if (!body || !body.eventType) {
     return NextResponse.json(
       { error: "Invalid webhook payload" },
       { status: 400 }
     );
   }
 
-  if (body.webhookSecret !== process.env.SNAPTRADE_WEBHOOK_SECRET) {
+  // Authenticate webhook
+  if (
+    !body.webhookSecret ||
+    body.webhookSecret !== process.env.SNAPTRADE_WEBHOOK_SECRET
+  ) {
     return NextResponse.json(
       { error: "Invalid webhook secret" },
-      { status: 400 }
+      { status: 401 }
     );
   }
 
