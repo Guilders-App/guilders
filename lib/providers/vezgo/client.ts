@@ -72,8 +72,6 @@ export class VezgoClient {
       institutionId ? `/${institutionId}` : ""
     }?client_id=${this.clientId}&token=${await this.getToken(userId)}`;
 
-    console.log(url);
-
     return url;
   }
 
