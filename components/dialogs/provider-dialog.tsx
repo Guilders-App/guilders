@@ -1,6 +1,11 @@
 "use client";
 
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Toast, useToast } from "@/hooks/useToast";
 import { useEffect, useRef } from "react";
 
@@ -94,6 +99,9 @@ export function ProviderDialog({
         showCloseIcon={false}
         className="sm:max-w-[600px] h-[80vh] p-0"
       >
+        <DialogDescription className="hidden">
+          Provider Connection Dialog
+        </DialogDescription>
         <iframe
           ref={iframeRef}
           src={redirectUri}

@@ -85,10 +85,6 @@ export function CommandMenu() {
   return (
     <Dialog open={isCommandMenuOpen} onOpenChange={setIsCommandMenuOpen}>
       <DialogTitle className="hidden">Command Menu</DialogTitle>
-      <DialogDescription className="hidden">
-        {" "}
-        Search for a command or search...
-      </DialogDescription>
       <DialogContent
         onEscapeKeyDown={(e) => {
           e.preventDefault();
@@ -100,6 +96,9 @@ export function CommandMenu() {
         }}
         className="overflow-hidden p-0 shadow-lg"
       >
+        <DialogDescription className="hidden">
+          Search for a command or search...
+        </DialogDescription>
         <Command
           onKeyDown={(e) => {
             if (e.key === "Backspace" && !search) {

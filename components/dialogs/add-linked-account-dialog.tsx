@@ -60,12 +60,12 @@ export function AddLinkedAccountDialog({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTitle className="hidden">Add Linked Account</DialogTitle>
-      <DialogDescription className="hidden">
-        This connection is provided by {provider.name}. By clicking continue,
-        you authorize {provider.name} to establish the connection and access
-        your financial data.
-      </DialogDescription>
       <DialogContent className="sm:max-w-[425px]">
+        <DialogDescription className="hidden">
+          This connection is provided by {provider.name}. By clicking continue,
+          you authorize {provider.name} to establish the connection and access
+          your financial data.
+        </DialogDescription>
         <DialogHeader>
           <div className="flex items-center gap-3">
             <Image

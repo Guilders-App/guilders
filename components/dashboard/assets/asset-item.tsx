@@ -83,7 +83,7 @@ export function AssetItem({
             alt={account.name}
             width={32}
             height={32}
-            className="rounded-full"
+            className="rounded-full w-8 h-8"
             onError={() => onImageError(account.id)}
           />
         ) : (

@@ -39,6 +39,7 @@ import { useToast } from "@/hooks/useToast";
 import { Account, accountSubtypeLabels, accountSubtypes } from "@/lib/db/types";
 import { useStore } from "@/lib/store";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DialogDescription } from "@radix-ui/react-dialog";
 import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -225,6 +226,9 @@ export function EditAccountDialog({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[600px]">
+        <DialogDescription className="hidden">
+          Edit the details of this account.
+        </DialogDescription>
         <DialogHeader>
           <DialogTitle>Edit Account</DialogTitle>
         </DialogHeader>
