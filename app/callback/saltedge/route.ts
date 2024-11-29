@@ -2,6 +2,7 @@
 
 import { createAdminClient } from "@/lib/db/admin";
 import { providerName, saltedge } from "@/lib/providers/saltedge/client";
+import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import {
   SaltEdgeCallback,
@@ -14,6 +15,22 @@ import { NATURE_TO_TYPE_SUBTYPE } from "./utils";
 
 export async function POST(request: NextRequest) {
   const callback: SaltEdgeCallback = await request.json();
+
+  // Authenticate callback
+  const auth = request.headers.get("Authorization");
+  const signature = request.headers.get("signature");
+  const url = request.url.includes("localhost")
+    ? "https://badly-mutual-pigeon.ngrok-free.app/callback/saltedge"
+    : request.url;
+  const callbackCredentials = Buffer.from(
+    `${process.env.SALTEDGE_CALLBACK_USERNAME}:${process.env.SALTEDGE_CALLBACK_PASSWORD}`
+  ).toString("base64");
+
+  if (!auth || auth !== `Basic ${callbackCredentials}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  } else if (!signature || !verifySaltEdgeSignature(url, callback, signature)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   // Handle provider status changes
   if ("provider_status" in callback.data) {
@@ -266,4 +283,21 @@ async function handleSuccess(callback: SaltEdgeSuccessCallback) {
   }
 
   return NextResponse.json({ success: true });
+}
+
+function verifySaltEdgeSignature(url: string, body: any, signature: string) {
+  const publicKey = process.env.SALTEDGE_CALLBACK_SIGNATURE;
+  const dataToVerify = `${url}|${JSON.stringify(body)}`;
+  const verifier = crypto.createVerify("SHA256");
+  verifier.update(dataToVerify);
+
+  try {
+    // Verify the signature
+    const signatureBuffer = Buffer.from(signature, "base64");
+    const isValid = verifier.verify(publicKey!, signatureBuffer);
+    return isValid;
+  } catch (error) {
+    console.error("Verification error:", error);
+    return false;
+  }
 }
