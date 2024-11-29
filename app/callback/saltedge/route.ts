@@ -1,20 +1,146 @@
 "use server";
 
+import { createAdminClient } from "@/lib/db/admin";
 import { providerName, saltedge } from "@/lib/providers/saltedge/client";
-
 import { NextRequest, NextResponse } from "next/server";
-import { SaltEdgeCallbackBody } from "./types";
+import {
+  SaltEdgeCallback,
+  SaltEdgeDestroyCallback,
+  SaltEdgeFailureCallback,
+  SaltEdgeProviderCallback,
+  SaltEdgeSuccessCallback,
+} from "./types";
 import { NATURE_TO_TYPE_SUBTYPE } from "./utils";
 
-import { createAdminClient } from "@/lib/db/admin";
 export async function POST(request: NextRequest) {
-  const { data }: SaltEdgeCallbackBody = await request.json();
+  const callback: SaltEdgeCallback = await request.json();
 
-  if (data.stage !== "finish") {
-    return NextResponse.json({ message: "Hello, World!" });
+  // Handle provider status changes
+  if ("provider_status" in callback.data) {
+    return handleProviderStatusChange(callback as SaltEdgeProviderCallback);
   }
 
+  // Handle destroy callbacks
+  if (!("stage" in callback.data) && !("error_class" in callback.data)) {
+    return handleConnectionDestroy(callback as SaltEdgeDestroyCallback);
+  }
+
+  // Handle failure callbacks
+  if ("error_class" in callback.data) {
+    return handleFailure(callback as SaltEdgeFailureCallback);
+  }
+
+  // Handle success/notify callbacks
+  if (callback.data.stage === "finish") {
+    return handleSuccess(callback as SaltEdgeSuccessCallback);
+  }
+
+  // For other stages, just acknowledge
+  return NextResponse.json({ success: true });
+}
+
+async function handleProviderStatusChange(callback: SaltEdgeProviderCallback) {
+  const { data } = callback;
   const supabase = await createAdminClient();
+
+  // Get provider
+  const { data: provider, error: providerError } = await supabase
+    .from("provider")
+    .select()
+    .eq("name", providerName)
+    .single();
+
+  if (providerError || !provider) {
+    console.error("Provider not found");
+    return NextResponse.json({ error: "Provider not found" }, { status: 500 });
+  }
+
+  // TODO: What to do when a provider that has connections is disabled?
+  const { error: institutionError } = await supabase
+    .from("institution")
+    .update({
+      enabled: data.provider_status === "active",
+    })
+    .eq("provider_id", provider.id)
+    .eq("provider_institution_id", data.provider_code);
+
+  if (institutionError) {
+    console.error("Error updating institution:", institutionError);
+    return NextResponse.json(
+      { success: false, error: "Error updating institution" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ success: true });
+}
+
+async function handleConnectionDestroy(callback: SaltEdgeDestroyCallback) {
+  const { data } = callback;
+  const supabase = await createAdminClient();
+
+  const { data: provider, error: providerError } = await supabase
+    .from("provider")
+    .select()
+    .eq("name", providerName)
+    .single();
+
+  if (providerError || !provider) {
+    console.error("Provider not found");
+    return NextResponse.json({ error: "Provider not found" }, { status: 500 });
+  }
+
+  const { data: providerConnection, error: providerConnectionError } =
+    await supabase
+      .from("provider_connection")
+      .select()
+      .eq("secret", data.customer_id)
+      .eq("provider_id", provider.id)
+      .single();
+
+  if (providerConnectionError || !providerConnection) {
+    console.error("Provider connection not found");
+    return NextResponse.json(
+      { error: "Provider connection not found" },
+      { status: 500 }
+    );
+  }
+
+  // Delete institution connection
+  // TODO: Should we also delete the provider connection if there are
+  // no more institution connections for this user?
+  // TODO: Maybe we should mark it as broken instead?
+  const { error: institutionConnectionError } = await supabase
+    .from("institution_connection")
+    .delete()
+    .eq("connection_id", data.connection_id)
+    .eq("provider_connection_id", providerConnection.id);
+
+  if (institutionConnectionError) {
+    console.error(
+      "Error deleting institution connection:",
+      institutionConnectionError
+    );
+    return NextResponse.json(
+      { success: false, error: "Error deleting institution connection" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ success: true });
+}
+
+async function handleFailure(callback: SaltEdgeFailureCallback) {
+  // Ignored
+  // TODO: Maybe remove the provider connection?
+  return NextResponse.json({ success: true });
+}
+
+async function handleSuccess(callback: SaltEdgeSuccessCallback) {
+  const { data } = callback;
+  const supabase = await createAdminClient();
+
+  // Get provider
   const { data: provider } = await supabase
     .from("provider")
     .select()
@@ -26,14 +152,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Provider not found" }, { status: 500 });
   }
 
-  const { data: providerConnection } = await supabase
-    .from("provider_connection")
-    .select()
-    .eq("provider_id", provider.id)
-    .eq("user_id", data.custom_fields.user_id)
-    .single();
+  // Get provider connection
+  const { data: providerConnection, error: providerConnectionError } =
+    await supabase
+      .from("provider_connection")
+      .select()
+      .eq("provider_id", provider.id)
+      .eq("user_id", data.custom_fields.user_id)
+      .single();
 
-  if (!providerConnection) {
+  if (providerConnectionError || !providerConnection) {
     console.error("Provider connection not found");
     return NextResponse.json(
       { error: "Provider connection not found" },
@@ -41,6 +169,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Upsert institution connection
   const { data: institutionConnection, error: institutionConnectionError } =
     await supabase
       .from("institution_connection")
@@ -63,6 +192,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Get and process accounts
   const accounts = await saltedge.getAccounts(
     data.customer_id,
     data.connection_id
@@ -85,30 +215,30 @@ export async function POST(request: NextRequest) {
     { onConflict: "institution_connection_id,provider_account_id" }
   );
 
-  accounts.map(async (account) => {
-    const transactions = await saltedge.getTransactions(
-      data.connection_id,
-      account.id
-    );
+  // Process transactions for each account
+  await Promise.all(
+    accounts.map(async (account) => {
+      const transactions = await saltedge.getTransactions(
+        data.connection_id,
+        account.id
+      );
 
-    // Get the account record from the database
-    const { data: dbAccount } = await supabase
-      .from("account")
-      .select()
-      .eq("provider_account_id", account.id)
-      .eq("institution_connection_id", institutionConnection.id)
-      .single();
+      const { data: dbAccount } = await supabase
+        .from("account")
+        .select()
+        .eq("provider_account_id", account.id)
+        .eq("institution_connection_id", institutionConnection.id)
+        .single();
 
-    if (!dbAccount) {
-      console.error("Account not found:", account.id);
-      return;
-    }
+      if (!dbAccount) {
+        console.error("Account not found:", account.id);
+        return;
+      }
 
-    const { error: transactionsError } = await supabase
-      .from("transaction")
-      .upsert(
-        transactions.map((transaction) => {
-          return {
+      const { error: transactionsError } = await supabase
+        .from("transaction")
+        .upsert(
+          transactions.map((transaction) => ({
             date: transaction.made_on,
             amount: transaction.amount,
             currency: transaction.currency_code,
@@ -116,19 +246,16 @@ export async function POST(request: NextRequest) {
             category: transaction.category,
             account_id: dbAccount.id,
             provider_transaction_id: transaction.id,
-          };
-        }),
-        { onConflict: "provider_transaction_id,account_id" }
-      );
+          })),
+          { onConflict: "provider_transaction_id,account_id" }
+        );
 
-    if (transactionsError) {
-      console.error("Error inserting transactions:", transactionsError);
-      return NextResponse.json(
-        { success: false, error: "Error inserting transactions" },
-        { status: 500 }
-      );
-    }
-  });
+      if (transactionsError) {
+        console.error("Error inserting transactions:", transactionsError);
+        throw transactionsError;
+      }
+    })
+  );
 
   if (accountsError) {
     console.error("Error inserting accounts:", accountsError);

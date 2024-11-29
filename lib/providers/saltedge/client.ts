@@ -182,6 +182,13 @@ export class SaltEdgeClient {
     });
   }
 
+  async removeConnection(connectionId: string): Promise<void> {
+    return this.request<void>(`/connections/${connectionId}`, {
+      method: "DELETE",
+      isArray: false,
+    });
+  }
+
   async getAccounts(
     customerId: string,
     connectionId: string
