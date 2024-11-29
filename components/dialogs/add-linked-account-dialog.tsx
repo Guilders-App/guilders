@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -56,6 +57,11 @@ export function AddLinkedAccountDialog({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTitle className="hidden">Add Linked Account</DialogTitle>
+      <DialogDescription className="hidden">
+        This connection is provided by {provider.name}. By clicking continue,
+        you authorize {provider.name} to establish the connection and access
+        your financial data.
+      </DialogDescription>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <div className="flex items-center gap-3">
