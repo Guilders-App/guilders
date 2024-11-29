@@ -186,6 +186,7 @@ export type Database = {
       }
       institution_connection: {
         Row: {
+          broken: boolean
           connection_id: string | null
           created_at: string
           id: number
@@ -193,6 +194,7 @@ export type Database = {
           provider_connection_id: number | null
         }
         Insert: {
+          broken?: boolean
           connection_id?: string | null
           created_at?: string
           id?: number
@@ -200,6 +202,7 @@ export type Database = {
           provider_connection_id?: number | null
         }
         Update: {
+          broken?: boolean
           connection_id?: string | null
           created_at?: string
           id?: number

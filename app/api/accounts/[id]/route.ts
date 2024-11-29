@@ -1,6 +1,6 @@
 import { TablesUpdate } from "@/lib/db/database.types";
 import { createClient } from "@/lib/db/server";
-import { AccountUpdate } from "@/lib/db/types";
+import { Account, AccountUpdate } from "@/lib/db/types";
 import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
@@ -55,11 +55,18 @@ export async function GET(
       );
     }
 
-    // Filtered by RLS for the user
     const { data: account, error } = await supabase
       .from("account")
-      .select("*")
+      .select(
+        `
+        *,
+        institution_connection (
+          broken
+        )
+      `
+      )
       .eq("id", id)
+      .eq("user_id", user.id)
       .single();
 
     if (error) {
@@ -70,7 +77,55 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ success: true, account });
+    const { data: allAccounts, error: childrenError } = await supabase
+      .from("account")
+      .select(
+        `
+        *,
+        institution_connection (
+          broken
+        )
+      `
+      )
+      .eq("user_id", user.id);
+
+    if (childrenError) {
+      console.error("Supabase error:", childrenError);
+      return NextResponse.json(
+        { success: false, error: "Error fetching account children" },
+        { status: 500 }
+      );
+    }
+
+    // Create a map of all accounts
+    const accountsMap = new Map<number, Account>();
+    allAccounts.forEach((acc) => {
+      accountsMap.set(acc.id, {
+        ...acc,
+        children: [],
+        broken: acc.institution_connection?.broken ?? false,
+      });
+    });
+
+    // Build the children hierarchy for the requested account
+    allAccounts.forEach((acc) => {
+      if (acc.parent) {
+        const parentAccount = accountsMap.get(acc.parent);
+        if (parentAccount) {
+          parentAccount.children.push(accountsMap.get(acc.id)!);
+        }
+      }
+    });
+
+    const accountWithChildren = accountsMap.get(parseInt(id));
+    if (!accountWithChildren) {
+      return NextResponse.json(
+        { success: false, error: "Account not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true, account: accountWithChildren });
   } catch (error) {
     console.error("Error fetching account:", error);
     return NextResponse.json(
@@ -129,8 +184,11 @@ export async function DELETE(
       );
     }
 
-    // Filtered by RLS for the user
-    const { error } = await supabase.from("account").delete().eq("id", id);
+    const { error } = await supabase
+      .from("account")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id);
 
     if (error) {
       console.error("Supabase error:", error);
@@ -211,11 +269,11 @@ export async function PUT(
       );
     }
 
-    // Filtered by RLS for the user
     const { data: updatedAccount, error } = await supabase
       .from("account")
       .update(dataToUpdate)
       .eq("id", id)
+      .eq("user_id", user.id)
       .select()
       .single();
 

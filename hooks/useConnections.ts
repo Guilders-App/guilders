@@ -58,3 +58,59 @@ export function useGetConnections() {
     },
   });
 }
+
+export function useCreateConnection() {
+  return useMutation({
+    mutationFn: async ({
+      providerName,
+      institutionId,
+    }: {
+      providerName: string;
+      institutionId: number;
+    }) => {
+      const response = await fetch(`/api/connections/connect/${providerName}`, {
+        method: "POST",
+        body: JSON.stringify({ institution_id: institutionId }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        console.error(data.error);
+        throw new Error(`Failed to create a ${providerName} connection`);
+      }
+
+      return data;
+    },
+  });
+}
+
+export function useFixConnection() {
+  return useMutation({
+    mutationFn: async ({
+      providerName,
+      institutionId,
+      accountId,
+    }: {
+      providerName: string;
+      institutionId: number;
+      accountId: number;
+    }) => {
+      const response = await fetch(`/api/connections/connect/${providerName}`, {
+        method: "POST",
+        body: JSON.stringify({
+          institution_id: institutionId,
+          account_id: accountId,
+        }),
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        console.error(data.error);
+        throw new Error(`Failed to fix a ${providerName} connection`);
+      }
+
+      return data;
+    },
+  });
+}

@@ -54,11 +54,19 @@ export async function GET(
       );
     }
 
-    // Filtered by RLS for the user
+    // Join with account table to filter by user_id
     const { data: transaction, error } = await supabase
       .from("transaction")
-      .select("*")
+      .select(
+        `
+        *,
+        account:account_id (
+          user_id
+        )
+      `
+      )
       .eq("id", id)
+      .eq("account.user_id", user.id)
       .single();
 
     if (error) {
@@ -66,6 +74,13 @@ export async function GET(
       return NextResponse.json(
         { success: false, error: "Error fetching transaction" },
         { status: 500 }
+      );
+    }
+
+    if (!transaction) {
+      return NextResponse.json(
+        { success: false, error: "Transaction not found" },
+        { status: 404 }
       );
     }
 
@@ -128,7 +143,27 @@ export async function DELETE(
       );
     }
 
-    // Filtered by RLS for the user
+    const { data: transaction, error: fetchError } = await supabase
+      .from("transaction")
+      .select(
+        `
+        *,
+        account:account_id (
+          user_id
+        )
+      `
+      )
+      .eq("id", id)
+      .eq("account.user_id", user.id)
+      .single();
+
+    if (fetchError || !transaction) {
+      return NextResponse.json(
+        { success: false, error: "Transaction not found" },
+        { status: 404 }
+      );
+    }
+
     const { error } = await supabase.from("transaction").delete().eq("id", id);
 
     if (error) {
@@ -202,7 +237,29 @@ export async function PUT(
       );
     }
 
-    // Filtered by RLS for the user
+    // First verify the transaction belongs to the user
+    const { data: transaction, error: fetchError } = await supabase
+      .from("transaction")
+      .select(
+        `
+        *,
+        account:account_id (
+          user_id
+        )
+      `
+      )
+      .eq("id", id)
+      .eq("account.user_id", user.id)
+      .single();
+
+    if (fetchError || !transaction) {
+      return NextResponse.json(
+        { success: false, error: "Transaction not found" },
+        { status: 404 }
+      );
+    }
+
+    // Now update the transaction
     const { data: updatedTransaction, error } = await supabase
       .from("transaction")
       .update(dataToUpdate)

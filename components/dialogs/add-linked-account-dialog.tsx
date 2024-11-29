@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useCreateConnection } from "@/hooks/useCreateConnection";
+import { useCreateConnection } from "@/hooks/useConnections";
 import { useProvider } from "@/hooks/useProviders";
 import { useToast } from "@/hooks/useToast";
 import { Institution } from "@/lib/db/types";
@@ -26,23 +26,26 @@ export function AddLinkedAccountDialog({
   institution,
 }: AddLinkedAccountDialogProps) {
   const { data: provider } = useProvider(institution?.provider_id);
-  const { mutateAsync: createConnection, isPending } = useCreateConnection(
-    provider?.name.toLocaleLowerCase() ?? ""
-  );
+  const { mutateAsync: createConnection, isPending } = useCreateConnection();
   const { toast } = useToast();
   const setRedirectUri = useStore((state) => state.setRedirectUri);
   const setIsProviderDialogOpen = useStore(
     (state) => state.setIsProviderDialogOpen
   );
+  const setProviderDialogOperation = useStore(
+    (state) => state.setProviderDialogOperation
+  );
 
   if (!isOpen || !provider || !institution) return <></>;
 
   const onContinue = async () => {
-    const { success, data: redirectUrl } = await createConnection(
-      institution.id
-    );
+    const { success, data: redirectUrl } = await createConnection({
+      providerName: provider.name.toLocaleLowerCase(),
+      institutionId: institution.id,
+    });
     if (success) {
       setRedirectUri(redirectUrl);
+      setProviderDialogOperation("connect");
       setIsOpen(false);
       setTimeout(() => setIsProviderDialogOpen(true), 40);
     } else {

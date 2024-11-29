@@ -12,7 +12,10 @@ export type Category = {
 
 export type Institution = Tables<"institution">;
 export type Provider = Tables<"provider">;
-export type Account = Tables<"account"> & { children: Account[] };
+export type Account = Tables<"account"> & {
+  children: Account[];
+  broken: boolean;
+};
 
 export type AccountInsert = Omit<
   TablesInsert<"account">,

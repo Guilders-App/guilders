@@ -16,6 +16,7 @@ import {
   HandCoins,
   House,
   Landmark,
+  TriangleAlert,
 } from "lucide-react";
 import Image from "next/image";
 import { ChangeIndicator } from "../change-indicator";
@@ -90,7 +91,12 @@ export function AssetItem({
             {getFallbackIcon()}
           </div>
         )}
-        <p className="font-medium">{account.name}</p>
+        <div className="flex items-center gap-2">
+          <p className="font-medium">{account.name}</p>
+          {account.broken && (
+            <TriangleAlert className="h-4 w-4 text-yellow-500" />
+          )}
+        </div>
       </div>
       <div className="flex items-center gap-4">
         <p className="font-medium">

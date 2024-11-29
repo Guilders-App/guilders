@@ -31,11 +31,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useRemoveAccount, useUpdateAccount } from "@/hooks/useAccounts";
+import { useFixConnection, useGetConnections } from "@/hooks/useConnections";
 import { useCurrencies } from "@/hooks/useCurrencies";
+import { useInstitutionByAccountId } from "@/hooks/useInstitutions";
+import { useProvider } from "@/hooks/useProviders";
 import { useToast } from "@/hooks/useToast";
 import { Account, accountSubtypeLabels, accountSubtypes } from "@/lib/db/types";
+import { useStore } from "@/lib/store";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Trash2 } from "lucide-react";
+import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -82,10 +86,27 @@ export function EditAccountDialog({
   setIsOpen,
   account,
 }: EditAccountDialogProps) {
+  const { data: connections } = useGetConnections();
+  const institution = useInstitutionByAccountId(account?.id);
+  const connection = connections?.find(
+    (c) => c.id === account?.institution_connection_id
+  );
+  const { data: provider } = useProvider(connection?.provider_id);
+
   const { mutate: updateAccount, isPending: isUpdating } = useUpdateAccount();
   const { mutate: removeAccount, isPending: isDeleting } = useRemoveAccount();
+  const { mutateAsync: fixConnection, isPending: isFixing } =
+    useFixConnection();
+
   const { toast } = useToast();
   const { data: currencies } = useCurrencies();
+  const setRedirectUri = useStore((state) => state.setRedirectUri);
+  const setIsProviderDialogOpen = useStore(
+    (state) => state.setIsProviderDialogOpen
+  );
+  const setProviderDialogOperation = useStore(
+    (state) => state.setProviderDialogOperation
+  );
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
@@ -117,6 +138,29 @@ export function EditAccountDialog({
   }, [account, form]);
 
   const isSyncedAccount = !!account?.institution_connection_id;
+
+  const handleFixConnection = async () => {
+    if (!account || !institution || !provider) return;
+
+    const { success, data: redirectUrl } = await fixConnection({
+      providerName: provider.name.toLocaleLowerCase(),
+      institutionId: institution.id,
+      accountId: account.id,
+    });
+
+    if (success) {
+      setRedirectUri(redirectUrl);
+      setProviderDialogOperation("reconnect");
+      setIsOpen(false);
+      setTimeout(() => setIsProviderDialogOpen(true), 40);
+    } else {
+      setIsOpen(false);
+      toast({
+        title: "Failed to fix connection",
+        description: "Unable to fix connection. Please try again later.",
+      });
+    }
+  };
 
   const handleSubmit = form.handleSubmit(async (data) => {
     if (!account) return;
@@ -200,6 +244,34 @@ export function EditAccountDialog({
                   <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md mb-4">
                     This account is managed by an external connection. Some
                     fields cannot be edited.
+                  </div>
+                )}
+                {account.broken && (
+                  <div className="flex flex-col gap-2">
+                    <div className="text-sm text-yellow-500 bg-yellow-500/10 p-3 rounded-md flex items-center gap-2">
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5" />
+                        <span>
+                          This account&apos;s connection needs to be fixed.
+                        </span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-foreground ml-auto"
+                        onClick={handleFixConnection}
+                        disabled={isFixing}
+                      >
+                        {isFixing ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Fixing...
+                          </>
+                        ) : (
+                          "Fix Connection"
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 )}
                 <FormField

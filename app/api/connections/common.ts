@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 
 export type ConnectBody = {
   institution_id: string;
+  account_id?: string;
 };
 
 export const registerConnection = async (

@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     const jwt = getJwt(request);
 
-    const { institution_id }: ConnectBody = await request.json();
+    const { institution_id, account_id }: ConnectBody = await request.json();
 
     const {
       data: { user },
@@ -79,6 +79,39 @@ export async function POST(request: Request) {
       );
     }
 
+    let reconnect: string | undefined = undefined;
+
+    if (account_id) {
+      const { data: account, error: accountError } = await supabase
+        .from("account")
+        .select("*")
+        .eq("id", account_id)
+        .single();
+
+      if (accountError || !account || !account.institution_connection_id) {
+        return NextResponse.json(
+          { success: false, error: "Account not found" },
+          { status: 404 }
+        );
+      }
+
+      const { data: institutionConnection, error: institutionConnectionError } =
+        await supabase
+          .from("institution_connection")
+          .select("*")
+          .eq("id", account.institution_connection_id)
+          .single();
+
+      if (institutionConnectionError || !institutionConnection) {
+        return NextResponse.json(
+          { success: false, error: "Institution connection not found" },
+          { status: 404 }
+        );
+      }
+
+      reconnect = institutionConnection.connection_id ?? undefined;
+    }
+
     const brokerages = await snaptrade.referenceData.listAllBrokerages();
     const brokerage = brokerages.data?.find(
       (brokerage) => brokerage.id === institution.provider_institution_id
@@ -88,6 +121,7 @@ export async function POST(request: Request) {
       userId: user.id,
       userSecret: secret,
       broker: brokerage?.slug,
+      reconnect: reconnect,
     });
 
     if (!response.data || !("redirectURI" in response.data)) {

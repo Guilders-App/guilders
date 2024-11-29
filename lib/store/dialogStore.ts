@@ -8,6 +8,7 @@ type DialogState = {
   selectedInstitution: Institution | null;
   isAddLinkedAccountOpen: boolean;
   redirectUri: string;
+  providerDialogOperation: "connect" | "reconnect";
   isProviderDialogOpen: boolean;
   isEditAccountDialogOpen: boolean;
   setIsEditAccountDialogOpen: (open: boolean) => void;
@@ -24,6 +25,7 @@ type DialogActions = {
   setSelectedInstitution: (institution: Institution | null) => void;
   setRedirectUri: (uri: string) => void;
   setIsProviderDialogOpen: (open: boolean) => void;
+  setProviderDialogOperation: (operation: "connect" | "reconnect") => void;
   setIsEditTransactionDialogOpen: (open: boolean) => void;
   setSelectedTransaction: (transaction: Transaction | null) => void;
 };
@@ -42,6 +44,7 @@ export const createDialogStore: StateSlice<DialogState & DialogActions> = (
   selectedAccount: null,
   isEditTransactionDialogOpen: false,
   selectedTransaction: null,
+  providerDialogOperation: "connect",
   setIsCommandMenuOpen: (open) => {
     set({ isCommandMenuOpen: open });
     if (!open) {
@@ -60,4 +63,6 @@ export const createDialogStore: StateSlice<DialogState & DialogActions> = (
     set({ isEditTransactionDialogOpen: open }),
   setSelectedTransaction: (transaction) =>
     set({ selectedTransaction: transaction }),
+  setProviderDialogOperation: (operation) =>
+    set({ providerDialogOperation: operation }),
 });

@@ -144,8 +144,18 @@ export async function GET(request: Request) {
     // Fetch all accounts for the user
     const { data: allAccounts, error } = await supabase
       .from("account")
-      .select("*")
-      .returns<Account[]>();
+      .select(
+        `
+        *,
+        institution_connection (
+          broken
+        )
+      `
+      )
+      .eq("user_id", user.id)
+      .returns<
+        (Account & { institution_connection: { broken: boolean } | null })[]
+      >();
 
     if (error) {
       console.error("Supabase error:", error);
@@ -157,7 +167,11 @@ export async function GET(request: Request) {
 
     const accountsMap = new Map<number, Account>();
     allAccounts.forEach((account) => {
-      accountsMap.set(account.id, { ...account, children: [] });
+      accountsMap.set(account.id, {
+        ...account,
+        children: [],
+        broken: account.institution_connection?.broken ?? false,
+      });
     });
 
     const topLevelAccounts: Account[] = [];
@@ -172,6 +186,7 @@ export async function GET(request: Request) {
       }
     });
 
+    console.log(topLevelAccounts);
     return NextResponse.json({ success: true, accounts: topLevelAccounts });
   } catch (error) {
     console.error("Error fetching accounts:", error);

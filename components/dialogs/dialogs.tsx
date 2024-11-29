@@ -26,6 +26,9 @@ export const Dialogs = () => {
   const setIsProviderDialogOpen = useStore(
     (state) => state.setIsProviderDialogOpen
   );
+  const providerDialogOperation = useStore(
+    (state) => state.providerDialogOperation
+  );
 
   const isEditAccountDialogOpen = useStore(
     (state) => state.isEditAccountDialogOpen
@@ -58,6 +61,7 @@ export const Dialogs = () => {
         isOpen={isProviderDialogOpen}
         setIsOpen={setIsProviderDialogOpen}
         redirectUri={redirectUri}
+        operation={providerDialogOperation}
       />
       <EditAccountDialog
         isOpen={isEditAccountDialogOpen}

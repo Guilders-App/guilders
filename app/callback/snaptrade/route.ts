@@ -9,7 +9,9 @@ import type {
   AccountTransactionsInitialUpdateWebhook,
   AccountTransactionsUpdatedWebhook,
   ConnectionAddedWebhook,
+  ConnectionBrokenWebhook,
   ConnectionDeletedWebhook,
+  ConnectionFixedWebhook,
   NewAccountAvailableWebhook,
   SnapTradeWebhook,
   UserDeletedWebhook,
@@ -36,6 +38,7 @@ export async function POST(request: Request) {
 
   switch (body.eventType) {
     case "USER_REGISTERED":
+      // Ignore
       // User registration is handled when we /register or /connect
       break;
     case "USER_DELETED":
@@ -51,41 +54,35 @@ export async function POST(request: Request) {
       await handleConnectionDeleted(body);
       break;
     case "CONNECTION_BROKEN":
-      // TODO: Handle?
+      await handleConnectionBroken(body);
       break;
     case "CONNECTION_FIXED":
-      // TODO: Handle?
+      await handleConnectionFixed(body);
       break;
     case "CONNECTION_UPDATED":
-      // TODO: Handle?
+      // Ignore
       break;
     case "CONNECTION_FAILED":
-      // TODO: Handle?
+      // Ignore
       break;
     case "NEW_ACCOUNT_AVAILABLE":
       await handleAccountUpdate(body);
       break;
-
     case "ACCOUNT_TRANSACTIONS_INITIAL_UPDATE":
       await handleAccountUpdate(body);
       break;
-
     case "ACCOUNT_TRANSACTIONS_UPDATED":
       await handleAccountUpdate(body);
       break;
-
     case "ACCOUNT_REMOVED":
       await handleAccountRemoved(body);
       break;
-
     case "TRADES_PLACED":
       // Ignore
       break;
-
     case "ACCOUNT_HOLDINGS_UPDATED":
       await handleAccountUpdate(body);
       break;
-
     default:
       return NextResponse.json(
         { error: "Unknown event type" },
@@ -230,6 +227,44 @@ async function handleConnectionDeleted(body: ConnectionDeletedWebhook) {
     console.error("Error deleting institution connection:", error);
     return NextResponse.json(
       { error: "Error deleting institution connection" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ success: true });
+}
+
+async function handleConnectionBroken(body: ConnectionBrokenWebhook) {
+  const supabase = await createAdminClient();
+
+  const { error } = await supabase
+    .from("institution_connection")
+    .update({ broken: true })
+    .eq("connection_id", body.brokerageAuthorizationId);
+
+  if (error) {
+    console.error("Error updating institution connection:", error);
+    return NextResponse.json(
+      { error: "Error updating institution connection" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json({ success: true });
+}
+
+async function handleConnectionFixed(body: ConnectionFixedWebhook) {
+  const supabase = await createAdminClient();
+
+  const { error } = await supabase
+    .from("institution_connection")
+    .update({ broken: false })
+    .eq("connection_id", body.brokerageAuthorizationId);
+
+  if (error) {
+    console.error("Error updating institution connection:", error);
+    return NextResponse.json(
+      { error: "Error updating institution connection" },
       { status: 500 }
     );
   }

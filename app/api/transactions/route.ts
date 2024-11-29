@@ -47,11 +47,10 @@ export async function GET(request: Request) {
       );
     }
 
-    // Fetch all accounts for the user
-    // Filtered by RLS for the user
     const { data: transactions, error } = await supabase
       .from("transaction")
-      .select("*")
+      .select(`*, account:account_id(user_id)`)
+      .eq("account.user_id", user.id)
       .returns<Tables<"transaction">[]>();
 
     if (error) {

@@ -1,15 +1,14 @@
 "use client";
 
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/useToast";
+import { Toast, useToast } from "@/hooks/useToast";
 import { useEffect, useRef } from "react";
 
 interface ProviderDialogProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   redirectUri: string;
-  onSuccess?: () => void;
-  onError?: (error: string) => void;
+  operation: "connect" | "reconnect";
 }
 
 type SaltEdgeCallback = {
@@ -26,9 +25,22 @@ export function ProviderDialog({
   isOpen,
   setIsOpen,
   redirectUri,
+  operation,
 }: ProviderDialogProps) {
   const { toast } = useToast();
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const successToast: Toast = {
+    title: "Success",
+    description: `You have successfully ${
+      operation === "connect" ? "connected" : "fixed the connection"
+    } to the institution!`,
+  };
+  const errorToast: Toast = {
+    title: "Error",
+    description: `There was an error ${
+      operation === "connect" ? "connecting" : "fixing the connection"
+    } to the institution.`,
+  };
 
   useEffect(() => {
     const handleMessageEvent = (e: MessageEvent) => {
@@ -40,17 +52,10 @@ export function ProviderDialog({
           const data = e.data;
           if (data.status === "SUCCESS") {
             setIsOpen(false);
-            toast({
-              title: "Success",
-              description:
-                "You have successfully connected to the institution!",
-            });
+            toast(successToast);
           }
           if (data.status === "ERROR") {
-            toast({
-              title: "Error",
-              description: "There was an error connecting to the institution.",
-            });
+            toast(errorToast);
             setIsOpen(false);
           }
           if (
@@ -65,15 +70,9 @@ export function ProviderDialog({
         const { data }: SaltEdgeCallback = JSON.parse(e.data);
         if (data.stage === "success") {
           setIsOpen(false);
-          toast({
-            title: "Success",
-            description: "You have successfully connected to the institution!",
-          });
+          toast(successToast);
         } else if (data.stage === "error") {
-          toast({
-            title: "Error",
-            description: "There was an error connecting to the institution.",
-          });
+          toast(errorToast);
           setIsOpen(false);
         }
       }
