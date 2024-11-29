@@ -67,10 +67,12 @@ export class VezgoClient {
   }
 
   // Connect URL
-  getConnectUrl(userId: string, institutionId?: string): string {
+  async getConnectUrl(userId: string, institutionId?: string): Promise<string> {
     const url = `${this.connectUrl}/connect${
       institutionId ? `/${institutionId}` : ""
-    }?clientId=${this.clientId}&token=${this.getToken(userId)}`;
+    }?client_id=${this.clientId}&token=${await this.getToken(userId)}`;
+
+    console.log(url);
 
     return url;
   }

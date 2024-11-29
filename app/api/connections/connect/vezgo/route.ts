@@ -22,8 +22,24 @@ export async function POST(request: Request) {
       );
     }
 
+    const { data: institution } = await supabase
+      .from("institution")
+      .select("*")
+      .eq("id", institution_id)
+      .single();
+
+    if (!institution) {
+      return NextResponse.json(
+        { success: false, error: "Institution not found" },
+        { status: 404 }
+      );
+    }
+
     // Get the connect URL from Vezgo for the specific institution
-    const connectUrl = vezgoClient.getConnectUrl(user.id, institution_id);
+    const connectUrl = await vezgoClient.getConnectUrl(
+      user.id,
+      institution.provider_institution_id
+    );
 
     return NextResponse.json(
       { success: true, data: connectUrl },
