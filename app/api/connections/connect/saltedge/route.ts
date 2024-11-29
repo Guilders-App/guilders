@@ -10,6 +10,7 @@ export async function POST(request: Request) {
     const supabase = await createClient();
     const jwt = getJwt(request);
 
+    // Ignore account_id, SaltEdge performs a reconnect if there's already a connection
     const { institution_id }: ConnectBody = await request.json();
 
     const {
