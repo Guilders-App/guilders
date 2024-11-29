@@ -99,7 +99,11 @@ export function ProviderDialog({
           ref={iframeRef}
           src={redirectUri}
           className="w-full h-full border-none rounded-lg"
-          allowFullScreen
+          // Required for
+          // - Vezgo - copy function in WalletConnect in Widget Mode
+          allow="clipboard-read *; clipboard-write *"
+          // Test security feature
+          credentialless="true"
         />
       </DialogContent>
     </Dialog>
