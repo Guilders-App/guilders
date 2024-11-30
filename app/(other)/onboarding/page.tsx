@@ -1,0 +1,128 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { useUpdateUserSettings } from "@/hooks/useUser";
+import { createClient } from "@/lib/db/client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+const passwordSchema = z
+  .object({
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
+
+type PasswordForm = z.infer<typeof passwordSchema>;
+
+export default function OnboardingPage() {
+  const router = useRouter();
+  const updateUser = useUpdateUserSettings();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<PasswordForm>({
+    resolver: zodResolver(passwordSchema),
+  });
+
+  const onSubmit = async (data: PasswordForm) => {
+    try {
+      await updateUser.mutateAsync({
+        password: data.password,
+      });
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Error setting password:", error);
+    }
+  };
+
+  // Check if user is authenticated
+  useEffect(() => {
+    const checkSession = async () => {
+      const supabase = createClient();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        router.push("/sign-in");
+      }
+    };
+
+    checkSession();
+  }, [router]);
+
+  return (
+    <div className="container flex items-center justify-center min-h-screen py-12">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-3">
+          <div className="flex justify-center">
+            <Image
+              src="/assets/logo/logo_filled_rounded.svg"
+              alt="Guilders"
+              width={64}
+              height={64}
+              priority
+            />
+          </div>
+          <h1 className="text-2xl font-bold text-center">
+            Welcome to Guilders!
+          </h1>
+          <p className="text-muted-foreground text-center">
+            Please set your password to continue
+          </p>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                type="password"
+                placeholder="Enter your new password"
+                disabled={updateUser.isPending}
+                {...register("password")}
+              />
+              {errors.password && (
+                <p className="text-sm text-destructive">
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Input
+                type="password"
+                placeholder="Confirm your password"
+                disabled={updateUser.isPending}
+                {...register("confirmPassword")}
+              />
+              {errors.confirmPassword && (
+                <p className="text-sm text-destructive">
+                  {errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={updateUser.isPending}
+            >
+              {updateUser.isPending
+                ? "Setting password..."
+                : "Set Password & Continue"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
