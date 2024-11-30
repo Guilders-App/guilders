@@ -76,7 +76,7 @@ export function NetWorthCategories() {
         <>
           {categories.positive.length > 0 && (
             <>
-              <h3 className="text-sm font-medium mb-2 text-foreground/80">
+              <h3 className="text-md font-medium mb-2 text-foreground/80">
                 Assets
               </h3>
               <div className="flex mb-2">
@@ -131,7 +131,7 @@ export function NetWorthCategories() {
 
           {categories.negative.length > 0 && (
             <>
-              <h3 className="text-sm font-medium mb-2 text-foreground/80">
+              <h3 className="text-md font-medium mb-2 text-foreground/80">
                 Liabilities
               </h3>
               <div className="flex mb-2">
