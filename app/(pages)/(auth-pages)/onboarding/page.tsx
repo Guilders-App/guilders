@@ -1,8 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useUpdateUserSettings } from "@/hooks/useUser";
 import { createClient } from "@/lib/db/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -47,46 +47,46 @@ export default function OnboardingPage() {
     }
   };
 
-  // Check if user is authenticated
   useEffect(() => {
     const checkSession = async () => {
       const supabase = createClient();
       const {
         data: { session },
       } = await supabase.auth.getSession();
-
       if (!session) {
         router.push("/sign-in");
       }
     };
-
     checkSession();
   }, [router]);
 
   return (
-    <div className="container flex items-center justify-center min-h-screen py-12">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-3">
-          <div className="flex justify-center">
-            <Image
-              src="/assets/logo/logo_filled_rounded.svg"
-              alt="Guilders"
-              width={64}
-              height={64}
-              priority
-            />
-          </div>
-          <h1 className="text-2xl font-bold text-center">
-            Welcome to Guilders!
-          </h1>
-          <p className="text-muted-foreground text-center">
-            Please set your password to continue
-          </p>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
+    <div className="w-full max-w-sm">
+      <div className="rounded-md bg-background px-6 py-6 shadow">
+        <div className="flex flex-col items-center mb-4">
+          <Image
+            src="/assets/logo/logo_filled_rounded.svg"
+            alt="logo"
+            width={64}
+            height={64}
+            priority
+          />
+        </div>
+
+        <h1 className="text-2xl font-bold text-center">Welcome to Guilders!</h1>
+        <p className="text-muted-foreground text-center">
+          Please set your password to continue
+        </p>
+
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-4 mt-4"
+        >
+          <div className="grid gap-4">
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="password">Password</Label>
               <Input
+                id="password"
                 type="password"
                 placeholder="Enter your new password"
                 disabled={updateUser.isPending}
@@ -98,8 +98,11 @@ export default function OnboardingPage() {
                 </p>
               )}
             </div>
-            <div className="space-y-2">
+
+            <div className="grid w-full items-center gap-1.5">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
               <Input
+                id="confirmPassword"
                 type="password"
                 placeholder="Confirm your password"
                 disabled={updateUser.isPending}
@@ -111,18 +114,19 @@ export default function OnboardingPage() {
                 </p>
               )}
             </div>
+
             <Button
               type="submit"
-              className="w-full"
+              className="mt-2 w-full"
               disabled={updateUser.isPending}
             >
               {updateUser.isPending
                 ? "Setting password..."
                 : "Set Password & Continue"}
             </Button>
-          </form>
-        </CardContent>
-      </Card>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
