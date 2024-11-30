@@ -20,8 +20,11 @@ export type VezgoCallbackBody =
         id: string;
         provider: string;
       };
+      // TODO: Handle these errors separately
       error:
         | "LoginFailedError"
         | "SecurityQuestionError"
-        | "TemporaryFailureError";
+        | "TemporaryFailureError"
+        | "UnhandledConnectorError"
+        | "UnknownConnectorError";
     };
