@@ -21,6 +21,6 @@ import { deregisterConnection } from "../../common";
  *       200:
  *         description: Successfully deregistered connections
  */
-export async function POST(request: Request) {
-  return deregisterConnection(providerName, deregisterSaltEdgeUser, request);
+export async function POST() {
+  return deregisterConnection(providerName, deregisterSaltEdgeUser);
 }

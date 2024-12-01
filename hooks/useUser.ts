@@ -117,3 +117,20 @@ export function useUpdateUserSettings() {
     },
   });
 }
+
+export function useDeleteAccount() {
+  return useMutation({
+    mutationFn: async () => {
+      const response = await fetch("/api/user", {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.error || "Failed to delete account");
+      }
+
+      return data;
+    },
+  });
+}

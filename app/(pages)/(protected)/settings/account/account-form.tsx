@@ -1,10 +1,21 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -25,7 +36,13 @@ import {
 } from "@/components/ui/select";
 import { useCurrencies } from "@/hooks/useCurrencies";
 import { toast } from "@/hooks/useToast";
-import { useUpdateUserSettings, useUser } from "@/hooks/useUser";
+import {
+  useDeleteAccount,
+  useUpdateUserSettings,
+  useUser,
+} from "@/hooks/useUser";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const accountFormSchema = z.object({
   email: z.string().email(),
@@ -37,6 +54,10 @@ const accountFormSchema = z.object({
 type AccountFormValues = z.infer<typeof accountFormSchema>;
 
 export function AccountForm() {
+  const router = useRouter();
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const { mutateAsync: deleteAccount } = useDeleteAccount();
+
   const { data: user, isLoading: isUserLoading, error: userError } = useUser();
   const { mutateAsync: updateUserSettings } = useUpdateUserSettings();
 
@@ -77,6 +98,22 @@ export function AccountForm() {
 
     return [...orderedCurrencies, ...remainingCurrencies];
   }, [currencies]);
+
+  const handleDeleteAccount = async () => {
+    setIsDeletingAccount(true);
+    try {
+      await deleteAccount();
+      router.push("/");
+    } catch (error) {
+      toast({
+        title: "Error deleting account",
+        description:
+          "Something went wrong. Please contact support for assistance.",
+        variant: "destructive",
+      });
+      setIsDeletingAccount(false);
+    }
+  };
 
   if (isUserLoading || isCurrenciesLoading) {
     return (
@@ -123,6 +160,58 @@ export function AccountForm() {
       });
     }
   }
+
+  const deleteAccountButton = (
+    <div className="mt-6 border-t pt-6">
+      <h2 className="text-destructive font-semibold">Danger Zone</h2>
+      <p className="text-sm text-muted-foreground mt-2">
+        Once you delete your account, there is no going back. Please be certain.
+      </p>
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button variant="destructive" className="mt-4">
+            Delete Account
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will:
+            </AlertDialogDescription>
+            <ul className="list-disc list-inside mt-2 text-sm text-muted-foreground">
+              <li>Permanently delete your account</li>
+              <li>Remove all your connections to financial institutions</li>
+              <li>Delete all your stored data</li>
+              <li>Cancel any active subscriptions</li>
+            </ul>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeletingAccount}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                handleDeleteAccount();
+              }}
+              disabled={isDeletingAccount}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {isDeletingAccount ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete Account"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
 
   return (
     <Form {...form}>
@@ -183,6 +272,7 @@ export function AccountForm() {
           {form.formState.isSubmitting ? "Updating..." : "Update account"}
         </Button>
       </form>
+      {deleteAccountButton}
     </Form>
   );
 }

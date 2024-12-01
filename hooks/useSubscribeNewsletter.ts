@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 export function useSubscribeNewsletter() {
   return useMutation({
     mutationFn: async (email: string) => {
-      const response = await fetch(`/api/other/newsletter`, {
+      const response = await fetch(`/api/newsletter`, {
         method: "POST",
         body: JSON.stringify({ email }),
       });
