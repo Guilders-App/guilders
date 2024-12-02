@@ -1,4 +1,4 @@
-import { saltedge } from "@/lib/providers/saltedge/client";
+import { getRates } from "@/lib/db/utils";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -25,16 +25,11 @@ import { NextRequest, NextResponse } from "next/server";
  *                     $ref: '#/components/schemas/Rate'
  */
 export async function GET(_: NextRequest) {
-  const rates = await saltedge.getRates();
-
-  const sanitizedRates = rates.map(({ currency_code, rate }) => ({
-    currency_code,
-    rate,
-  }));
+  const rates = await getRates();
 
   return NextResponse.json({
     success: true,
     base: "USD",
-    data: sanitizedRates,
+    data: rates,
   });
 }

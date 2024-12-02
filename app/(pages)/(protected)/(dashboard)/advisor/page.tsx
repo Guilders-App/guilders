@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   ChatBubble,
@@ -16,7 +17,6 @@ import {
   Mic,
   Paperclip,
   RefreshCcw,
-  Volume2,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -29,10 +29,16 @@ const ChatAiIcons = [
     icon: RefreshCcw,
     label: "Refresh",
   },
-  {
-    icon: Volume2,
-    label: "Volume",
-  },
+];
+
+const ExampleQuestions = [
+  "What's my current spending this month?",
+  "How much did I save last month?",
+  "What's my biggest expense category?",
+  "How can I improve my savings?",
+  "Show me my investment breakdown",
+  "What's my net worth?",
+  "How can I adjust my portfolio?",
 ];
 
 export default function AdvisorPage() {
@@ -44,6 +50,7 @@ export default function AdvisorPage() {
     handleSubmit,
     isLoading,
     reload,
+    append,
   } = useChat({
     onResponse(response) {
       if (response) {
@@ -72,6 +79,16 @@ export default function AdvisorPage() {
     handleSubmit(e);
   };
 
+  const handleExampleClick = (question: string) => {
+    if (isGenerating || isLoading) return;
+
+    setIsGenerating(true);
+    append({
+      role: "user",
+      content: question,
+    });
+  };
+
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -91,9 +108,7 @@ export default function AdvisorPage() {
       } finally {
         setIsGenerating(false);
       }
-    }
-
-    if (action === "Copy") {
+    } else if (action === "Copy") {
       const message = messages[messageIndex];
       if (message && message.role === "assistant") {
         navigator.clipboard.writeText(message.content);
@@ -102,8 +117,8 @@ export default function AdvisorPage() {
   };
 
   return (
-    <div className="flex h-full w-full max-w-3xl flex-col justify-between mx-auto">
-      <div className="flex-1 overflow-y-auto min-h-0">
+    <div className="flex h-[calc(100vh-4rem)] w-full max-w-4xl flex-col justify-between mx-auto">
+      <div className="flex-1 overflow-y-auto min-h-0 px-4">
         <ChatMessageList ref={messagesRef}>
           {/* Initial Message */}
           {messages.length === 0 && (
@@ -168,7 +183,22 @@ export default function AdvisorPage() {
           )}
         </ChatMessageList>
       </div>
-      <div className="w-full px-4 mt-4">
+      <div className="w-full px-4 py-4">
+        {messages.length === 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {ExampleQuestions.map((question, index) => (
+              <Badge
+                key={index}
+                variant="outline"
+                className="cursor-pointer bg-background hover:bg-secondary/80 px-3 py-2"
+                onClick={() => handleExampleClick(question)}
+              >
+                {question}
+              </Badge>
+            ))}
+          </div>
+        )}
+
         <form
           ref={formRef}
           onSubmit={onSubmit}

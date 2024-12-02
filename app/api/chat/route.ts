@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/db/admin";
 import { createClient } from "@/lib/db/server";
+import { getRates } from "@/lib/db/utils";
 import { getJwt } from "@/lib/utils";
 import { anthropic } from "@ai-sdk/anthropic";
 import { convertToCoreMessages, streamText } from "ai";
@@ -26,6 +27,10 @@ interface FinancialSummary {
     }[];
   }[];
   primaryCurrency: string;
+  exchangeRates: {
+    currency_code: string;
+    rate: number;
+  }[];
 }
 
 /**
@@ -102,6 +107,9 @@ export async function POST(request: NextRequest) {
 const getAccountsContext = async (user_id: string): Promise<string> => {
   const supabase = await createAdminClient();
 
+  // Get exchange rates using the cached function
+  const exchangeRates = await getRates();
+
   const { data: accounts } = await supabase
     .from("account")
     .select("*")
@@ -143,35 +151,39 @@ const getAccountsContext = async (user_id: string): Promise<string> => {
             description: t.description,
           })) || [],
     })),
+    exchangeRates,
     primaryCurrency: accounts[0]?.currency || "USD", // Assume first account's currency as primary
   };
 
-  // Convert to a structured prompt
-  return `
-Financial Overview:
+  const prompt = `Financial Overview:
 - Net Worth: ${summary.netWorth} ${summary.primaryCurrency}
 - Number of Accounts: ${summary.accounts.length}
 
-Account Details:
-${summary.accounts
-  .map(
-    (acc) => `
-• ${acc.name} (${acc.type}/${acc.subtype})
-  - Value: ${acc.value} ${acc.currency}
-  ${acc.cost ? `  - Cost Basis: ${acc.cost} ${acc.currency}` : ""}
-  ${
-    acc.recentTransactions.length > 0
-      ? `
-  Recent Activity:
-  ${acc.recentTransactions
-    .map((t) => `  - ${t.date}: ${t.amount} ${acc.currency} (${t.category})`)
-    .join("\n")}`
-      : ""
-  }
-`
-  )
-  .join("")}
+Exchange Rates (Base: USD):
+${summary.exchangeRates.map((rate) => `- 1 USD = ${rate.rate} ${rate.currency_code}`).join("\n")}
 
-Use this financial data to provide personalized advice and insights when relevant.
-`;
+Account Details:${summary.accounts
+    .map(
+      (acc) => `
+• ${acc.name} (${acc.type}/${acc.subtype})
+  - Value: ${acc.value} ${acc.currency}${
+    acc.cost
+      ? `
+  - Cost Basis: ${acc.cost} ${acc.currency}`
+      : ""
+  }${
+    acc.recentTransactions.length > 0
+      ? `\n  Recent Activity:
+${acc.recentTransactions
+  .map((t) => `  - ${t.date}: ${t.amount} ${acc.currency} (${t.category})`)
+  .join("\n")}`
+      : ""
+  }`
+    )
+    .join("")}
+
+Use this financial data and exchange rates to provide personalized advice and insights when relevant.
+Consider exchange rates when discussing amounts in different currencies.`;
+
+  return prompt;
 };
