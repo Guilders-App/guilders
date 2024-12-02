@@ -14,15 +14,33 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { getBreadcrumbs } from "@/lib/breadcrumbs";
+import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 export function AppTopBar() {
   const pathname = usePathname();
   const breadcrumbs = getBreadcrumbs(pathname);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 flex h-16 shrink-0 items-center justify-between gap-2 bg-muted/40 px-4">
+    <header
+      className={cn(
+        "sticky z-50 top-0 flex h-16 shrink-0 items-center justify-between gap-2 px-4 transition-all duration-200",
+        isScrolled
+          ? "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 shadow-sm"
+          : "bg-muted/40"
+      )}
+    >
       <div className="flex items-center gap-2">
         <SidebarTrigger className="-ml-1 h-8 w-8" />
         <Separator orientation="vertical" className="mx-0.5 h-4" />
