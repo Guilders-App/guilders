@@ -89,8 +89,10 @@ export function CommandMenu() {
         onEscapeKeyDown={(e) => {
           e.preventDefault();
           if (pages.length > 0) {
+            setSearch("");
             setPages((pages) => pages.slice(0, -1));
           } else {
+            setSearch("");
             setIsCommandMenuOpen(false);
           }
         }}
