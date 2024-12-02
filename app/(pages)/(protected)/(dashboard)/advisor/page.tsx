@@ -102,71 +102,73 @@ export default function AdvisorPage() {
   };
 
   return (
-    <main className="flex h-full w-full max-w-3xl flex-col items-center mx-auto">
-      <ChatMessageList ref={messagesRef}>
-        {/* Initial Message */}
-        {messages.length === 0 && (
-          <div className="w-full bg-background shadow-sm border rounded-lg p-8 flex flex-col gap-2">
-            <h1 className="font-bold">Welcome to your personal advisor.</h1>
-            <p className="text-muted-foreground text-sm">
-              Ask me anything about your finances. I can see your accounts and
-              give you personalized advice.
-            </p>
-            <p className="text-muted-foreground text-xs">
-              This is not financial advice. AI can make mistakes.
-            </p>
-          </div>
-        )}
+    <div className="flex h-full w-full max-w-3xl flex-col justify-between mx-auto">
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <ChatMessageList ref={messagesRef}>
+          {/* Initial Message */}
+          {messages.length === 0 && (
+            <div className="w-full bg-background shadow-sm border rounded-lg p-8 flex flex-col gap-2">
+              <h1 className="font-bold">Welcome to your personal advisor.</h1>
+              <p className="text-muted-foreground text-sm">
+                Ask me anything about your finances. I can see your accounts and
+                give you personalized advice.
+              </p>
+              <p className="text-muted-foreground text-xs">
+                This is not financial advice. AI can make mistakes.
+              </p>
+            </div>
+          )}
 
-        {/* Messages */}
-        {messages &&
-          messages.map((message, index) => (
-            <ChatBubble
-              key={index}
-              variant={message.role == "user" ? "sent" : "received"}
-            >
-              <ChatBubbleAvatar
-                src={message.role == "user" ? "/assets/user.png" : ""}
-                fallback={message.role == "user" ? "👨🏽" : "🤖"}
-              />
-              <ChatBubbleMessage>
-                {message.content}
+          {/* Messages */}
+          {messages &&
+            messages.map((message, index) => (
+              <ChatBubble
+                key={index}
+                variant={message.role == "user" ? "sent" : "received"}
+              >
+                <ChatBubbleAvatar
+                  src={message.role == "user" ? "/assets/user.png" : ""}
+                  fallback={message.role == "user" ? "👨🏽" : "🤖"}
+                />
+                <ChatBubbleMessage>
+                  {message.content}
 
-                {message.role === "assistant" &&
-                  messages.length - 1 === index && (
-                    <div className="flex items-center mt-1.5 gap-1">
-                      {!isGenerating && (
-                        <>
-                          {ChatAiIcons.map((icon, iconIndex) => {
-                            const Icon = icon.icon;
-                            return (
-                              <ChatBubbleAction
-                                className="size-5"
-                                key={iconIndex}
-                                icon={<Icon className="size-3" />}
-                                onClick={() =>
-                                  handleActionClick(icon.label, index)
-                                }
-                              />
-                            );
-                          })}
-                        </>
-                      )}
-                    </div>
-                  )}
-              </ChatBubbleMessage>
+                  {message.role === "assistant" &&
+                    messages.length - 1 === index && (
+                      <div className="flex items-center mt-1.5 gap-1">
+                        {!isGenerating && (
+                          <>
+                            {ChatAiIcons.map((icon, iconIndex) => {
+                              const Icon = icon.icon;
+                              return (
+                                <ChatBubbleAction
+                                  className="size-5"
+                                  key={iconIndex}
+                                  icon={<Icon className="size-3" />}
+                                  onClick={() =>
+                                    handleActionClick(icon.label, index)
+                                  }
+                                />
+                              );
+                            })}
+                          </>
+                        )}
+                      </div>
+                    )}
+                </ChatBubbleMessage>
+              </ChatBubble>
+            ))}
+
+          {/* Loading */}
+          {isGenerating && (
+            <ChatBubble variant="received">
+              <ChatBubbleAvatar src="" fallback="🤖" />
+              <ChatBubbleMessage isLoading />
             </ChatBubble>
-          ))}
-
-        {/* Loading */}
-        {isGenerating && (
-          <ChatBubble variant="received">
-            <ChatBubbleAvatar src="" fallback="🤖" />
-            <ChatBubbleMessage isLoading />
-          </ChatBubble>
-        )}
-      </ChatMessageList>
-      <div className="w-full px-4">
+          )}
+        </ChatMessageList>
+      </div>
+      <div className="w-full px-4 mt-4">
         <form
           ref={formRef}
           onSubmit={onSubmit}
@@ -202,6 +204,6 @@ export default function AdvisorPage() {
           </div>
         </form>
       </div>
-    </main>
+    </div>
   );
 }

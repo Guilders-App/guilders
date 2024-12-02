@@ -1,6 +1,5 @@
 "use client";
 
-import { type LucideIcon } from "lucide-react";
 import Link from "next/link";
 
 import { Collapsible, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -9,18 +8,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { NavItem } from "./app-sidebar";
 
-export function NavItems({
-  items,
-}: {
-  items: {
-    title: string;
-    url?: string;
-    icon?: LucideIcon;
-    isActive?: boolean;
-    onClick?: () => void;
-  }[];
-}) {
+export function NavItems({ items }: { items: NavItem[] }) {
   return (
     <SidebarMenu>
       {items.map((item) => (

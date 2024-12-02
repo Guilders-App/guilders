@@ -11,7 +11,7 @@ const ProtectedLayout = ({ children }: { children: ReactNode }) => {
   return (
     <SidebarProvider defaultOpen={false}>
       <AppSidebar />
-      <main className="flex-1 my-8 mx-16">{children}</main>
+      <main className="flex-1 flex flex-col min-h-screen">{children}</main>
       <Toaster />
       <CommandMenu />
       <Dialogs />

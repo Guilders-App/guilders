@@ -1,7 +1,7 @@
 "use client";
 
 import { AssetsEmptyPlaceholder } from "@/components/dashboard/assets/assets-placeholder";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAccounts } from "@/hooks/useAccounts";
 
@@ -10,7 +10,6 @@ export default function AccountsPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Accounts</h1>
       <div className="space-y-2">
         {isLoading ? (
           <div className="space-y-2">
@@ -32,12 +31,6 @@ export default function AccountsPage() {
               key={account.id}
               className="hover:shadow-md transition-shadow"
             >
-              <CardHeader className="py-4">
-                <CardTitle className="text-base">{account.name}</CardTitle>
-                <p className="text-sm text-gray-600">
-                  {account.type} - {account.subtype}
-                </p>
-              </CardHeader>
               <CardContent className="py-2">
                 <p>
                   {account.currency} {account.value.toLocaleString()}

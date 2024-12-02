@@ -17,12 +17,24 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { AppSidebarHeader } from "./app-sidebar-header";
 
-const data = {
+export type NavItem = {
+  title: string;
+  url?: string;
+  icon?: React.ElementType;
+  isActive?: boolean;
+  onClick?: () => void;
+  breadcrumb?: {
+    parent?: { title: string; href: string };
+  };
+};
+
+export const navigationData: {
+  navMain: NavItem[];
+  navFooter: NavItem[];
+} = {
   navMain: [
     {
       title: "Dashboard",
@@ -34,16 +46,25 @@ const data = {
       title: "Advisor",
       url: "/advisor",
       icon: ConciergeBell,
+      breadcrumb: {
+        parent: { title: "Dashboard", href: "/dashboard" },
+      },
     },
     {
       title: "Accounts",
       url: "/accounts",
       icon: Briefcase,
+      breadcrumb: {
+        parent: { title: "Dashboard", href: "/dashboard" },
+      },
     },
     {
       title: "Transactions",
       url: "/transactions",
       icon: ArrowRightLeft,
+      breadcrumb: {
+        parent: { title: "Dashboard", href: "/dashboard" },
+      },
     },
   ],
   navFooter: [
@@ -58,21 +79,18 @@ const data = {
       onClick: signOutAction,
     },
   ],
-};
+} as const;
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
-        <AppSidebarHeader />
-      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <NavItems items={data.navMain} />
+          <NavItems items={navigationData.navMain} />
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <NavItems items={data.navFooter} />
+        <NavItems items={navigationData.navFooter} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
