@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { useAddAccount } from "@/hooks/useAccounts";
 import { useCurrencies } from "@/hooks/useCurrencies";
+import { useDialog } from "@/hooks/useDialog";
 import { useToast } from "@/hooks/useToast";
 import { useUser } from "@/hooks/useUser";
 import { accountSubtypeLabels, accountSubtypes } from "@/lib/db/types";
@@ -48,13 +49,8 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>;
 
-export const AddAccountDialog = ({
-  isOpen,
-  setIsOpen,
-}: {
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-}) => {
+export function AddAccountDialog() {
+  const { isOpen, close } = useDialog("addManualAccount");
   const [isLoading, setIsLoading] = useState(false);
   const { data: user } = useUser();
   const { toast } = useToast();
@@ -111,7 +107,7 @@ export const AddAccountDialog = ({
       console.error("Error adding account:", error);
     } finally {
       setIsLoading(false);
-      setIsOpen(false);
+      close();
     }
   });
 
@@ -131,7 +127,7 @@ export const AddAccountDialog = ({
   }, [currencies]);
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={close}>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle>Add Account</DialogTitle>
@@ -247,4 +243,4 @@ export const AddAccountDialog = ({
       </DialogContent>
     </Dialog>
   );
-};
+}

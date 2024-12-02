@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -7,49 +9,36 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useCreateConnection } from "@/hooks/useConnections";
+import { useDialog } from "@/hooks/useDialog";
 import { useProvider } from "@/hooks/useProviders";
 import { useToast } from "@/hooks/useToast";
-import { Institution } from "@/lib/db/types";
-import { useStore } from "@/lib/store";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 
-interface AddLinkedAccountDialogProps {
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-  institution: Institution | null;
-}
-
-export function AddLinkedAccountDialog({
-  isOpen,
-  setIsOpen,
-  institution,
-}: AddLinkedAccountDialogProps) {
-  const { data: provider } = useProvider(institution?.provider_id);
+export function AddLinkedAccountDialog() {
+  const { isOpen, data, close } = useDialog("addLinkedAccount");
+  const { open: openProviderDialog } = useDialog("provider");
+  const { data: provider } = useProvider(data?.institution?.provider_id);
   const { mutateAsync: createConnection, isPending } = useCreateConnection();
   const { toast } = useToast();
-  const setRedirectUri = useStore((state) => state.setRedirectUri);
-  const setIsProviderDialogOpen = useStore(
-    (state) => state.setIsProviderDialogOpen
-  );
-  const setProviderDialogOperation = useStore(
-    (state) => state.setProviderDialogOperation
-  );
 
-  if (!isOpen || !provider || !institution) return <></>;
+  if (!isOpen || !provider || !data?.institution) return null;
+  const { institution } = data;
 
   const onContinue = async () => {
     const { success, data: redirectUrl } = await createConnection({
       providerName: provider.name.toLocaleLowerCase(),
       institutionId: institution.id,
     });
+
     if (success) {
-      setRedirectUri(redirectUrl);
-      setProviderDialogOperation("connect");
-      setIsOpen(false);
-      setTimeout(() => setIsProviderDialogOpen(true), 40);
+      close();
+      openProviderDialog({
+        redirectUri: redirectUrl,
+        operation: "connect",
+      });
     } else {
-      setIsOpen(false);
+      close();
       toast({
         title: "Failed to create connection",
         description: "Unable to create connection. Please try again later.",
@@ -58,7 +47,7 @@ export function AddLinkedAccountDialog({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={close}>
       <DialogTitle className="hidden">Add Linked Account</DialogTitle>
       <DialogContent className="sm:max-w-[425px]">
         <DialogDescription className="hidden">

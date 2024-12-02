@@ -15,9 +15,9 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useDialog } from "@/hooks/useDialog";
 import { useInstitutions } from "@/hooks/useInstitutions";
 import { Institution } from "@/lib/db/types";
-import { useStore } from "@/lib/store";
 import { CommandLoading } from "cmdk";
 import { Banknote, Folder, Landmark, Link2, SquarePen } from "lucide-react";
 import Image from "next/image";
@@ -25,68 +25,77 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export function CommandMenu() {
-  const isCommandMenuOpen = useStore((state) => state.isCommandMenuOpen);
-  const setIsCommandMenuOpen = useStore((state) => state.setIsCommandMenuOpen);
-  const setIsAddManualAccountOpen = useStore(
-    (state) => state.setIsAddManualAccountOpen
-  );
-  const setSelectedInstitution = useStore(
-    (state) => state.setSelectedInstitution
-  );
-  const setIsAddLinkedAccountOpen = useStore(
-    (state) => state.setIsAddLinkedAccountOpen
-  );
+  const { isOpen, data, open, close, update } = useDialog("command");
+  const { open: openManualAccount } = useDialog("addManualAccount");
+  const { open: openLinkedAccount } = useDialog("addLinkedAccount");
   const { data: institutions, isLoading } = useInstitutions();
-
-  const [pages, setPages] = useState<string[]>([]);
-  const page = pages[pages.length - 1];
   const [search, setSearch] = useState("");
   const router = useRouter();
+
+  const pages = data?.pages ?? [];
 
   // Keyboard shortcut to open the command menu
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
-        setIsCommandMenuOpen(!isCommandMenuOpen);
+        if (isOpen) {
+          close();
+        } else {
+          open({ pages: [] });
+        }
       }
     };
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
-  }, []);
+  }, [isOpen, open, close]);
 
   const handleAddAccount = () => {
-    setIsCommandMenuOpen(false);
-    setTimeout(() => setIsAddManualAccountOpen(true), 40);
+    close();
+    setTimeout(() => openManualAccount(), 40);
   };
 
   const handleAddLinkedAccount = (institution: Institution) => {
-    setIsCommandMenuOpen(false);
-    setSelectedInstitution(institution);
-    setTimeout(() => setIsAddLinkedAccountOpen(true), 40);
+    close();
+    setTimeout(() => openLinkedAccount({ institution }), 40);
   };
 
   const handleNavigate = (path: string) => {
-    setIsCommandMenuOpen(false);
+    close();
     router.push(path);
   };
 
-  const changePage = (page: string) => {
-    setPages([...pages, page]);
+  const changePage = (newPage: string) => {
+    update({
+      pages: [...pages, newPage],
+    });
   };
 
+  const currentPage = pages[pages.length - 1];
+
   return (
-    <Dialog open={isCommandMenuOpen} onOpenChange={setIsCommandMenuOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(isOpen) => {
+        if (isOpen) {
+          open({ pages: [] });
+        } else {
+          close();
+        }
+      }}
+    >
       <DialogTitle className="hidden">Command Menu</DialogTitle>
       <DialogContent
         onEscapeKeyDown={(e) => {
           e.preventDefault();
           if (pages.length > 0) {
             setSearch("");
-            setPages((pages) => pages.slice(0, -1));
+            update({
+              pages: pages.slice(0, -1),
+            });
           } else {
             setSearch("");
-            setIsCommandMenuOpen(false);
+            close();
           }
         }}
         className="overflow-hidden p-0 shadow-lg"
@@ -98,12 +107,15 @@ export function CommandMenu() {
           onKeyDown={(e) => {
             if (e.key === "Backspace" && !search) {
               e.preventDefault();
-              setPages((pages) => pages.slice(0, -1));
+              if (pages.length > 0) {
+                update({
+                  pages: pages.slice(0, -1),
+                });
+              }
             }
           }}
           className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5"
         >
-          {/* Hidden title for accessibility */}
           <CommandInput
             value={search}
             onValueChange={setSearch}
@@ -111,7 +123,7 @@ export function CommandMenu() {
           />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
-            {!page && (
+            {!currentPage && (
               <>
                 <CommandGroup heading="Manage Data">
                   <CommandItem onSelect={() => changePage("add-account")}>
@@ -129,7 +141,7 @@ export function CommandMenu() {
                 </CommandGroup>
                 <CommandGroup heading="Navigation">
                   {[...navigationData.navMain, ...navigationData.navFooter]
-                    .filter((item) => item.url) // Only include items with URLs
+                    .filter((item) => item.url)
                     .map((item) => (
                       <CommandItem
                         key={item.title}
@@ -142,7 +154,7 @@ export function CommandMenu() {
                 </CommandGroup>
               </>
             )}
-            {page === "add-account" && (
+            {currentPage === "add-account" && (
               <>
                 <CommandGroup>
                   <CommandItem onSelect={handleAddAccount}>
@@ -158,7 +170,7 @@ export function CommandMenu() {
                 </CommandGroup>
               </>
             )}
-            {page === "add-synced-account" && (
+            {currentPage === "add-synced-account" && (
               <>
                 {isLoading && (
                   <CommandLoading>Loading institutions...</CommandLoading>

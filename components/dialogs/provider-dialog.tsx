@@ -6,45 +6,31 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Toast, useToast } from "@/hooks/useToast";
+import { useDialog } from "@/hooks/useDialog";
+import { useToast } from "@/hooks/useToast";
 import { useEffect, useRef } from "react";
 
-interface ProviderDialogProps {
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-  redirectUri: string;
-  operation: "connect" | "reconnect";
-}
-
-type SaltEdgeCallback = {
-  data: {
-    connection_id: string;
-    stage: "fetching" | "success" | "error";
-    secret: string;
-    custom_fields: Record<string, string>;
-    api_stage: string;
-  };
-};
-
-export function ProviderDialog({
-  isOpen,
-  setIsOpen,
-  redirectUri,
-  operation,
-}: ProviderDialogProps) {
+export function ProviderDialog() {
+  const { isOpen, data, close } = useDialog("provider");
   const { toast } = useToast();
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const successToast: Toast = {
+
+  const successToast = {
     title: "Success",
-    description: `You have successfully ${
-      operation === "connect" ? "connected" : "fixed the connection"
-    } to the institution!`,
+    description: data
+      ? `You have successfully ${
+          data.operation === "connect" ? "connected" : "fixed the connection"
+        } to the institution!`
+      : "",
   };
-  const errorToast: Toast = {
+
+  const errorToast = {
     title: "Error",
-    description: `There was an error ${
-      operation === "connect" ? "connecting" : "fixing the connection"
-    } to the institution.`,
+    description: data
+      ? `There was an error ${
+          data.operation === "connect" ? "connecting" : "fixing the connection"
+        } to the institution.`
+      : "",
   };
 
   useEffect(() => {
@@ -56,44 +42,44 @@ export function ProviderDialog({
         if (e.data) {
           const data = e.data;
           if (data.status === "SUCCESS") {
-            setIsOpen(false);
+            close();
             toast(successToast);
           }
           if (data.status === "ERROR") {
             toast(errorToast);
-            setIsOpen(false);
+            close();
           }
           if (
             data === "CLOSED" ||
             data === "CLOSE_MODAL" ||
             data === "ABANDONED"
           ) {
-            setIsOpen(false);
+            close();
           }
         }
       } else if (e.origin === "https://www.saltedge.com") {
-        const { data }: SaltEdgeCallback = JSON.parse(e.data);
-        if (data.stage === "success") {
-          setIsOpen(false);
+        const { data: messageData } = JSON.parse(e.data);
+        if (!messageData) return;
+
+        if (messageData.stage === "success") {
+          close();
           toast(successToast);
-        } else if (data.stage === "error") {
+        } else if (messageData.stage === "error") {
           toast(errorToast);
-          setIsOpen(false);
+          close();
         }
       }
     };
 
     window.addEventListener("message", handleMessageEvent, false);
-
-    return () => {
+    return () =>
       window.removeEventListener("message", handleMessageEvent, false);
-    };
-  }, [setIsOpen]);
+  }, [close, toast, successToast, errorToast]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !data) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={close}>
       <DialogTitle className="hidden">Provider Dialog</DialogTitle>
       <DialogContent
         showCloseIcon={false}
@@ -104,12 +90,9 @@ export function ProviderDialog({
         </DialogDescription>
         <iframe
           ref={iframeRef}
-          src={redirectUri}
+          src={data.redirectUri}
           className="w-full h-full border-none rounded-lg"
-          // Required for
-          // - Vezgo - copy function in WalletConnect in Widget Mode
           allow="clipboard-read *; clipboard-write *"
-          // Test security feature
           credentialless="true"
         />
       </DialogContent>

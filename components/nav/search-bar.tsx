@@ -1,12 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useStore } from "@/lib/store";
+import { useDialog } from "@/hooks/useDialog";
 import { cn } from "@/lib/utils";
 import { Command, Search } from "lucide-react";
 
 export function SearchBar() {
-  const setIsCommandMenuOpen = useStore((state) => state.setIsCommandMenuOpen);
+  const { open } = useDialog("command");
 
   return (
     <Button
@@ -20,7 +20,7 @@ export function SearchBar() {
         "transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       )}
-      onClick={() => setIsCommandMenuOpen(true)}
+      onClick={() => open({ pages: [] })}
     >
       <Search className="h-4 w-4 xl:mr-2 shrink-0" />
       <span className="hidden xl:inline-flex">Search...</span>

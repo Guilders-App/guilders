@@ -1,11 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { useStore } from "@/lib/store";
+import { useDialog } from "@/hooks/useDialog";
 import { BadgeEuro } from "lucide-react";
 
 export function AssetsEmptyPlaceholder() {
-  const setIsAddManualAccountOpen = useStore(
-    (state) => state.setIsAddManualAccountOpen
-  );
+  const { open } = useDialog("addManualAccount");
 
   return (
     <div className="flex shrink-0 items-center justify-center rounded-md">
@@ -17,11 +15,7 @@ export function AssetsEmptyPlaceholder() {
           You have not added any accounts.
         </p>
 
-        <Button
-          size="sm"
-          className="relative"
-          onClick={() => setIsAddManualAccountOpen(true)}
-        >
+        <Button size="sm" className="relative" onClick={() => open()}>
           Add Account
         </Button>
       </div>

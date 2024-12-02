@@ -1,27 +1,17 @@
+import { useDialog } from "@/hooks/useDialog";
 import { Transaction } from "@/lib/db/types";
-import { useStore } from "@/lib/store";
 
 interface TransactionItemProps {
   transaction: Transaction;
 }
 
 export function TransactionItem({ transaction }: TransactionItemProps) {
-  const setIsEditTransactionDialogOpen = useStore(
-    (state) => state.setIsEditTransactionDialogOpen
-  );
-  const setSelectedTransaction = useStore(
-    (state) => state.setSelectedTransaction
-  );
-
-  const handleClick = () => {
-    setSelectedTransaction(transaction);
-    setIsEditTransactionDialogOpen(true);
-  };
+  const { open } = useDialog("editTransaction");
 
   return (
     <div
       className="flex justify-between items-center p-2 hover:bg-secondary rounded-lg cursor-pointer"
-      onClick={handleClick}
+      onClick={() => open({ transaction })}
     >
       <div className="flex items-center">
         <div

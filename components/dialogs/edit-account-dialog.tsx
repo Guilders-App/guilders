@@ -33,11 +33,11 @@ import {
 import { useRemoveAccount, useUpdateAccount } from "@/hooks/useAccounts";
 import { useFixConnection, useGetConnections } from "@/hooks/useConnections";
 import { useCurrencies } from "@/hooks/useCurrencies";
+import { useDialog } from "@/hooks/useDialog";
 import { useInstitutionByAccountId } from "@/hooks/useInstitutions";
 import { useProvider } from "@/hooks/useProviders";
 import { useToast } from "@/hooks/useToast";
-import { Account, accountSubtypeLabels, accountSubtypes } from "@/lib/db/types";
-import { useStore } from "@/lib/store";
+import { accountSubtypeLabels, accountSubtypes } from "@/lib/db/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
@@ -76,72 +76,59 @@ const formSchema = detailsSchema.merge(taxSchema).merge(notesSchema);
 
 type FormSchema = z.infer<typeof formSchema>;
 
-interface EditAccountDialogProps {
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-  account: Account | null;
-}
-
-export function EditAccountDialog({
-  isOpen,
-  setIsOpen,
-  account,
-}: EditAccountDialogProps) {
+export function EditAccountDialog() {
+  const { isOpen, data, close } = useDialog("editAccount");
+  const { open: openProviderDialog } = useDialog("provider");
+  const { toast } = useToast();
   const { data: connections } = useGetConnections();
-  const institution = useInstitutionByAccountId(account?.id);
+  const institution = useInstitutionByAccountId(data?.account?.id);
   const connection = connections?.find(
-    (c) => c.id === account?.institution_connection_id
+    (c) => c.id === data?.account?.institution_connection_id
   );
   const { data: provider } = useProvider(connection?.provider_id);
+  const { data: currencies } = useCurrencies();
 
   const { mutate: updateAccount, isPending: isUpdating } = useUpdateAccount();
   const { mutate: removeAccount, isPending: isDeleting } = useRemoveAccount();
   const { mutateAsync: fixConnection, isPending: isFixing } =
     useFixConnection();
 
-  const { toast } = useToast();
-  const { data: currencies } = useCurrencies();
-  const setRedirectUri = useStore((state) => state.setRedirectUri);
-  const setIsProviderDialogOpen = useStore(
-    (state) => state.setIsProviderDialogOpen
-  );
-  const setProviderDialogOperation = useStore(
-    (state) => state.setProviderDialogOperation
-  );
-
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      accountType: account?.subtype ?? accountSubtypes[0],
-      accountName: account?.name ?? "",
-      value: account?.value.toString() ?? "",
-      currency: account?.currency ?? "",
-      investable: account?.investable ?? "non_investable",
-      taxability: account?.taxability ?? "taxable",
-      taxRate: account?.tax_rate?.toString() ?? "",
-      notes: account?.notes ?? "",
+      accountType: data?.account?.subtype ?? accountSubtypes[0],
+      accountName: data?.account?.name ?? "",
+      value: data?.account?.value.toString() ?? "",
+      currency: data?.account?.currency ?? "",
+      investable: data?.account?.investable ?? "non_investable",
+      taxability: data?.account?.taxability ?? "taxable",
+      taxRate: data?.account?.tax_rate?.toString() ?? "",
+      notes: data?.account?.notes ?? "",
     },
   });
 
   useEffect(() => {
-    if (account) {
+    if (data?.account) {
       form.reset({
-        accountType: account.subtype,
-        accountName: account.name,
-        value: account.value.toString(),
-        currency: account.currency,
-        investable: account.investable,
-        taxability: account.taxability,
-        taxRate: account.tax_rate?.toString() ?? "",
-        notes: account.notes,
+        accountType: data.account.subtype,
+        accountName: data.account.name,
+        value: data.account.value.toString(),
+        currency: data.account.currency,
+        investable: data.account.investable,
+        taxability: data.account.taxability,
+        taxRate: data.account.tax_rate?.toString() ?? "",
+        notes: data.account.notes,
       });
     }
-  }, [account, form]);
+  }, [data?.account, form]);
 
-  const isSyncedAccount = !!account?.institution_connection_id;
+  if (!isOpen || !data?.account) return null;
+  const { account } = data;
+
+  const isSyncedAccount = !!account.institution_connection_id;
 
   const handleFixConnection = async () => {
-    if (!account || !institution || !provider) return;
+    if (!institution || !provider) return;
 
     const { success, data: redirectUrl } = await fixConnection({
       providerName: provider.name.toLocaleLowerCase(),
@@ -150,12 +137,13 @@ export function EditAccountDialog({
     });
 
     if (success) {
-      setRedirectUri(redirectUrl);
-      setProviderDialogOperation("reconnect");
-      setIsOpen(false);
-      setTimeout(() => setIsProviderDialogOpen(true), 40);
+      close();
+      openProviderDialog({
+        redirectUri: redirectUrl,
+        operation: "reconnect",
+      });
     } else {
-      setIsOpen(false);
+      close();
       toast({
         title: "Failed to fix connection",
         description: "Unable to fix connection. Please try again later.",
@@ -164,8 +152,6 @@ export function EditAccountDialog({
   };
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    if (!account) return;
-
     const updatedAccount = {
       id: account.id,
       subtype: data.accountType,
@@ -184,7 +170,7 @@ export function EditAccountDialog({
           title: "Account updated",
           description: "Your account has been updated successfully.",
         });
-        setIsOpen(false);
+        close();
       },
       onError: (error) => {
         toast({
@@ -199,15 +185,13 @@ export function EditAccountDialog({
   });
 
   const handleDelete = async () => {
-    if (!account) return;
-
     removeAccount(account.id, {
       onSuccess: () => {
         toast({
           title: "Account deleted",
           description: "Your account has been deleted successfully.",
         });
-        setIsOpen(false);
+        close();
       },
       onError: (error) => {
         toast({
@@ -221,10 +205,8 @@ export function EditAccountDialog({
     });
   };
 
-  if (!account) return null;
-
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={close}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogDescription className="hidden">
           Edit the details of this account.

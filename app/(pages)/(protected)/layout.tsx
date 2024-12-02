@@ -1,6 +1,5 @@
 "use client";
 
-import { CommandMenu } from "@/components/dialogs/command-menu";
 import { Dialogs } from "@/components/dialogs/dialogs";
 import { AppSidebar } from "@/components/nav/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -13,7 +12,6 @@ const ProtectedLayout = ({ children }: { children: ReactNode }) => {
       <AppSidebar />
       <main className="flex-1 flex flex-col min-h-screen">{children}</main>
       <Toaster />
-      <CommandMenu />
       <Dialogs />
     </SidebarProvider>
   );

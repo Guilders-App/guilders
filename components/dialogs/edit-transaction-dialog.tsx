@@ -22,12 +22,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useDialog } from "@/hooks/useDialog";
 import { useToast } from "@/hooks/useToast";
 import {
   useRemoveTransaction,
   useUpdateTransaction,
 } from "@/hooks/useTransactions";
-import { Transaction } from "@/lib/db/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash2 } from "lucide-react";
 import { useEffect } from "react";
@@ -46,12 +46,6 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>;
 
-interface EditTransactionDialogProps {
-  isOpen: boolean;
-  setIsOpen: (open: boolean) => void;
-  transaction: Transaction | null;
-}
-
 function formatDateForInput(dateString: string) {
   const date = new Date(dateString);
   return date.toISOString().slice(0, 16);
@@ -61,11 +55,8 @@ function formatDateForSubmit(dateString: string) {
   return new Date(dateString).toISOString();
 }
 
-export function EditTransactionDialog({
-  isOpen,
-  setIsOpen,
-  transaction,
-}: EditTransactionDialogProps) {
+export function EditTransactionDialog() {
+  const { isOpen, data, close } = useDialog("editTransaction");
   const { toast } = useToast();
   const { mutate: updateTransaction, isPending: isUpdating } =
     useUpdateTransaction();
@@ -75,35 +66,38 @@ export function EditTransactionDialog({
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: transaction?.amount.toString() ?? "",
-      description: transaction?.description ?? "",
-      category: transaction?.category ?? "",
-      date: transaction?.date ? formatDateForInput(transaction.date) : "",
+      amount: data?.transaction?.amount.toString() ?? "",
+      description: data?.transaction?.description ?? "",
+      category: data?.transaction?.category ?? "",
+      date: data?.transaction?.date
+        ? formatDateForInput(data.transaction.date)
+        : "",
     },
   });
 
   useEffect(() => {
-    if (transaction) {
+    if (data?.transaction) {
       form.reset({
-        amount: transaction.amount.toString(),
-        description: transaction.description,
-        category: transaction.category,
-        date: formatDateForInput(transaction.date),
+        amount: data.transaction.amount.toString(),
+        description: data.transaction.description,
+        category: data.transaction.category,
+        date: formatDateForInput(data.transaction.date),
       });
     }
-  }, [transaction, form]);
+  }, [data?.transaction, form]);
 
-  const isSyncedTransaction = !!transaction?.provider_transaction_id;
+  if (!isOpen || !data?.transaction) return null;
+  const { transaction } = data;
 
-  const handleSubmit = form.handleSubmit(async (data) => {
-    if (!transaction) return;
+  const isSyncedTransaction = !!transaction.provider_transaction_id;
 
+  const handleSubmit = form.handleSubmit(async (formData) => {
     const updatedTransaction = {
       id: transaction.id,
-      amount: parseFloat(data.amount),
-      description: data.description,
-      category: data.category,
-      date: formatDateForSubmit(data.date),
+      amount: parseFloat(formData.amount),
+      description: formData.description,
+      category: formData.category,
+      date: formatDateForSubmit(formData.date),
       account_id: transaction.account_id,
       currency: transaction.currency,
     };
@@ -114,7 +108,7 @@ export function EditTransactionDialog({
           title: "Transaction updated",
           description: "Your transaction has been updated successfully.",
         });
-        setIsOpen(false);
+        close();
       },
       onError: (error) => {
         toast({
@@ -129,15 +123,13 @@ export function EditTransactionDialog({
   });
 
   const handleDelete = async () => {
-    if (!transaction) return;
-
     deleteTransaction(transaction.id, {
       onSuccess: () => {
         toast({
           title: "Transaction deleted",
           description: "Your transaction has been deleted successfully.",
         });
-        setIsOpen(false);
+        close();
       },
       onError: (error) => {
         toast({
@@ -151,10 +143,8 @@ export function EditTransactionDialog({
     });
   };
 
-  if (!transaction) return null;
-
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={close}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogDescription className="hidden">
           Edit the details of this transaction.

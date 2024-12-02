@@ -4,8 +4,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useDialog } from "@/hooks/useDialog";
 import { Account } from "@/lib/db/types";
-import { useStore } from "@/lib/store";
 import {
   Bitcoin,
   CarFront,
@@ -34,16 +34,12 @@ export function AssetItem({
   imageErrors,
   onImageError,
 }: AssetItemProps) {
-  const setIsEditAccountDialogOpen = useStore(
-    (state) => state.setIsEditAccountDialogOpen
-  );
-  const setSelectedAccount = useStore((state) => state.setSelectedAccount);
+  const { open } = useDialog("editAccount");
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation(); // Prevent accordion from toggling when clicking the row
-    setSelectedAccount(account);
-    setIsEditAccountDialogOpen(true);
+    open({ account });
   };
 
   const changePercentage =
