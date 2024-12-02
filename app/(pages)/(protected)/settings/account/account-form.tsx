@@ -34,13 +34,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useCurrencies } from "@/hooks/useCurrencies";
-import { toast } from "@/hooks/useToast";
+import { useCurrencies } from "@/lib/hooks/useCurrencies";
+import { toast } from "@/lib/hooks/useToast";
 import {
   useDeleteAccount,
   useUpdateUserSettings,
   useUser,
-} from "@/hooks/useUser";
+} from "@/lib/hooks/useUser";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 

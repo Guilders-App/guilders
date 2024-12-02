@@ -1,5 +1,5 @@
-import { useDialog } from "@/hooks/useDialog";
 import { Transaction } from "@/lib/db/types";
+import { useDialog } from "@/lib/hooks/useDialog";
 
 interface TransactionItemProps {
   transaction: Transaction;

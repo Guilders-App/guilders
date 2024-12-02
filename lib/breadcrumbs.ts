@@ -1,5 +1,5 @@
 import { navigationData } from "@/components/nav/app-sidebar";
-import { useAccount } from "@/hooks/useAccounts";
+import { useAccount } from "@/lib/hooks/useAccounts";
 
 export type Breadcrumb = {
   title: string;

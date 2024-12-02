@@ -8,10 +8,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useCreateConnection } from "@/hooks/useConnections";
-import { useDialog } from "@/hooks/useDialog";
-import { useProvider } from "@/hooks/useProviders";
-import { useToast } from "@/hooks/useToast";
+import { useCreateConnection } from "@/lib/hooks/useConnections";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { useProvider } from "@/lib/hooks/useProviders";
+import { useToast } from "@/lib/hooks/useToast";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 

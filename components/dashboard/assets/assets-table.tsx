@@ -1,4 +1,4 @@
-import { useAccounts } from "@/hooks/useAccounts";
+import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useState } from "react";
 import { Skeleton } from "../../ui/skeleton";
 import { AssetItem } from "./asset-item";

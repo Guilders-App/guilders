@@ -15,8 +15,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/useToast";
-import { useUpdateUserSettings } from "@/hooks/useUser";
+import { toast } from "@/lib/hooks/useToast";
+import { useUpdateUserSettings } from "@/lib/hooks/useUser";
 
 const securityFormSchema = z
   .object({

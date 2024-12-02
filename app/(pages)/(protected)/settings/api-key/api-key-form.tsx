@@ -9,8 +9,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/useToast";
-import { useUpdateUserSettings, useUser } from "@/hooks/useUser";
+import { toast } from "@/lib/hooks/useToast";
+import { useUpdateUserSettings, useUser } from "@/lib/hooks/useUser";
 import { Check, Copy, Loader2 } from "lucide-react";
 import { useState } from "react";
 

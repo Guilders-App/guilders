@@ -15,9 +15,9 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useDialog } from "@/hooks/useDialog";
-import { useInstitutions } from "@/hooks/useInstitutions";
 import { Institution } from "@/lib/db/types";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { useInstitutions } from "@/lib/hooks/useInstitutions";
 import { CommandLoading } from "cmdk";
 import { Banknote, Folder, Landmark, Link2, SquarePen } from "lucide-react";
 import Image from "next/image";

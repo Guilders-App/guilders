@@ -1,4 +1,4 @@
-import { useAccounts } from "@/hooks/useAccounts";
+import { useAccounts } from "@/lib/hooks/useAccounts";
 
 export function NetWorthDisplay() {
   const { data: accounts } = useAccounts();

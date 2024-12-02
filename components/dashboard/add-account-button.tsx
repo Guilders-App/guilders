@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useDialog } from "@/hooks/useDialog";
+import { useDialog } from "@/lib/hooks/useDialog";
 import { PlusIcon } from "lucide-react";
 
 export const AddAccountButton = () => {

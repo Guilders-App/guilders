@@ -22,12 +22,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useDialog } from "@/hooks/useDialog";
-import { useToast } from "@/hooks/useToast";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { useToast } from "@/lib/hooks/useToast";
 import {
   useRemoveTransaction,
   useUpdateTransaction,
-} from "@/hooks/useTransactions";
+} from "@/lib/hooks/useTransactions";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash2 } from "lucide-react";
 import { useEffect } from "react";

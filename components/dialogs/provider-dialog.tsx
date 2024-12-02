@@ -6,8 +6,8 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useDialog } from "@/hooks/useDialog";
-import { useToast } from "@/hooks/useToast";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { useToast } from "@/lib/hooks/useToast";
 import { useEffect, useRef } from "react";
 
 export function ProviderDialog() {

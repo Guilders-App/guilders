@@ -3,7 +3,7 @@
 import { TransactionsEmptyPlaceholder } from "@/components/dashboard/transactions/transactions-placeholder";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTransactions } from "@/hooks/useTransactions";
+import { useTransactions } from "@/lib/hooks/useTransactions";
 
 export default function TransactionsPage() {
   const { data: transactions, isLoading, error } = useTransactions();

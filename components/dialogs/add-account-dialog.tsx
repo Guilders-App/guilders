@@ -25,12 +25,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useAddAccount } from "@/hooks/useAccounts";
-import { useCurrencies } from "@/hooks/useCurrencies";
-import { useDialog } from "@/hooks/useDialog";
-import { useToast } from "@/hooks/useToast";
-import { useUser } from "@/hooks/useUser";
 import { accountSubtypeLabels, accountSubtypes } from "@/lib/db/types";
+import { useAddAccount } from "@/lib/hooks/useAccounts";
+import { useCurrencies } from "@/lib/hooks/useCurrencies";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { useToast } from "@/lib/hooks/useToast";
+import { useUser } from "@/lib/hooks/useUser";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";

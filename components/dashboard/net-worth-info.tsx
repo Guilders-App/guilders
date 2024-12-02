@@ -1,7 +1,7 @@
 import { ChangeIndicator } from "@/components/dashboard/change-indicator";
 import { NetWorthChart } from "@/components/dashboard/net-worth-chart";
 import { NetWorthDisplay } from "@/components/dashboard/net-worth-display";
-import { useAccounts } from "@/hooks/useAccounts";
+import { useAccounts } from "@/lib/hooks/useAccounts";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { TimeRangeSelector } from "./time-range-selector";
 

@@ -1,10 +1,10 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAccounts } from "@/hooks/useAccounts";
 import {
   AccountSubtype,
   getCategoryColor,
   getCategoryDisplayName,
 } from "@/lib/db/types";
+import { useAccounts } from "@/lib/hooks/useAccounts";
 import { WalletCards } from "lucide-react";
 import { useMemo } from "react";
 

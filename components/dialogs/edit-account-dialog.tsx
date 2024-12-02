@@ -30,14 +30,17 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useRemoveAccount, useUpdateAccount } from "@/hooks/useAccounts";
-import { useFixConnection, useGetConnections } from "@/hooks/useConnections";
-import { useCurrencies } from "@/hooks/useCurrencies";
-import { useDialog } from "@/hooks/useDialog";
-import { useInstitutionByAccountId } from "@/hooks/useInstitutions";
-import { useProvider } from "@/hooks/useProviders";
-import { useToast } from "@/hooks/useToast";
 import { accountSubtypeLabels, accountSubtypes } from "@/lib/db/types";
+import { useRemoveAccount, useUpdateAccount } from "@/lib/hooks/useAccounts";
+import {
+  useFixConnection,
+  useGetConnections,
+} from "@/lib/hooks/useConnections";
+import { useCurrencies } from "@/lib/hooks/useCurrencies";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { useInstitutionByAccountId } from "@/lib/hooks/useInstitutions";
+import { useProvider } from "@/lib/hooks/useProviders";
+import { useToast } from "@/lib/hooks/useToast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { AlertTriangle, Loader2, Trash2 } from "lucide-react";

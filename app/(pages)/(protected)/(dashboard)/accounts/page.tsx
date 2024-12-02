@@ -3,7 +3,7 @@
 import { AssetsEmptyPlaceholder } from "@/components/dashboard/assets/assets-placeholder";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAccounts } from "@/hooks/useAccounts";
+import { useAccounts } from "@/lib/hooks/useAccounts";
 
 export default function AccountsPage() {
   const { data: accounts, isLoading, error } = useAccounts();

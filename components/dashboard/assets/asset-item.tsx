@@ -4,8 +4,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useDialog } from "@/hooks/useDialog";
 import { Account } from "@/lib/db/types";
+import { useDialog } from "@/lib/hooks/useDialog";
 import {
   Bitcoin,
   CarFront,

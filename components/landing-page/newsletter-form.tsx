@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useSubscribeNewsletter } from "@/hooks/useSubscribeNewsletter";
+import { useSubscribeNewsletter } from "@/lib/hooks/useSubscribeNewsletter";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 

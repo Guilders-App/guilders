@@ -4,8 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useDeregisterUser, useGetConnections } from "@/hooks/useConnections";
-import { useToast } from "@/hooks/useToast";
+import {
+  useDeregisterUser,
+  useGetConnections,
+} from "@/lib/hooks/useConnections";
+import { useToast } from "@/lib/hooks/useToast";
 import { format } from "date-fns";
 import { Loader2, XCircle } from "lucide-react";
 import Image from "next/image";
