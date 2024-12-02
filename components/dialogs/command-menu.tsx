@@ -1,5 +1,6 @@
 "use client";
 
+import { navigationData } from "@/components/nav/app-sidebar";
 import {
   Command,
   CommandEmpty,
@@ -18,15 +19,7 @@ import { useInstitutions } from "@/hooks/useInstitutions";
 import { Institution } from "@/lib/db/types";
 import { useStore } from "@/lib/store";
 import { CommandLoading } from "cmdk";
-import {
-  Banknote,
-  ConciergeBell,
-  Folder,
-  Landmark,
-  LayoutDashboard,
-  Link2,
-  SquarePen,
-} from "lucide-react";
+import { Banknote, Folder, Landmark, Link2, SquarePen } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -135,14 +128,17 @@ export function CommandMenu() {
                   </CommandItem>
                 </CommandGroup>
                 <CommandGroup heading="Navigation">
-                  <CommandItem onSelect={() => handleNavigate("/dashboard")}>
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    Go to Dashboard
-                  </CommandItem>
-                  <CommandItem onSelect={() => handleNavigate("/advisor")}>
-                    <ConciergeBell className="mr-2 h-4 w-4" />
-                    Go to Advisor
-                  </CommandItem>
+                  {[...navigationData.navMain, ...navigationData.navFooter]
+                    .filter((item) => item.url) // Only include items with URLs
+                    .map((item) => (
+                      <CommandItem
+                        key={item.title}
+                        onSelect={() => handleNavigate(item.url!)}
+                      >
+                        {item.icon && <item.icon className="mr-2 h-4 w-4" />}
+                        Go to {item.title}
+                      </CommandItem>
+                    ))}
                 </CommandGroup>
               </>
             )}
