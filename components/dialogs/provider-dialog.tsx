@@ -93,7 +93,6 @@ export function ProviderDialog() {
           src={data.redirectUri}
           className="w-full h-full border-none rounded-lg"
           allow="clipboard-read *; clipboard-write *"
-          credentialless="true"
         />
       </DialogContent>
     </Dialog>
