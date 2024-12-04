@@ -16,8 +16,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Institution } from "@/lib/db/types";
+import { useCountries } from "@/lib/hooks/useCountries";
 import { useDialog } from "@/lib/hooks/useDialog";
 import { useInstitutions } from "@/lib/hooks/useInstitutions";
+import { useProviders } from "@/lib/hooks/useProviders";
 import { CommandLoading } from "cmdk";
 import { Banknote, Folder, Landmark, Link2, SquarePen } from "lucide-react";
 import Image from "next/image";
@@ -30,6 +32,8 @@ export function CommandMenu() {
   const { open: openAddTransaction } = useDialog("addTransaction");
   const { open: openLinkedAccount } = useDialog("addLinkedAccount");
   const { data: institutions, isLoading } = useInstitutions();
+  const { data: providers } = useProviders();
+  const { data: countries } = useCountries();
   const [search, setSearch] = useState("");
   const router = useRouter();
 
@@ -184,14 +188,27 @@ export function CommandMenu() {
                     key={institution.id}
                     onSelect={() => handleAddLinkedAccount(institution)}
                   >
-                    <Image
-                      src={institution.logo_url}
-                      alt={`${institution.name} logo`}
-                      width={24}
-                      height={24}
-                      className="mr-2 rounded-sm"
-                    />
-                    {institution.name}
+                    <div className="flex items-center gap-2">
+                      <Image
+                        src={institution.logo_url}
+                        alt={`${institution.name} logo`}
+                        width={24}
+                        height={24}
+                        className="rounded-sm"
+                      />
+                      <div className="flex flex-col justify-center">
+                        <span className="text-md">{institution.name}</span>
+                        <span className="text-xs text-muted-foreground leading-3">
+                          {countries?.find(
+                            (c) => c.code === institution.countries?.[0]
+                          )?.name ?? "Global"}
+                          •{" "}
+                          {providers?.find(
+                            (p) => p.id === institution.provider_id
+                          )?.name ?? "Unknown Provider"}
+                        </span>
+                      </div>
+                    </div>
                   </CommandItem>
                 ))}
               </>

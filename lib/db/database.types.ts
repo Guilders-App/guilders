@@ -125,6 +125,21 @@ export type Database = {
           },
         ]
       }
+      country: {
+        Row: {
+          code: string
+          name: string
+        }
+        Insert: {
+          code: string
+          name: string
+        }
+        Update: {
+          code?: string
+          name?: string
+        }
+        Relationships: []
+      }
       currency: {
         Row: {
           code: string
