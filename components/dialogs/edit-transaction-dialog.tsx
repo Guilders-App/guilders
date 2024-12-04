@@ -1,5 +1,6 @@
 "use client";
 
+import { DateTimePicker } from "@/components/common/datetime-picker";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -221,13 +222,26 @@ export function EditTransactionDialog() {
               name="date"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Date</FormLabel>
+                  <FormLabel>Date & Time</FormLabel>
                   <FormControl>
-                    <Input
-                      type="datetime-local"
-                      {...field}
-                      disabled={isSyncedTransaction}
-                      step="60"
+                    <DateTimePicker
+                      date={field.value ? new Date(field.value) : undefined}
+                      onDateChange={(date) => {
+                        if (date) {
+                          field.onChange(date.toISOString());
+                        }
+                      }}
+                      onTimeChange={(time) => {
+                        if (field.value) {
+                          const currentDate = new Date(field.value);
+                          const [hours, minutes] = time.split(":");
+                          currentDate.setHours(
+                            parseInt(hours),
+                            parseInt(minutes)
+                          );
+                          field.onChange(currentDate.toISOString());
+                        }
+                      }}
                     />
                   </FormControl>
                   <FormMessage />
