@@ -124,7 +124,7 @@ export async function POST(request: Request) {
     // Verify the account belongs to the user
     const { data: account, error: accountError } = await supabase
       .from("account")
-      .select("id")
+      .select("id, value")
       .eq("id", transactionData.account_id)
       .eq("user_id", user.id)
       .single();
@@ -147,6 +147,25 @@ export async function POST(request: Request) {
       console.error("Supabase error:", error);
       return NextResponse.json(
         { success: false, error: "Error creating transaction" },
+        { status: 500 }
+      );
+    }
+
+    // Update the account value
+    const { error: updateError } = await supabase
+      .from("account")
+      .update({
+        value: account.value + transaction.amount,
+      })
+      .eq("id", transaction.account_id);
+
+    if (updateError) {
+      console.error("Error updating account balance:", updateError);
+      // Rollback the transaction since we couldn't update the balance
+      await supabase.from("transaction").delete().eq("id", transaction.id);
+
+      return NextResponse.json(
+        { success: false, error: "Error updating account balance" },
         { status: 500 }
       );
     }
