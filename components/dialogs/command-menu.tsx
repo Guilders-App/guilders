@@ -27,6 +27,7 @@ import { useEffect, useState } from "react";
 export function CommandMenu() {
   const { isOpen, data, open, close, update } = useDialog("command");
   const { open: openManualAccount } = useDialog("addManualAccount");
+  const { open: openAddTransaction } = useDialog("addTransaction");
   const { open: openLinkedAccount } = useDialog("addLinkedAccount");
   const { data: institutions, isLoading } = useInstitutions();
   const [search, setSearch] = useState("");
@@ -55,6 +56,11 @@ export function CommandMenu() {
     setTimeout(() => openManualAccount(), 40);
   };
 
+  const handleAddTransaction = () => {
+    close();
+    setTimeout(() => openAddTransaction(), 40);
+  };
+
   const handleAddLinkedAccount = (institution: Institution) => {
     close();
     setTimeout(() => openLinkedAccount({ institution }), 40);
@@ -77,10 +83,8 @@ export function CommandMenu() {
     <Dialog
       open={isOpen}
       onOpenChange={(isOpen) => {
-        if (isOpen) {
-          open({ pages: [] });
-        } else {
-          close();
+        if (!isOpen) {
+          setTimeout(() => update({ pages: [] }), 80);
         }
       }}
     >
@@ -130,7 +134,7 @@ export function CommandMenu() {
                     <Landmark className="mr-2 h-4 w-4" />
                     Add Account
                   </CommandItem>
-                  <CommandItem disabled>
+                  <CommandItem onSelect={handleAddTransaction}>
                     <Banknote className="mr-2 h-4 w-4" />
                     Add Transaction
                   </CommandItem>
