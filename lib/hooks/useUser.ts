@@ -1,10 +1,10 @@
 import { createClient } from "@/lib/db/client";
-import { Database } from "@/lib/db/database.types";
+import { Tables } from "@/lib/db/database.types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const queryKey = ["user-settings"] as const;
 
-export type UserSettings = Database["public"]["Tables"]["user_settings"]["Row"];
+export type UserSettings = Tables<"user_settings">;
 
 export function useUser() {
   return useQuery({
@@ -16,16 +16,39 @@ export function useUser() {
         error: authError,
       } = await supabase.auth.getUser();
 
-      if (authError) throw authError;
+      if (authError) {
+        console.error(authError);
+        throw authError;
+      }
       if (!user) throw new Error("No user found");
 
-      const { data: settings, error } = await supabase
+      let settings: UserSettings;
+      const { data: userSettings, error } = await supabase
         .from("user_settings")
         .select("*")
         .eq("user_id", user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        const { data: userSettings, error: insertError } = await supabase
+          .from("user_settings")
+          .insert({
+            user_id: user.id,
+            currency: "EUR",
+          })
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error(insertError);
+          throw insertError;
+        }
+
+        settings = userSettings;
+      } else {
+        settings = userSettings;
+      }
+
       if (!settings) throw new Error("No user settings found");
 
       return {
