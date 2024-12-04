@@ -6,6 +6,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const queryKey = ["transactions"] as const;
+const accountQueryKey = ["accounts"] as const;
 
 type TransactionsResponse = {
   transactions: Transaction[];
@@ -57,6 +58,9 @@ export function useAddTransaction() {
         ...old,
         newTransaction,
       ]);
+
+      // Update the account balance
+      queryClient.invalidateQueries({ queryKey: accountQueryKey });
     },
   });
 }
@@ -85,6 +89,9 @@ export function useUpdateTransaction() {
             : transaction
         )
       );
+
+      // Update the account balance
+      queryClient.invalidateQueries({ queryKey: accountQueryKey });
     },
   });
 }
@@ -103,6 +110,9 @@ export function useRemoveTransaction() {
       queryClient.setQueryData<Transaction[]>(queryKey, (old = []) =>
         old.filter((transaction) => transaction.id !== transactionId)
       );
+
+      // Update the account balance
+      queryClient.invalidateQueries({ queryKey: accountQueryKey });
     },
   });
 }
