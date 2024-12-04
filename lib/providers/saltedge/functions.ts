@@ -11,7 +11,11 @@ export const insertSaltEdgeInstitutions = async () => {
   }
 
   const institutions = (await saltedge.getProviders()).filter(
-    (inst) => inst.supported_iframe_embedding
+    (inst) =>
+      inst.supported_iframe_embedding &&
+      (process.env.NODE_ENV === "development"
+        ? inst.country_code === "XF"
+        : true)
   );
 
   const entries = institutions.map((institution) => ({
@@ -20,7 +24,7 @@ export const insertSaltEdgeInstitutions = async () => {
     name: institution.name,
     logo_url: institution.logo_url,
     countries: [institution.country_code.toLowerCase()],
-    demo: true,
+    demo: institution.country_code === "XF",
   }));
 
   const { error } = await supabase.from("institution").upsert(entries, {
