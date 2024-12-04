@@ -5,11 +5,27 @@ import {
   getCategoryDisplayName,
 } from "@/lib/db/types";
 import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useRates } from "@/lib/hooks/useRates";
+import { useUser } from "@/lib/hooks/useUser";
 import { WalletCards } from "lucide-react";
 import { useMemo } from "react";
 
 export function NetWorthCategories() {
   const { data: accounts, isLoading, isError, error } = useAccounts();
+  const { data: rates } = useRates();
+  const { data: user } = useUser();
+
+  const convertToUserCurrency = (value: number, fromCurrency: string) => {
+    if (!rates || !user) return value;
+    if (fromCurrency === user.currency) return value;
+
+    const fromRate =
+      rates.find((r) => r.currency_code === fromCurrency)?.rate ?? 1;
+    const toRate =
+      rates.find((r) => r.currency_code === user.currency)?.rate ?? 1;
+
+    return (value * fromRate) / toRate;
+  };
 
   const categories = useMemo(() => {
     if (!accounts) return { positive: [], negative: [] };
@@ -26,7 +42,11 @@ export function NetWorthCategories() {
     };
 
     accounts.forEach((account) => {
-      categoryMap[account.subtype] += account.value;
+      const convertedValue = convertToUserCurrency(
+        account.value,
+        account.currency
+      );
+      categoryMap[account.subtype] += convertedValue;
     });
 
     const categoriesArray = Object.entries(categoryMap)
@@ -37,7 +57,7 @@ export function NetWorthCategories() {
       positive: categoriesArray.filter((c) => c.value > 0),
       negative: categoriesArray.filter((c) => c.value < 0),
     };
-  }, [accounts]);
+  }, [accounts, rates, user]);
 
   const { positiveSum, negativeSum } = useMemo(() => {
     return {
