@@ -19,10 +19,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useDialog } from "@/lib/hooks/useDialog";
 import { useToast } from "@/lib/hooks/useToast";
 import {
@@ -36,6 +44,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const formSchema = z.object({
+  accountId: z.number({
+    required_error: "Please select an account",
+  }),
   amount: z
     .string()
     .min(1, "Amount is required.")
@@ -63,10 +74,16 @@ export function EditTransactionDialog() {
     useUpdateTransaction();
   const { mutate: deleteTransaction, isPending: isDeleting } =
     useRemoveTransaction();
+  const { data: accounts } = useAccounts();
+
+  const currentAccount = accounts?.find(
+    (account) => account.id === data?.transaction?.account_id
+  );
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      accountId: data?.transaction?.account_id ?? undefined,
       amount: data?.transaction?.amount.toString() ?? "",
       description: data?.transaction?.description ?? "",
       category: data?.transaction?.category ?? "",
@@ -79,6 +96,7 @@ export function EditTransactionDialog() {
   useEffect(() => {
     if (data?.transaction) {
       form.reset({
+        accountId: data.transaction.account_id,
         amount: data.transaction.amount.toString(),
         description: data.transaction.description,
         category: data.transaction.category,
@@ -95,11 +113,11 @@ export function EditTransactionDialog() {
   const handleSubmit = form.handleSubmit(async (formData) => {
     const updatedTransaction = {
       id: transaction.id,
+      account_id: formData.accountId,
       amount: parseFloat(formData.amount),
       description: formData.description,
       category: formData.category,
       date: formatDateForSubmit(formData.date),
-      account_id: transaction.account_id,
       currency: transaction.currency,
     };
 
@@ -162,6 +180,47 @@ export function EditTransactionDialog() {
                 be edited.
               </div>
             )}
+
+            <FormField
+              control={form.control}
+              name="accountId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Account</FormLabel>
+                  <Select
+                    onValueChange={(value) => field.onChange(parseInt(value))}
+                    defaultValue={field.value?.toString()}
+                    disabled={isSyncedTransaction}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue>
+                          {currentAccount?.name ?? "Select account"}
+                        </SelectValue>
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {accounts?.map((account) => {
+                        const isConnected = !!account.institution_connection_id;
+                        return (
+                          <SelectItem
+                            key={account.id}
+                            value={account.id.toString()}
+                            disabled={
+                              isConnected && account.id !== currentAccount?.id
+                            }
+                          >
+                            {account.name}
+                            {isConnected && " (Connected)"}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

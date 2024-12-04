@@ -106,14 +106,18 @@ export async function POST(request: NextRequest) {
 
 const getAccountsContext = async (user_id: string): Promise<string> => {
   const supabase = await createAdminClient();
-
-  // Get exchange rates using the cached function
   const exchangeRates = await getRates();
 
   const { data: accounts } = await supabase
     .from("account")
     .select("*")
     .eq("user_id", user_id);
+
+  const { data: userSettings } = await supabase
+    .from("user_settings")
+    .select("*")
+    .eq("user_id", user_id)
+    .single();
 
   const { data: transactions } = await supabase
     .from("transaction")
@@ -143,7 +147,7 @@ const getAccountsContext = async (user_id: string): Promise<string> => {
       recentTransactions:
         transactions
           ?.filter((t) => t.account_id === account.id)
-          .slice(0, 5) // Only include 5 most recent transactions per account
+          // .slice(0, 5) // Only include 5 most recent transactions per account
           .map((t) => ({
             date: t.date,
             amount: t.amount,
@@ -152,10 +156,14 @@ const getAccountsContext = async (user_id: string): Promise<string> => {
           })) || [],
     })),
     exchangeRates,
-    primaryCurrency: accounts[0]?.currency || "USD", // Assume first account's currency as primary
+    primaryCurrency: userSettings?.currency || "USD",
   };
 
-  const prompt = `Financial Overview:
+  return generatePrompt(summary);
+};
+
+const generatePrompt = (summary: FinancialSummary) => {
+  return `Financial Overview:
 - Net Worth: ${summary.netWorth} ${summary.primaryCurrency}
 - Number of Accounts: ${summary.accounts.length}
 
@@ -183,7 +191,5 @@ ${acc.recentTransactions
     .join("")}
 
 Use this financial data and exchange rates to provide personalized advice and insights when relevant.
-Consider exchange rates when discussing amounts in different currencies.`;
-
-  return prompt;
+  Consider exchange rates when discussing amounts in different currencies.`;
 };

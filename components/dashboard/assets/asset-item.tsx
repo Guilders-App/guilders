@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/accordion";
 import { Account } from "@/lib/db/types";
 import { useDialog } from "@/lib/hooks/useDialog";
+import NumberFlow from "@number-flow/react";
 import {
   Bitcoin,
   CarFront,
@@ -96,16 +97,19 @@ export function AssetItem({
       </div>
       <div className="flex items-center gap-4">
         <p className="font-medium">
-          $
-          {account.value.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+          <NumberFlow
+            value={account.value}
+            format={{
+              style: "currency",
+              currency: account.currency,
+            }}
+          />
         </p>
         <ChangeIndicator
           change={{
             value: account.cost !== null ? account.value - account.cost : 0,
             percentage: changePercentage,
+            currency: account.currency,
           }}
         />
       </div>

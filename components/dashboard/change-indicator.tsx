@@ -1,10 +1,11 @@
+import NumberFlow from "@number-flow/react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 export function ChangeIndicator({
   change,
   showAbsoluteChange = false,
 }: {
-  change: { value: number; percentage: number };
+  change: { value: number; percentage: number; currency: string };
   showAbsoluteChange?: boolean;
 }) {
   const isPositive = change.value >= 0;
@@ -24,7 +25,18 @@ export function ChangeIndicator({
       ) : (
         <ChevronDown className="mr-0.5" size={16} />
       )}
-      {showAbsoluteChange && `${absValue.toFixed(2)} (`}
+      {showAbsoluteChange && (
+        <>
+          <NumberFlow
+            value={absValue}
+            format={{
+              style: "currency",
+              currency: change.currency,
+            }}
+          />
+          {" ("}
+        </>
+      )}
       {absPercentage.toFixed(2)}%{showAbsoluteChange && ")"}
     </span>
   );

@@ -5,6 +5,7 @@ import { TransactionsEmptyPlaceholder } from "./transactions-placeholder";
 
 export function TransactionsTable() {
   const { data: transactions, isLoading, error } = useTransactions();
+
   return (
     <div className="space-y-4 min-h-[200px]">
       {isLoading ? (
@@ -22,9 +23,11 @@ export function TransactionsTable() {
       ) : transactions.length === 0 ? (
         <TransactionsEmptyPlaceholder />
       ) : (
-        transactions.map((transaction, index) => (
-          <TransactionItem key={index} transaction={transaction} />
-        ))
+        transactions
+          .sort((a, b) => b.date.localeCompare(a.date))
+          .map((transaction) => (
+            <TransactionItem key={transaction.id} transaction={transaction} />
+          ))
       )}
     </div>
   );

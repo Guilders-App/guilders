@@ -1,5 +1,6 @@
 import { Transaction } from "@/lib/db/types";
 import { useDialog } from "@/lib/hooks/useDialog";
+import NumberFlow from "@number-flow/react";
 
 interface TransactionItemProps {
   transaction: Transaction;
@@ -45,7 +46,13 @@ export function TransactionItem({ transaction }: TransactionItemProps) {
                   : "text-gray-900 dark:text-white"
             }`}
           >
-            ${Math.abs(transaction.amount).toFixed(2)}
+            <NumberFlow
+              value={Math.abs(transaction.amount)}
+              format={{
+                style: "currency",
+                currency: transaction.currency,
+              }}
+            />
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400">
             {transaction.description}
