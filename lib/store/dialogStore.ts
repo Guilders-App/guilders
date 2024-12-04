@@ -25,6 +25,9 @@ export type DialogState =
   | {
       type: "editTransaction";
       transaction: Transaction | null;
+    }
+  | {
+      type: "addTransaction";
     };
 
 export type DialogWithState = DialogState & { isOpen: boolean };

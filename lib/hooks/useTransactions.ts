@@ -17,7 +17,7 @@ type SingleTransactionResponse = {
 
 export function useTransactions() {
   return useQuery<Transaction[], Error>({
-    queryKey: [queryKey],
+    queryKey,
     queryFn: async (): Promise<Transaction[]> => {
       const response = await fetch("/api/transactions");
       if (!response.ok) throw new Error("Failed to fetch transactions");
@@ -29,7 +29,7 @@ export function useTransactions() {
 
 export function useTransaction(transactionId: number) {
   return useQuery<Transaction, Error>({
-    queryKey: [queryKey, transactionId],
+    queryKey: [...queryKey, transactionId],
     queryFn: async (): Promise<Transaction> => {
       const response = await fetch(`/api/transactions/${transactionId}`);
       if (!response.ok) throw new Error("Failed to fetch transaction");

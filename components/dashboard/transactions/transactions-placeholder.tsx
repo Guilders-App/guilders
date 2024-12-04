@@ -1,7 +1,10 @@
 import { Button } from "@/components/ui/button";
+import { useDialog } from "@/lib/hooks/useDialog";
 import { ReceiptEuro } from "lucide-react";
 
 export function TransactionsEmptyPlaceholder() {
+  const { open } = useDialog("addTransaction");
+
   return (
     <div className="flex shrink-0 items-center justify-center rounded-md">
       <div className="mx-auto flex flex-col items-center justify-center text-center">
@@ -12,7 +15,7 @@ export function TransactionsEmptyPlaceholder() {
           You have not added any transactions.
         </p>
 
-        <Button size="sm" className="relative">
+        <Button size="sm" className="relative" onClick={() => open()}>
           Add Transaction
         </Button>
       </div>

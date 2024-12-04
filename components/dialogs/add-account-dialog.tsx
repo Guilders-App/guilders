@@ -75,12 +75,14 @@ export function AddAccountDialog() {
       accountType: undefined,
       accountName: "",
       value: "",
-      currency: user?.currency,
+      currency: user?.currency ?? "",
     },
   });
 
   useEffect(() => {
-    form.setValue("currency", user?.currency ?? "");
+    if (user?.currency) {
+      form.setValue("currency", user.currency);
+    }
   }, [user?.currency, form]);
 
   const handleSubmit = form.handleSubmit(async (data) => {

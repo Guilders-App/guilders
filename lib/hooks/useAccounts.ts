@@ -13,7 +13,7 @@ type SingleAccountResponse = {
 
 export function useAccounts() {
   return useQuery<Account[], Error>({
-    queryKey: [queryKey],
+    queryKey,
     queryFn: async (): Promise<Account[]> => {
       const response = await fetch("/api/accounts");
       if (!response.ok) throw new Error("Failed to fetch accounts");
@@ -25,7 +25,7 @@ export function useAccounts() {
 
 export function useAccount(accountId: number) {
   return useQuery<Account, Error>({
-    queryKey: [queryKey, accountId],
+    queryKey: [...queryKey, accountId],
     queryFn: async (): Promise<Account> => {
       const response = await fetch(`/api/accounts/${accountId}`);
       if (!response.ok) throw new Error("Failed to fetch account");

@@ -112,7 +112,7 @@ export function AssetItem({
     </>
   );
 
-  if (account.children.length > 0) {
+  if (account.children?.length > 0) {
     return (
       <Accordion type="multiple" key={account.id}>
         <AccordionItem value={account.id.toString()} className="border-none">
