@@ -9,10 +9,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/lib/hooks/useToast";
 import { useUpdateUserSettings, useUser } from "@/lib/hooks/useUser";
 import { Check, Copy, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export function ApiKeyForm() {
   const { data: user, isLoading } = useUser();
@@ -38,15 +38,12 @@ export function ApiKeyForm() {
 
       await updateUserSettings({ apiKey });
 
-      toast({
-        title: "API Key generated",
+      toast.success("API Key generated", {
         description: "Your API key has been generated successfully.",
       });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to generate API key. Please try again.",
-        variant: "destructive",
+      toast.error("Failed to generate API key", {
+        description: "Please try again.",
       });
     } finally {
       setGenerating(false);
@@ -57,15 +54,12 @@ export function ApiKeyForm() {
     try {
       setDeleting(true);
       await updateUserSettings({ apiKey: null });
-      toast({
-        title: "API Key deleted",
+      toast.success("API Key deleted", {
         description: "Your API key has been deleted successfully.",
       });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete API key. Please try again.",
-        variant: "destructive",
+      toast.error("Failed to delete API key", {
+        description: "Please try again.",
       });
     } finally {
       setDeleting(false);

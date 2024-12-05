@@ -29,12 +29,12 @@ import { accountSubtypeLabels, accountSubtypes } from "@/lib/db/types";
 import { useAddAccount } from "@/lib/hooks/useAccounts";
 import { useCurrencies } from "@/lib/hooks/useCurrencies";
 import { useDialog } from "@/lib/hooks/useDialog";
-import { useToast } from "@/lib/hooks/useToast";
 import { useUser } from "@/lib/hooks/useUser";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -53,7 +53,6 @@ export function AddAccountDialog() {
   const { isOpen, close } = useDialog("addManualAccount");
   const [isLoading, setIsLoading] = useState(false);
   const { data: user } = useUser();
-  const { toast } = useToast();
   const { mutate: addAccount } = useAddAccount();
   const {
     data: currencies,
@@ -62,10 +61,8 @@ export function AddAccountDialog() {
   } = useCurrencies();
 
   if (currenciesError) {
-    toast({
-      title: "Error loading currencies",
+    toast.error("Error loading currencies", {
       description: "Unable to load currency options. Please try again later.",
-      variant: "destructive",
     });
   }
 
@@ -102,13 +99,11 @@ export function AddAccountDialog() {
         currency: data.currency,
       });
 
-      toast({
-        title: "Account added!",
+      toast.success("Account added!", {
         description: "Your account has been added successfully.",
       });
     } catch (error) {
-      toast({
-        title: "Error adding account",
+      toast.error("Error adding account", {
         description:
           "There was an error adding your account. Please try again later.",
       });

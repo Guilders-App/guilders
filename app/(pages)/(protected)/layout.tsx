@@ -3,7 +3,7 @@
 import { Dialogs } from "@/components/dialogs/dialogs";
 import { AppSidebar } from "@/components/nav/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/sonner";
 import { ReactNode } from "react";
 
 const ProtectedLayout = ({ children }: { children: ReactNode }) => {

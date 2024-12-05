@@ -40,12 +40,12 @@ import { useCurrencies } from "@/lib/hooks/useCurrencies";
 import { useDialog } from "@/lib/hooks/useDialog";
 import { useInstitutionByAccountId } from "@/lib/hooks/useInstitutions";
 import { useProvider } from "@/lib/hooks/useProviders";
-import { useToast } from "@/lib/hooks/useToast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const detailsSchema = z.object({
@@ -82,7 +82,6 @@ type FormSchema = z.infer<typeof formSchema>;
 export function EditAccountDialog() {
   const { isOpen, data, close } = useDialog("editAccount");
   const { open: openProviderDialog } = useDialog("provider");
-  const { toast } = useToast();
   const { data: connections } = useGetConnections();
   const institution = useInstitutionByAccountId(data?.account?.id);
   const connection = connections?.find(
@@ -147,8 +146,7 @@ export function EditAccountDialog() {
       });
     } else {
       close();
-      toast({
-        title: "Failed to fix connection",
+      toast.error("Failed to fix connection", {
         description: "Unable to fix connection. Please try again later.",
       });
     }
@@ -169,18 +167,15 @@ export function EditAccountDialog() {
 
     updateAccount(updatedAccount, {
       onSuccess: () => {
-        toast({
-          title: "Account updated",
+        toast.success("Account updated", {
           description: "Your account has been updated successfully.",
         });
         close();
       },
       onError: (error) => {
-        toast({
-          title: "Error updating account",
+        toast.error("Error updating account", {
           description:
             "There was an error updating your account. Please try again.",
-          variant: "destructive",
         });
         console.error("Error updating account:", error);
       },
@@ -190,18 +185,15 @@ export function EditAccountDialog() {
   const handleDelete = async () => {
     removeAccount(account.id, {
       onSuccess: () => {
-        toast({
-          title: "Account deleted",
+        toast.success("Account deleted", {
           description: "Your account has been deleted successfully.",
         });
         close();
       },
       onError: (error) => {
-        toast({
-          title: "Error deleting account",
+        toast.error("Error deleting account", {
           description:
             "There was an error deleting your account. Please try again.",
-          variant: "destructive",
         });
         console.error("Error deleting account:", error);
       },

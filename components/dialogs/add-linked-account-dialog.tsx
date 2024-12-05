@@ -11,16 +11,15 @@ import {
 import { useCreateConnection } from "@/lib/hooks/useConnections";
 import { useDialog } from "@/lib/hooks/useDialog";
 import { useProvider } from "@/lib/hooks/useProviders";
-import { useToast } from "@/lib/hooks/useToast";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
 
 export function AddLinkedAccountDialog() {
   const { isOpen, data, close } = useDialog("addLinkedAccount");
   const { open: openProviderDialog } = useDialog("provider");
   const { data: provider } = useProvider(data?.institution?.provider_id);
   const { mutateAsync: createConnection, isPending } = useCreateConnection();
-  const { toast } = useToast();
 
   if (!isOpen || !provider || !data?.institution) return null;
   const { institution } = data;
@@ -39,8 +38,7 @@ export function AddLinkedAccountDialog() {
       });
     } else {
       close();
-      toast({
-        title: "Failed to create connection",
+      toast.error("Failed to create connection", {
         description: "Unable to create connection. Please try again later.",
       });
     }

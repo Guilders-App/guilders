@@ -7,12 +7,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useDialog } from "@/lib/hooks/useDialog";
-import { useToast } from "@/lib/hooks/useToast";
 import { useEffect, useRef } from "react";
+import { toast } from "sonner";
 
 export function ProviderDialog() {
   const { isOpen, data, close } = useDialog("provider");
-  const { toast } = useToast();
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const successToast = {
@@ -43,10 +42,14 @@ export function ProviderDialog() {
           const data = e.data;
           if (data.status === "SUCCESS") {
             close();
-            toast(successToast);
+            toast.success(successToast.title, {
+              description: successToast.description,
+            });
           }
           if (data.status === "ERROR") {
-            toast(errorToast);
+            toast.error(errorToast.title, {
+              description: errorToast.description,
+            });
             close();
           }
           if (
@@ -63,9 +66,13 @@ export function ProviderDialog() {
 
         if (messageData.stage === "success") {
           close();
-          toast(successToast);
+          toast.success(successToast.title, {
+            description: successToast.description,
+          });
         } else if (messageData.stage === "error") {
-          toast(errorToast);
+          toast.error(errorToast.title, {
+            description: errorToast.description,
+          });
           close();
         }
       }

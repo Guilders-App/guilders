@@ -15,8 +15,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/lib/hooks/useToast";
 import { useUpdateUserSettings } from "@/lib/hooks/useUser";
+import { toast } from "sonner";
 
 const securityFormSchema = z
   .object({
@@ -59,16 +59,12 @@ export function SecurityForm() {
         confirmPassword: "",
       });
 
-      toast({
-        title: "Password updated",
+      toast.success("Password updated", {
         description: "Your password has been updated successfully.",
       });
     } catch (error) {
-      console.error("Failed to update password:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update password. Please try again.",
-        variant: "destructive",
+      toast.error("Failed to update password", {
+        description: "Please try again.",
       });
     }
   }

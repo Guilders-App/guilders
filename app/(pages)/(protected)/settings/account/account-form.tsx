@@ -35,7 +35,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCurrencies } from "@/lib/hooks/useCurrencies";
-import { toast } from "@/lib/hooks/useToast";
 import {
   useDeleteAccount,
   useUpdateUserSettings,
@@ -43,6 +42,7 @@ import {
 } from "@/lib/hooks/useUser";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const accountFormSchema = z.object({
   email: z.string().email(),
@@ -105,11 +105,8 @@ export function AccountForm() {
       await deleteAccount();
       router.push("/");
     } catch (error) {
-      toast({
-        title: "Error deleting account",
-        description:
-          "Something went wrong. Please contact support for assistance.",
-        variant: "destructive",
+      toast.error("Error deleting account", {
+        description: "Something went wrong. Please contact us for support.",
       });
       setIsDeletingAccount(false);
     }
@@ -142,21 +139,17 @@ export function AccountForm() {
       await updateUserSettings({ email: data.email, currency: data.currency });
 
       if (data.email !== user?.email) {
-        toast({
-          title: "Email verification sent",
+        toast.success("Email verification sent", {
           description: "Please check your email for a verification link.",
         });
       } else {
-        toast({
-          title: "Account updated",
+        toast.success("Account updated", {
           description: "Your account has been updated successfully.",
         });
       }
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update account. Please try again.",
-        variant: "destructive",
+      toast.error("Failed to update account", {
+        description: "Please try again.",
       });
     }
   }

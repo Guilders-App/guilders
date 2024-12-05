@@ -29,13 +29,13 @@ import {
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useCurrencies } from "@/lib/hooks/useCurrencies";
 import { useDialog } from "@/lib/hooks/useDialog";
-import { useToast } from "@/lib/hooks/useToast";
 import { useAddTransaction } from "@/lib/hooks/useTransactions";
 import { useUser } from "@/lib/hooks/useUser";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -56,9 +56,7 @@ type FormSchema = z.infer<typeof formSchema>;
 
 export function AddTransactionDialog() {
   const { isOpen, close } = useDialog("addTransaction");
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  const { mutate: addTransaction } = useAddTransaction();
+  const { mutate: addTransaction, isPending } = useAddTransaction();
   const { data: accounts } = useAccounts();
   const { data: currencies } = useCurrencies();
   const { data: user } = useUser();
@@ -101,8 +99,6 @@ export function AddTransactionDialog() {
   }, [isOpen, form]);
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    setIsLoading(true);
-
     try {
       await addTransaction({
         account_id: data.accountId,
@@ -113,21 +109,16 @@ export function AddTransactionDialog() {
         date: new Date(data.date).toISOString(),
       });
 
-      toast({
-        title: "Transaction added!",
+      toast.success("Transaction added!", {
         description: "Your transaction has been added successfully.",
       });
       close();
     } catch (error) {
-      toast({
-        title: "Error adding transaction",
+      toast.error("Error adding transaction", {
         description:
           "There was an error adding your transaction. Please try again.",
-        variant: "destructive",
       });
       console.error("Error adding transaction:", error);
-    } finally {
-      setIsLoading(false);
     }
   });
 
@@ -276,8 +267,8 @@ export function AddTransactionDialog() {
             />
 
             <DialogFooter>
-              <Button type="submit" disabled={isLoading} className="w-full">
-                {isLoading ? (
+              <Button type="submit" disabled={isPending} className="w-full">
+                {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Adding...

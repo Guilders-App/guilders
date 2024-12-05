@@ -8,11 +8,11 @@ import {
   useDeregisterUser,
   useGetConnections,
 } from "@/lib/hooks/useConnections";
-import { useToast } from "@/lib/hooks/useToast";
 import { format } from "date-fns";
 import { Loader2, XCircle } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function ConnectionsPage() {
   const {
@@ -21,7 +21,6 @@ export default function ConnectionsPage() {
     isError,
     refetch,
   } = useGetConnections();
-  const { toast } = useToast();
   const { mutate: deregisterConnection } = useDeregisterUser();
   const [deregisteringId, setDeregisteringId] = useState<number | null>(null);
   const [removedIds, setRemovedIds] = useState<number[]>([]);
@@ -119,10 +118,8 @@ export default function ConnectionsPage() {
                           },
                           onError: () => {
                             setDeregisteringId(null);
-                            toast({
-                              title: "Failed to remove connection",
+                            toast.error("Failed to remove connection", {
                               description: "Please try again later.",
-                              variant: "destructive",
                             });
                           },
                         });

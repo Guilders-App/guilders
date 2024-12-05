@@ -32,7 +32,6 @@ import {
 } from "@/components/ui/tooltip";
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useDialog } from "@/lib/hooks/useDialog";
-import { useToast } from "@/lib/hooks/useToast";
 import {
   useRemoveTransaction,
   useUpdateTransaction,
@@ -41,6 +40,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -69,7 +69,6 @@ function formatDateForSubmit(dateString: string) {
 
 export function EditTransactionDialog() {
   const { isOpen, data, close } = useDialog("editTransaction");
-  const { toast } = useToast();
   const { mutate: updateTransaction, isPending: isUpdating } =
     useUpdateTransaction();
   const { mutate: deleteTransaction, isPending: isDeleting } =
@@ -123,18 +122,15 @@ export function EditTransactionDialog() {
 
     updateTransaction(updatedTransaction, {
       onSuccess: () => {
-        toast({
-          title: "Transaction updated",
+        toast.success("Transaction updated", {
           description: "Your transaction has been updated successfully.",
         });
         close();
       },
       onError: (error) => {
-        toast({
-          title: "Error updating transaction",
+        toast.error("Error updating transaction", {
           description:
             "There was an error updating your transaction. Please try again.",
-          variant: "destructive",
         });
         console.error("Error updating transaction:", error);
       },
@@ -144,18 +140,15 @@ export function EditTransactionDialog() {
   const handleDelete = async () => {
     deleteTransaction(transaction.id, {
       onSuccess: () => {
-        toast({
-          title: "Transaction deleted",
+        toast.success("Transaction deleted", {
           description: "Your transaction has been deleted successfully.",
         });
         close();
       },
       onError: (error) => {
-        toast({
-          title: "Error deleting transaction",
+        toast.error("Error deleting transaction", {
           description:
             "There was an error deleting your transaction. Please try again.",
-          variant: "destructive",
         });
         console.error("Error deleting transaction:", error);
       },
