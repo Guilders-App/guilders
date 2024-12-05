@@ -85,6 +85,12 @@ export function AddAccountDialog() {
     }
   }, [user?.currency, form]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      form.reset();
+    }
+  }, [isOpen, form]);
+
   const handleSubmit = form.handleSubmit(async (data) => {
     setIsLoading(true);
 

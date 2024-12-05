@@ -13,7 +13,7 @@ export function AssetsTable() {
   };
 
   return (
-    <div className="space-y-2 min-h-[200px]">
+    <div className="space-y-2">
       {isLoading ? (
         <div className="space-y-2">
           {[...Array(4)].map((_, index) => (

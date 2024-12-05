@@ -4,14 +4,14 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { AssetsTable } from "./assets-table";
+import { TransactionsTable } from "./transactions-table";
 
-export function AssetsCard({ className }: { className?: string }) {
+export function TransactionsCard({ className }: { className?: string }) {
   return (
     <Card className={cn("flex flex-col", className)}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <CardTitle>Assets</CardTitle>
-        <Link href="/accounts">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 flex-shrink-0">
+        <CardTitle>Transactions</CardTitle>
+        <Link href="/transactions">
           <Button variant="secondary">
             View All
             <ArrowRight className="ml-2 h-4 w-4" />
@@ -20,7 +20,7 @@ export function AssetsCard({ className }: { className?: string }) {
       </CardHeader>
       <CardContent className="flex-1 min-h-0">
         <ScrollArea className="h-full w-full">
-          <AssetsTable />
+          <TransactionsTable />
           <ScrollBar orientation="vertical" />
         </ScrollArea>
       </CardContent>

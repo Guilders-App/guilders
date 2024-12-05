@@ -6,7 +6,7 @@ export function AssetsEmptyPlaceholder() {
   const { open } = useDialog("addManualAccount");
 
   return (
-    <div className="flex shrink-0 items-center justify-center rounded-md">
+    <div className="flex shrink-0 items-center justify-center rounded-md p-4">
       <div className="mx-auto flex flex-col items-center justify-center text-center">
         <BadgeEuro className="h-10 w-10 text-muted-foreground" />
 
