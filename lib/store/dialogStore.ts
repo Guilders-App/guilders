@@ -56,9 +56,7 @@ export const createDialogStore: StateSlice<DialogsState & DialogActions> = (
     })),
   closeDialog: (type) =>
     set((state) => ({
-      dialogs: state.dialogs.map((d) =>
-        d.type === type ? { ...d, isOpen: false } : d
-      ),
+      dialogs: state.dialogs.filter((d) => d.type !== type),
     })),
   updateDialog: (dialog) =>
     set((state) => ({

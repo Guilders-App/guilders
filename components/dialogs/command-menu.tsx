@@ -97,15 +97,17 @@ export function CommandMenu() {
     );
   });
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      close();
+      setSearch("");
+      // Reset pages after a short delay to allow for closing animation
+      setTimeout(() => update({ pages: [] }), 80);
+    }
+  };
+
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(isOpen) => {
-        if (!isOpen) {
-          setTimeout(() => update({ pages: [] }), 80);
-        }
-      }}
-    >
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTitle className="hidden">Command Menu</DialogTitle>
       <DialogContent
         onEscapeKeyDown={(e) => {
