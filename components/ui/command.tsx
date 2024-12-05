@@ -35,7 +35,7 @@ const CommandDialog = ({
   return (
     <Dialog {...props}>
       <DialogContent
-        className="overflow-hidden p-0 shadow-lg"
+        className="overflow-hidden p-0 shadow-lg top-[33%]"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}
