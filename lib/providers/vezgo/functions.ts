@@ -26,7 +26,7 @@ export const insertVezgoInstitutions = async () => {
       name: institution.display_name!,
       logo_url: institution.logo!,
       enabled: true,
-      countries: [],
+      country: null,
     }));
 
   const { error } = await supabase.from("institution").upsert(entries, {

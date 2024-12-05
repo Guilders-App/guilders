@@ -30,7 +30,7 @@ export const insertSnapTradeInstitutions = async () => {
       name: institution.name!,
       logo_url: institution.aws_s3_square_logo_url!,
       enabled: institution.enabled!,
-      countries: [],
+      country: null,
     }));
 
   const { error } = await supabase.from("institution").upsert(entries, {

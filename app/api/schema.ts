@@ -57,10 +57,8 @@
  *           type: string
  *         name:
  *           type: string
- *         countries:
- *           type: array
- *           items:
- *             type: string
+ *         country:
+ *           type: string
  *         enabled:
  *           type: boolean
  *         logo_url:

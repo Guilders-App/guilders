@@ -14,7 +14,7 @@ export const insertSaltEdgeInstitutions = async () => {
     (inst) =>
       inst.supported_iframe_embedding &&
       (process.env.NODE_ENV === "development"
-        ? inst.country_code === "XF"
+        ? !["XF", "XO"].includes(inst.country_code)
         : true)
   );
 
@@ -23,8 +23,10 @@ export const insertSaltEdgeInstitutions = async () => {
     provider_institution_id: institution.code,
     name: institution.name,
     logo_url: institution.logo_url,
-    countries: [institution.country_code.toLowerCase()],
-    demo: institution.country_code === "XF",
+    country: !["XF", "XO"].includes(institution.country_code)
+      ? institution.country_code
+      : null,
+    demo: ["XF", "XO"].includes(institution.country_code),
   }));
 
   const { error } = await supabase.from("institution").upsert(entries, {

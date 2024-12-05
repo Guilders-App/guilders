@@ -21,7 +21,7 @@ import { useDialog } from "@/lib/hooks/useDialog";
 import { useInstitutions } from "@/lib/hooks/useInstitutions";
 import { useProviders } from "@/lib/hooks/useProviders";
 import { CommandLoading } from "cmdk";
-import { Banknote, Folder, Landmark, Link2, SquarePen } from "lucide-react";
+import { Banknote, Landmark, Link2, SquarePen } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -142,10 +142,6 @@ export function CommandMenu() {
                     <Banknote className="mr-2 h-4 w-4" />
                     Add Transaction
                   </CommandItem>
-                  <CommandItem disabled>
-                    <Folder className="mr-2 h-4 w-4" />
-                    Add Category
-                  </CommandItem>
                 </CommandGroup>
                 <CommandGroup heading="Navigation">
                   {[...navigationData.navMain, ...navigationData.navFooter]
@@ -199,9 +195,11 @@ export function CommandMenu() {
                       <div className="flex flex-col justify-center">
                         <span className="text-md">{institution.name}</span>
                         <span className="text-xs text-muted-foreground leading-3">
-                          {countries?.find(
-                            (c) => c.code === institution.countries?.[0]
-                          )?.name ?? "Global"}
+                          {institution.country
+                            ? countries?.find(
+                                (c) => c.code === institution.country
+                              )?.name
+                            : "Global"}{" "}
                           •{" "}
                           {providers?.find(
                             (p) => p.id === institution.provider_id

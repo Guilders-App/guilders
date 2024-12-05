@@ -160,7 +160,7 @@ export type Database = {
       }
       institution: {
         Row: {
-          countries: string[] | null
+          country: string | null
           demo: boolean
           enabled: boolean
           id: number
@@ -170,7 +170,7 @@ export type Database = {
           provider_institution_id: string
         }
         Insert: {
-          countries?: string[] | null
+          country?: string | null
           demo?: boolean
           enabled?: boolean
           id?: number
@@ -180,7 +180,7 @@ export type Database = {
           provider_institution_id: string
         }
         Update: {
-          countries?: string[] | null
+          country?: string | null
           demo?: boolean
           enabled?: boolean
           id?: number
@@ -190,6 +190,13 @@ export type Database = {
           provider_institution_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "institution_country_fkey"
+            columns: ["country"]
+            isOneToOne: false
+            referencedRelation: "country"
+            referencedColumns: ["code"]
+          },
           {
             foreignKeyName: "institution_provider_id_fkey"
             columns: ["provider_id"]
