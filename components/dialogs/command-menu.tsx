@@ -2,19 +2,13 @@
 
 import { navigationData } from "@/components/nav/app-sidebar";
 import {
-  Command,
+  CommandDialog,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Institution } from "@/lib/db/types";
 import { useCountries } from "@/lib/hooks/useCountries";
 import { useDialog } from "@/lib/hooks/useDialog";
@@ -106,130 +100,122 @@ export function CommandMenu() {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    // Handle backspace when search is empty
+    if (e.key === "Backspace" && !search) {
+      e.preventDefault();
+      if (pages.length > 0) {
+        update({
+          pages: pages.slice(0, -1),
+        });
+      }
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      if (pages.length > 0) {
+        setSearch("");
+        update({
+          pages: pages.slice(0, -1),
+        });
+      } else {
+        setSearch("");
+        close();
+      }
+    }
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTitle className="hidden">Command Menu</DialogTitle>
-      <DialogContent
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
-          if (pages.length > 0) {
-            setSearch("");
-            update({
-              pages: pages.slice(0, -1),
-            });
-          } else {
-            setSearch("");
-            close();
-          }
-        }}
-        className="overflow-hidden p-0 shadow-lg"
-      >
-        <DialogDescription className="hidden">
-          Search for a command or search...
-        </DialogDescription>
-        <Command
-          onKeyDown={(e) => {
-            if (e.key === "Backspace" && !search) {
-              e.preventDefault();
-              if (pages.length > 0) {
-                update({
-                  pages: pages.slice(0, -1),
-                });
-              }
-            }
-          }}
-          className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5"
-        >
-          <CommandInput
-            value={search}
-            onValueChange={setSearch}
-            placeholder="Type a command or search..."
-          />
-          <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            {!currentPage && (
-              <>
-                <CommandGroup heading="Manage Data">
-                  <CommandItem onSelect={() => changePage("add-account")}>
-                    <Landmark className="mr-2 h-4 w-4" />
-                    Add Account
-                  </CommandItem>
-                  <CommandItem onSelect={handleAddTransaction}>
-                    <Banknote className="mr-2 h-4 w-4" />
-                    Add Transaction
-                  </CommandItem>
-                </CommandGroup>
-                <CommandGroup heading="Navigation">
-                  {[...navigationData.navMain, ...navigationData.navFooter]
-                    .filter((item) => item.url)
-                    .map((item) => (
-                      <CommandItem
-                        key={item.title}
-                        onSelect={() => handleNavigate(item.url!)}
-                      >
-                        {item.icon && <item.icon className="mr-2 h-4 w-4" />}
-                        Go to {item.title}
-                      </CommandItem>
-                    ))}
-                </CommandGroup>
-              </>
-            )}
-            {currentPage === "add-account" && (
-              <>
-                <CommandGroup>
-                  <CommandItem onSelect={handleAddAccount}>
-                    <SquarePen className="mr-2 h-4 w-4" />
-                    Add Manual Account
-                  </CommandItem>
+    <CommandDialog
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+      commandProps={{
+        onKeyDown: handleKeyDown,
+      }}
+    >
+      <CommandInput
+        value={search}
+        onValueChange={setSearch}
+        placeholder="Type a command or search..."
+      />
+      <CommandList>
+        <CommandEmpty>No results found.</CommandEmpty>
+        {!currentPage && (
+          <>
+            <CommandGroup heading="Manage Data">
+              <CommandItem onSelect={() => changePage("add-account")}>
+                <Landmark className="mr-2 h-4 w-4" />
+                Add Account
+              </CommandItem>
+              <CommandItem onSelect={handleAddTransaction}>
+                <Banknote className="mr-2 h-4 w-4" />
+                Add Transaction
+              </CommandItem>
+            </CommandGroup>
+            <CommandGroup heading="Navigation">
+              {[...navigationData.navMain, ...navigationData.navFooter]
+                .filter((item) => item.url)
+                .map((item) => (
                   <CommandItem
-                    onSelect={() => changePage("add-synced-account")}
+                    key={item.title}
+                    onSelect={() => handleNavigate(item.url!)}
                   >
-                    <Link2 className="mr-2 h-4 w-4" />
-                    Add Synced Account
-                  </CommandItem>
-                </CommandGroup>
-              </>
-            )}
-            {currentPage === "add-synced-account" && (
-              <>
-                {isLoading && (
-                  <CommandLoading>Loading institutions...</CommandLoading>
-                )}
-                {filteredInstitutions?.map((institution) => (
-                  <CommandItem
-                    key={institution.id}
-                    onSelect={() => handleAddLinkedAccount(institution)}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src={institution.logo_url}
-                        alt={`${institution.name} logo`}
-                        width={24}
-                        height={24}
-                        className="rounded-sm"
-                      />
-                      <div className="flex flex-col justify-center">
-                        <span className="text-md">{institution.name}</span>
-                        <span className="text-xs text-muted-foreground leading-3">
-                          {institution.country
-                            ? countriesData?.countriesMap.get(
-                                institution.country
-                              ) || "Global"
-                            : "Global"}{" "}
-                          •{" "}
-                          {providers?.find(
-                            (p) => p.id === institution.provider_id
-                          )?.name ?? "Unknown Provider"}
-                        </span>
-                      </div>
-                    </div>
+                    {item.icon && <item.icon className="mr-2 h-4 w-4" />}
+                    Go to {item.title}
                   </CommandItem>
                 ))}
-              </>
+            </CommandGroup>
+          </>
+        )}
+        {currentPage === "add-account" && (
+          <>
+            <CommandGroup>
+              <CommandItem onSelect={handleAddAccount}>
+                <SquarePen className="mr-2 h-4 w-4" />
+                Add Manual Account
+              </CommandItem>
+              <CommandItem onSelect={() => changePage("add-synced-account")}>
+                <Link2 className="mr-2 h-4 w-4" />
+                Add Synced Account
+              </CommandItem>
+            </CommandGroup>
+          </>
+        )}
+        {currentPage === "add-synced-account" && (
+          <>
+            {isLoading && (
+              <CommandLoading>Loading institutions...</CommandLoading>
             )}
-          </CommandList>
-        </Command>
-      </DialogContent>
-    </Dialog>
+            {filteredInstitutions?.map((institution) => (
+              <CommandItem
+                key={institution.id}
+                onSelect={() => handleAddLinkedAccount(institution)}
+              >
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={institution.logo_url}
+                    alt={`${institution.name} logo`}
+                    width={24}
+                    height={24}
+                    className="rounded-sm"
+                  />
+                  <div className="flex flex-col justify-center">
+                    <span className="text-md">{institution.name}</span>
+                    <span className="text-xs text-muted-foreground leading-3">
+                      {institution.country
+                        ? countriesData?.countriesMap.get(
+                            institution.country
+                          ) || "Global"
+                        : "Global"}{" "}
+                      •{" "}
+                      {providers?.find((p) => p.id === institution.provider_id)
+                        ?.name ?? "Unknown Provider"}
+                    </span>
+                  </div>
+                </div>
+              </CommandItem>
+            ))}
+          </>
+        )}
+      </CommandList>
+    </CommandDialog>
   );
 }
