@@ -33,7 +33,7 @@ export function CommandMenu() {
   const { open: openLinkedAccount } = useDialog("addLinkedAccount");
   const { data: institutions, isLoading } = useInstitutions();
   const { data: providers } = useProviders();
-  const { data: countries } = useCountries();
+  const { data: countriesData } = useCountries();
   const [search, setSearch] = useState("");
   const router = useRouter();
 
@@ -82,6 +82,20 @@ export function CommandMenu() {
   };
 
   const currentPage = pages[pages.length - 1];
+
+  const filteredInstitutions = institutions?.filter((institution) => {
+    if (!search) return true;
+
+    const searchLower = search.toLowerCase();
+    const countryName = institution.country
+      ? countriesData?.countriesMap.get(institution.country) || "Global"
+      : "Global";
+
+    return (
+      institution.name.toLowerCase().includes(searchLower) ||
+      countryName.toLowerCase().includes(searchLower)
+    );
+  });
 
   return (
     <Dialog
@@ -179,7 +193,7 @@ export function CommandMenu() {
                 {isLoading && (
                   <CommandLoading>Loading institutions...</CommandLoading>
                 )}
-                {institutions?.map((institution) => (
+                {filteredInstitutions?.map((institution) => (
                   <CommandItem
                     key={institution.id}
                     onSelect={() => handleAddLinkedAccount(institution)}
@@ -196,9 +210,9 @@ export function CommandMenu() {
                         <span className="text-md">{institution.name}</span>
                         <span className="text-xs text-muted-foreground leading-3">
                           {institution.country
-                            ? countries?.find(
-                                (c) => c.code === institution.country
-                              )?.name
+                            ? countriesData?.countriesMap.get(
+                                institution.country
+                              ) || "Global"
                             : "Global"}{" "}
                           •{" "}
                           {providers?.find(
