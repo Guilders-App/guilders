@@ -26,7 +26,7 @@ export function SearchBar() {
       <span className="hidden xl:inline-flex">Search...</span>
       <div className="hidden xl:inline-flex items-center gap-1 rounded-sm bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground ml-auto">
         <Command className="h-3 w-3" />
-        <span className="text-xs">K</span>
+        <span className="text-sm">K</span>
       </div>
     </Button>
   );
