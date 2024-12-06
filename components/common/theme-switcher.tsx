@@ -13,7 +13,11 @@ const ThemeSwitcher = () => {
   }, []);
 
   if (!mounted) {
-    return null;
+    return (
+      <div className="hidden xl:block">
+        <div className="h-8 w-[96px] rounded-full border bg-background/50 animate-pulse" />
+      </div>
+    );
   }
 
   const options = [
