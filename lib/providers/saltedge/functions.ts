@@ -14,8 +14,8 @@ export const insertSaltEdgeInstitutions = async () => {
     (inst) =>
       inst.supported_iframe_embedding &&
       (process.env.NODE_ENV === "development"
-        ? !["XF", "XO"].includes(inst.country_code)
-        : true)
+        ? ["XF", "XO"].includes(inst.country_code)
+        : !["XF", "XO"].includes(inst.country_code))
   );
 
   const entries = institutions.map((institution) => ({

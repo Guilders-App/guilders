@@ -28,6 +28,16 @@ export type DialogState =
     }
   | {
       type: "addTransaction";
+    }
+  | {
+      type: "confirmation";
+      title?: string;
+      description?: string;
+      confirmText?: string;
+      cancelText?: string;
+      variant?: "default" | "destructive";
+      isLoading?: boolean;
+      onConfirm: () => void;
     };
 
 export type DialogWithState = DialogState & { isOpen: boolean };

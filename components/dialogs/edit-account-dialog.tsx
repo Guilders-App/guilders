@@ -25,13 +25,8 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { accountSubtypeLabels, accountSubtypes } from "@/lib/db/types";
-import { useRemoveAccount, useUpdateAccount } from "@/lib/hooks/useAccounts";
+import { useUpdateAccount } from "@/lib/hooks/useAccounts";
 import {
   useFixConnection,
   useGetConnections,
@@ -42,7 +37,7 @@ import { useInstitutionByAccountId } from "@/lib/hooks/useInstitutions";
 import { useProvider } from "@/lib/hooks/useProviders";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogDescription } from "@radix-ui/react-dialog";
-import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -91,7 +86,6 @@ export function EditAccountDialog() {
   const { data: currencies } = useCurrencies();
 
   const { mutate: updateAccount, isPending: isUpdating } = useUpdateAccount();
-  const { mutate: removeAccount, isPending: isDeleting } = useRemoveAccount();
   const { mutateAsync: fixConnection, isPending: isFixing } =
     useFixConnection();
 
@@ -182,24 +176,6 @@ export function EditAccountDialog() {
     });
   });
 
-  const handleDelete = async () => {
-    removeAccount(account.id, {
-      onSuccess: () => {
-        toast.success("Account deleted", {
-          description: "Your account has been deleted successfully.",
-        });
-        close();
-      },
-      onError: (error) => {
-        toast.error("Error deleting account", {
-          description:
-            "There was an error deleting your account. Please try again.",
-        });
-        console.error("Error deleting account:", error);
-      },
-    });
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={close}>
       <DialogContent className="sm:max-w-[600px]">
@@ -227,7 +203,7 @@ export function EditAccountDialog() {
                     fields cannot be edited.
                   </div>
                 )}
-                {account.broken && (
+                {account.institution_connection?.broken && (
                   <div className="flex flex-col gap-2">
                     <div className="text-sm text-yellow-500 bg-yellow-500/10 p-3 rounded-md flex items-center gap-2">
                       <div className="flex items-center gap-2">
@@ -349,45 +325,6 @@ export function EditAccountDialog() {
                     </FormItem>
                   )}
                 />
-
-                <div className="pt-4 border-t space-y-2">
-                  <p className="text-sm font-medium">Danger Zone</p>
-                  <p className="text-sm text-muted-foreground">
-                    Deleting this account will permanently remove it and all
-                    associated data. This action cannot be undone.
-                  </p>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="sm"
-                          onClick={handleDelete}
-                          disabled={isDeleting || isSyncedAccount}
-                        >
-                          {isDeleting ? (
-                            <>
-                              <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                              Deleting...
-                            </>
-                          ) : (
-                            <>
-                              <Trash2 className="mr-2 h-3 w-3" />
-                              Delete Account
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </TooltipTrigger>
-                    {isSyncedAccount && (
-                      <TooltipContent>
-                        Synced accounts cannot be deleted. Remove the connection
-                        instead.
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </div>
               </TabsContent>
 
               <TabsContent value="tax" className="space-y-4">
@@ -496,11 +433,7 @@ export function EditAccountDialog() {
             </Tabs>
 
             <div className="mt-4">
-              <Button
-                type="submit"
-                disabled={isUpdating || isDeleting}
-                className="w-full"
-              >
+              <Button type="submit" disabled={isUpdating} className="w-full">
                 {isUpdating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

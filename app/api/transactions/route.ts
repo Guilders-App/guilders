@@ -37,6 +37,9 @@ export async function GET(request: Request) {
   try {
     const supabase = await createClient();
     const jwt = getJwt(request);
+    const { searchParams } = new URL(request.url);
+    const accountId = searchParams.get("accountId");
+
     const {
       data: { user },
     } = await supabase.auth.getUser(jwt);
@@ -48,10 +51,18 @@ export async function GET(request: Request) {
       );
     }
 
-    const { data: transactions, error } = await supabase
+    let query = supabase
       .from("transaction")
       .select(`*, account:account_id(user_id)`)
-      .eq("account.user_id", user.id)
+      .eq("account.user_id", user.id);
+
+    // Add account filter if accountId is provided
+    if (accountId) {
+      query = query.eq("account_id", accountId);
+    }
+
+    const { data: transactions, error } = await query
+      .order("date", { ascending: false })
       .returns<Tables<"transaction">[]>();
 
     if (error) {

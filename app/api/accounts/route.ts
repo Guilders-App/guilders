@@ -141,21 +141,21 @@ export async function GET(request: Request) {
       );
     }
 
-    // Fetch all accounts for the user
     const { data: allAccounts, error } = await supabase
       .from("account")
       .select(
         `
         *,
         institution_connection (
-          broken
+          broken,
+          institution (
+            name,
+            logo_url
+          )
         )
       `
       )
-      .eq("user_id", user.id)
-      .returns<
-        (Account & { institution_connection: { broken: boolean } | null })[]
-      >();
+      .eq("user_id", user.id);
 
     if (error) {
       console.error("Supabase error:", error);
@@ -170,7 +170,15 @@ export async function GET(request: Request) {
       accountsMap.set(account.id, {
         ...account,
         children: [],
-        broken: account.institution_connection?.broken ?? false,
+        institution_connection: account.institution_connection?.institution
+          ? {
+              broken: account.institution_connection.broken,
+              institution: {
+                name: account.institution_connection.institution.name,
+                logo_url: account.institution_connection.institution.logo_url,
+              },
+            }
+          : null,
       });
     });
 

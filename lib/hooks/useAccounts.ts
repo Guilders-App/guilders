@@ -24,14 +24,17 @@ export function useAccounts() {
 }
 
 export function useAccount(accountId: number) {
-  return useQuery<Account, Error>({
+  return useQuery<Account | undefined, Error>({
     queryKey: [...queryKey, accountId],
-    queryFn: async (): Promise<Account> => {
+    queryFn: async (): Promise<Account | undefined> => {
+      if (!accountId) return undefined;
+
       const response = await fetch(`/api/accounts/${accountId}`);
       if (!response.ok) throw new Error("Failed to fetch account");
       const data = (await response.json()) as SingleAccountResponse;
       return data.account;
     },
+    enabled: !!accountId,
   });
 }
 

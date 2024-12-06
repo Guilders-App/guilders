@@ -5,7 +5,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Account } from "@/lib/db/types";
-import { useDialog } from "@/lib/hooks/useDialog";
 import NumberFlow from "@number-flow/react";
 import {
   Bitcoin,
@@ -20,6 +19,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { ChangeIndicator } from "../change-indicator";
 
 interface AssetItemProps {
@@ -35,12 +35,12 @@ export function AssetItem({
   imageErrors,
   onImageError,
 }: AssetItemProps) {
-  const { open } = useDialog("editAccount");
+  const router = useRouter();
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation(); // Prevent accordion from toggling when clicking the row
-    open({ account });
+    router.push(`/accounts/${account.id}`);
   };
 
   const changePercentage =
@@ -90,7 +90,7 @@ export function AssetItem({
         )}
         <div className="flex items-center gap-2">
           <p className="font-medium">{account.name}</p>
-          {account.broken && (
+          {account.institution_connection?.broken && (
             <TriangleAlert className="h-4 w-4 text-yellow-500" />
           )}
         </div>

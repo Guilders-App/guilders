@@ -61,7 +61,11 @@ export async function GET(
         `
         *,
         institution_connection (
-          broken
+          broken,
+          institution (
+            name,
+            logo_url
+          )
         )
       `
       )
@@ -83,7 +87,11 @@ export async function GET(
         `
         *,
         institution_connection (
-          broken
+          broken,
+          institution (
+            name,
+            logo_url
+          )
         )
       `
       )
@@ -103,7 +111,15 @@ export async function GET(
       accountsMap.set(acc.id, {
         ...acc,
         children: [],
-        broken: acc.institution_connection?.broken ?? false,
+        institution_connection: acc.institution_connection?.institution
+          ? {
+              broken: acc.institution_connection.broken,
+              institution: {
+                name: acc.institution_connection.institution.name,
+                logo_url: acc.institution_connection.institution.logo_url,
+              },
+            }
+          : null,
       });
     });
 

@@ -3,24 +3,13 @@
 import { ThemeSwitcher } from "@/components/common/theme-switcher";
 import { SearchBar } from "@/components/nav/search-bar";
 import { UserButton } from "@/components/nav/user-button";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { getBreadcrumbs } from "@/lib/breadcrumbs";
 import { cn } from "@/lib/utils";
-import { usePathname } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { DynamicBreadcrumbs } from "./dynamic-breadcrumbs";
 
 export function AppTopBar() {
-  const pathname = usePathname();
-  const breadcrumbs = getBreadcrumbs(pathname);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -44,26 +33,7 @@ export function AppTopBar() {
       <div className="flex items-center gap-2">
         <SidebarTrigger className="-ml-1 h-8 w-8" />
         <Separator orientation="vertical" className="mx-0.5 h-4" />
-        <Breadcrumb>
-          <BreadcrumbList>
-            {breadcrumbs.map((breadcrumb, index) => (
-              <React.Fragment key={breadcrumb.title}>
-                <BreadcrumbItem className="hidden md:block">
-                  {index === breadcrumbs.length - 1 ? (
-                    <BreadcrumbPage>{breadcrumb.title}</BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbLink href={breadcrumb.href}>
-                      {breadcrumb.title}
-                    </BreadcrumbLink>
-                  )}
-                </BreadcrumbItem>
-                {index < breadcrumbs.length - 1 && (
-                  <BreadcrumbSeparator className="hidden md:block" />
-                )}
-              </React.Fragment>
-            ))}
-          </BreadcrumbList>
-        </Breadcrumb>
+        <DynamicBreadcrumbs />
       </div>
       <div className="flex items-center gap-2">
         <SearchBar />

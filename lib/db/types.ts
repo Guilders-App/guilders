@@ -14,7 +14,10 @@ export type Institution = Tables<"institution">;
 export type Provider = Tables<"provider">;
 export type Account = Tables<"account"> & {
   children: Account[];
-  broken: boolean;
+  institution_connection: {
+    broken: boolean;
+    institution: { name: string; logo_url: string };
+  } | null;
 };
 
 export type AccountInsert = Omit<

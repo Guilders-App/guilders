@@ -3,8 +3,8 @@ import { Skeleton } from "../../ui/skeleton";
 import { TransactionItem } from "./transaction-item";
 import { TransactionsEmptyPlaceholder } from "./transactions-placeholder";
 
-export function TransactionsTable() {
-  const { data: transactions, isLoading, error } = useTransactions();
+export function TransactionsTable({ accountId }: { accountId?: number }) {
+  const { data: transactions, isLoading, error } = useTransactions(accountId);
 
   return (
     <div className="space-y-2">
@@ -17,7 +17,7 @@ export function TransactionsTable() {
       ) : error || !transactions ? (
         <div className="text-center py-8">
           <p className="mb-4">
-            Error loading accounts. Please try again later.
+            Error loading transactions. Please try again later.
           </p>
         </div>
       ) : transactions.length === 0 ? (

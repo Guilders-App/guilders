@@ -9,18 +9,24 @@ const queryKey = ["transactions"] as const;
 const accountQueryKey = ["accounts"] as const;
 
 type TransactionsResponse = {
+  success: boolean;
   transactions: Transaction[];
 };
 
 type SingleTransactionResponse = {
+  success: boolean;
   transaction: Transaction;
 };
 
-export function useTransactions() {
+export function useTransactions(accountId?: number) {
   return useQuery<Transaction[], Error>({
-    queryKey,
+    queryKey: ["transactions", accountId],
     queryFn: async (): Promise<Transaction[]> => {
-      const response = await fetch("/api/transactions");
+      const url = accountId
+        ? `/api/transactions?accountId=${accountId}`
+        : "/api/transactions";
+
+      const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch transactions");
       const data = (await response.json()) as TransactionsResponse;
       return data.transactions;
