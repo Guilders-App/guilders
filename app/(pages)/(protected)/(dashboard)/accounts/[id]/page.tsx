@@ -33,29 +33,12 @@ export default function AccountPage({
   const { mutate: removeAccount, isPending: isDeleting } = useRemoveAccount();
   const router = useRouter();
 
-  if (isLoading) {
-    return (
-      <div className="p-4 space-y-4">
-        <Skeleton className="h-[400px] w-full" />
-        <Skeleton className="h-[400px] w-full" />
-      </div>
-    );
-  }
-
-  if (!account) {
-    return (
-      <div className="p-4">
-        <p>Account not found</p>
-      </div>
-    );
-  }
-
   const change = {
-    value: account.cost ? account.value - account.cost : 0,
-    percentage: account.cost
+    value: account?.cost ? account.value - account.cost : 0,
+    percentage: account?.cost
       ? ((account.value - account.cost) / account.cost) * 100
       : 0,
-    currency: account.currency,
+    currency: account?.currency || "EUR",
   };
 
   const handleEdit = () => {
@@ -89,76 +72,95 @@ export default function AccountPage({
   };
 
   return (
-    <div className="p-4 space-y-4">
-      <div className="flex items-center gap-4 mb-2">
-        <AccountIcon
-          account={account}
-          hasImageError={imageError}
-          onImageError={() => setImageError(true)}
-        />
-        <div className="flex-1 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold">{account.name}</h1>
-            {account.institution_connection?.institution?.name && (
-              <p className="text-sm text-muted-foreground">
-                {account.institution_connection.institution.name}
-              </p>
-            )}
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <MoreHorizontal className="h-4 w-4" />
-                <span className="sr-only">Open menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleEdit}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={handleDelete}
-                className="text-destructive focus:text-destructive"
-                disabled={isDeleting}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+    <>
+      {isLoading ? (
+        <div className="p-4 space-y-4">
+          <Skeleton className="h-[400px] w-full" />
+          <Skeleton className="h-[400px] w-full" />
         </div>
-      </div>
+      ) : !account ? (
+        <div className="p-4">
+          <p>Account not found</p>
+        </div>
+      ) : (
+        <div className="p-4 space-y-4">
+          <div className="flex items-center gap-2">
+            <AccountIcon
+              account={account}
+              width={40}
+              height={40}
+              hasImageError={imageError}
+              onImageError={() => setImageError(true)}
+            />
+            <div className="flex-1 flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-semibold text-foreground">
+                  {account.name}
+                </h1>
+                {account.institution_connection?.institution?.name && (
+                  <p className="text-sm text-muted-foreground">
+                    {account.institution_connection.institution.name}
+                  </p>
+                )}
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">Open menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleEdit}>
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={handleDelete}
+                    className="text-destructive focus:text-destructive"
+                    disabled={isDeleting}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
 
-      <BalanceCard
-        title={account.subtype === "depository" ? "Balance" : "Value"}
-        value={account.value}
-        currency={account.currency}
-        change={change}
-      />
+          <BalanceCard
+            title={account.subtype === "depository" ? "Balance" : "Value"}
+            value={account.value}
+            currency={account.currency}
+            change={change}
+          />
 
-      {account.subtype === "depository" ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              {account.subtype === "depository" ? "Transactions" : "Holdings"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TransactionsTable accountId={account.id} />
-          </CardContent>
-        </Card>
-      ) : null}
-      {account.subtype === "brokerage" && account.children.length > 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Holdings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <AssetsTable accounts={account.children} />
-          </CardContent>
-        </Card>
-      ) : null}
-    </div>
+          {account.subtype === "depository" ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {account.subtype === "depository"
+                    ? "Transactions"
+                    : "Holdings"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <TransactionsTable accountId={account.id} />
+              </CardContent>
+            </Card>
+          ) : null}
+          {account.subtype === "brokerage" && account.children.length > 0 ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Holdings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <AssetsTable accounts={account.children} />
+              </CardContent>
+            </Card>
+          ) : null}
+        </div>
+      )}
+    </>
   );
 }

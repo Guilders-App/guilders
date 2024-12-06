@@ -37,6 +37,8 @@ export function AssetItem({ account, isChild = false }: AssetItemProps) {
       <div className="flex items-center gap-4">
         <AccountIcon
           account={account}
+          width={32}
+          height={32}
           hasImageError={imageError}
           onImageError={() => setImageError(true)}
         />

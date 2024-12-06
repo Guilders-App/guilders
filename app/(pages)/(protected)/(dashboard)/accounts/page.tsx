@@ -20,7 +20,7 @@ export default function AccountsPage() {
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold">Accounts</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Accounts</h1>
         <Button onClick={() => openAddAccount()} size="sm">
           <Plus className="h-4 w-4" />
           Add Account

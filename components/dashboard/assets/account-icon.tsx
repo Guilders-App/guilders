@@ -14,35 +14,41 @@ import Image from "next/image";
 
 interface AccountIconProps {
   account: Account;
+  width?: number;
+  height?: number;
   hasImageError: boolean;
   onImageError: (accountId: number) => void;
 }
 
 export function AccountIcon({
   account,
+  width,
+  height,
   hasImageError,
   onImageError,
 }: AccountIconProps) {
   const getFallbackIcon = () => {
     switch (account.subtype) {
       case "depository":
-        return <Landmark className="w-6 h-6" />;
+        return <Landmark className={`w-[${width}px] h-[${height}px]`} />;
       case "brokerage":
-        return <ChartCandlestick className="w-6 h-6" />;
+        return (
+          <ChartCandlestick className={`w-[${width}px] h-[${height}px]`} />
+        );
       case "crypto":
-        return <Bitcoin className="w-6 h-6" />;
+        return <Bitcoin className={`w-[${width}px] h-[${height}px]`} />;
       case "property":
-        return <House className="w-6 h-6" />;
+        return <House className={`w-[${width}px] h-[${height}px]`} />;
       case "creditcard":
-        return <CreditCard className="w-6 h-6" />;
+        return <CreditCard className={`w-[${width}px] h-[${height}px]`} />;
       case "loan":
-        return <HandCoins className="w-6 h-6" />;
+        return <HandCoins className={`w-[${width}px] h-[${height}px]`} />;
       case "vehicle":
-        return <CarFront className="w-6 h-6" />;
+        return <CarFront className={`w-[${width}px] h-[${height}px]`} />;
       case "stock":
-        return <CirclePercent className="w-6 h-6" />;
+        return <CirclePercent className={`w-[${width}px] h-[${height}px]`} />;
       default:
-        return <DollarSign className="w-6 h-6" />;
+        return <DollarSign className={`w-[${width}px] h-[${height}px]`} />;
     }
   };
 
@@ -51,16 +57,19 @@ export function AccountIcon({
       <Image
         src={account.image}
         alt={account.name}
-        width={32}
-        height={32}
-        className="rounded-full w-8 h-8"
+        width={width}
+        height={height}
+        className="rounded-full"
         onError={() => onImageError(account.id)}
       />
     );
   }
 
   return (
-    <div className="w-8 h-8 p-2 flex items-center justify-center text-muted-foreground rounded-full bg-muted">
+    <div
+      className="p-2 flex items-center justify-center text-muted-foreground rounded-full bg-muted"
+      style={{ width, height }}
+    >
       {getFallbackIcon()}
     </div>
   );
