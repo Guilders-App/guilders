@@ -1,7 +1,7 @@
 "use client";
 
-import { AccountIcon } from "@/components/dashboard/assets/account-icon";
-import { AssetsTable } from "@/components/dashboard/assets/assets-table";
+import { AccountIcon } from "@/components/dashboard/accounts/account-icon";
+import { AccountsTable } from "@/components/dashboard/accounts/accounts-table";
 import { BalanceCard } from "@/components/dashboard/balance-card";
 import { TransactionsTable } from "@/components/dashboard/transactions/transactions-table";
 import { Button } from "@/components/ui/button";
@@ -155,7 +155,7 @@ export default function AccountPage({
                 <CardTitle>Holdings</CardTitle>
               </CardHeader>
               <CardContent>
-                <AssetsTable accounts={account.children} />
+                <AccountsTable accounts={account.children} />
               </CardContent>
             </Card>
           ) : null}

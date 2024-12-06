@@ -12,12 +12,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AccountIcon } from "./account-icon";
 
-interface AssetItemProps {
+interface AccountItemProps {
   account: Account;
   isChild?: boolean;
 }
 
-export function AssetItem({ account, isChild = false }: AssetItemProps) {
+export function AccountItem({ account, isChild = false }: AccountItemProps) {
   const router = useRouter();
   const [imageError, setImageError] = useState(false);
 
@@ -93,7 +93,7 @@ export function AssetItem({ account, isChild = false }: AssetItemProps) {
           </div>
           <AccordionContent>
             {account.children.map((childAccount) => (
-              <AssetItem
+              <AccountItem
                 key={childAccount.id}
                 account={childAccount}
                 isChild={true}

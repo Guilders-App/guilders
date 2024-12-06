@@ -1,18 +1,18 @@
+import { AccountItem } from "@/components/dashboard/accounts/account-item";
+import { AccountsEmptyPlaceholder } from "@/components/dashboard/accounts/accounts-placeholder";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Account } from "@/lib/db/types";
 import { useAccounts } from "@/lib/hooks/useAccounts";
-import { Skeleton } from "../../ui/skeleton";
-import { AssetItem } from "./asset-item";
-import { AssetsEmptyPlaceholder } from "./assets-placeholder";
 
-interface AssetsTableProps {
+interface AccountsTableProps {
   accounts?: Account[];
   isLoading?: boolean;
 }
 
-export function AssetsTable({
+export function AccountsTable({
   accounts: propAccounts,
   isLoading: propIsLoading,
-}: AssetsTableProps) {
+}: AccountsTableProps) {
   const { data: hookAccounts, isLoading: hookIsLoading, error } = useAccounts();
 
   // Use prop values if provided, otherwise fall back to hook values
@@ -34,10 +34,10 @@ export function AssetsTable({
           </p>
         </div>
       ) : accounts && accounts.length === 0 ? (
-        <AssetsEmptyPlaceholder />
+        <AccountsEmptyPlaceholder />
       ) : (
         accounts?.map((account) => (
-          <AssetItem key={account.id} account={account} />
+          <AccountItem key={account.id} account={account} />
         ))
       )}
     </div>

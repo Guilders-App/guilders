@@ -1,7 +1,7 @@
 "use client";
 
-import { AssetsCard } from "@/components/dashboard/assets/assets-card";
-import { AssetsEmptyPlaceholder } from "@/components/dashboard/assets/assets-placeholder";
+import { AccountsCard } from "@/components/dashboard/accounts/account-card";
+import { AccountsEmptyPlaceholder } from "@/components/dashboard/accounts/accounts-placeholder";
 import { CompactBalanceCard } from "@/components/dashboard/compact-balance-card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -39,7 +39,7 @@ export default function AccountsPage() {
           </p>
         </div>
       ) : !accounts || accounts.length === 0 ? (
-        <AssetsEmptyPlaceholder />
+        <AccountsEmptyPlaceholder />
       ) : (
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -51,13 +51,13 @@ export default function AccountsPage() {
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <AssetsCard
+            <AccountsCard
               className="h-[500px]"
               showViewAll={false}
               title="Assets"
               accounts={assets}
             />
-            <AssetsCard
+            <AccountsCard
               className="h-[500px]"
               showViewAll={false}
               title="Liabilities"

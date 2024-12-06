@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useDialog } from "@/lib/hooks/useDialog";
 import { BadgeEuro } from "lucide-react";
 
-export function AssetsEmptyPlaceholder() {
+export function AccountsEmptyPlaceholder() {
   const { open } = useDialog("addManualAccount");
 
   return (
