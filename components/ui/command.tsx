@@ -35,7 +35,7 @@ const CommandDialog = ({
   return (
     <Dialog {...props}>
       <DialogContent
-        className="overflow-hidden p-0 shadow-lg top-[40%] sm:max-w-[640px] sm:h-[480px]"
+        className="overflow-hidden p-0 shadow-lg"
         showCloseIcon={false}
         onEscapeKeyDown={(e) => {
           e.preventDefault();
@@ -81,7 +81,7 @@ const CommandList = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <CommandPrimitive.List
     ref={ref}
-    className={cn("h-full overflow-y-auto overflow-x-hidden", className)}
+    className={cn("max-h-[300px] overflow-y-auto overflow-x-hidden", className)}
     {...props}
   />
 ));
