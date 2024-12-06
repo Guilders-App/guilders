@@ -1,10 +1,18 @@
 import NumberFlow from "@number-flow/react";
 
+interface ChangeIndicatorProps {
+  change: {
+    value: number;
+    percentage: number;
+    currency: string;
+  };
+  invertColors?: boolean;
+}
+
 export function ChangeIndicator({
   change,
-}: {
-  change: { value: number; percentage: number; currency: string };
-}) {
+  invertColors = false,
+}: ChangeIndicatorProps) {
   const isPositive = change.value >= 0;
   const absValue = Math.abs(change.value);
   const absPercentage = Math.abs(change.percentage);
@@ -17,14 +25,15 @@ export function ChangeIndicator({
     );
   }
 
+  const getColorClass = () => {
+    const isPositiveColor = invertColors ? !isPositive : isPositive;
+    return isPositiveColor
+      ? "text-green-600 dark:text-green-400"
+      : "text-red-600 dark:text-red-400";
+  };
+
   return (
-    <div
-      className={`text-sm ${
-        isPositive
-          ? "text-green-600 dark:text-green-400"
-          : "text-red-600 dark:text-red-400"
-      }`}
-    >
+    <div className={`text-sm ${getColorClass()}`}>
       {isPositive ? "+" : "-"}{" "}
       <NumberFlow
         value={absValue}

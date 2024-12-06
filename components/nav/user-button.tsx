@@ -35,7 +35,6 @@ export function UserButton() {
         <DropdownMenuItem onClick={() => router.push("/settings")}>
           Settings
         </DropdownMenuItem>
-        <DropdownMenuItem disabled>Support</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOutAction()}>
           Log out

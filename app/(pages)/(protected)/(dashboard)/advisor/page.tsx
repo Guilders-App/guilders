@@ -123,13 +123,19 @@ export default function AdvisorPage() {
           {/* Initial Message */}
           {messages.length === 0 && (
             <div className="w-full bg-background shadow-sm border rounded-lg p-8 flex flex-col gap-2">
-              <h1 className="font-bold">Welcome to your personal advisor.</h1>
+              <h1 className="text-xl font-semibold">
+                Welcome to your personal advisor.
+              </h1>
               <p className="text-muted-foreground text-sm">
-                Ask me anything about your finances. I can see your accounts and
-                give you personalized advice.
+                Ask me anything about your finances. If you have any questions
+                about your finances, I can help you answer them.
               </p>
               <p className="text-muted-foreground text-xs">
-                This is not financial advice. AI can make mistakes.
+                This is not financial advice. AI can make mistakes. If you use
+                the advisor, please do your own research and consult a
+                professional if needed. When a message is sent, the data is
+                processed by an AI model. Your data is not stored or trained on
+                by the AI.
               </p>
             </div>
           )}
