@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
   //       user_id: body.user.loginName,
   //       name: account.id,
   //       value: account.balances,
-  //       currency: account.balance.total?.currency?.toUpperCase() ?? "USD",
+  //       currency: account.balance.total?.currency?.toUpperCase() ?? "EUR",
   //       institution_connection_id: institution.id,
   //       provider_account_id: account.id,
   //     })),

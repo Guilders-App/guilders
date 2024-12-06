@@ -1,7 +1,7 @@
 import NumberFlow from "@number-flow/react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-export function ChangeIndicator({
+export function ChangeBadge({
   change,
   showAbsoluteChange = false,
 }: {

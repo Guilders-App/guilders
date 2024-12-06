@@ -1,7 +1,6 @@
 import { Tables } from "@/lib/db/database.types";
 import { createClient } from "@/lib/db/server";
 import { TransactionInsert } from "@/lib/db/types";
-import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 /**
@@ -36,13 +35,11 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request) {
   try {
     const supabase = await createClient();
-    const jwt = getJwt(request);
     const { searchParams } = new URL(request.url);
     const accountId = searchParams.get("accountId");
-
     const {
       data: { user },
-    } = await supabase.auth.getUser(jwt);
+    } = await supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json(
@@ -119,12 +116,11 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
-    const jwt = getJwt(request);
     const transactionData: TransactionInsert = await request.json();
-
     const {
       data: { user },
-    } = await supabase.auth.getUser(jwt);
+    } = await supabase.auth.getUser();
+
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },

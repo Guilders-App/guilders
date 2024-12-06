@@ -1,12 +1,12 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  AccountSubtype,
-  getCategoryColor,
-  getCategoryDisplayName,
-} from "@/lib/db/types";
+import { getCategoryColor, getCategoryDisplayName } from "@/lib/db/types";
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useRates } from "@/lib/hooks/useRates";
 import { useUser } from "@/lib/hooks/useUser";
+import {
+  calculateCategories,
+  calculateCategorySums,
+} from "@/lib/utils/financial";
 import { WalletCards } from "lucide-react";
 import { useMemo } from "react";
 
@@ -15,60 +15,12 @@ export function NetWorthCategories() {
   const { data: rates } = useRates();
   const { data: user } = useUser();
 
-  const convertToUserCurrency = (value: number, fromCurrency: string) => {
-    if (!rates || !user) return value;
-    if (fromCurrency === user.currency) return value;
-
-    const fromRate =
-      rates.find((r) => r.currency_code === fromCurrency)?.rate ?? 1;
-    const toRate =
-      rates.find((r) => r.currency_code === user.currency)?.rate ?? 1;
-
-    return (value * fromRate) / toRate;
-  };
-
   const categories = useMemo(() => {
-    if (!accounts) return { positive: [], negative: [] };
-
-    const categoryMap: Record<AccountSubtype, number> = {
-      depository: 0,
-      brokerage: 0,
-      crypto: 0,
-      property: 0,
-      vehicle: 0,
-      creditcard: 0,
-      loan: 0,
-      stock: 0,
-    };
-
-    accounts.forEach((account) => {
-      const convertedValue = convertToUserCurrency(
-        account.value,
-        account.currency
-      );
-      categoryMap[account.subtype] += convertedValue;
-    });
-
-    const categoriesArray = Object.entries(categoryMap)
-      .map(([name, value]) => ({ name: name as AccountSubtype, value }))
-      .filter((category) => category.value !== 0);
-
-    return {
-      positive: categoriesArray.filter((c) => c.value > 0),
-      negative: categoriesArray.filter((c) => c.value < 0),
-    };
-  }, [accounts, rates, user]);
+    return calculateCategories(accounts, rates, user?.currency ?? "EUR");
+  }, [accounts, rates, user?.currency]);
 
   const { positiveSum, negativeSum } = useMemo(() => {
-    return {
-      positiveSum: categories.positive.reduce(
-        (sum, category) => sum + category.value,
-        0
-      ),
-      negativeSum: Math.abs(
-        categories.negative.reduce((sum, category) => sum + category.value, 0)
-      ),
-    };
+    return calculateCategorySums(categories);
   }, [categories]);
 
   return (

@@ -1,3 +1,4 @@
+import { ChangeBadge } from "@/components/common/change-badge";
 import {
   Accordion,
   AccordionContent,
@@ -6,36 +7,19 @@ import {
 } from "@/components/ui/accordion";
 import { Account } from "@/lib/db/types";
 import NumberFlow from "@number-flow/react";
-import {
-  Bitcoin,
-  CarFront,
-  ChartCandlestick,
-  CirclePercent,
-  CreditCard,
-  DollarSign,
-  HandCoins,
-  House,
-  Landmark,
-  TriangleAlert,
-} from "lucide-react";
-import Image from "next/image";
+import { TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ChangeIndicator } from "../change-indicator";
+import { useState } from "react";
+import { AccountIcon } from "./account-icon";
 
 interface AssetItemProps {
   account: Account;
   isChild?: boolean;
-  imageErrors: Record<string, boolean>;
-  onImageError: (accountId: number) => void;
 }
 
-export function AssetItem({
-  account,
-  isChild = false,
-  imageErrors,
-  onImageError,
-}: AssetItemProps) {
+export function AssetItem({ account, isChild = false }: AssetItemProps) {
   const router = useRouter();
+  const [imageError, setImageError] = useState(false);
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -48,46 +32,14 @@ export function AssetItem({
       ? ((account.value - account.cost) / account.cost) * 100
       : 0;
 
-  const getFallbackIcon = () => {
-    switch (account.subtype) {
-      case "depository":
-        return <Landmark className="w-6 h-6" />;
-      case "brokerage":
-        return <ChartCandlestick className="w-6 h-6" />;
-      case "crypto":
-        return <Bitcoin className="w-6 h-6" />;
-      case "property":
-        return <House className="w-6 h-6" />;
-      case "creditcard":
-        return <CreditCard className="w-6 h-6" />;
-      case "loan":
-        return <HandCoins className="w-6 h-6" />;
-      case "vehicle":
-        return <CarFront className="w-6 h-6" />;
-      case "stock":
-        return <CirclePercent className="w-6 h-6" />;
-      default:
-        return <DollarSign className="w-6 h-6" />;
-    }
-  };
-
   const commonRowContent = (
     <>
       <div className="flex items-center gap-4">
-        {account.image && !imageErrors[account.id] ? (
-          <Image
-            src={account.image}
-            alt={account.name}
-            width={32}
-            height={32}
-            className="rounded-full w-8 h-8"
-            onError={() => onImageError(account.id)}
-          />
-        ) : (
-          <div className="w-8 h-8 p-2 flex items-center justify-center text-muted-foreground rounded-full bg-muted">
-            {getFallbackIcon()}
-          </div>
-        )}
+        <AccountIcon
+          account={account}
+          hasImageError={imageError}
+          onImageError={() => setImageError(true)}
+        />
         <div className="flex items-center gap-2">
           <p className="font-medium">{account.name}</p>
           {account.institution_connection?.broken && (
@@ -105,7 +57,7 @@ export function AssetItem({
             }}
           />
         </p>
-        <ChangeIndicator
+        <ChangeBadge
           change={{
             value: account.cost !== null ? account.value - account.cost : 0,
             percentage: changePercentage,
@@ -143,8 +95,6 @@ export function AssetItem({
                 key={childAccount.id}
                 account={childAccount}
                 isChild={true}
-                imageErrors={imageErrors}
-                onImageError={onImageError}
               />
             ))}
           </AccordionContent>
@@ -156,6 +106,7 @@ export function AssetItem({
   return (
     <div
       onClick={handleClick}
+      key={account.id}
       className={`flex items-center justify-between px-2 py-2 pr-6 rounded-lg hover:bg-secondary dark:hover:bg-secondary cursor-pointer ${
         isChild ? "ml-6" : ""
       }`}

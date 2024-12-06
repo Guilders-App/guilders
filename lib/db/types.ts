@@ -83,3 +83,8 @@ export type TransactionUpdate = Omit<
   TablesUpdate<"transaction">,
   "provider_transaction_id"
 >;
+
+export type Rate = {
+  currency_code: string;
+  rate: number;
+};

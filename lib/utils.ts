@@ -20,7 +20,3 @@ export function encodedRedirect(
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
-export function getJwt(req: Request) {
-  return req.headers.get("Authorization")?.split(" ")[1] ?? undefined;
-}

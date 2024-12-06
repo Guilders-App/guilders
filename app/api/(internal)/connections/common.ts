@@ -2,7 +2,6 @@ import { createClient } from "@/lib/db/server";
 import { deregisterSaltEdgeUser } from "@/lib/providers/saltedge/deregister";
 import { deregisterSnapTradeUser } from "@/lib/providers/snaptrade/deregister";
 import { ConnectionProviderFunction } from "@/lib/providers/types";
-import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 export type ConnectBody = {
@@ -12,15 +11,13 @@ export type ConnectBody = {
 
 export const registerConnection = async (
   providerName: string,
-  registerFunction: ConnectionProviderFunction,
-  request: Request
+  registerFunction: ConnectionProviderFunction
 ) => {
   try {
     const supabase = await createClient();
-    const jwt = getJwt(request);
     const {
       data: { user },
-    } = await supabase.auth.getUser(jwt);
+    } = await supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json(

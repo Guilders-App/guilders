@@ -400,7 +400,7 @@ async function handleAccountUpdate(
         name: snapTradeAccount.institution_name,
         value: snapTradeAccount.balance.total?.amount ?? 0,
         currency:
-          snapTradeAccount.balance.total?.currency?.toUpperCase() ?? "USD",
+          snapTradeAccount.balance.total?.currency?.toUpperCase() ?? "EUR",
         cost:
           accountResponse.positions?.reduce(
             (acc, holding) =>
@@ -441,7 +441,7 @@ async function handleAccountUpdate(
             cost: (holding.average_purchase_price ?? 0) * (holding.units ?? 0),
             units: holding.units ?? 0,
             currency:
-              holding.symbol?.symbol?.currency.code?.toUpperCase() ?? "USD",
+              holding.symbol?.symbol?.currency.code?.toUpperCase() ?? "EUR",
             ticker: holding.symbol?.symbol?.raw_symbol ?? null,
             institution_connection_id: institutionConnection.id,
             image: holding.symbol?.symbol?.logo_url,

@@ -1,7 +1,6 @@
 import { TablesUpdate } from "@/lib/db/database.types";
 import { createClient } from "@/lib/db/server";
 import { Account, AccountUpdate } from "@/lib/db/types";
-import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 /**
@@ -43,11 +42,10 @@ export async function GET(
   try {
     const supabase = await createClient();
     const { id } = await params;
-    const jwt = getJwt(request);
-
     const {
       data: { user },
-    } = await supabase.auth.getUser(jwt);
+    } = await supabase.auth.getUser();
+
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
@@ -187,12 +185,11 @@ export async function DELETE(
 ) {
   try {
     const supabase = await createClient();
-    const jwt = getJwt(request);
     const { id } = await params;
-
     const {
       data: { user },
-    } = await supabase.auth.getUser(jwt);
+    } = await supabase.auth.getUser();
+
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
@@ -264,7 +261,6 @@ export async function PUT(
     const supabase = await createClient();
     const updatedData: AccountUpdate = await request.json();
     const { id } = await params;
-    const jwt = getJwt(request);
     const dataToUpdate: TablesUpdate<"account"> = { ...updatedData };
 
     // Check if subtype is present and update type accordingly
@@ -277,7 +273,8 @@ export async function PUT(
 
     const {
       data: { user },
-    } = await supabase.auth.getUser(jwt);
+    } = await supabase.auth.getUser();
+
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },

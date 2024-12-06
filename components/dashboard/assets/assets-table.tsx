@@ -1,16 +1,23 @@
+import { Account } from "@/lib/db/types";
 import { useAccounts } from "@/lib/hooks/useAccounts";
-import { useState } from "react";
 import { Skeleton } from "../../ui/skeleton";
 import { AssetItem } from "./asset-item";
 import { AssetsEmptyPlaceholder } from "./assets-placeholder";
 
-export function AssetsTable() {
-  const { data: accounts, isLoading, error } = useAccounts();
-  const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
+interface AssetsTableProps {
+  accounts?: Account[];
+  isLoading?: boolean;
+}
 
-  const handleImageError = (accountId: number) => {
-    setImageErrors((prev) => ({ ...prev, [accountId]: true }));
-  };
+export function AssetsTable({
+  accounts: propAccounts,
+  isLoading: propIsLoading,
+}: AssetsTableProps) {
+  const { data: hookAccounts, isLoading: hookIsLoading, error } = useAccounts();
+
+  // Use prop values if provided, otherwise fall back to hook values
+  const accounts = propAccounts ?? hookAccounts;
+  const isLoading = propIsLoading ?? hookIsLoading;
 
   return (
     <div className="space-y-2">
@@ -20,7 +27,7 @@ export function AssetsTable() {
             <Skeleton key={index} className="h-10 w-full mb-2" />
           ))}
         </div>
-      ) : error ? (
+      ) : error && !propAccounts ? (
         <div className="text-center py-8">
           <p className="mb-4">
             Error loading accounts. Please try again later.
@@ -30,12 +37,7 @@ export function AssetsTable() {
         <AssetsEmptyPlaceholder />
       ) : (
         accounts?.map((account) => (
-          <AssetItem
-            key={account.id}
-            account={account}
-            imageErrors={imageErrors}
-            onImageError={handleImageError}
-          />
+          <AssetItem key={account.id} account={account} />
         ))
       )}
     </div>

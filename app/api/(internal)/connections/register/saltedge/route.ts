@@ -22,6 +22,6 @@ import { registerConnection } from "../../common";
  *       200:
  *         description: Successfully registered connections
  */
-export async function POST(request: Request) {
-  return registerConnection(providerName, registerSaltEdgeUser, request);
+export async function POST() {
+  return registerConnection(providerName, registerSaltEdgeUser);
 }

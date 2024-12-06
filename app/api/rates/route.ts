@@ -29,7 +29,7 @@ export async function GET(_: NextRequest) {
 
   return NextResponse.json({
     success: true,
-    base: "USD",
+    base: "EUR",
     data: rates,
   });
 }

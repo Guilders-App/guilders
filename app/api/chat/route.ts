@@ -1,7 +1,6 @@
 import { createAdminClient } from "@/lib/db/admin";
 import { createClient } from "@/lib/db/server";
 import { getRates } from "@/lib/db/utils";
-import { getJwt } from "@/lib/utils";
 import { anthropic } from "@ai-sdk/anthropic";
 import { convertToCoreMessages, streamText } from "ai";
 import { NextRequest, NextResponse } from "next/server";
@@ -68,12 +67,9 @@ interface FinancialSummary {
 export async function POST(request: NextRequest) {
   const { messages } = await request.json();
   const supabase = await createClient();
-  const jwt = getJwt(request);
-
-  // Get user and their accounts
   const {
     data: { user },
-  } = await supabase.auth.getUser(jwt);
+  } = await supabase.auth.getUser();
 
   if (!user) {
     return NextResponse.json(
@@ -156,7 +152,7 @@ const getAccountsContext = async (user_id: string): Promise<string> => {
           })) || [],
     })),
     exchangeRates,
-    primaryCurrency: userSettings?.currency || "USD",
+    primaryCurrency: userSettings?.currency || "EUR",
   };
 
   return generatePrompt(summary);

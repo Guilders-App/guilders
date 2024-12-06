@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/db/server";
-import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 /**
@@ -23,11 +22,10 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request) {
   try {
     const supabase = await createClient();
-    const jwt = getJwt(request);
-
     const {
       data: { user },
-    } = await supabase.auth.getUser(jwt);
+    } = await supabase.auth.getUser();
+
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },

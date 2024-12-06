@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/db/server";
 import { TransactionUpdate } from "@/lib/db/types";
-import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 /**
@@ -42,11 +41,10 @@ export async function GET(
   try {
     const supabase = await createClient();
     const { id } = await params;
-    const jwt = getJwt(request);
-
     const {
       data: { user },
-    } = await supabase.auth.getUser(jwt);
+    } = await supabase.auth.getUser();
+
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
@@ -129,12 +127,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const supabase = await createClient();
-  const jwt = getJwt(request);
   const { id } = await params;
-
   const {
     data: { user },
-  } = await supabase.auth.getUser(jwt);
+  } = await supabase.auth.getUser();
+
   if (!user) {
     return NextResponse.json(
       { success: false, error: "Invalid credentials" },
@@ -236,12 +233,10 @@ export async function PUT(
   const supabase = await createClient();
   const updatedData: TransactionUpdate = await request.json();
   const { id } = await params;
-  const jwt = getJwt(request);
   const dataToUpdate: TransactionUpdate = { ...updatedData };
-
   const {
     data: { user },
-  } = await supabase.auth.getUser(jwt);
+  } = await supabase.auth.getUser();
 
   if (!user) {
     return NextResponse.json(

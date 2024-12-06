@@ -1,19 +1,15 @@
 import { createClient } from "@/lib/db/server";
 import { vezgoClient } from "@/lib/providers/vezgo/client";
-import { getJwt } from "@/lib/utils";
 import { NextResponse } from "next/server";
 import { ConnectBody } from "../../common";
 
 export async function POST(request: Request) {
   try {
     const supabase = await createClient();
-    const jwt = getJwt(request);
-
     const { institution_id }: ConnectBody = await request.json();
-
     const {
       data: { user },
-    } = await supabase.auth.getUser(jwt);
+    } = await supabase.auth.getUser();
 
     if (!user) {
       return NextResponse.json(
