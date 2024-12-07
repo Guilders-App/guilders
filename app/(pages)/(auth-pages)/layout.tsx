@@ -1,6 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { Metadata } from "next";
 import Link from "next/link";
+import { defaultMetadata } from "../metadata";
+
+export const metadata: Metadata = {
+  ...defaultMetadata,
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function Layout({
   children,
