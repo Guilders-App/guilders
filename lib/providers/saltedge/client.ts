@@ -190,6 +190,45 @@ export class SaltEdgeClient {
     });
   }
 
+  async refreshConnection(
+    customerId: string,
+    connectionId: string
+  ): Promise<void> {
+    return this.request<void>(`/connections/${connectionId}/refresh`, {
+      method: "POST",
+      params: {
+        customer_id: customerId,
+      },
+      data: {
+        attempt: {
+          fetch_scopes: ["accounts", "transactions"],
+        },
+      },
+      isArray: false,
+    });
+  }
+
+  async backgroundRefreshConnection(
+    customerId: string,
+    connectionId: string
+  ): Promise<void> {
+    return this.request<void>(
+      `/connections/${connectionId}/background_refresh`,
+      {
+        params: {
+          customer_id: customerId,
+        },
+        data: {
+          attempt: {
+            fetch_scopes: ["accounts", "transactions"],
+          },
+        },
+        method: "POST",
+        isArray: false,
+      }
+    );
+  }
+
   async getAccounts(
     customerId: string,
     connectionId: string

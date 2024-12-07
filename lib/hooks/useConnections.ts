@@ -5,7 +5,7 @@ export function useRegisterUser() {
   return useMutation({
     mutationFn: async (providerName: string) => {
       const response = await fetch(
-        `/api/connections/register/${providerName}`,
+        `/api/connections/register/${providerName.toLowerCase()}`,
         {
           method: "POST",
         }
@@ -68,10 +68,13 @@ export function useCreateConnection() {
       providerName: string;
       institutionId: number;
     }) => {
-      const response = await fetch(`/api/connections/connect/${providerName}`, {
-        method: "POST",
-        body: JSON.stringify({ institution_id: institutionId }),
-      });
+      const response = await fetch(
+        `/api/connections/connect/${providerName.toLowerCase()}`,
+        {
+          method: "POST",
+          body: JSON.stringify({ institution_id: institutionId }),
+        }
+      );
 
       const data = await response.json();
 
@@ -96,13 +99,16 @@ export function useFixConnection() {
       institutionId: number;
       accountId: number;
     }) => {
-      const response = await fetch(`/api/connections/connect/${providerName}`, {
-        method: "POST",
-        body: JSON.stringify({
-          institution_id: institutionId,
-          account_id: accountId,
-        }),
-      });
+      const response = await fetch(
+        `/api/connections/connect/${providerName.toLowerCase()}`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            institution_id: institutionId,
+            account_id: accountId,
+          }),
+        }
+      );
 
       const data = await response.json();
       if (!data.success) {
@@ -110,6 +116,32 @@ export function useFixConnection() {
         throw new Error(`Failed to fix a ${providerName} connection`);
       }
 
+      return data;
+    },
+  });
+}
+
+export function useRefreshConnection() {
+  return useMutation({
+    mutationFn: async ({
+      providerName,
+      institutionConnectionId,
+    }: {
+      providerName: string;
+      institutionConnectionId: number;
+    }) => {
+      const response = await fetch(
+        `/api/connections/refresh/${providerName.toLowerCase()}`,
+        {
+          method: "POST",
+          body: JSON.stringify({ institutionConnectionId }),
+        }
+      );
+      const data = await response.json();
+
+      if (!data.success) {
+        throw new Error(data.error || "Failed to refresh the connection");
+      }
       return data;
     },
   });

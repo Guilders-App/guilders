@@ -145,7 +145,11 @@ export async function GET(request: Request) {
           broken,
           institution (
             name,
-            logo_url
+            logo_url,
+            provider (
+              id,
+              name
+            )
           )
         )
       `
@@ -172,6 +176,13 @@ export async function GET(request: Request) {
                 name: account.institution_connection.institution.name,
                 logo_url: account.institution_connection.institution.logo_url,
               },
+              provider: account.institution_connection.institution.provider
+                ? {
+                    id: account.institution_connection.institution.provider.id,
+                    name: account.institution_connection.institution.provider
+                      .name,
+                  }
+                : undefined,
             }
           : null,
       });

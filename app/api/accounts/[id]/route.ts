@@ -63,6 +63,12 @@ export async function GET(
           institution (
             name,
             logo_url
+          ),
+          provider:institution (
+            provider (
+              id,
+              name
+            )
           )
         )
       `
@@ -88,7 +94,11 @@ export async function GET(
           broken,
           institution (
             name,
-            logo_url
+            logo_url,
+            provider (
+              id,
+              name
+            )
           )
         )
       `
@@ -116,6 +126,12 @@ export async function GET(
                 name: acc.institution_connection.institution.name,
                 logo_url: acc.institution_connection.institution.logo_url,
               },
+              provider: acc.institution_connection.institution.provider
+                ? {
+                    id: acc.institution_connection.institution.provider.id,
+                    name: acc.institution_connection.institution.provider.name,
+                  }
+                : undefined,
             }
           : null,
       });

@@ -17,6 +17,10 @@ export type Account = Tables<"account"> & {
   institution_connection: {
     broken: boolean;
     institution: { name: string; logo_url: string };
+    provider?: {
+      id: number;
+      name: string;
+    };
   } | null;
 };
 
