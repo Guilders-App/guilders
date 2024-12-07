@@ -56,7 +56,7 @@ export const GuildersEmailChangeEmail = ({
                 className="bg-[#000000] rounded text-white text-[12px] font-semibold no-underline text-center px-5 py-3"
                 href={changeLink}
               >
-                Confirm Email Change
+                Confirm Email
               </Button>
             </Section>
             <Hr className="border border-solid border-[#eaeaea] my-[16px] mx-0 w-full" />
