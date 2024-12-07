@@ -5,19 +5,18 @@ import { CategoriesCard } from "@/components/dashboard/categories/categories-car
 import { NetWorthCard } from "@/components/dashboard/net-worth-card";
 import { TransactionsCard } from "@/components/dashboard/transactions/transactions-card";
 
-export default function ProtectedPage() {
+export default function DashboardPage() {
   return (
-    <div className="grid gap-6">
-      <div className="grid grid-cols-5 gap-6">
-        <NetWorthCard className="col-span-3" />
-        <CategoriesCard className="col-span-2" />
+    <div className="grid gap-6 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <NetWorthCard className="col-span-1 md:col-span-3" />
+        <CategoriesCard className="col-span-1 md:col-span-2" />
       </div>
-      {/* TODO: Make this responsive to screen size */}
-      <div className="grid grid-cols-5 gap-6">
-        <div className="col-span-3">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <div className="col-span-1 md:col-span-3">
           <AccountsCard className="h-[400px]" />
         </div>
-        <div className="col-span-2">
+        <div className="col-span-1 md:col-span-2">
           <TransactionsCard className="h-[400px]" />
         </div>
       </div>
