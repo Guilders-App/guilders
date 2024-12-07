@@ -119,7 +119,7 @@ export default function AccountPage({
             />
             <div className="flex-1 flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-semibold text-foreground">
+                <h1 className="text-xl font-semibold text-foreground">
                   {account.name}
                 </h1>
                 {account.institution_connection?.institution?.name && (
