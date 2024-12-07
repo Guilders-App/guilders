@@ -16,7 +16,7 @@ export const defaultMetadata: Metadata = {
     "net worth tracking",
     "financial dashboard",
   ],
-  authors: [{ name: "Guilders" }],
+  authors: { name: "Guilders", url: "https://guilders.app" },
   creator: "Guilders",
   publisher: "Guilders",
   formatDetection: {
@@ -27,24 +27,19 @@ export const defaultMetadata: Metadata = {
   icons: {
     icon: "/app/favicon.ico",
   },
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
-  ],
   openGraph: {
     title: "Guilders - AI-Powered Personal Finance Management",
     description:
       "Take control of your finances with Guilders. Connect your accounts, track investments, and manage your money smarter.",
     type: "website",
     url: "https://guilders.app",
-    images: [{ url: "/assets/logo/cover.jpg" }],
+    images: { url: "/assets/logo/cover.jpg", width: 2460, height: 1110 },
   },
   twitter: {
     card: "summary_large_image",
     title: "Guilders - AI-Powered Personal Finance Management",
     description:
       "Take control of your finances with Guilders. Connect your accounts, track investments, and manage your money smarter.",
-    images: ["/assets/logo/cover.jpg"],
+    images: { url: "/assets/logo/cover.jpg", width: 2460, height: 1110 },
   },
 };
