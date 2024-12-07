@@ -1,4 +1,5 @@
 import { Providers } from "@/components/common/providers";
+import { UmamiAnalytics } from "@/components/common/umami-analytics";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import "./globals.css";
@@ -25,11 +26,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <script
-          defer
-          src="https://cloud.umami.is/script.js"
-          data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-        ></script>
+        <UmamiAnalytics />
       </head>
       <body className="bg-background text-foreground">
         <Providers>{children}</Providers>
