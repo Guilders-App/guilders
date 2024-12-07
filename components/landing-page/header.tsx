@@ -134,7 +134,10 @@ export const Header = () => {
           </Link>
         </div>
         <div className="flex justify-end w-full gap-4">
-          <Link href={process.env.NEXT_PUBLIC_CAL_URL}>
+          <Link
+            href={process.env.NEXT_PUBLIC_CAL_URL}
+            aria-label="Book a demo call"
+          >
             <Button variant="ghost" className="hidden md:inline">
               Book a demo
             </Button>
