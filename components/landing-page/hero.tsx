@@ -1,11 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-
-import { motion } from "motion/react";
-
 import { Button } from "@/components/ui/button";
 import { MoveRight } from "lucide-react";
+import { motion } from "motion/react";
+import { useEffect, useMemo, useState } from "react";
 import NewsletterForm from "./newsletter-form";
 
 export const Hero = () => {

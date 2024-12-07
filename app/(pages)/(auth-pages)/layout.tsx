@@ -1,10 +1,25 @@
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+
 export default async function Layout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex flex-col items-center justify-center relative">
+      <Button
+        asChild
+        variant="ghost"
+        size="sm"
+        className="absolute top-4 left-4"
+      >
+        <Link href="/">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Link>
+      </Button>
       {children}
     </div>
   );
