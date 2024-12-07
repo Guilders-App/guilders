@@ -40,6 +40,7 @@ export const Hero = () => {
                 {titles.map((title, index) => (
                   <motion.span
                     key={index}
+                    //@ts-ignore
                     className="absolute font-semibold"
                     initial={{ opacity: 0, y: "-100" }}
                     transition={{ type: "spring", stiffness: 100 }}
