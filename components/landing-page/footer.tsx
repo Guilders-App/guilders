@@ -51,7 +51,7 @@ export const Footer = () => {
                 <p>1098 XH</p>
               </div>
               <div className="flex flex-col text-sm max-w-lg leading-relaxed tracking-tight text-background/75 text-left">
-                <Link href="/terms-of-service">Terms of service</Link>
+                <Link href="/terms-of-service">Terms of Service</Link>
                 <Link href="/privacy-policy">Privacy Policy</Link>
               </div>
             </div>
