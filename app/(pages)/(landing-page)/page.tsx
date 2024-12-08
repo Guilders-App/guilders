@@ -1,4 +1,5 @@
 import { FAQ } from "@/components/landing-page/faq";
+import { Features } from "@/components/landing-page/features";
 import { Hero } from "@/components/landing-page/hero";
 import { Newsletter } from "@/components/landing-page/newsletter";
 import { Metadata } from "next";
@@ -10,6 +11,7 @@ export default function Index() {
   return (
     <main className="flex flex-col items-center bg-background text-foreground">
       <Hero />
+      <Features />
       <FAQ />
       <Newsletter />
     </main>
