@@ -65,7 +65,25 @@ export default async function Signup(props: {
 
           <FormMessage message={searchParams} />
 
-          <div className="flex justify-center gap-1 text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground text-center">
+            By continuing to sign up, you agree to our
+            <br />
+            <Link
+              href="/terms-of-service"
+              className="font-medium text-primary hover:underline"
+            >
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/privacy-policy"
+              className="font-medium text-primary hover:underline"
+            >
+              Privacy Policy
+            </Link>
+          </p>
+
+          <div className="flex justify-center gap-1 text-xs text-muted-foreground">
             <p>Already have an account?</p>
             <Link
               href="/sign-in"
