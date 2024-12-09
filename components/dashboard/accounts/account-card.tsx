@@ -17,7 +17,7 @@ interface AccountsCardProps {
 export function AccountsCard({
   className,
   showViewAll = true,
-  title = "Assets",
+  title = "Accounts",
   accounts,
 }: AccountsCardProps) {
   return (

@@ -34,8 +34,7 @@ export function NetWorthCard({ className }: { className?: string }) {
 
   const change = {
     value: totalValue - totalCost,
-    percentage:
-      totalCost === 0 ? 0 : ((totalValue - totalCost) / totalCost) * 100,
+    percentage: totalCost === 0 ? 0 : (totalValue - totalCost) / totalCost,
     currency: user?.currency ?? "EUR",
   };
 
