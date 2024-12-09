@@ -81,7 +81,7 @@
  *           type: number
  *   responses:
  *     UnauthorizedError:
- *       description: Invalid credentials
+ *       description: Authentication required
  *       content:
  *         application/json:
  *           schema:
@@ -89,9 +89,13 @@
  *             properties:
  *               success:
  *                 type: boolean
+ *                 example: false
  *               error:
  *                 type: string
- *                 example: "Invalid credentials"
+ *                 example: "Authentication required"
+ *             required:
+ *               - success
+ *               - error
  *     ServerError:
  *       description: Server error
  *       content:

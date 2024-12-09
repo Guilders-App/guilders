@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/db/server";
+import { authenticate } from "@/lib/api/auth";
 import { NextResponse } from "next/server";
 
 /**
@@ -10,41 +10,47 @@ import { NextResponse } from "next/server";
  *     summary: Get all institutions
  *     description: Get all institutions
  *     responses:
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  *       500:
  *         $ref: '#/components/responses/ServerError'
  *       200:
  *         description: Successfully fetched institutions
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Institution'
  */
-export async function GET(_: Request) {
-  const supabase = await createClient();
-  let { data, error } = await supabase.from("institution").select("*");
+export async function GET(request: Request) {
+  try {
+    const { client, userId, error } = await authenticate(request);
 
-  if (error || !data) {
+    if (error || !client || !userId) {
+      return NextResponse.json(
+        { success: false, error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    let { data, error: dbError } = await client.from("institution").select("*");
+
+    if (dbError || !data) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: dbError?.message || "Error fetching institutions",
+        },
+        { status: 500 }
+      );
+    }
+
+    if (process.env.NODE_ENV === "production") {
+      data = data.filter(
+        (institution) => !institution.demo && institution.enabled
+      );
+    }
+
+    return NextResponse.json({ success: true, data });
+  } catch (error) {
     return NextResponse.json(
-      {
-        success: false,
-        error: error?.message || "Error fetching institutions",
-      },
+      { success: false, error: "Error fetching institutions" },
       { status: 500 }
     );
   }
-
-  if (process.env.NODE_ENV === "production") {
-    data = data.filter(
-      (institution) => !institution.demo && institution.enabled
-    );
-  }
-
-  return NextResponse.json({ success: true, data });
 }

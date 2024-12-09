@@ -9,8 +9,6 @@ import { NextResponse } from "next/server";
  *       - Institution Connections
  *     summary: Get all institution connections
  *     description: Get all institution connections for the authenticated user
- *     security:
- *       - BearerAuth: []
  *     responses:
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'

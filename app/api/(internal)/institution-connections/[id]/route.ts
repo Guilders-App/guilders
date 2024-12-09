@@ -9,8 +9,6 @@ import { NextResponse } from "next/server";
  *       - Institution Connections
  *     summary: Get an institution connection by ID
  *     description: Get an institution connection by ID for the authenticated user
- *     security:
- *       - BearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path

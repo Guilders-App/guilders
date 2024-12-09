@@ -11,8 +11,6 @@ import { deregisterConnection } from "../../common";
  *     summary: Deregister SaltEdge connection for the user
  *     description: |
  *       Deregister SaltEdge connection for the authenticated user.
- *     security:
- *       - BearerAuth: []
  *     responses:
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'

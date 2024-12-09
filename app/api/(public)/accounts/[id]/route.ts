@@ -1,3 +1,4 @@
+import { authenticate } from "@/lib/api/auth";
 import { TablesUpdate } from "@/lib/db/database.types";
 import { createClient } from "@/lib/db/server";
 import { Account, AccountUpdate } from "@/lib/db/types";
@@ -11,8 +12,6 @@ import { NextResponse } from "next/server";
  *       - Accounts
  *     summary: Get an account by ID
  *     description: Get an account by ID for the authenticated user
- *     security:
- *       - BearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path
@@ -40,6 +39,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await authenticate(request);
+    if (auth.error) return auth.error;
+
     const supabase = await createClient();
     const { id } = await params;
     const {
@@ -173,8 +175,6 @@ export async function GET(
  *       - Accounts
  *     summary: Delete an account by ID
  *     description: Delete an account by ID for the authenticated user
- *     security:
- *       - BearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path
@@ -245,8 +245,6 @@ export async function DELETE(
  *       - Accounts
  *     summary: Update an account by ID
  *     description: Update an account by ID for the authenticated user
- *     security:
- *       - BearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path

@@ -1,5 +1,5 @@
+import { authenticate } from "@/lib/api/auth";
 import { Tables } from "@/lib/db/database.types";
-import { createClient } from "@/lib/db/server";
 import { NextResponse } from "next/server";
 
 /**
@@ -11,33 +11,35 @@ import { NextResponse } from "next/server";
  *     summary: Get all currencies
  *     description: Get all supported currencies.
  *     responses:
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  *       500:
  *         $ref: '#/components/responses/ServerError'
  *       200:
  *         description: Successfully fetched currencies
  */
-export async function GET(_: Request) {
-  try {
-    const supabase = await createClient();
-    const { data: currencies, error } = await supabase
-      .from("currency")
-      .select();
+export async function GET(request: Request) {
+  const { client, userId, error } = await authenticate(request);
+  if (error || !client || !userId) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
 
-    if (error) {
-      return NextResponse.json(
-        { success: false, error: "Error fetching currencies" },
-        { status: 500 }
-      );
-    }
+  const { data: currencies, error: dbError } = await client
+    .from("currency")
+    .select();
 
-    return NextResponse.json({
-      success: true,
-      currencies: currencies as Tables<"currency">[],
-    });
-  } catch (error) {
+  if (dbError) {
     return NextResponse.json(
       { success: false, error: "Error fetching currencies" },
       { status: 500 }
     );
   }
+
+  return NextResponse.json({
+    success: true,
+    currencies: currencies as Tables<"currency">[],
+  });
 }

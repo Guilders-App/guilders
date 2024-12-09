@@ -1,5 +1,5 @@
+import { authenticate } from "@/lib/api/auth";
 import { Tables } from "@/lib/db/database.types";
-import { createClient } from "@/lib/db/server";
 import { TransactionInsert } from "@/lib/db/types";
 import { NextResponse } from "next/server";
 
@@ -11,8 +11,6 @@ import { NextResponse } from "next/server";
  *       - Transactions
  *     summary: Get all transactions for the user
  *     description: Get all transactions for the authenticated user
- *     security:
- *       - BearerAuth: []
  *     responses:
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
@@ -33,51 +31,38 @@ import { NextResponse } from "next/server";
  *                     $ref: '#/components/schemas/Transaction'
  */
 export async function GET(request: Request) {
-  try {
-    const supabase = await createClient();
-    const { searchParams } = new URL(request.url);
-    const accountId = searchParams.get("accountId");
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  const { client, userId, error } = await authenticate(request);
+  if (error || !client || !userId) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
 
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "Invalid credentials" },
-        { status: 401 }
-      );
-    }
+  const { searchParams } = new URL(request.url);
+  const accountId = searchParams.get("accountId");
 
-    let query = supabase
-      .from("transaction")
-      .select(`*, account:account_id(user_id)`)
-      .eq("account.user_id", user.id);
+  let query = client
+    .from("transaction")
+    .select(`*, account:account_id(user_id)`)
+    .eq("account.user_id", userId);
 
-    // Add account filter if accountId is provided
-    if (accountId) {
-      query = query.eq("account_id", accountId);
-    }
+  if (accountId) {
+    query = query.eq("account_id", accountId);
+  }
 
-    const { data: transactions, error } = await query
-      .order("date", { ascending: false })
-      .returns<Tables<"transaction">[]>();
+  const { data: transactions, error: dbError } = await query
+    .order("date", { ascending: false })
+    .returns<Tables<"transaction">[]>();
 
-    if (error) {
-      console.error("Supabase error:", error);
-      return NextResponse.json(
-        { success: false, error: "Error fetching transactions" },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ success: true, transactions });
-  } catch (error) {
-    console.error("Error fetching transactions:", error);
+  if (dbError) {
     return NextResponse.json(
       { success: false, error: "Error fetching transactions" },
       { status: 500 }
     );
   }
+
+  return NextResponse.json({ success: true, transactions });
 }
 
 /**
@@ -88,8 +73,6 @@ export async function GET(request: Request) {
  *       - Transactions
  *     summary: Create a new transaction
  *     description: Create a new transaction for the authenticated user
- *     security:
- *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -115,25 +98,22 @@ export async function GET(request: Request) {
  */
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient();
-    const transactionData: TransactionInsert = await request.json();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
+    const { client, userId, error } = await authenticate(request);
+    if (error || !client || !userId) {
       return NextResponse.json(
-        { success: false, error: "Invalid credentials" },
+        { success: false, error: "Authentication required" },
         { status: 401 }
       );
     }
 
+    const transactionData: TransactionInsert = await request.json();
+
     // Verify the account belongs to the user
-    const { data: account, error: accountError } = await supabase
+    const { data: account, error: accountError } = await client
       .from("account")
       .select("id, value")
       .eq("id", transactionData.account_id)
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .single();
 
     if (accountError || !account) {
@@ -144,14 +124,14 @@ export async function POST(request: Request) {
     }
 
     // Create the transaction
-    const { data: transaction, error } = await supabase
+    const { data: transaction, error: dbError } = await client
       .from("transaction")
       .insert(transactionData)
       .select()
       .single();
 
-    if (error) {
-      console.error("Supabase error:", error);
+    if (dbError) {
+      console.error("Supabase error:", dbError);
       return NextResponse.json(
         { success: false, error: "Error creating transaction" },
         { status: 500 }
@@ -159,7 +139,7 @@ export async function POST(request: Request) {
     }
 
     // Update the account value
-    const { error: updateError } = await supabase
+    const { error: updateError } = await client
       .from("account")
       .update({
         value: account.value + transaction.amount,
@@ -169,7 +149,7 @@ export async function POST(request: Request) {
     if (updateError) {
       console.error("Error updating account balance:", updateError);
       // Rollback the transaction since we couldn't update the balance
-      await supabase.from("transaction").delete().eq("id", transaction.id);
+      await client.from("transaction").delete().eq("id", transaction.id);
 
       return NextResponse.json(
         { success: false, error: "Error updating account balance" },

@@ -10,8 +10,6 @@ import { NextRequest, NextResponse } from "next/server";
  *     summary: Get all connections for the user
  *     description: |
  *       Get all connections for the authenticated user.
- *     security:
- *       - BearerAuth: []
  *     responses:
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'

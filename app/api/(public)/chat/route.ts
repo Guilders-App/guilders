@@ -1,5 +1,5 @@
+import { authenticate } from "@/lib/api/auth";
 import { createAdminClient } from "@/lib/db/admin";
-import { createClient } from "@/lib/db/server";
 import { getRates } from "@/lib/db/utils";
 import { anthropic } from "@ai-sdk/anthropic";
 import { convertToCoreMessages, streamText } from "ai";
@@ -65,30 +65,35 @@ interface FinancialSummary {
  *         description: Successfully streamed chat response
  */
 export async function POST(request: NextRequest) {
-  const { messages } = await request.json();
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const { client, userId, error } = await authenticate(request);
+  if (error || !client || !userId) {
     return NextResponse.json(
-      { success: false, error: "Invalid credentials" },
+      { success: false, error: "Authentication required" },
       { status: 401 }
     );
   }
 
-  const accountsContext = await getAccountsContext(user.id);
+  let messages;
+  try {
+    ({ messages } = await request.json());
+  } catch {
+    return NextResponse.json(
+      { success: false, error: "Invalid request body" },
+      { status: 400 }
+    );
+  }
+
+  const accountsContext = await getAccountsContext(userId);
   const systemMessage = `
-  You are a knowledgeable financial advisor with access to the user's current financial data.
-  Provide accurate, actionable advice while being direct and concise.
-  Focus on personal finance, investments, and retirement planning.
+    You are a knowledgeable financial advisor with access to the user's current financial data.
+    Provide accurate, actionable advice while being direct and concise.
+    Focus on personal finance, investments, and retirement planning.
 
-  ${accountsContext}
+    ${accountsContext}
 
-  When discussing amounts, always specify the currency but used the symbol where applicable.
-  Base your advice on the user's actual financial situation as shown in their data.
-  If asked about topics outside of the provided financial data, make that clear in your response.
+    When discussing amounts, always specify the currency but used the symbol where applicable.
+    Base your advice on the user's actual financial situation as shown in their data.
+    If asked about topics outside of the provided financial data, make that clear in your response.
   `;
 
   const result = streamText({
@@ -100,25 +105,25 @@ export async function POST(request: NextRequest) {
   return result.toDataStreamResponse();
 }
 
-const getAccountsContext = async (user_id: string): Promise<string> => {
+const getAccountsContext = async (userId: string): Promise<string> => {
   const supabase = await createAdminClient();
   const exchangeRates = await getRates();
 
   const { data: accounts } = await supabase
     .from("account")
     .select("*")
-    .eq("user_id", user_id);
+    .eq("user_id", userId);
 
   const { data: userSettings } = await supabase
     .from("user_settings")
     .select("*")
-    .eq("user_id", user_id)
+    .eq("user_id", userId)
     .single();
 
   const { data: transactions } = await supabase
     .from("transaction")
     .select("*, account!inner(*)")
-    .eq("account.user_id", user_id)
+    .eq("account.user_id", userId)
     .order("date", { ascending: false })
     .limit(50);
 

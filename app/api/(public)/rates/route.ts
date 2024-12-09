@@ -1,3 +1,4 @@
+import { authenticate } from "@/lib/api/auth";
 import { getRates } from "@/lib/db/utils";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -10,26 +11,35 @@ import { NextRequest, NextResponse } from "next/server";
  *     summary: Get currency rates
  *     description: Get currency rates, updated daily
  *     responses:
- *       '200':
- *         description: Rates
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Rate'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       500:
+ *         $ref: '#/components/responses/ServerError'
+ *       200:
+ *         description: Successfully fetched rates
  */
-export async function GET(_: NextRequest) {
-  const rates = await getRates();
+export async function GET(request: NextRequest) {
+  try {
+    const { client, userId, error } = await authenticate(request);
 
-  return NextResponse.json({
-    success: true,
-    base: "EUR",
-    data: rates,
-  });
+    if (error || !client || !userId) {
+      return NextResponse.json(
+        { success: false, error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    const rates = await getRates();
+
+    return NextResponse.json({
+      success: true,
+      base: "EUR",
+      data: rates,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: "Error fetching rates" },
+      { status: 500 }
+    );
+  }
 }

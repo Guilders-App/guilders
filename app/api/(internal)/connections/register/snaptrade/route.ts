@@ -12,8 +12,6 @@ import { registerConnection } from "../../common";
  *     description: |
  *       Register SnapTrade connection for the authenticated user.
  *       This is only necessary for providers that require registration.
- *     security:
- *       - BearerAuth: []
  *     responses:
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'

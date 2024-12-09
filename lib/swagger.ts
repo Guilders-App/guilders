@@ -9,17 +9,27 @@ export const getApiDocs = async () => {
       info: {
         title: "Guilders API",
         version: "1.0",
+        description:
+          "Authentication is required for all endpoints. Use either a Bearer token (for logged-in users) or an API key.",
       },
       components: {
         securitySchemes: {
-          BearerAuth: {
-            type: "http",
-            scheme: "bearer",
-            bearerFormat: "JWT",
+          // TODO: This is for logged in users and internal endpoints
+          // BearerAuth: {
+          //   type: "http",
+          //   scheme: "bearer",
+          //   bearerFormat: "JWT",
+          //   description: "JWT token obtained from logging in",
+          // },
+          ApiKeyAuth: {
+            type: "apiKey",
+            in: "header",
+            name: "X-Api-Key",
+            description: "API key for programmatic access",
           },
         },
       },
-      security: [],
+      security: [{ ApiKeyAuth: [] }],
     },
   });
   return spec;

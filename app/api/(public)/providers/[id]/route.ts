@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/db/server";
+import { authenticate } from "@/lib/api/auth";
 import { NextResponse } from "next/server";
 /**
  * @swagger
@@ -26,20 +26,26 @@ import { NextResponse } from "next/server";
  *                     $ref: '#/components/schemas/Provider'
  */
 export async function GET(
-  _: Request,
-  { params }: { params: Promise<{ id: string }> }
+  request: Request,
+  { params }: { params: { id: string } }
 ) {
-  const supabase = await createClient();
-  const { id } = await params;
-  const { data, error } = await supabase
+  const { client, userId, error } = await authenticate(request);
+  if (error || !client || !userId) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
+
+  const { data, error: dbError } = await client
     .from("provider")
     .select("*")
-    .eq("id", id)
+    .eq("id", params.id)
     .single();
 
-  if (error) {
+  if (dbError) {
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: dbError.message },
       { status: 500 }
     );
   }

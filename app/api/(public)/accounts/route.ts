@@ -1,6 +1,22 @@
+import { authenticate } from "@/lib/api/auth";
+import { Tables } from "@/lib/db/database.types";
 import { createClient } from "@/lib/db/server";
 import { Account, AccountInsert } from "@/lib/db/types";
 import { NextResponse } from "next/server";
+
+type AccountWithConnections = Tables<"account"> & {
+  institution_connection: {
+    broken: boolean;
+    institution: {
+      name: string;
+      logo_url: string;
+      provider: {
+        id: number;
+        name: string;
+      } | null;
+    } | null;
+  } | null;
+};
 
 /**
  * @swagger
@@ -10,8 +26,6 @@ import { NextResponse } from "next/server";
  *      - Accounts
  *     summary: Create a new account
  *     description: Create a new account for the authenticated user
- *     security:
- *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -101,8 +115,6 @@ export async function POST(request: Request) {
  *       - Accounts
  *     summary: Get all accounts for the user
  *     description: Get all accounts for the authenticated user
- *     security:
- *       - BearerAuth: []
  *     responses:
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
@@ -124,19 +136,15 @@ export async function POST(request: Request) {
  */
 export async function GET(request: Request) {
   try {
-    const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
+    const { client, userId, error } = await authenticate(request);
+    if (error || !client || !userId) {
       return NextResponse.json(
-        { success: false, error: "Invalid credentials" },
+        { success: false, error: "Authentication required" },
         { status: 401 }
       );
     }
 
-    const { data: allAccounts, error } = await supabase
+    const { data: allAccounts, error: dbError } = await client
       .from("account")
       .select(
         `
@@ -154,10 +162,9 @@ export async function GET(request: Request) {
         )
       `
       )
-      .eq("user_id", user.id);
+      .eq("user_id", userId);
 
-    if (error) {
-      console.error("Supabase error:", error);
+    if (dbError) {
       return NextResponse.json(
         { success: false, error: "Error fetching accounts" },
         { status: 500 }
@@ -165,44 +172,48 @@ export async function GET(request: Request) {
     }
 
     const accountsMap = new Map<number, Account>();
-    allAccounts.forEach((account) => {
-      accountsMap.set(account.id, {
-        ...account,
-        children: [],
-        institution_connection: account.institution_connection?.institution
-          ? {
-              broken: account.institution_connection.broken,
-              institution: {
-                name: account.institution_connection.institution.name,
-                logo_url: account.institution_connection.institution.logo_url,
-              },
-              provider: account.institution_connection.institution.provider
-                ? {
-                    id: account.institution_connection.institution.provider.id,
-                    name: account.institution_connection.institution.provider
-                      .name,
-                  }
-                : undefined,
-            }
-          : null,
-      });
-    });
+    (allAccounts as AccountWithConnections[]).forEach(
+      (account: AccountWithConnections) => {
+        accountsMap.set(account.id, {
+          ...account,
+          children: [],
+          institution_connection: account.institution_connection?.institution
+            ? {
+                broken: account.institution_connection.broken,
+                institution: {
+                  name: account.institution_connection.institution.name,
+                  logo_url: account.institution_connection.institution.logo_url,
+                },
+                provider: account.institution_connection.institution.provider
+                  ? {
+                      id: account.institution_connection.institution.provider
+                        .id,
+                      name: account.institution_connection.institution.provider
+                        .name,
+                    }
+                  : undefined,
+              }
+            : null,
+        });
+      }
+    );
 
     const topLevelAccounts: Account[] = [];
-    allAccounts.forEach((account) => {
-      if (account.parent) {
-        const parentAccount = accountsMap.get(account.parent);
-        if (parentAccount) {
-          parentAccount.children.push(accountsMap.get(account.id)!);
+    (allAccounts as AccountWithConnections[]).forEach(
+      (account: AccountWithConnections) => {
+        if (account.parent) {
+          const parentAccount = accountsMap.get(account.parent);
+          if (parentAccount) {
+            parentAccount.children.push(accountsMap.get(account.id)!);
+          }
+        } else {
+          topLevelAccounts.push(accountsMap.get(account.id)!);
         }
-      } else {
-        topLevelAccounts.push(accountsMap.get(account.id)!);
       }
-    });
+    );
 
     return NextResponse.json({ success: true, accounts: topLevelAccounts });
   } catch (error) {
-    console.error("Error fetching accounts:", error);
     return NextResponse.json(
       { success: false, error: "Error fetching accounts" },
       { status: 500 }

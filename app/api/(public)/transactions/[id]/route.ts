@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/db/server";
+import { authenticate } from "@/lib/api/auth";
 import { TransactionUpdate } from "@/lib/db/types";
 import { NextResponse } from "next/server";
 
@@ -10,8 +10,6 @@ import { NextResponse } from "next/server";
  *       - Transactions
  *     summary: Get a transaction by ID
  *     description: Get a transaction by ID for the authenticated user
- *     security:
- *       - BearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path
@@ -38,58 +36,47 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  try {
-    const supabase = await createClient();
-    const { id } = await params;
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  const { client, userId, error } = await authenticate(request);
+  if (error || !client || !userId) {
+    return NextResponse.json(
+      { success: false, error: "Authentication required" },
+      { status: 401 }
+    );
+  }
 
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "Invalid credentials" },
-        { status: 401 }
-      );
-    }
+  const { id } = await params;
 
-    // Join with account table to filter by user_id
-    const { data: transaction, error } = await supabase
-      .from("transaction")
-      .select(
-        `
+  // Join with account table to filter by user_id
+  const { data: transaction, error: dbError } = await client
+    .from("transaction")
+    .select(
+      `
         *,
         account:account_id (
           user_id
         )
       `
-      )
-      .eq("id", id)
-      .eq("account.user_id", user.id)
-      .single();
+    )
+    .eq("id", id)
+    .eq("account.user_id", userId)
+    .single();
 
-    if (error) {
-      console.error("Supabase error:", error);
-      return NextResponse.json(
-        { success: false, error: "Error fetching transaction" },
-        { status: 500 }
-      );
-    }
-
-    if (!transaction) {
-      return NextResponse.json(
-        { success: false, error: "Transaction not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({ success: true, transaction });
-  } catch (error) {
-    console.error("Error fetching transaction:", error);
+  if (dbError) {
+    console.error("Supabase error:", dbError);
     return NextResponse.json(
       { success: false, error: "Error fetching transaction" },
       { status: 500 }
     );
   }
+
+  if (!transaction) {
+    return NextResponse.json(
+      { success: false, error: "Transaction not found" },
+      { status: 404 }
+    );
+  }
+
+  return NextResponse.json({ success: true, transaction });
 }
 
 /**
@@ -100,8 +87,6 @@ export async function GET(
  *       - Transactions
  *     summary: Delete a transaction by ID
  *     description: Delete a transaction by ID for the authenticated user
- *     security:
- *       - BearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path
@@ -126,20 +111,17 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = await createClient();
-  const { id } = await params;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const { client, userId, error } = await authenticate(request);
+  if (error || !client || !userId) {
     return NextResponse.json(
-      { success: false, error: "Invalid credentials" },
+      { success: false, error: "Authentication required" },
       { status: 401 }
     );
   }
 
-  const { data: transaction, error: transactionError } = await supabase
+  const { id } = await params;
+
+  const { data: transaction, error: transactionError } = await client
     .from("transaction")
     .select()
     .eq("id", id)
@@ -152,11 +134,11 @@ export async function DELETE(
     );
   }
 
-  const { data: account, error: accountError } = await supabase
+  const { data: account, error: accountError } = await client
     .from("account")
     .select()
     .eq("id", transaction.account_id)
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .single();
 
   if (accountError || !account) {
@@ -166,9 +148,12 @@ export async function DELETE(
     );
   }
 
-  const { error } = await supabase.from("transaction").delete().eq("id", id);
+  const { error: deleteError } = await client
+    .from("transaction")
+    .delete()
+    .eq("id", id);
 
-  if (error) {
+  if (deleteError) {
     console.error("Supabase error:", error);
     return NextResponse.json(
       { success: false, error: "Error deleting transaction" },
@@ -176,7 +161,7 @@ export async function DELETE(
     );
   }
 
-  const { error: updateError } = await supabase
+  const { error: updateError } = await client
     .from("account")
     .update({
       value: account.value - transaction.amount,
@@ -202,8 +187,6 @@ export async function DELETE(
  *       - Transactions
  *     summary: Update a transaction by ID
  *     description: Update a transaction by ID for the authenticated user
- *     security:
- *       - BearerAuth: []
  *     parameters:
  *       - name: id
  *         in: path
@@ -230,23 +213,20 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const supabase = await createClient();
-  const updatedData: TransactionUpdate = await request.json();
-  const { id } = await params;
-  const dataToUpdate: TransactionUpdate = { ...updatedData };
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const { client, userId, error } = await authenticate(request);
+  if (error || !client || !userId) {
     return NextResponse.json(
-      { success: false, error: "Invalid credentials" },
+      { success: false, error: "Authentication required" },
       { status: 401 }
     );
   }
 
+  const updatedData: TransactionUpdate = await request.json();
+  const { id } = await params;
+  const dataToUpdate: TransactionUpdate = { ...updatedData };
+
   // First verify the transaction belongs to the user
-  const { data: transaction, error: transactionError } = await supabase
+  const { data: transaction, error: transactionError } = await client
     .from("transaction")
     .select()
     .eq("id", id)
@@ -259,11 +239,11 @@ export async function PUT(
     );
   }
 
-  const { data: account, error: accountError } = await supabase
+  const { data: account, error: accountError } = await client
     .from("account")
     .select()
     .eq("id", transaction.account_id)
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .single();
 
   if (accountError || !account) {
@@ -273,15 +253,15 @@ export async function PUT(
     );
   }
 
-  const { data: updatedTransaction, error } = await supabase
+  const { data: updatedTransaction, error: updateError } = await client
     .from("transaction")
     .update(dataToUpdate)
     .eq("id", id)
     .select()
     .single();
 
-  if (error) {
-    console.error("Supabase error:", error);
+  if (updateError) {
+    console.error("Supabase error:", updateError);
     return NextResponse.json(
       { success: false, error: "Error updating transaction" },
       { status: 500 }
@@ -289,15 +269,15 @@ export async function PUT(
   }
 
   // Update the account value
-  const { error: updateError } = await supabase
+  const { error: updateAccountError } = await client
     .from("account")
     .update({
       value: account.value - transaction.amount + updatedTransaction.amount,
     })
     .eq("id", transaction.account_id);
 
-  if (updateError) {
-    console.error("Supabase error:", updateError);
+  if (updateAccountError) {
+    console.error("Supabase error:", updateAccountError);
     return NextResponse.json(
       { success: false, error: "Error updating account balance" },
       { status: 500 }
