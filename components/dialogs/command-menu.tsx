@@ -51,21 +51,31 @@ export function CommandMenu() {
 
   const handleAddAccount = () => {
     close();
-    setTimeout(() => openManualAccount(), 40);
+    setTimeout(() => {
+      setSearch("");
+      openManualAccount();
+    }, 40);
   };
 
   const handleAddTransaction = () => {
     close();
-    setTimeout(() => openAddTransaction(), 40);
+    setTimeout(() => {
+      setSearch("");
+      openAddTransaction();
+    }, 40);
   };
 
   const handleAddLinkedAccount = (institution: Institution) => {
     close();
-    setTimeout(() => openLinkedAccount({ institution }), 40);
+    setTimeout(() => {
+      setSearch("");
+      openLinkedAccount({ institution });
+    }, 40);
   };
 
   const handleNavigate = (path: string) => {
     close();
+    setSearch("");
     router.push(path);
   };
 
