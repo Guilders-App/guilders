@@ -27,7 +27,7 @@ import { NextResponse } from "next/server";
  */
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { client, userId, error } = await authenticate(request);
   if (error || !client || !userId) {
@@ -37,10 +37,12 @@ export async function GET(
     );
   }
 
+  const { id } = await params;
+
   const { data, error: dbError } = await client
     .from("provider")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (dbError) {
