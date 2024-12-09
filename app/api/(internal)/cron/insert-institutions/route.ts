@@ -1,6 +1,5 @@
 import { insertSaltEdgeInstitutions } from "@/lib/providers/saltedge/functions";
 import { insertSnapTradeInstitutions } from "@/lib/providers/snaptrade/functions";
-import { insertVezgoInstitutions } from "@/lib/providers/vezgo/functions";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +15,5 @@ export async function GET(req: Request) {
   }
   await insertSnapTradeInstitutions();
   await insertSaltEdgeInstitutions();
-  await insertVezgoInstitutions();
   return new Response("OK");
 }

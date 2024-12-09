@@ -5,5 +5,4 @@ VALUES
   ('3', 'Plaid', 'https://evolcpeagtzeheagxreb.supabase.co/storage/v1/object/public/provider_logo/plaid_logo.svg'),
   ('4', 'TrueLayer', 'https://evolcpeagtzeheagxreb.supabase.co/storage/v1/object/public/provider_logo/truelayer_logo.svg'),
   ('5', 'SaltEdge', 'https://evolcpeagtzeheagxreb.supabase.co/storage/v1/object/public/provider_logo/saltedge_logo.svg'),
-  ('6', 'Tink', 'https://evolcpeagtzeheagxreb.supabase.co/storage/v1/object/public/provider_logo/tink_logo.svg'),
-  ('7', 'Vezgo', 'https://evolcpeagtzeheagxreb.supabase.co/storage/v1/object/public/provider_logo/vezgo_logo.svg');
+  ('6', 'Tink', 'https://evolcpeagtzeheagxreb.supabase.co/storage/v1/object/public/provider_logo/tink_logo.svg');

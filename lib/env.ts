@@ -26,9 +26,6 @@ declare global {
       SALTEDGE_PUBLIC_KEY: string;
       SALTEDGE_CALLBACK_USERNAME: string;
       SALTEDGE_CALLBACK_PASSWORD: string;
-      // Vezgo (crypto provider)
-      VEZGO_CLIENT_ID: string;
-      VEZGO_CLIENT_SECRET: string;
       // Other
       NEXT_PUBLIC_CAL_URL: string;
     }
