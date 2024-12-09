@@ -61,19 +61,23 @@ export function ProviderDialog() {
           }
         }
       } else if (e.origin === "https://www.saltedge.com") {
-        const { data: messageData } = JSON.parse(e.data);
-        if (!messageData) return;
+        if (e.data === "cancel") {
+          close();
+        } else {
+          const { data: messageData } = JSON.parse(e.data);
+          if (!messageData) return;
 
-        if (messageData.stage === "success") {
-          close();
-          toast.success(successToast.title, {
-            description: successToast.description,
-          });
-        } else if (messageData.stage === "error") {
-          toast.error(errorToast.title, {
-            description: errorToast.description,
-          });
-          close();
+          if (messageData.stage === "success") {
+            close();
+            toast.success(successToast.title, {
+              description: successToast.description,
+            });
+          } else if (messageData.stage === "error") {
+            toast.error(errorToast.title, {
+              description: errorToast.description,
+            });
+            close();
+          }
         }
       }
     };
