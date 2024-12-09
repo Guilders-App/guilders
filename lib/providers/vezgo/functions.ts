@@ -25,7 +25,7 @@ export const insertVezgoInstitutions = async () => {
       provider_institution_id: institution.name!,
       name: institution.display_name!,
       logo_url: institution.logo!,
-      enabled: true,
+      enabled: false,
       country: null,
     }));
 

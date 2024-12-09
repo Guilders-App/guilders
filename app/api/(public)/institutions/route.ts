@@ -41,7 +41,9 @@ export async function GET(_: Request) {
   }
 
   if (process.env.NODE_ENV === "production") {
-    data = data.filter((institution) => !institution.demo);
+    data = data.filter(
+      (institution) => !institution.demo && institution.enabled
+    );
   }
 
   return NextResponse.json({ success: true, data });
