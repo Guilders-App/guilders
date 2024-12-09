@@ -18,7 +18,7 @@ import { CommandLoading } from "cmdk";
 import { Banknote, Landmark, Link2, SquarePen } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export function CommandMenu() {
   const { isOpen, data, open, close, update } = useDialog("command");
@@ -77,19 +77,22 @@ export function CommandMenu() {
 
   const currentPage = pages[pages.length - 1];
 
-  const filteredInstitutions = institutions?.filter((institution) => {
-    if (!search) return true;
+  const allInstitutions = institutions || [];
+  const filteredInstitutions = useMemo(() => {
+    return allInstitutions.filter((institution) => {
+      if (!search) return true;
 
-    const searchLower = search.toLowerCase();
-    const countryName = institution.country
-      ? countriesData?.countriesMap.get(institution.country) || "Global"
-      : "Global";
+      const searchLower = search.toLowerCase();
+      const countryName = institution.country
+        ? countriesData?.countriesMap.get(institution.country) || "Global"
+        : "Global";
 
-    return (
-      institution.name.toLowerCase().includes(searchLower) ||
-      countryName.toLowerCase().includes(searchLower)
-    );
-  });
+      return (
+        institution.name.toLowerCase().includes(searchLower) ||
+        countryName.toLowerCase().includes(searchLower)
+      );
+    });
+  }, [search, allInstitutions, countriesData?.countriesMap]);
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -129,6 +132,7 @@ export function CommandMenu() {
       onOpenChange={handleOpenChange}
       commandProps={{
         onKeyDown: handleKeyDown,
+        shouldFilter: currentPage !== "add-synced-account",
       }}
     >
       <CommandInput
