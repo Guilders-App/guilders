@@ -77,7 +77,7 @@ export function CompactBalanceCard({
   // Calculate change
   const change = {
     value: totalCost ? totalValue - totalCost : 0,
-    percentage: totalCost ? ((totalValue - totalCost) / totalCost) * 100 : 0,
+    percentage: totalCost ? (totalValue - totalCost) / totalCost : 0,
     currency: userCurrency,
   };
 

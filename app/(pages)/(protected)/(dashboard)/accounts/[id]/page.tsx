@@ -39,7 +39,7 @@ export default function AccountPage({
   const change = {
     value: account?.cost ? account.value - account.cost : 0,
     percentage: account?.cost
-      ? ((account.value - account.cost) / account.cost) * 100
+      ? (account.value - account.cost) / account.cost
       : 0,
     currency: account?.currency || "EUR",
   };
