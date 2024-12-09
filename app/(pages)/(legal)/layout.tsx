@@ -1,3 +1,4 @@
+import { Footer } from "@/components/landing-page/footer";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -12,5 +13,10 @@ export default function LegalLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <main className="container max-w-3xl py-10 md:py-16">{children}</main>;
+  return (
+    <>
+      <main className="container max-w-3xl py-10 md:py-16">{children}</main>
+      <Footer />
+    </>
+  );
 }
