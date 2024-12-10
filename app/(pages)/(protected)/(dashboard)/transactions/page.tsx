@@ -3,6 +3,7 @@
 import { TransactionItem } from "@/components/dashboard/transactions/transaction-item";
 import { TransactionsCard } from "@/components/dashboard/transactions/transactions-card";
 import { TransactionsEmptyPlaceholder } from "@/components/dashboard/transactions/transactions-placeholder";
+import { TransactionsSankey } from "@/components/dashboard/transactions/transactions-sankey";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -170,6 +171,12 @@ export default function TransactionsPage() {
           </CardContent>
         </Card>
       </div>
+
+      <TransactionsSankey
+        transactions={transactions}
+        isLoading={isLoading || isLoadingUser}
+        userCurrency={user?.currency ?? "EUR"}
+      />
 
       <TransactionsCard menuComponent={menuComponent}>
         <div className="space-y-2">
