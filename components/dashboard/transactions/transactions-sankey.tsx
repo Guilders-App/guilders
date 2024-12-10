@@ -1,17 +1,12 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartContainer } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Transaction } from "@/lib/db/types";
 import { convertToUserCurrency } from "@/lib/utils/financial";
 import { useMemo } from "react";
-import {
-  Layer,
-  Rectangle,
-  ResponsiveContainer,
-  Sankey,
-  Tooltip,
-} from "recharts";
+import { Layer, Rectangle, Sankey } from "recharts";
 
 interface TransactionsSankeyProps {
   transactions: Transaction[] | undefined;
@@ -270,21 +265,17 @@ export function TransactionsSankey({
       <CardHeader>
         <CardTitle>Cash Flow</CardTitle>
       </CardHeader>
-      <CardContent className="pb-8">
-        <div className="w-full h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <Sankey
-              data={sankeyData}
-              node={<CustomNode userCurrency={userCurrency} />}
-              link={<CustomLink />}
-              nodePadding={20}
-              nodeWidth={10}
-              margin={{ top: 10, right: 100, bottom: 10, left: 100 }}
-            >
-              <Tooltip />
-            </Sankey>
-          </ResponsiveContainer>
-        </div>
+      <CardContent>
+        <ChartContainer className="w-full h-[400px]" config={{}}>
+          <Sankey
+            data={sankeyData}
+            node={<CustomNode userCurrency={userCurrency} />}
+            link={<CustomLink />}
+            nodePadding={20}
+            nodeWidth={10}
+            margin={{ top: 10, right: 100, bottom: 10, left: 60 }}
+          />
+        </ChartContainer>
       </CardContent>
     </Card>
   );
