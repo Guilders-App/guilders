@@ -1,6 +1,7 @@
 "use client";
 
 import { TransactionItem } from "@/components/dashboard/transactions/transaction-item";
+import { TransactionsCard } from "@/components/dashboard/transactions/transactions-card";
 import { TransactionsEmptyPlaceholder } from "@/components/dashboard/transactions/transactions-placeholder";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,11 +13,14 @@ import { cn } from "@/lib/utils";
 import { convertToUserCurrency } from "@/lib/utils/financial";
 import NumberFlow from "@number-flow/react";
 import { Filter, Plus, Search } from "lucide-react";
+import { useRef, useState } from "react";
 
 export default function TransactionsPage() {
   const { data: transactions, isLoading } = useTransactions();
   const { data: user, isLoading: isLoadingUser } = useUser();
   const { open: openAddTransaction } = useDialog("addTransaction");
+  const [searchQuery, setSearchQuery] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const totalIncome =
     transactions?.reduce(
@@ -51,6 +55,52 @@ export default function TransactionsPage() {
     ) ?? 0;
 
   const totalTransactions = transactions?.length ?? 0;
+
+  const filteredTransactions = transactions?.filter((transaction) => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      transaction.description?.toLowerCase().includes(searchLower) ||
+      transaction.category?.toLowerCase().includes(searchLower) ||
+      transaction.amount.toString().includes(searchLower) ||
+      transaction.currency.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const menuComponent = (
+    <>
+      <div className="relative flex-1 md:w-64 md:flex-none">
+        <div
+          className={cn(
+            "relative flex w-full items-center",
+            "rounded-md border border-input",
+            "bg-background hover:bg-accent hover:text-accent-foreground",
+            "ring-offset-background",
+            "transition-colors",
+            "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
+          )}
+          onClick={() => searchInputRef.current?.focus()}
+        >
+          <Search className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" />
+          <input
+            ref={searchInputRef}
+            type="text"
+            placeholder="Search transactions..."
+            className={cn(
+              "flex w-full bg-transparent px-2 py-2 text-sm",
+              "placeholder:text-muted-foreground",
+              "focus:outline-none focus:ring-0",
+              "disabled:cursor-not-allowed disabled:opacity-50"
+            )}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+      <Button variant="outline" size="icon" disabled>
+        <Filter className="h-4 w-4" />
+      </Button>
+    </>
+  );
 
   return (
     <div className="p-4 space-y-4">
@@ -121,57 +171,34 @@ export default function TransactionsPage() {
         </Card>
       </div>
 
-      {/* Transactions Card */}
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col space-y-2 md:flex-row md:items-center md:justify-between md:space-y-0">
-            <CardTitle>Recent Transactions</CardTitle>
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1 md:w-64 md:flex-none">
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "relative w-full justify-start text-sm text-muted-foreground",
-                    "bg-background hover:bg-accent hover:text-accent-foreground",
-                    "border border-input",
-                    "ring-offset-background",
-                    "transition-colors",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  )}
-                >
-                  <Search className="mr-2 h-4 w-4 shrink-0" />
-                  <span>Search transactions...</span>
-                </Button>
-              </div>
-              <Button variant="outline" size="icon">
-                <Filter className="h-4 w-4" />
-              </Button>
+      <TransactionsCard menuComponent={menuComponent}>
+        <div className="space-y-2">
+          {isLoading ? (
+            <div className="space-y-2">
+              {[...Array(4)].map((_, index) => (
+                <Skeleton key={index} className="h-16 w-full" />
+              ))}
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {isLoading ? (
-              <div className="space-y-2">
-                {[...Array(4)].map((_, index) => (
-                  <Skeleton key={index} className="h-16 w-full" />
-                ))}
+          ) : !filteredTransactions || filteredTransactions.length === 0 ? (
+            searchQuery ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No transactions found matching "{searchQuery}"
               </div>
-            ) : !transactions || transactions.length === 0 ? (
-              <TransactionsEmptyPlaceholder />
             ) : (
-              transactions
-                .sort((a, b) => b.date.localeCompare(a.date))
-                .map((transaction) => (
-                  <TransactionItem
-                    key={transaction.id}
-                    transaction={transaction}
-                  />
-                ))
-            )}
-          </div>
-        </CardContent>
-      </Card>
+              <TransactionsEmptyPlaceholder />
+            )
+          ) : (
+            filteredTransactions
+              .sort((a, b) => b.date.localeCompare(a.date))
+              .map((transaction) => (
+                <TransactionItem
+                  key={transaction.id}
+                  transaction={transaction}
+                />
+              ))
+          )}
+        </div>
+      </TransactionsCard>
     </div>
   );
 }
