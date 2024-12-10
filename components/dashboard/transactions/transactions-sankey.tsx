@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartContainer } from "@/components/ui/chart";
+import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Transaction } from "@/lib/db/types";
 import { convertToUserCurrency } from "@/lib/utils/financial";
@@ -24,6 +24,7 @@ interface SankeyLink {
   target: number;
   value: number;
   color?: string;
+  flowIndex: number;
 }
 
 interface SankeyData {
@@ -31,21 +32,95 @@ interface SankeyData {
   links: SankeyLink[];
 }
 
-// Color palette for links
-const COLORS = [
-  "#22c55e", // green
-  "#3b82f6", // blue
-  "#f97316", // orange
-  "#8b5cf6", // purple
-  "#ec4899", // pink
-  "#06b6d4", // cyan
-  "#eab308", // yellow
-  "#14b8a6", // teal
-  "#f43f5e", // rose
-  "#a855f7", // violet
-];
+// Define chart color config with theme support
+const chartConfig: ChartConfig = {
+  income: {
+    theme: {
+      light: "hsl(142.1 76.2% 36.3%)", // green-600
+      dark: "hsl(142.1 70.6% 45.3%)", // green-500
+    },
+  },
+  expense: {
+    theme: {
+      light: "hsl(0 84.2% 60.2%)", // red-500
+      dark: "hsl(0 72.2% 50.6%)", // red-600
+    },
+  },
+  flow1: {
+    theme: {
+      light: "hsl(221.2 83.2% 53.3%)", // blue-500
+      dark: "hsl(217.2 91.2% 59.8%)", // blue-400
+    },
+  },
+  flow2: {
+    theme: {
+      light: "hsl(24.6 95% 53.1%)", // orange-500
+      dark: "hsl(20.5 90.2% 48.2%)", // orange-600
+    },
+  },
+  flow3: {
+    theme: {
+      light: "hsl(262.1 83.3% 57.8%)", // purple-500
+      dark: "hsl(263.4 70% 50.4%)", // purple-600
+    },
+  },
+  flow4: {
+    theme: {
+      light: "hsl(316.6 73.3% 52.4%)", // pink-500
+      dark: "hsl(322.1 73.7% 59.8%)", // pink-400
+    },
+  },
+  flow5: {
+    theme: {
+      light: "hsl(189.5 94.5% 42.7%)", // cyan-500
+      dark: "hsl(192.9 82.3% 49.8%)", // cyan-400
+    },
+  },
+  flow6: {
+    theme: {
+      light: "hsl(168.6 76.2% 36.3%)", // teal-500
+      dark: "hsl(168.6 70.6% 45.3%)", // teal-400
+    },
+  },
+  flow7: {
+    theme: {
+      light: "hsl(43.3 96.4% 56.3%)", // yellow-500
+      dark: "hsl(48 96.5% 53.3%)", // yellow-400
+    },
+  },
+  flow8: {
+    theme: {
+      light: "hsl(280.6 83.3% 52.4%)", // violet-500
+      dark: "hsl(280.6 73.7% 59.8%)", // violet-400
+    },
+  },
+  flow9: {
+    theme: {
+      light: "hsl(144.9 80.4% 42.9%)", // emerald-500
+      dark: "hsl(142.1 76.2% 47.3%)", // emerald-400
+    },
+  },
+  flow10: {
+    theme: {
+      light: "hsl(334.9 85.2% 56.9%)", // rose-500
+      dark: "hsl(336 80.2% 58.2%)", // rose-400
+    },
+  },
+  flow11: {
+    theme: {
+      light: "hsl(199.7 88.7% 48.4%)", // sky-500
+      dark: "hsl(198.6 88.7% 53.3%)", // sky-400
+    },
+  },
+  flow12: {
+    theme: {
+      light: "hsl(291.5 93.5% 58.4%)", // fuchsia-500
+      dark: "hsl(292.2 84.1% 60.6%)", // fuchsia-400
+    },
+  },
+};
 
-// Custom node component with value annotation
+// Custom node component with theme support
 function CustomNode({
   x,
   y,
@@ -56,14 +131,12 @@ function CustomNode({
   userCurrency,
 }: any) {
   const isIncome = payload.name.includes("Income");
-
   const formattedValue = new Intl.NumberFormat(undefined, {
     style: "currency",
     currency: userCurrency,
     maximumFractionDigits: 0,
   }).format(Math.round(payload.value));
 
-  // Format the category name properly
   const categoryName = payload.name
     .replace(/ \(Income\)$/, "")
     .replace(/ \(Expense\)$/, "");
@@ -75,15 +148,15 @@ function CustomNode({
         y={y}
         width={width}
         height={height}
-        fill={isIncome ? "#22c55e" : "#ef4444"}
-        fillOpacity={0.6}
+        fill={`var(--color-${isIncome ? "income" : "expense"})`}
+        fillOpacity={1}
       />
       <text
         textAnchor={isIncome ? "end" : "start"}
         x={isIncome ? x - 6 : x + width + 6}
         y={y + height / 2}
         fontSize="12"
-        stroke="#333"
+        className="fill-foreground"
       >
         {categoryName}
       </text>
@@ -92,8 +165,7 @@ function CustomNode({
         x={isIncome ? x - 6 : x + width + 6}
         y={y + height / 2 + 13}
         fontSize="10"
-        stroke="#333"
-        strokeOpacity="0.5"
+        className="fill-muted-foreground"
       >
         {formattedValue}
       </text>
@@ -101,7 +173,7 @@ function CustomNode({
   );
 }
 
-// Custom link component
+// Custom link component with theme support
 function CustomLink({
   sourceX,
   sourceY,
@@ -112,6 +184,8 @@ function CustomLink({
   linkWidth,
   payload,
 }: any) {
+  const flowIndex = payload.flowIndex;
+
   return (
     <path
       d={`
@@ -119,14 +193,14 @@ function CustomLink({
         C${sourceControlX},${sourceY} ${targetControlX},${targetY} ${targetX},${targetY}
       `}
       fill="none"
-      stroke={payload.color}
+      stroke={`var(--color-flow${flowIndex})`}
       strokeWidth={linkWidth}
-      strokeOpacity={0.3}
+      strokeOpacity={0.6}
       onMouseEnter={(e) => {
-        e.currentTarget.style.strokeOpacity = "0.5";
+        e.currentTarget.style.strokeOpacity = "0.8";
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.strokeOpacity = "0.3";
+        e.currentTarget.style.strokeOpacity = "0.6";
       }}
     />
   );
@@ -210,11 +284,14 @@ export function TransactionsSankey({
           source: incomeIndices.get(incomeCat)!,
           target: incomeNodeIndex,
           value: incomeForCategory,
-          color: COLORS[colorIndex % COLORS.length],
+          flowIndex: (colorIndex % 12) + 1, // Use all 12 colors
         });
         colorIndex++;
       }
     });
+
+    // Reset color index for expenses to start from first color again
+    colorIndex = 0;
 
     // Second set of links: from central Income node to expense categories
     expenseArray.forEach((expenseCat) => {
@@ -234,7 +311,7 @@ export function TransactionsSankey({
           source: incomeNodeIndex,
           target: expenseIndices.get(expenseCat)!,
           value: expenseForCategory,
-          color: COLORS[colorIndex % COLORS.length],
+          flowIndex: (colorIndex % 12) + 1, // Use all 12 colors
         });
         colorIndex++;
       }
@@ -266,7 +343,7 @@ export function TransactionsSankey({
         <CardTitle>Cash Flow</CardTitle>
       </CardHeader>
       <CardContent>
-        <ChartContainer className="w-full h-[400px]" config={{}}>
+        <ChartContainer className="w-full h-[400px]" config={chartConfig}>
           <Sankey
             data={sankeyData}
             node={<CustomNode userCurrency={userCurrency} />}
