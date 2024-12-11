@@ -4,150 +4,83 @@ import { Loader2, Upload, X } from "lucide-react";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import Dropzone, {
+  DropEvent,
   type DropzoneProps,
   type FileRejection,
 } from "react-dropzone";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useControllableState } from "@/lib/hooks/useControllableState";
 import { cn, formatBytes } from "@/lib/utils";
 
 interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  /**
-   * Value of the uploader.
-   * @type File[]
-   * @default undefined
-   * @example value={files}
-   */
   value?: File[];
-
-  /**
-   * Function to be called when the value changes.
-   * @type (files: File[]) => void
-   * @default undefined
-   * @example onValueChange={(files) => setFiles(files)}
-   */
   onValueChange?: (files: File[]) => void;
-
-  /**
-   * Function to be called when files are uploaded.
-   * @type (files: File[]) => Promise<void>
-   * @default undefined
-   * @example onUpload={(files) => uploadFiles(files)}
-   */
-  onUpload?: (files: File[]) => Promise<void>;
-
-  /**
-   * Progress of the uploaded files.
-   * @type Record<string, number> | undefined
-   * @default undefined
-   * @example progresses={{ "file1.png": 50 }}
-   */
-  progresses?: Record<string, number>;
-
-  /**
-   * Accepted file types for the uploader.
-   * @type { [key: string]: string[]}
-   * @default
-   * ```ts
-   * { "image/*": [] }
-   * ```
-   * @example accept={["image/png", "image/jpeg"]}
-   */
+  onUpload?: (files: File[]) => Promise<string[]>;
   accept?: DropzoneProps["accept"];
-
-  /**
-   * Maximum file size for the uploader.
-   * @type number | undefined
-   * @default 1024 * 1024 * 2 // 2MB
-   * @example maxSize={1024 * 1024 * 2} // 2MB
-   */
-  maxSize?: DropzoneProps["maxSize"];
-
-  /**
-   * Maximum number of files for the uploader.
-   * @type number | undefined
-   * @default 1
-   * @example maxFileCount={4}
-   */
-  maxFileCount?: DropzoneProps["maxFiles"];
-
-  /**
-   * Whether the uploader should accept multiple files.
-   * @type boolean
-   * @default false
-   * @example multiple
-   */
+  maxSize?: number;
+  maxFileCount?: number;
   multiple?: boolean;
-
-  /**
-   * Whether the uploader is disabled.
-   * @type boolean
-   * @default false
-   * @example disabled
-   */
   disabled?: boolean;
-
-  /**
-   * Existing documents to display
-   * @type string[] | undefined
-   * @default undefined
-   * @example existingDocuments={["path/to/doc1.pdf", "path/to/doc2.jpg"]}
-   */
   existingDocuments?: string[];
-
-  /**
-   * Callback when an existing document is removed
-   * @type (path: string) => void
-   * @default undefined
-   */
   onRemoveExisting?: (path: string) => Promise<void>;
-
-  /**
-   * Callback when a file is viewed
-   * @type (path: string) => Promise<string>
-   * @default undefined
-   */
   onView?: (path: string) => Promise<string>;
 }
 
-export function FileUploader(props: FileUploaderProps) {
-  const {
-    value: valueProp,
-    onValueChange,
-    onUpload,
-    progresses,
-    accept = {
-      "image/*": [],
-    },
-    maxSize = 1024 * 1024 * 2,
-    maxFileCount = 1,
-    multiple = false,
-    disabled = false,
-    existingDocuments = [],
-    onRemoveExisting,
-    onView,
-    className,
-    ...dropzoneProps
-  } = props;
-
+export function FileUploader({
+  value: valueProp,
+  onValueChange,
+  onUpload,
+  accept = { "image/*": [] },
+  maxSize = 1024 * 1024 * 2,
+  maxFileCount = 1,
+  multiple = false,
+  disabled = false,
+  existingDocuments = [],
+  onRemoveExisting,
+  onView,
+  className,
+  ...dropzoneProps
+}: FileUploaderProps) {
   const [files, setFiles] = useControllableState({
     prop: valueProp,
     onChange: onValueChange,
   });
 
-  const [localDocuments, setLocalDocuments] =
-    useState<string[]>(existingDocuments);
+  const [localDocuments, setLocalDocuments] = useState(existingDocuments);
+  const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>(
+    {}
+  );
 
   useEffect(() => {
     setLocalDocuments(existingDocuments);
   }, [existingDocuments]);
 
+  const handleUpload = async (newFiles: File[]) => {
+    if (!onUpload) return;
+
+    const uploading = newFiles.reduce(
+      (acc, file) => ({ ...acc, [file.name]: true }),
+      {} as Record<string, boolean>
+    );
+    setUploadingFiles(uploading);
+
+    try {
+      const uploadedFiles = await onUpload(newFiles);
+      setLocalDocuments((prev) => [...prev, ...uploadedFiles]);
+      setFiles([]);
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Failed to upload files");
+    } finally {
+      setUploadingFiles({});
+    }
+  };
+
   const onDrop = React.useCallback(
-    (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
+    (acceptedFiles: File[], rejectedFiles: FileRejection[], _: DropEvent) => {
       if (!multiple && maxFileCount === 1 && acceptedFiles.length > 1) {
         toast.error("Cannot upload more than 1 file at a time");
         return;
@@ -159,14 +92,10 @@ export function FileUploader(props: FileUploaderProps) {
       }
 
       const newFiles = acceptedFiles.map((file) =>
-        Object.assign(file, {
-          preview: URL.createObjectURL(file),
-        })
+        Object.assign(file, { preview: URL.createObjectURL(file) })
       );
 
-      const updatedFiles = files ? [...files, ...newFiles] : newFiles;
-
-      setFiles(updatedFiles);
+      setFiles(newFiles);
 
       if (rejectedFiles.length > 0) {
         rejectedFiles.forEach(({ file }) => {
@@ -174,32 +103,25 @@ export function FileUploader(props: FileUploaderProps) {
         });
       }
 
-      if (
-        onUpload &&
-        updatedFiles.length > 0 &&
-        updatedFiles.length <= maxFileCount
-      ) {
-        const target =
-          updatedFiles.length > 0 ? `${updatedFiles.length} files` : `file`;
-
-        toast.promise(onUpload(updatedFiles), {
-          loading: `Uploading ${target}...`,
-          success: () => `${target} uploaded`,
-          error: `Failed to upload ${target}`,
+      if (newFiles.length > 0) {
+        toast.promise(handleUpload(newFiles), {
+          loading: `Uploading ${newFiles.length > 1 ? "files" : "file"}...`,
+          success: `Upload complete`,
+          error: `Upload failed`,
         });
       }
     },
-    [files, maxFileCount, multiple, onUpload, setFiles]
+    [files, maxFileCount, multiple]
   );
 
-  async function onRemove(index: number) {
+  const onRemove = async (index: number) => {
     if (!files) return;
     const newFiles = files.filter((_, i) => i !== index);
     setFiles(newFiles);
     onValueChange?.(newFiles);
-  }
+  };
 
-  async function handleRemoveExisting(path: string) {
+  const handleRemoveExisting = async (path: string) => {
     if (!onRemoveExisting) return;
 
     try {
@@ -209,7 +131,7 @@ export function FileUploader(props: FileUploaderProps) {
       toast.error("Failed to remove file");
       throw error;
     }
-  }
+  };
 
   const isDisabled =
     disabled || (files?.length ?? 0 + localDocuments.length) >= maxFileCount;
@@ -217,12 +139,14 @@ export function FileUploader(props: FileUploaderProps) {
   return (
     <div className="relative flex flex-col gap-6 overflow-hidden">
       <Dropzone
+        // @ts-ignore
         onDrop={onDrop}
         accept={accept}
         maxSize={maxSize}
         maxFiles={maxFileCount - localDocuments.length}
         multiple={maxFileCount > 1 || multiple}
         disabled={isDisabled}
+        {...dropzoneProps}
       >
         {({ getRootProps, getInputProps, isDragActive }) => (
           <div
@@ -234,46 +158,17 @@ export function FileUploader(props: FileUploaderProps) {
               isDisabled && "pointer-events-none opacity-60",
               className
             )}
-            {...dropzoneProps}
           >
             <input {...getInputProps()} />
-            {isDragActive ? (
-              <div className="flex flex-col items-center justify-center gap-4 sm:px-5">
-                <div className="rounded-full border border-dashed p-3">
-                  <Upload
-                    className="size-7 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                </div>
-                <p className="font-medium text-muted-foreground">
-                  Drop the files here
-                </p>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-4 sm:px-5">
-                <div className="rounded-full border border-dashed p-3">
-                  <Upload
-                    className="size-7 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                </div>
-                <div className="flex flex-col gap-px">
-                  <p className="font-medium text-muted-foreground">
-                    Drag and drop files here, or click to select files
-                  </p>
-                  <p className="text-sm text-muted-foreground/70">
-                    You can upload
-                    {maxFileCount > 1
-                      ? ` ${maxFileCount === Infinity ? "multiple" : maxFileCount}
-                      files (up to ${formatBytes(maxSize)} each)`
-                      : ` a file with ${formatBytes(maxSize)}`}
-                  </p>
-                </div>
-              </div>
-            )}
+            <DropzoneContent
+              isDragActive={isDragActive}
+              maxSize={maxSize}
+              maxFileCount={maxFileCount}
+            />
           </div>
         )}
       </Dropzone>
+
       {((files?.length ?? 0) > 0 || localDocuments.length > 0) && (
         <ScrollArea className="h-fit w-full px-3">
           <div className="flex max-h-48 flex-col gap-4">
@@ -288,7 +183,7 @@ export function FileUploader(props: FileUploaderProps) {
                     : "image/*",
                 }}
                 path={path}
-                onRemove={async () => handleRemoveExisting(path)}
+                onRemove={() => handleRemoveExisting(path)}
                 onView={onView}
               />
             ))}
@@ -297,7 +192,7 @@ export function FileUploader(props: FileUploaderProps) {
                 key={`new-${index}`}
                 file={file}
                 onRemove={() => onRemove(index)}
-                progress={progresses?.[file.name]}
+                isUploading={uploadingFiles[file.name]}
                 onView={onView}
               />
             ))}
@@ -308,15 +203,62 @@ export function FileUploader(props: FileUploaderProps) {
   );
 }
 
+function DropzoneContent({
+  isDragActive,
+  maxSize,
+  maxFileCount,
+}: {
+  isDragActive: boolean;
+  maxSize: number;
+  maxFileCount: number;
+}) {
+  if (isDragActive) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 sm:px-5">
+        <div className="rounded-full border border-dashed p-3">
+          <Upload className="size-7 text-muted-foreground" aria-hidden="true" />
+        </div>
+        <p className="font-medium text-muted-foreground">Drop the files here</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center gap-4 sm:px-5">
+      <div className="rounded-full border border-dashed p-3">
+        <Upload className="size-7 text-muted-foreground" aria-hidden="true" />
+      </div>
+      <div className="flex flex-col gap-px">
+        <p className="font-medium text-muted-foreground">
+          Drag and drop files here, or click to select files
+        </p>
+        <p className="text-sm text-muted-foreground/70">
+          You can upload
+          {maxFileCount > 1
+            ? ` ${maxFileCount === Infinity ? "multiple" : maxFileCount}
+            files (up to ${formatBytes(maxSize)} each)`
+            : ` a file with ${formatBytes(maxSize)}`}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 interface FileCardProps {
   file: File | { name: string; size: number; type: string };
   path?: string;
   onRemove: () => Promise<void>;
   onView?: (path: string) => Promise<string>;
-  progress?: number;
+  isUploading?: boolean;
 }
 
-function FileCard({ file, path, progress, onRemove, onView }: FileCardProps) {
+function FileCard({
+  file,
+  path,
+  isUploading,
+  onRemove,
+  onView,
+}: FileCardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isRemoving, setIsRemoving] = useState(false);
 
@@ -361,7 +303,6 @@ function FileCard({ file, path, progress, onRemove, onView }: FileCardProps) {
               </p>
             )}
           </div>
-          {progress ? <Progress value={progress} /> : null}
         </div>
       </div>
       <div className="flex items-center gap-2">
@@ -381,21 +322,27 @@ function FileCard({ file, path, progress, onRemove, onView }: FileCardProps) {
             )}
           </Button>
         )}
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          className="size-7"
-          onClick={handleRemove}
-          disabled={isRemoving}
-        >
-          {isRemoving ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <X className="size-4" />
-          )}
-          <span className="sr-only">Remove file</span>
-        </Button>
+        {isUploading ? (
+          <div className="size-7 grid place-items-center">
+            <Loader2 className="size-4 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            className="size-7"
+            onClick={handleRemove}
+            disabled={isRemoving}
+          >
+            {isRemoving ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <X className="size-4" />
+            )}
+            <span className="sr-only">Remove file</span>
+          </Button>
+        )}
       </div>
     </div>
   );

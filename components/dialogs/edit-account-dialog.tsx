@@ -97,9 +97,11 @@ export function EditAccountDialog() {
   const { mutateAsync: fixConnection, isPending: isFixing } =
     useFixConnection();
 
-  const { onUpload, deleteFile, getSignedUrl, isUploading } = useAccountFiles({
-    accountId: data?.account?.id ?? 0,
-  });
+  const { uploadFile, deleteFile, getSignedUrl, isUploading } = useAccountFiles(
+    {
+      accountId: data?.account?.id ?? 0,
+    }
+  );
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
@@ -473,7 +475,7 @@ export function EditAccountDialog() {
                             "application/pdf": [],
                             "image/*": [],
                           }}
-                          onUpload={onUpload}
+                          onUpload={uploadFile}
                           disabled={isUploading}
                           existingDocuments={data?.account?.documents ?? []}
                           onRemoveExisting={handleRemoveExistingDocument}
