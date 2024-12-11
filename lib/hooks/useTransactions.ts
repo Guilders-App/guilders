@@ -20,7 +20,7 @@ type SingleTransactionResponse = {
 
 export function useTransactions(accountId?: number) {
   return useQuery<Transaction[], Error>({
-    queryKey: ["transactions", accountId],
+    queryKey,
     queryFn: async (): Promise<Transaction[]> => {
       const url = accountId
         ? `/api/transactions?accountId=${accountId}`
@@ -64,9 +64,6 @@ export function useAddTransaction() {
         ...old,
         newTransaction,
       ]);
-
-      // Update the account balance
-      queryClient.invalidateQueries({ queryKey: accountQueryKey });
     },
   });
 }
@@ -95,9 +92,6 @@ export function useUpdateTransaction() {
             : transaction
         )
       );
-
-      // Update the account balance
-      queryClient.invalidateQueries({ queryKey: accountQueryKey });
     },
   });
 }
@@ -116,9 +110,6 @@ export function useRemoveTransaction() {
       queryClient.setQueryData<Transaction[]>(queryKey, (old = []) =>
         old.filter((transaction) => transaction.id !== transactionId)
       );
-
-      // Update the account balance
-      queryClient.invalidateQueries({ queryKey: accountQueryKey });
     },
   });
 }
