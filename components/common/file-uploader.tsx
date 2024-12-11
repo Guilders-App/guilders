@@ -1,8 +1,8 @@
 "use client";
 
-import { FileText, Upload, X } from "lucide-react";
-import Image from "next/image";
+import { Loader2, Upload, X } from "lucide-react";
 import * as React from "react";
+import { useEffect, useState } from "react";
 import Dropzone, {
   type DropzoneProps,
   type FileRejection,
@@ -90,6 +90,28 @@ interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
    * @example disabled
    */
   disabled?: boolean;
+
+  /**
+   * Existing documents to display
+   * @type string[] | undefined
+   * @default undefined
+   * @example existingDocuments={["path/to/doc1.pdf", "path/to/doc2.jpg"]}
+   */
+  existingDocuments?: string[];
+
+  /**
+   * Callback when an existing document is removed
+   * @type (path: string) => void
+   * @default undefined
+   */
+  onRemoveExisting?: (path: string) => void;
+
+  /**
+   * Callback when a file is viewed
+   * @type (path: string) => Promise<string>
+   * @default undefined
+   */
+  onView?: (path: string) => Promise<string>;
 }
 
 export function FileUploader(props: FileUploaderProps) {
@@ -105,6 +127,9 @@ export function FileUploader(props: FileUploaderProps) {
     maxFileCount = 1,
     multiple = false,
     disabled = false,
+    existingDocuments = [],
+    onRemoveExisting,
+    onView,
     className,
     ...dropzoneProps
   } = props;
@@ -113,6 +138,13 @@ export function FileUploader(props: FileUploaderProps) {
     prop: valueProp,
     onChange: onValueChange,
   });
+
+  const [optimisticDocuments, setOptimisticDocuments] =
+    useState<string[]>(existingDocuments);
+
+  useEffect(() => {
+    setOptimisticDocuments(existingDocuments);
+  }, [existingDocuments]);
 
   const onDrop = React.useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
@@ -152,15 +184,11 @@ export function FileUploader(props: FileUploaderProps) {
 
         toast.promise(onUpload(updatedFiles), {
           loading: `Uploading ${target}...`,
-          success: () => {
-            setFiles([]);
-            return `${target} uploaded`;
-          },
+          success: () => `${target} uploaded`,
           error: `Failed to upload ${target}`,
         });
       }
     },
-
     [files, maxFileCount, multiple, onUpload, setFiles]
   );
 
@@ -171,20 +199,20 @@ export function FileUploader(props: FileUploaderProps) {
     onValueChange?.(newFiles);
   }
 
-  // Revoke preview url when component unmounts
-  React.useEffect(() => {
-    return () => {
-      if (!files) return;
-      files.forEach((file) => {
-        if (isFileWithPreview(file)) {
-          URL.revokeObjectURL(file.preview);
-        }
-      });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  async function handleRemoveExisting(path: string) {
+    setOptimisticDocuments((prev) => prev.filter((doc) => doc !== path));
 
-  const isDisabled = disabled || (files?.length ?? 0) >= maxFileCount;
+    try {
+      await onRemoveExisting?.(path);
+    } catch (error) {
+      setOptimisticDocuments((prev) => [...prev, path]);
+      throw error;
+    }
+  }
+
+  const isDisabled =
+    disabled ||
+    (files?.length ?? 0 + optimisticDocuments.length) >= maxFileCount;
 
   return (
     <div className="relative flex flex-col gap-6 overflow-hidden">
@@ -192,7 +220,7 @@ export function FileUploader(props: FileUploaderProps) {
         onDrop={onDrop}
         accept={accept}
         maxSize={maxSize}
-        maxFiles={maxFileCount}
+        maxFiles={maxFileCount - optimisticDocuments.length}
         multiple={maxFileCount > 1 || multiple}
         disabled={isDisabled}
       >
@@ -246,48 +274,100 @@ export function FileUploader(props: FileUploaderProps) {
           </div>
         )}
       </Dropzone>
-      {files?.length ? (
+      {((files?.length ?? 0) > 0 || optimisticDocuments.length > 0) && (
         <ScrollArea className="h-fit w-full px-3">
           <div className="flex max-h-48 flex-col gap-4">
+            {optimisticDocuments.map((path, index) => (
+              <FileCard
+                key={`existing-${index}`}
+                file={{
+                  name: path.split("/").pop() || path,
+                  size: 0,
+                  type: path.toLowerCase().endsWith(".pdf")
+                    ? "application/pdf"
+                    : "image/*",
+                }}
+                path={path}
+                onRemove={() => handleRemoveExisting(path)}
+                onView={onView}
+              />
+            ))}
             {files?.map((file, index) => (
               <FileCard
-                key={index}
+                key={`new-${index}`}
                 file={file}
                 onRemove={() => onRemove(index)}
                 progress={progresses?.[file.name]}
+                onView={onView}
               />
             ))}
           </div>
         </ScrollArea>
-      ) : null}
+      )}
     </div>
   );
 }
 
 interface FileCardProps {
-  file: File;
+  file: File | { name: string; size: number; type: string };
+  path?: string;
   onRemove: () => void;
+  onView?: (path: string) => Promise<string>;
   progress?: number;
 }
 
-function FileCard({ file, progress, onRemove }: FileCardProps) {
+function FileCard({ file, path, progress, onRemove, onView }: FileCardProps) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleView = async () => {
+    if (!path || !onView) return;
+
+    setIsLoading(true);
+    try {
+      const url = await onView(path);
+      window.open(url, "_blank");
+    } catch (error) {
+      toast.error("Failed to open document");
+      console.error("Error opening document:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="relative flex items-center gap-2.5">
       <div className="flex flex-1 gap-2.5">
-        {isFileWithPreview(file) ? <FilePreview file={file} /> : null}
         <div className="flex w-full flex-col gap-2">
           <div className="flex flex-col gap-px">
             <p className="line-clamp-1 text-sm font-medium text-foreground/80">
               {file.name}
             </p>
-            <p className="text-xs text-muted-foreground">
-              {formatBytes(file.size)}
-            </p>
+            {"size" in file && file.size > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {formatBytes(file.size)}
+              </p>
+            )}
           </div>
           {progress ? <Progress value={progress} /> : null}
         </div>
       </div>
       <div className="flex items-center gap-2">
+        {path && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="text-primary hover:text-primary/90"
+            disabled={isLoading}
+            onClick={handleView}
+          >
+            {isLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              "View"
+            )}
+          </Button>
+        )}
         <Button
           type="button"
           variant="outline"
@@ -300,32 +380,5 @@ function FileCard({ file, progress, onRemove }: FileCardProps) {
         </Button>
       </div>
     </div>
-  );
-}
-
-function isFileWithPreview(file: File): file is File & { preview: string } {
-  return "preview" in file && typeof file.preview === "string";
-}
-
-interface FilePreviewProps {
-  file: File & { preview: string };
-}
-
-function FilePreview({ file }: FilePreviewProps) {
-  if (file.type.startsWith("image/")) {
-    return (
-      <Image
-        src={file.preview}
-        alt={file.name}
-        width={48}
-        height={48}
-        loading="lazy"
-        className="aspect-square shrink-0 rounded-md object-cover"
-      />
-    );
-  }
-
-  return (
-    <FileText className="size-10 text-muted-foreground" aria-hidden="true" />
   );
 }

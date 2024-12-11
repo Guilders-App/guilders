@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 export interface UploadedFile {
   id: string;
@@ -17,6 +17,8 @@ export function useAccountFiles({
   accountId,
   onSuccess,
 }: UseAccountFilesOptions) {
+  const queryClient = useQueryClient();
+
   const { mutateAsync: uploadFile, isPending: isUploading } = useMutation({
     mutationFn: async (file: File) => {
       const formData = new FormData();
@@ -35,7 +37,52 @@ export function useAccountFiles({
       const data = await response.json();
       return data.file as UploadedFile;
     },
-    onSuccess,
+    onSuccess: (data) => {
+      onSuccess?.(data);
+      queryClient.invalidateQueries({ queryKey: ["account", accountId] });
+    },
+  });
+
+  const { mutateAsync: deleteFile, isPending: isDeleting } = useMutation({
+    mutationFn: async (path: string) => {
+      const response = await fetch(`/api/accounts/${accountId}/documents`, {
+        method: "DELETE",
+        body: JSON.stringify({ path }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.log(error);
+        throw new Error(error.error || "Failed to delete file");
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["account", accountId] });
+    },
+  });
+
+  const { mutateAsync: getSignedUrl, isPending: isGettingUrl } = useMutation({
+    mutationFn: async (path: string) => {
+      const response = await fetch(
+        `/api/accounts/${accountId}/documents/${encodeURIComponent(path)}`,
+        {
+          method: "GET",
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to get signed URL");
+      }
+
+      const data = await response.json();
+      return data.url as string;
+    },
   });
 
   async function onUpload(files: File[]) {
@@ -46,6 +93,10 @@ export function useAccountFiles({
 
   return {
     onUpload,
+    deleteFile,
+    getSignedUrl,
     isUploading,
+    isDeleting,
+    isGettingUrl,
   };
 }

@@ -27,7 +27,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { accountSubtypeLabels, accountSubtypes } from "@/lib/db/types";
-import { UploadedFile, useAccountFiles } from "@/lib/hooks/useAccountFiles";
+import { useAccountFiles } from "@/lib/hooks/useAccountFiles";
 import { useUpdateAccount } from "@/lib/hooks/useAccounts";
 import {
   useFixConnection,
@@ -40,7 +40,7 @@ import { useProvider } from "@/lib/hooks/useProviders";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { AlertTriangle, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -77,8 +77,12 @@ const formSchema = detailsSchema.merge(taxSchema).merge(notesSchema);
 
 type FormSchema = z.infer<typeof formSchema>;
 
+type DocumentWithPath = {
+  name: string;
+  path: string;
+};
+
 export function EditAccountDialog() {
-  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const { isOpen, data, close } = useDialog("editAccount");
   const { open: openProviderDialog } = useDialog("provider");
   const { data: connections } = useGetConnections();
@@ -93,11 +97,8 @@ export function EditAccountDialog() {
   const { mutateAsync: fixConnection, isPending: isFixing } =
     useFixConnection();
 
-  const { onUpload, isUploading } = useAccountFiles({
+  const { onUpload, deleteFile, getSignedUrl, isUploading } = useAccountFiles({
     accountId: data?.account?.id ?? 0,
-    onSuccess: (file) => {
-      setUploadedFiles((prev) => [...prev, file]);
-    },
   });
 
   const form = useForm<FormSchema>({
@@ -188,6 +189,23 @@ export function EditAccountDialog() {
       },
     });
   });
+
+  const handleRemoveExistingDocument = async (path: string) => {
+    try {
+      toast.promise(deleteFile(path), {
+        loading: "Removing document...",
+        success: () => {
+          return "Document removed successfully";
+        },
+        error: (err) => {
+          console.error("Error removing document:", err);
+          return "Failed to remove document";
+        },
+      });
+    } catch (error) {
+      // The error is handled by the toast.promise above
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={close}>
@@ -443,51 +461,27 @@ export function EditAccountDialog() {
                   control={form.control}
                   name="documents"
                   render={({ field }) => (
-                    <div className="space-y-6">
-                      <FormItem>
-                        <FormLabel>Account Documents</FormLabel>
-                        <FormControl>
-                          <FileUploader
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            maxFileCount={10}
-                            maxSize={50 * 1024 * 1024} // 50MB
-                            accept={{
-                              "application/pdf": [],
-                              "image/*": [],
-                            }}
-                            onUpload={onUpload}
-                            disabled={isUploading}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                      {uploadedFiles.length > 0 && (
-                        <div className="mt-4">
-                          <h4 className="mb-2 text-sm font-medium">
-                            Uploaded Files
-                          </h4>
-                          <div className="space-y-2">
-                            {uploadedFiles.map((file) => (
-                              <div
-                                key={file.id}
-                                className="flex items-center justify-between rounded-md border p-2"
-                              >
-                                <span className="text-sm">{file.name}</span>
-                                <a
-                                  href={file.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-sm text-primary hover:underline"
-                                >
-                                  View
-                                </a>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                    <FormItem>
+                      <FormLabel>Account Documents</FormLabel>
+                      <FormControl>
+                        <FileUploader
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          maxFileCount={10}
+                          maxSize={50 * 1024 * 1024}
+                          accept={{
+                            "application/pdf": [],
+                            "image/*": [],
+                          }}
+                          onUpload={onUpload}
+                          disabled={isUploading}
+                          existingDocuments={data?.account?.documents ?? []}
+                          onRemoveExisting={handleRemoveExistingDocument}
+                          onView={getSignedUrl}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )}
                 />
               </TabsContent>
