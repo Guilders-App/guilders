@@ -77,11 +77,6 @@ const formSchema = detailsSchema.merge(taxSchema).merge(notesSchema);
 
 type FormSchema = z.infer<typeof formSchema>;
 
-type DocumentWithPath = {
-  name: string;
-  path: string;
-};
-
 export function EditAccountDialog() {
   const { isOpen, data, close } = useDialog("editAccount");
   const { open: openProviderDialog } = useDialog("provider");

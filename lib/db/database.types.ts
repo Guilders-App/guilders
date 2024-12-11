@@ -312,6 +312,7 @@ export type Database = {
           currency: string
           date: string
           description: string
+          documents: string[] | null
           id: number
           provider_transaction_id: string | null
         }
@@ -322,6 +323,7 @@ export type Database = {
           currency: string
           date: string
           description: string
+          documents?: string[] | null
           id?: number
           provider_transaction_id?: string | null
         }
@@ -332,6 +334,7 @@ export type Database = {
           currency?: string
           date?: string
           description?: string
+          documents?: string[] | null
           id?: number
           provider_transaction_id?: string | null
         }

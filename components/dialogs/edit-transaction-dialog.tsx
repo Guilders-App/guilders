@@ -1,6 +1,7 @@
 "use client";
 
 import { DateTimePicker } from "@/components/common/datetime-picker";
+import { FileUploader } from "@/components/common/file-uploader";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Tooltip,
   TooltipContent,
@@ -32,6 +34,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useDialog } from "@/lib/hooks/useDialog";
+import { useTransactionFiles } from "@/lib/hooks/useTransactionFiles";
 import {
   useRemoveTransaction,
   useUpdateTransaction,
@@ -54,6 +57,7 @@ const formSchema = z.object({
   description: z.string().min(1, "Description is required."),
   category: z.string().min(1, "Category is required."),
   date: z.string().min(1, "Date is required."),
+  documents: z.array(z.custom<File>()).optional(),
 });
 
 type FormSchema = z.infer<typeof formSchema>;
@@ -74,6 +78,10 @@ export function EditTransactionDialog() {
   const { mutate: deleteTransaction, isPending: isDeleting } =
     useRemoveTransaction();
   const { data: accounts } = useAccounts();
+  const { uploadFile, deleteFile, getSignedUrl, isUploading } =
+    useTransactionFiles({
+      transactionId: data?.transaction?.id ?? 0,
+    });
 
   const currentAccount = accounts?.find(
     (account) => account.id === data?.transaction?.account_id
@@ -89,6 +97,7 @@ export function EditTransactionDialog() {
       date: data?.transaction?.date
         ? formatDateForInput(data.transaction.date)
         : "",
+      documents: [],
     },
   });
 
@@ -100,6 +109,7 @@ export function EditTransactionDialog() {
         description: data.transaction.description,
         category: data.transaction.category,
         date: formatDateForInput(data.transaction.date),
+        documents: [],
       });
     }
   }, [data?.transaction, form]);
@@ -166,194 +176,243 @@ export function EditTransactionDialog() {
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {isSyncedTransaction && (
-              <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-                This transaction is managed by an external connection. It cannot
-                be edited.
-              </div>
-            )}
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-6">
+              <Tabs defaultValue="details" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="details">Details</TabsTrigger>
+                  <TabsTrigger value="documents">Documents</TabsTrigger>
+                </TabsList>
 
-            <FormField
-              control={form.control}
-              name="accountId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Account</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(parseInt(value))}
-                    defaultValue={field.value?.toString()}
-                    disabled={isSyncedTransaction}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue>
-                          {currentAccount?.name ?? "Select account"}
-                        </SelectValue>
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {accounts?.map((account) => {
-                        const isConnected = !!account.institution_connection_id;
-                        return (
-                          <SelectItem
-                            key={account.id}
-                            value={account.id.toString()}
-                            disabled={
-                              isConnected && account.id !== currentAccount?.id
+                <TabsContent value="details" className="space-y-4">
+                  {isSyncedTransaction && (
+                    <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
+                      This transaction is managed by an external connection. It
+                      cannot be edited.
+                    </div>
+                  )}
+
+                  <FormField
+                    control={form.control}
+                    name="accountId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Account</FormLabel>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(parseInt(value))
+                          }
+                          defaultValue={field.value?.toString()}
+                          disabled={isSyncedTransaction}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue>
+                                {currentAccount?.name ?? "Select account"}
+                              </SelectValue>
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {accounts?.map((account) => {
+                              const isConnected =
+                                !!account.institution_connection_id;
+                              return (
+                                <SelectItem
+                                  key={account.id}
+                                  value={account.id.toString()}
+                                  disabled={
+                                    isConnected &&
+                                    account.id !== currentAccount?.id
+                                  }
+                                >
+                                  {account.name}
+                                  {isConnected && " (Connected)"}
+                                </SelectItem>
+                              );
+                            })}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="amount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Amount</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter amount"
+                            {...field}
+                            disabled={isSyncedTransaction}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter description"
+                            {...field}
+                            disabled={isSyncedTransaction}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter category"
+                            {...field}
+                            disabled={isSyncedTransaction}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="date"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Date & Time</FormLabel>
+                        <FormControl>
+                          <DateTimePicker
+                            date={
+                              field.value ? new Date(field.value) : undefined
                             }
+                            onDateChange={(date) => {
+                              if (date) {
+                                field.onChange(date.toISOString());
+                              }
+                            }}
+                            onTimeChange={(time) => {
+                              if (field.value) {
+                                const currentDate = new Date(field.value);
+                                const [hours, minutes] = time.split(":");
+                                currentDate.setHours(
+                                  parseInt(hours),
+                                  parseInt(minutes)
+                                );
+                                field.onChange(currentDate.toISOString());
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="pt-4 border-t space-y-2">
+                    <p className="text-sm font-medium">Danger Zone</p>
+                    <p className="text-sm text-muted-foreground">
+                      Deleting this transaction will permanently remove it. This
+                      action cannot be undone.
+                    </p>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            onClick={handleDelete}
+                            disabled={isDeleting || isSyncedTransaction}
                           >
-                            {account.name}
-                            {isConnected && " (Connected)"}
-                          </SelectItem>
-                        );
-                      })}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Amount</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter amount"
-                      {...field}
-                      disabled={isSyncedTransaction}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter description"
-                      {...field}
-                      disabled={isSyncedTransaction}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Enter category"
-                      {...field}
-                      disabled={isSyncedTransaction}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date & Time</FormLabel>
-                  <FormControl>
-                    <DateTimePicker
-                      date={field.value ? new Date(field.value) : undefined}
-                      onDateChange={(date) => {
-                        if (date) {
-                          field.onChange(date.toISOString());
-                        }
-                      }}
-                      onTimeChange={(time) => {
-                        if (field.value) {
-                          const currentDate = new Date(field.value);
-                          const [hours, minutes] = time.split(":");
-                          currentDate.setHours(
-                            parseInt(hours),
-                            parseInt(minutes)
-                          );
-                          field.onChange(currentDate.toISOString());
-                        }
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="pt-4 border-t space-y-2">
-              <p className="text-sm font-medium">Danger Zone</p>
-              <p className="text-sm text-muted-foreground">
-                Deleting this transaction will permanently remove it. This
-                action cannot be undone.
-              </p>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={handleDelete}
-                      disabled={isDeleting || isSyncedTransaction}
-                    >
-                      {isDeleting ? (
-                        <>
-                          <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                          Deleting...
-                        </>
-                      ) : (
-                        <>
-                          <Trash2 className="mr-2 h-3 w-3" />
-                          Delete Transaction
-                        </>
+                            {isDeleting ? (
+                              <>
+                                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                                Deleting...
+                              </>
+                            ) : (
+                              <>
+                                <Trash2 className="mr-2 h-3 w-3" />
+                                Delete Transaction
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </TooltipTrigger>
+                      {isSyncedTransaction && (
+                        <TooltipContent>
+                          Synced transactions cannot be deleted. Remove the
+                          connection instead.
+                        </TooltipContent>
                       )}
-                    </Button>
+                    </Tooltip>
                   </div>
-                </TooltipTrigger>
-                {isSyncedTransaction && (
-                  <TooltipContent>
-                    Synced transactions cannot be deleted. Remove the connection
-                    instead.
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </div>
+                </TabsContent>
 
-            <Button
-              type="submit"
-              disabled={isUpdating || isDeleting || isSyncedTransaction}
-              className="w-full"
-            >
-              {isUpdating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                "Save Changes"
-              )}
-            </Button>
+                <TabsContent value="documents" className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="documents"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Transaction Documents</FormLabel>
+                        <FormControl>
+                          <FileUploader
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            maxFileCount={10}
+                            maxSize={10 * 1024 * 1024}
+                            accept={{
+                              "application/pdf": [],
+                              "image/*": [],
+                            }}
+                            onUpload={uploadFile}
+                            disabled={isUploading}
+                            existingDocuments={
+                              data?.transaction?.documents ?? []
+                            }
+                            onRemoveExisting={deleteFile}
+                            onView={getSignedUrl}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </TabsContent>
+              </Tabs>
+
+              <Button
+                type="submit"
+                disabled={isUpdating || isDeleting || isSyncedTransaction}
+                className="w-full"
+              >
+                {isUpdating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
+            </div>
           </form>
         </Form>
       </DialogContent>
