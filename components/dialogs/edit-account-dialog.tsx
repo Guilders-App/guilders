@@ -468,7 +468,7 @@ export function EditAccountDialog() {
                           value={field.value}
                           onValueChange={field.onChange}
                           maxFileCount={10}
-                          maxSize={50 * 1024 * 1024}
+                          maxSize={10 * 1024 * 1024}
                           accept={{
                             "application/pdf": [],
                             "image/*": [],

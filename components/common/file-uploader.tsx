@@ -104,7 +104,7 @@ interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
    * @type (path: string) => void
    * @default undefined
    */
-  onRemoveExisting?: (path: string) => void;
+  onRemoveExisting?: (path: string) => Promise<void>;
 
   /**
    * Callback when a file is viewed
@@ -139,11 +139,11 @@ export function FileUploader(props: FileUploaderProps) {
     onChange: onValueChange,
   });
 
-  const [optimisticDocuments, setOptimisticDocuments] =
+  const [localDocuments, setLocalDocuments] =
     useState<string[]>(existingDocuments);
 
   useEffect(() => {
-    setOptimisticDocuments(existingDocuments);
+    setLocalDocuments(existingDocuments);
   }, [existingDocuments]);
 
   const onDrop = React.useCallback(
@@ -192,7 +192,7 @@ export function FileUploader(props: FileUploaderProps) {
     [files, maxFileCount, multiple, onUpload, setFiles]
   );
 
-  function onRemove(index: number) {
+  async function onRemove(index: number) {
     if (!files) return;
     const newFiles = files.filter((_, i) => i !== index);
     setFiles(newFiles);
@@ -200,19 +200,19 @@ export function FileUploader(props: FileUploaderProps) {
   }
 
   async function handleRemoveExisting(path: string) {
-    setOptimisticDocuments((prev) => prev.filter((doc) => doc !== path));
+    if (!onRemoveExisting) return;
 
     try {
-      await onRemoveExisting?.(path);
+      await onRemoveExisting(path);
+      setLocalDocuments((prev) => prev.filter((doc) => doc !== path));
     } catch (error) {
-      setOptimisticDocuments((prev) => [...prev, path]);
+      toast.error("Failed to remove file");
       throw error;
     }
   }
 
   const isDisabled =
-    disabled ||
-    (files?.length ?? 0 + optimisticDocuments.length) >= maxFileCount;
+    disabled || (files?.length ?? 0 + localDocuments.length) >= maxFileCount;
 
   return (
     <div className="relative flex flex-col gap-6 overflow-hidden">
@@ -220,7 +220,7 @@ export function FileUploader(props: FileUploaderProps) {
         onDrop={onDrop}
         accept={accept}
         maxSize={maxSize}
-        maxFiles={maxFileCount - optimisticDocuments.length}
+        maxFiles={maxFileCount - localDocuments.length}
         multiple={maxFileCount > 1 || multiple}
         disabled={isDisabled}
       >
@@ -259,7 +259,7 @@ export function FileUploader(props: FileUploaderProps) {
                 </div>
                 <div className="flex flex-col gap-px">
                   <p className="font-medium text-muted-foreground">
-                    Drag {`'n'`} drop files here, or click to select files
+                    Drag and drop files here, or click to select files
                   </p>
                   <p className="text-sm text-muted-foreground/70">
                     You can upload
@@ -274,10 +274,10 @@ export function FileUploader(props: FileUploaderProps) {
           </div>
         )}
       </Dropzone>
-      {((files?.length ?? 0) > 0 || optimisticDocuments.length > 0) && (
+      {((files?.length ?? 0) > 0 || localDocuments.length > 0) && (
         <ScrollArea className="h-fit w-full px-3">
           <div className="flex max-h-48 flex-col gap-4">
-            {optimisticDocuments.map((path, index) => (
+            {localDocuments.map((path, index) => (
               <FileCard
                 key={`existing-${index}`}
                 file={{
@@ -288,7 +288,7 @@ export function FileUploader(props: FileUploaderProps) {
                     : "image/*",
                 }}
                 path={path}
-                onRemove={() => handleRemoveExisting(path)}
+                onRemove={async () => handleRemoveExisting(path)}
                 onView={onView}
               />
             ))}
@@ -311,13 +311,14 @@ export function FileUploader(props: FileUploaderProps) {
 interface FileCardProps {
   file: File | { name: string; size: number; type: string };
   path?: string;
-  onRemove: () => void;
+  onRemove: () => Promise<void>;
   onView?: (path: string) => Promise<string>;
   progress?: number;
 }
 
 function FileCard({ file, path, progress, onRemove, onView }: FileCardProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   const handleView = async () => {
     if (!path || !onView) return;
@@ -331,6 +332,18 @@ function FileCard({ file, path, progress, onRemove, onView }: FileCardProps) {
       console.error("Error opening document:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleRemove = async () => {
+    setIsRemoving(true);
+    try {
+      await onRemove();
+    } catch (error) {
+      console.error("Error removing file:", error);
+      toast.error("Failed to remove file");
+    } finally {
+      setIsRemoving(false);
     }
   };
 
@@ -373,9 +386,14 @@ function FileCard({ file, path, progress, onRemove, onView }: FileCardProps) {
           variant="outline"
           size="icon"
           className="size-7"
-          onClick={onRemove}
+          onClick={handleRemove}
+          disabled={isRemoving}
         >
-          <X className="size-4" aria-hidden="true" />
+          {isRemoving ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <X className="size-4" />
+          )}
           <span className="sr-only">Remove file</span>
         </Button>
       </div>
