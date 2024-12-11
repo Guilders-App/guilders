@@ -1,5 +1,6 @@
 "use client";
 
+import { FileUploader } from "@/components/common/file-uploader";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -26,6 +27,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { accountSubtypeLabels, accountSubtypes } from "@/lib/db/types";
+import { UploadedFile, useAccountFiles } from "@/lib/hooks/useAccountFiles";
 import { useUpdateAccount } from "@/lib/hooks/useAccounts";
 import {
   useFixConnection,
@@ -38,7 +40,7 @@ import { useProvider } from "@/lib/hooks/useProviders";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { AlertTriangle, Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -68,6 +70,7 @@ const taxSchema = z.object({
 
 const notesSchema = z.object({
   notes: z.string().optional(),
+  documents: z.array(z.instanceof(File)).optional(),
 });
 
 const formSchema = detailsSchema.merge(taxSchema).merge(notesSchema);
@@ -75,6 +78,7 @@ const formSchema = detailsSchema.merge(taxSchema).merge(notesSchema);
 type FormSchema = z.infer<typeof formSchema>;
 
 export function EditAccountDialog() {
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const { isOpen, data, close } = useDialog("editAccount");
   const { open: openProviderDialog } = useDialog("provider");
   const { data: connections } = useGetConnections();
@@ -89,6 +93,13 @@ export function EditAccountDialog() {
   const { mutateAsync: fixConnection, isPending: isFixing } =
     useFixConnection();
 
+  const { onUpload, isUploading } = useAccountFiles({
+    accountId: data?.account?.id ?? 0,
+    onSuccess: (file) => {
+      setUploadedFiles((prev) => [...prev, file]);
+    },
+  });
+
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -100,6 +111,7 @@ export function EditAccountDialog() {
       taxability: data?.account?.taxability ?? "taxable",
       taxRate: data?.account?.tax_rate?.toString() ?? "",
       notes: data?.account?.notes ?? "",
+      documents: [],
     },
   });
 
@@ -114,6 +126,7 @@ export function EditAccountDialog() {
         taxability: data.account.taxability,
         taxRate: data.account.tax_rate?.toString() ?? "",
         notes: data.account.notes,
+        documents: [],
       });
     }
   }, [data?.account, form]);
@@ -425,10 +438,58 @@ export function EditAccountDialog() {
                 />
               </TabsContent>
 
-              <TabsContent value="documents">
-                <div className="text-center text-muted-foreground py-8">
-                  Document upload functionality coming soon...
-                </div>
+              <TabsContent value="documents" className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="documents"
+                  render={({ field }) => (
+                    <div className="space-y-6">
+                      <FormItem>
+                        <FormLabel>Account Documents</FormLabel>
+                        <FormControl>
+                          <FileUploader
+                            value={field.value}
+                            onValueChange={field.onChange}
+                            maxFileCount={10}
+                            maxSize={50 * 1024 * 1024} // 50MB
+                            accept={{
+                              "application/pdf": [],
+                              "image/*": [],
+                            }}
+                            onUpload={onUpload}
+                            disabled={isUploading}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                      {uploadedFiles.length > 0 && (
+                        <div className="mt-4">
+                          <h4 className="mb-2 text-sm font-medium">
+                            Uploaded Files
+                          </h4>
+                          <div className="space-y-2">
+                            {uploadedFiles.map((file) => (
+                              <div
+                                key={file.id}
+                                className="flex items-center justify-between rounded-md border p-2"
+                              >
+                                <span className="text-sm">{file.name}</span>
+                                <a
+                                  href={file.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-primary hover:underline"
+                                >
+                                  View
+                                </a>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                />
               </TabsContent>
             </Tabs>
 
