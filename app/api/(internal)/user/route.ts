@@ -47,17 +47,19 @@ export async function DELETE() {
   for (const connection of connections) {
     const response = await deregisterConnection(connection.provider.name);
 
-    console.log("Deleting connection", connection.provider.name);
-    console.log(response);
-    console.log(response.status);
-    console.log(await response.json());
-
     if (response.status !== 200) {
       return response;
     }
   }
 
-  await supabaseAdmin.auth.admin.deleteUser(user.id);
+  const { error } = await supabaseAdmin.auth.admin.deleteUser(user.id);
+
+  if (error) {
+    return NextResponse.json(
+      { success: false, error: "Failed to delete user" },
+      { status: 500 }
+    );
+  }
 
   return NextResponse.json({ success: true });
 }
