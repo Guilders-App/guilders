@@ -23,11 +23,8 @@ export function useTransactionFiles({
     mutationFn: async (files: File[]) => {
       const uploadedFiles: string[] = [];
 
-      console.log("uploading files", files);
-
       for (const file of files) {
         const formData = new FormData();
-        console.log("uploading file", file);
         formData.append("file", file);
 
         const response = await fetch(
@@ -39,12 +36,10 @@ export function useTransactionFiles({
         );
 
         if (!response.ok) {
-          console.log("response failed", await response.json());
           const error = await response.json();
           throw new Error(error.error || "Failed to upload file");
         }
 
-        console.log("response ok");
         const data = await response.json();
         uploadedFiles.push(data.file.url);
         onSuccess?.(data.file);
