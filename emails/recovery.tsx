@@ -80,7 +80,7 @@ GuildersRecoveryEmail.PreviewProps = {
 GuildersRecoveryEmail.SupabaseProps = {
   baseUrl: "{{ .SiteURL }}",
   recoveryLink:
-    "{{ .SiteURL }}/callback/auth?token_hash={{ .TokenHash }}&type=recovery&redirect_to=/settings/security",
+    "{{ .SiteURL }}/callback/auth?token_hash={{ .TokenHash }}&type=recovery&redirect_to=/recovery",
 } as GuildersRecoveryEmailProps;
 
 export default GuildersRecoveryEmail;

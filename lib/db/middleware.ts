@@ -42,6 +42,8 @@ export const updateSession = async (request: NextRequest) => {
     "/sign-up",
     "/terms-of-service",
     "/privacy-policy",
+    "/onboarding",
+    "/recovery",
   ];
   const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname);
   const isApiRoute =
@@ -63,12 +65,12 @@ export const updateSession = async (request: NextRequest) => {
     const isMFAVerified = factorData?.currentLevel === factorData?.nextLevel;
     const needsMFAVerification = hasMFA && !isMFAVerified;
 
-    console.log("hasMFA", hasMFA);
-    console.log("isMFAVerified", isMFAVerified);
-    console.log("needsMFAVerification", needsMFAVerification);
+    // Check if this is a recovery flow
+    const isAuthFlow =
+      request.nextUrl.pathname === "/recovery" ||
+      request.nextUrl.pathname === "/onboarding";
 
-    if (isPublicRoute && !needsMFAVerification) {
-      // Redirect to dashboard only if MFA is not required or is already verified
+    if (isPublicRoute && !needsMFAVerification && !isAuthFlow) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   } else if (!isPublicRoute && userError) {
