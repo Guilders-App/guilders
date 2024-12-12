@@ -102,7 +102,7 @@ export function MFADialog() {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-xl">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Setup Authenticator App</DialogTitle>
           <DialogDescription>
@@ -121,7 +121,7 @@ export function MFADialog() {
             <div className="space-y-2">
               <p className="text-sm text-muted-foreground">
                 Scan the QR code below or manually enter the secret into your
-                authenticator.
+                authenticator app.
               </p>
               <div className="flex flex-col sm:flex-row items-center gap-4 bg-secondary/50 p-4 rounded-lg">
                 <div className="flex justify-center w-[200px] h-[200px] shrink-0">
@@ -152,7 +152,10 @@ export function MFADialog() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => navigator.clipboard.writeText(secret)}
+                        onClick={() => {
+                          navigator.clipboard.writeText(secret);
+                          toast.success("Copied to clipboard");
+                        }}
                       >
                         Copy Code
                       </Button>
@@ -191,21 +194,21 @@ export function MFADialog() {
                 </InputOTPGroup>
               </InputOTP>
             </div>
-            <Button
-              onClick={handleVerify}
-              disabled={isLoading || verifyCode.length !== 6}
-              className="w-full"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Verifying...
-                </>
-              ) : (
-                "Verify & Enable 2FA"
-              )}
-            </Button>
           </div>
+          <Button
+            onClick={handleVerify}
+            disabled={isLoading || verifyCode.length !== 6}
+            className="w-full"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Verifying...
+              </>
+            ) : (
+              "Verify & Enable 2FA"
+            )}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

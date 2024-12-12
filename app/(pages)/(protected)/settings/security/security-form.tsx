@@ -83,8 +83,8 @@ export function SecurityForm() {
   const handleUnenroll = async () => {
     try {
       await unenrollMFA();
-      toast.success("2FA Disabled", {
-        description: "Two-factor authentication has been disabled.",
+      toast.success("2FA Removed", {
+        description: "Two-factor authentication has been removed.",
       });
     } catch (error) {
       console.error("Error disabling 2FA:", error);
