@@ -1,5 +1,6 @@
 "use client";
 
+import { Markdown } from "@/components/common/markdown-component";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -152,7 +153,11 @@ export default function AdvisorPage() {
                   fallback={message.role == "user" ? "👨🏽" : "🤖"}
                 />
                 <ChatBubbleMessage>
-                  {message.content}
+                  {message.role === "assistant" ? (
+                    <Markdown>{message.content}</Markdown>
+                  ) : (
+                    message.content
+                  )}
 
                   {message.role === "assistant" &&
                     messages.length - 1 === index && (

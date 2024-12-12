@@ -11,7 +11,7 @@ declare global {
       // Cron (cron jobs)
       CRON_SECRET: string;
       // AI (Advisor)
-      ANTHROPIC_API_KEY: string;
+      GOOGLE_GENERATIVE_AI_API_KEY: string;
       // Ngrok (local development)
       NGROK_AUTH_TOKEN: string;
       NGROK_URL: string;
