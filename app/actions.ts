@@ -39,11 +39,11 @@ export const signUpAction = async (formData: FormData) => {
   );
 };
 
-export const signInAction = async (formData: FormData) => {
+export async function signInAction(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const supabase = await createClient();
 
+  const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -53,8 +53,27 @@ export const signInAction = async (formData: FormData) => {
     return encodedRedirect("error", "/sign-in", error.message);
   }
 
-  return redirect("/dashboard");
-};
+  // Check if MFA is required
+  const { data: factorData } =
+    await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+
+  if (factorData && factorData.nextLevel === "aal2") {
+    // User has MFA enabled and needs to verify
+    const { data: factors } = await supabase.auth.mfa.listFactors();
+    const totpFactor = factors?.all[0];
+
+    if (totpFactor) {
+      // TODO: It's not an error, but we need to notify the user that they need to verify their MFA
+      return {
+        error: true,
+        message: "mfa_required",
+        factorId: totpFactor.id,
+      };
+    }
+  }
+
+  redirect("/dashboard"); // or your redirect path
+}
 
 export const forgotPasswordAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();

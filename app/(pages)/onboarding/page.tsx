@@ -51,9 +51,9 @@ export default function OnboardingPage() {
     const checkSession = async () => {
       const supabase = createClient();
       const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!session) {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
         router.push("/sign-in");
       }
     };

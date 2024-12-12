@@ -30,6 +30,9 @@ export type DialogState =
       type: "addTransaction";
     }
   | {
+      type: "mfa";
+    }
+  | {
       type: "confirmation";
       title?: string;
       description?: string;

@@ -31,7 +31,10 @@ export const updateSession = async (request: NextRequest) => {
     }
   );
 
-  const { error } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
   const publicRoutes = [
     "/",
     "/forgot-password",
@@ -48,9 +51,28 @@ export const updateSession = async (request: NextRequest) => {
 
   if (isApiRoute) {
     return response;
-  } else if (isPublicRoute && !error) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  } else if (!isPublicRoute && error) {
+  }
+
+  if (user) {
+    // Check MFA status
+    const { data: factorData } =
+      await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    const { data: factors } = await supabase.auth.mfa.listFactors();
+
+    const hasMFA = (factors?.all?.length ?? 0) > 0;
+    const isMFAVerified = factorData?.currentLevel === factorData?.nextLevel;
+    const needsMFAVerification = hasMFA && !isMFAVerified;
+
+    console.log("hasMFA", hasMFA);
+    console.log("isMFAVerified", isMFAVerified);
+    console.log("needsMFAVerification", needsMFAVerification);
+
+    if (isPublicRoute && !needsMFAVerification) {
+      // Redirect to dashboard only if MFA is not required or is already verified
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+  } else if (!isPublicRoute && userError) {
+    // No user session, redirect to sign in
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 

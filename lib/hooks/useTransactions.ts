@@ -6,7 +6,6 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const queryKey = ["transactions"] as const;
-const accountQueryKey = ["accounts"] as const;
 
 type TransactionsResponse = {
   success: boolean;

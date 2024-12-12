@@ -1,14 +1,89 @@
+"use client";
+
 import { signInAction } from "@/app/actions";
 import { FormMessage, Message } from "@/components/common/form-message";
 import { SubmitButton } from "@/components/common/submit-button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
+import { createClient } from "@/lib/db/client";
+import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
-export default async function Login(props: { searchParams: Promise<Message> }) {
-  const searchParams = await props.searchParams;
+export default function Login() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [verifyCode, setVerifyCode] = useState("");
+  const [factorId, setFactorId] = useState<string | null>(null);
+  const supabase = createClient();
+
+  const message: Message = {
+    message: searchParams.has("message") ? searchParams.get("message")! : "",
+    error: searchParams.has("error") ? searchParams.get("error")! : "",
+    success: searchParams.has("success") ? searchParams.get("success")! : "",
+  };
+
+  const handleSubmit = async (formData: FormData) => {
+    try {
+      setIsLoading(true);
+      const result = await signInAction(formData);
+
+      if (result?.error) {
+        if (result.message === "mfa_required" && result.factorId) {
+          setFactorId(result.factorId);
+        } else {
+          toast.error("Failed to sign in", {
+            description: result.message,
+          });
+        }
+      }
+    } catch (error) {
+      toast.error("Failed to sign in", {
+        description: "Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerify = async () => {
+    if (!factorId || verifyCode.length !== 6) return;
+
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase.auth.mfa.challenge({ factorId });
+      if (error) throw error;
+
+      const { error: verifyError } = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId: data.id,
+        code: verifyCode,
+      });
+
+      if (verifyError) throw verifyError;
+
+      toast.success("Signed in successfully");
+      router.push("/dashboard");
+    } catch (error) {
+      toast.error("Failed to verify code", {
+        description: "Please check the code and try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="w-full max-w-sm">
@@ -25,60 +100,105 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
 
         <h1 className="text-2xl font-bold text-center">Sign In</h1>
         <p className="text-muted-foreground text-center">
-          Please sign in to continue
+          {factorId ? "Enter verification code" : "Please sign in to continue"}
         </p>
 
-        <form className="flex flex-col gap-4 mt-4">
-          <div className="grid gap-4">
-            <div className="grid w-full items-center gap-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                name="email"
-                type="email"
-                placeholder="john@doe.com"
-                required
-              />
-            </div>
-
-            <div className="grid w-full items-center gap-1.5">
-              <div className="flex justify-between items-center">
-                <Label htmlFor="password">Password</Label>
-                <Link
-                  className="text-xs text-muted-foreground hover:text-foreground leading-[14px]"
-                  href="/forgot-password"
-                >
-                  Forgot Password?
-                </Link>
+        {!factorId ? (
+          <form className="flex flex-col gap-4 mt-4" action={handleSubmit}>
+            <div className="grid gap-4">
+              <div className="grid w-full items-center gap-1.5">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  name="email"
+                  type="email"
+                  placeholder="john@doe.com"
+                  required
+                />
               </div>
-              <PasswordInput
-                name="password"
-                placeholder="********"
-                required
-                autoComplete="current-password"
-              />
+
+              <div className="grid w-full items-center gap-1.5">
+                <div className="flex justify-between items-center">
+                  <Label htmlFor="password">Password</Label>
+                  <Link
+                    className="text-xs text-muted-foreground hover:text-foreground leading-[14px]"
+                    href="/forgot-password"
+                  >
+                    Forgot Password?
+                  </Link>
+                </div>
+                <PasswordInput
+                  name="password"
+                  placeholder="********"
+                  required
+                  autoComplete="current-password"
+                />
+              </div>
+
+              <SubmitButton className="mt-2 w-full" pendingText="Signing In...">
+                Sign in
+              </SubmitButton>
             </div>
 
-            <SubmitButton
-              className="mt-2 w-full"
-              pendingText="Signing In..."
-              formAction={signInAction}
-            >
-              Sign in
-            </SubmitButton>
-          </div>
+            <FormMessage message={message} />
 
-          <FormMessage message={searchParams} />
+            <div className="flex justify-center gap-1 text-sm text-muted-foreground">
+              <p>Don't have an account?</p>
+              <Link
+                href="/sign-up"
+                className="font-medium text-primary hover:underline"
+              >
+                Sign up
+              </Link>
+            </div>
+          </form>
+        ) : (
+          <div className="flex flex-col gap-6 mt-4">
+            <div className="flex justify-center items-center">
+              <InputOTP
+                value={verifyCode}
+                onChange={setVerifyCode}
+                maxLength={6}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                </InputOTPGroup>
+                <InputOTPSeparator />
+                <InputOTPGroup>
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
 
-          <div className="flex justify-center gap-1 text-sm text-muted-foreground">
-            <p>Don't have an account?</p>
-            <Link
-              href="/sign-up"
-              className="font-medium text-primary hover:underline"
+            <Button
+              onClick={handleVerify}
+              disabled={isLoading || verifyCode.length !== 6}
+              className="w-full"
             >
-              Sign up
-            </Link>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                "Verify & Sign In"
+              )}
+            </Button>
+
+            <FormMessage message={message} />
+
+            <Button
+              variant="ghost"
+              className="w-full"
+              onClick={() => setFactorId(null)}
+            >
+              Back to Sign In
+            </Button>
           </div>
-        </form>
+        )}
       </div>
     </div>
   );
