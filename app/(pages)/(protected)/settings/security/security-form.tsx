@@ -43,12 +43,12 @@ type SecurityFormValues = z.infer<typeof securityFormSchema>;
 export function SecurityForm() {
   const { hasMFA, isLoadingMFA, checkMFAStatus, unenrollMFA } =
     useSecurityStore();
-  const { open: openMFADialog } = useDialog("mfa");
+  const { open: openMFADialog, isOpen } = useDialog("mfa");
   const { mutateAsync: updateUserSettings } = useUpdateUserSettings();
 
   useEffect(() => {
     checkMFAStatus();
-  }, [checkMFAStatus]);
+  }, [checkMFAStatus, isOpen]);
 
   const form = useForm<SecurityFormValues>({
     resolver: zodResolver(securityFormSchema),

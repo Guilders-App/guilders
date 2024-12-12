@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -101,31 +102,30 @@ export function MFADialog() {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>Setup Two-Factor Authentication</DialogTitle>
+          <DialogTitle>Setup Authenticator App</DialogTitle>
           <DialogDescription>
-            Add an extra layer of security to your account by enabling 2FA.
+            Each time you sign in, in addition to your password, you'll use an
+            authenticator app to generate a one-time code.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {isLoading && !qrCode ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="space-y-8">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">Step 1</Badge>
+              <h3 className="font-medium">Scan QR Code</h3>
             </div>
-          ) : (
-            <>
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  1. Install an authenticator app like Google Authenticator or
-                  Authy
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  2. Scan this QR code with your authenticator app
-                </p>
-                {qrCode && (
-                  <div className="flex justify-center">
+
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Scan the QR code below or manually enter the secret into your
+                authenticator.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center gap-4 bg-secondary/50 p-4 rounded-lg">
+                <div className="flex justify-center w-[200px] h-[200px] shrink-0">
+                  {qrCode ? (
                     <img
                       src={qrCode.trim()}
                       alt="QR Code"
@@ -133,56 +133,79 @@ export function MFADialog() {
                       height={200}
                       className="rounded-lg"
                     />
+                  ) : (
+                    <div className="w-[200px] h-[200px] bg-muted rounded-lg" />
+                  )}
+                </div>
+                {secret && (
+                  <div className="flex-1 h-[200px] flex flex-col justify-between py-2 space-y-1">
+                    <div className="space-y-0">
+                      <p className="text-md font-medium">Can't scan QR code?</p>
+                      <p className="text-sm text-muted-foreground">
+                        Enter this secret instead:
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <code className="block bg-muted p-2 rounded break-all">
+                        {secret}
+                      </code>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigator.clipboard.writeText(secret)}
+                      >
+                        Copy Code
+                      </Button>
+                    </div>
                   </div>
                 )}
-                {secret && (
-                  <p className="text-sm text-muted-foreground">
-                    Or enter this code manually:{" "}
-                    <code className="bg-muted p-1 rounded">{secret}</code>
-                  </p>
-                )}
               </div>
+            </div>
+          </div>
 
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  3. Enter the 6-digit code from your authenticator app
-                </p>
-                <div className="flex justify-center items-center">
-                  <InputOTP
-                    value={verifyCode}
-                    onChange={setVerifyCode}
-                    maxLength={6}
-                  >
-                    <InputOTPGroup>
-                      <InputOTPSlot index={0} />
-                      <InputOTPSlot index={1} />
-                      <InputOTPSlot index={2} />
-                    </InputOTPGroup>
-                    <InputOTPSeparator />
-                    <InputOTPGroup>
-                      <InputOTPSlot index={3} />
-                      <InputOTPSlot index={4} />
-                      <InputOTPSlot index={5} />
-                    </InputOTPGroup>
-                  </InputOTP>
-                </div>
-                <Button
-                  onClick={handleVerify}
-                  disabled={isLoading || verifyCode.length !== 6}
-                  className="w-full"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Verifying...
-                    </>
-                  ) : (
-                    "Verify & Enable 2FA"
-                  )}
-                </Button>
-              </div>
-            </>
-          )}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">Step 2</Badge>
+              <h3 className="font-medium">Enter Verification Code</h3>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              Enter the 6-digit code from your authenticator app.
+            </p>
+            <div className="flex justify-center items-center">
+              <InputOTP
+                value={verifyCode}
+                onChange={setVerifyCode}
+                maxLength={6}
+              >
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                </InputOTPGroup>
+                <InputOTPSeparator />
+                <InputOTPGroup>
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
+            <Button
+              onClick={handleVerify}
+              disabled={isLoading || verifyCode.length !== 6}
+              className="w-full"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                "Verify & Enable 2FA"
+              )}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
