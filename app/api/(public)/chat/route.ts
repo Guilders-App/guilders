@@ -2,8 +2,14 @@ import { authenticate } from "@/lib/api/auth";
 import { createClient } from "@/lib/db/server";
 import { Account } from "@/lib/db/types";
 import { getRates } from "@/lib/db/utils";
-import { google } from "@ai-sdk/google";
-import { convertToCoreMessages, streamText } from "ai";
+import { anthropic } from "@ai-sdk/anthropic";
+import {
+  convertToCoreMessages,
+  CoreMessage,
+  ImagePart,
+  Message,
+  streamText,
+} from "ai";
 import { NextRequest, NextResponse } from "next/server";
 
 // Allow streaming responses up to 30 seconds
@@ -19,6 +25,7 @@ interface FinancialSummary {
     value: number;
     currency: string;
     cost?: number;
+    documents?: string[];
     children: {
       id: number;
       name: string;
@@ -27,11 +34,13 @@ interface FinancialSummary {
       value: number;
       currency: string;
       cost?: number;
+      documents?: string[];
       recentTransactions: {
         date: string;
         amount: number;
         category: string;
         description: string;
+        documents?: string[];
       }[];
     }[];
     recentTransactions: {
@@ -39,6 +48,7 @@ interface FinancialSummary {
       amount: number;
       category: string;
       description: string;
+      documents?: string[];
     }[];
   }[];
   primaryCurrency: string;
@@ -89,7 +99,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  let messages;
+  let messages: Message[];
   try {
     ({ messages } = await request.json());
   } catch {
@@ -100,30 +110,34 @@ export async function POST(request: NextRequest) {
   }
 
   const accountsContext = await getAccountsContext(userId);
-  const systemMessage = `
-    You are a knowledgeable financial advisor with access to the user's current financial data.
-    Provide accurate, actionable advice while being direct and concise.
-    Focus on personal finance, investments, and retirement planning.
 
-    ${accountsContext}
+  // Create the complete messages array with system message first
+  const imageMessages: CoreMessage[] = [
+    {
+      role: "user",
+      content: [
+        ...accountsContext.images.map(
+          (url) =>
+            ({
+              type: "image",
+              image: url,
+            }) as ImagePart
+        ),
+      ],
+    },
+  ];
 
-    When discussing amounts, always specify the currency but used the symbol where applicable.
-    Base your advice on the user's actual financial situation as shown in their data.
-    If asked about topics outside of the provided financial data, make that clear in your response.
-  `;
-
-  console.log(accountsContext);
   const result = streamText({
-    // model: anthropic("claude-3-5-sonnet-20241022"),
-    model: google("gemini-2.0-flash-exp"),
-    system: systemMessage,
-    messages: convertToCoreMessages(messages),
+    model: anthropic("claude-3-5-sonnet-20240620"),
+    // model: google("gemini-2.0-flash-exp"),
+    system: accountsContext.text,
+    messages: [...imageMessages, ...convertToCoreMessages(messages)],
   });
 
   return result.toDataStreamResponse();
 }
 
-const getAccountsContext = async (userId: string): Promise<string> => {
+const getAccountsContext = async (userId: string) => {
   const supabase = await createClient();
   const exchangeRates = await getRates();
 
@@ -164,7 +178,44 @@ const getAccountsContext = async (userId: string): Promise<string> => {
     .single();
 
   if (!allAccounts || allAccounts.length === 0) {
-    return "No financial information available.";
+    return {
+      text: "No financial information available.",
+      images: [],
+    };
+  }
+
+  // Get signed URLs for all documents
+  const getSignedUrl = async (path: string) => {
+    const { data, error } = await supabase.storage
+      .from("user_files")
+      .createSignedUrl(path, 600);
+
+    if (error || !data) return null;
+    return data.signedUrl;
+  };
+
+  // Collect and sign all document URLs
+  const documentUrls: string[] = [];
+  for (const account of allAccounts) {
+    if (account.documents) {
+      for (const doc of account.documents) {
+        const signedUrl = await getSignedUrl(doc);
+        if (signedUrl) documentUrls.push(signedUrl);
+      }
+    }
+  }
+
+  if (transactions) {
+    for (const transaction of transactions) {
+      if (transaction.documents && transaction.documents.length > 0) {
+        for (const doc of transaction.documents) {
+          const signedUrl = await getSignedUrl(doc);
+          if (signedUrl) {
+            documentUrls.push(signedUrl);
+          }
+        }
+      }
+    }
   }
 
   // Create a map of all accounts with their children
@@ -218,6 +269,7 @@ const getAccountsContext = async (userId: string): Promise<string> => {
       value: account.value,
       currency: account.currency,
       cost: account.cost || undefined,
+      documents: account.documents || [],
       children: account.children.map((child) => ({
         id: child.id,
         name: child.name,
@@ -226,6 +278,7 @@ const getAccountsContext = async (userId: string): Promise<string> => {
         value: child.value,
         currency: child.currency,
         cost: child.cost || undefined,
+        documents: child.documents || [],
         recentTransactions:
           transactions
             ?.filter((t) => t.account_id === child.id)
@@ -234,6 +287,7 @@ const getAccountsContext = async (userId: string): Promise<string> => {
               amount: t.amount,
               category: t.category,
               description: t.description,
+              documents: t.documents || [],
             })) || [],
       })),
       recentTransactions:
@@ -244,13 +298,17 @@ const getAccountsContext = async (userId: string): Promise<string> => {
             amount: t.amount,
             category: t.category,
             description: t.description,
+            documents: t.documents || [],
           })) || [],
     })),
     exchangeRates,
     primaryCurrency: userSettings?.currency || "EUR",
   };
 
-  return generatePrompt(summary);
+  return {
+    text: generatePrompt(summary),
+    images: documentUrls,
+  };
 };
 
 const generatePrompt = (summary: FinancialSummary) => {
@@ -274,8 +332,19 @@ Account Details:${summary.accounts
     acc.recentTransactions.length > 0
       ? `\n  Recent Activity:
 ${acc.recentTransactions
-  .map((t) => `  - ${t.date}: ${t.amount} ${acc.currency} (${t.category})`)
+  .map(
+    (t) =>
+      `  - ${t.date}: ${t.amount} ${acc.currency} (${t.category})${
+        t.documents?.length
+          ? `\n    Documents: ${t.documents.map((d) => `\n      - ${d}`).join("")}`
+          : ""
+      }`
+  )
   .join("\n")}`
+      : ""
+  }${
+    acc.documents?.length
+      ? `\n  Documents: ${acc.documents.map((d) => `\n    - ${d}`).join("")}`
       : ""
   }${
     acc.children.length > 0
@@ -290,12 +359,20 @@ ${acc.recentTransactions
           : ""
       }${
         child.recentTransactions.length > 0
-          ? `\n      Recent Activity:
-${child.recentTransactions
-  .map(
-    (t) => `      - ${t.date}: ${t.amount} ${child.currency} (${t.category})`
-  )
-  .join("\n")}`
+          ? `\n      Recent Activity:${child.recentTransactions
+              .map(
+                (t) =>
+                  `\n        - ${t.date}: ${t.amount} ${child.currency} (${t.category})${
+                    t.documents?.length
+                      ? `\n          Documents: ${t.documents.map((d) => `\n            - ${d}`).join("")}`
+                      : ""
+                  }`
+              )
+              .join("")}`
+          : ""
+      }${
+        child.documents?.length
+          ? `\n      Documents: ${child.documents.map((d) => `\n        - ${d}`).join("")}`
           : ""
       }`
           )
@@ -305,6 +382,12 @@ ${child.recentTransactions
     )
     .join("")}
 
-Use this financial data and exchange rates to provide personalized advice and insights when relevant.
+I have access to documents and receipts for some accounts and transactions.
+I'll reference these when relevant to our discussion.
+Refer to the documents by their base name, not the full path.
+Make the connection to the encoded URI from the path name.
+Every document has an encoded URI of the form: $BASE_URL/storage/v1/object/sign/user_files/$FILE_PATH?token=$TOKEN, learn to make the association, but don't mention the URI in your response.
+
+Use this financial data, documents, and exchange rates to provide personalized advice and insights when relevant.
 Consider exchange rates when discussing amounts in different currencies.`;
 };

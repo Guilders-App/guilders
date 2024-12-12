@@ -127,6 +127,7 @@ export function FileUploader({
     try {
       await onRemoveExisting(path);
       setLocalDocuments((prev) => prev.filter((doc) => doc !== path));
+      toast.success("File removed");
     } catch (error) {
       toast.error("Failed to remove file");
       throw error;
