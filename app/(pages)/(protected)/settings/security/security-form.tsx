@@ -103,35 +103,33 @@ export function SecurityForm() {
           password and authentication code.
         </p>
 
-        {!isLoadingMFA && (
-          <div className="flex items-center gap-4">
-            {hasMFA ? (
-              <>
-                <Button variant="outline" className="w-full sm:w-auto" disabled>
-                  <Shield className="mr-2 h-4 w-4" />
-                  2FA is Enabled
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  onClick={handleUnenroll}
-                  className="shrink-0"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </>
-            ) : (
-              <Button
-                variant="default"
-                className="w-full sm:w-auto"
-                onClick={() => openMFADialog()}
-              >
-                <Shield className="mr-2 h-4 w-4" />
-                Enable 2FA
-              </Button>
-            )}
-          </div>
-        )}
+        <div className="flex items-center gap-4 h-10">
+          <Button
+            variant={hasMFA ? "outline" : "default"}
+            className="w-full sm:w-auto"
+            onClick={() => !hasMFA && openMFADialog()}
+            disabled={isLoadingMFA || hasMFA}
+          >
+            <Shield className="mr-2 h-4 w-4" />
+            {isLoadingMFA
+              ? "Loading..."
+              : hasMFA
+                ? "2FA is Enabled"
+                : "Enable 2FA"}
+          </Button>
+
+          {hasMFA && (
+            <Button
+              variant="destructive"
+              size="icon"
+              onClick={handleUnenroll}
+              className="shrink-0"
+              disabled={isLoadingMFA}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-4">
