@@ -83,7 +83,7 @@ export default function AccountPage({
       },
       {
         onSuccess: () => {
-          toast.success("Account queued for refresh");
+          toast.success("Account refresh queued");
         },
         onError: (error) => {
           toast.error(
