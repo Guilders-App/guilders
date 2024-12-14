@@ -99,6 +99,26 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Check subscription status
+  const { data: subscription } = await client
+    .from("subscription")
+    .select("status")
+    .eq("user_id", userId)
+    .single();
+
+  const isSubscribed = subscription?.status === "active";
+
+  if (!isSubscribed) {
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          "This feature requires a Pro subscription. Please upgrade to continue.",
+      },
+      { status: 403 }
+    );
+  }
+
   let messages: Message[];
   try {
     ({ messages } = await request.json());

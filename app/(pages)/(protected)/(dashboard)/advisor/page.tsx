@@ -3,6 +3,7 @@
 import { Markdown } from "@/components/common/markdown-component";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   ChatBubble,
   ChatBubbleAction,
@@ -11,14 +12,18 @@ import {
 } from "@/components/ui/chat-bubble";
 import { ChatInput } from "@/components/ui/chat-input";
 import { ChatMessageList } from "@/components/ui/chat-message-list";
+import { useUser } from "@/lib/hooks/useUser";
 import { useChat } from "ai/react";
 import {
+  Check,
   CopyIcon,
   CornerDownLeft,
   Mic,
   Paperclip,
   RefreshCcw,
+  Sparkles,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const ChatAiIcons = [
@@ -43,25 +48,25 @@ const ExampleQuestions = [
 ];
 
 export default function AdvisorPage() {
+  const router = useRouter();
+  const { data: user, isLoading } = useUser();
+  const isSubscribed = user?.subscription?.status === "active";
+
   const [isGenerating, setIsGenerating] = useState(false);
   const {
     messages,
     input,
     handleInputChange,
     handleSubmit,
-    isLoading,
+    isLoading: chatIsLoading,
     reload,
     append,
   } = useChat({
     onResponse(response) {
-      if (response) {
-        setIsGenerating(false);
-      }
+      if (response) setIsGenerating(false);
     },
     onError(error) {
-      if (error) {
-        setIsGenerating(false);
-      }
+      if (error) setIsGenerating(false);
     },
   });
 
@@ -81,7 +86,7 @@ export default function AdvisorPage() {
   };
 
   const handleExampleClick = (question: string) => {
-    if (isGenerating || isLoading) return;
+    if (isGenerating || chatIsLoading) return;
 
     setIsGenerating(true);
     append({
@@ -93,7 +98,7 @@ export default function AdvisorPage() {
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      if (isGenerating || isLoading || !input) return;
+      if (isGenerating || chatIsLoading || !input) return;
       setIsGenerating(true);
       onSubmit(e as unknown as React.FormEvent<HTMLFormElement>);
     }
@@ -117,8 +122,57 @@ export default function AdvisorPage() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        Loading...
+      </div>
+    );
+  }
+
   return (
-    <div className="flex h-[calc(100vh-4rem)] w-full max-w-4xl flex-col justify-between mx-auto">
+    <div className="relative flex h-[calc(100vh-4rem)] w-full max-w-4xl flex-col justify-between mx-auto">
+      {!isSubscribed && (
+        <div className="absolute inset-0 z-50 backdrop-blur-sm flex items-center justify-center">
+          <Card className="max-w-md p-6 space-y-4 shadow-lg border-2">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                <h2 className="text-xl font-semibold">
+                  Unlock Your AI Advisor
+                </h2>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Get personalized financial insights and advice with your Pro
+                subscription.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-primary" />
+                <span className="text-sm">Analyze your spending patterns</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-primary" />
+                <span className="text-sm">Get investment recommendations</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="h-4 w-4 text-primary" />
+                <span className="text-sm">Track your financial goals</span>
+              </div>
+            </div>
+
+            <Button
+              className="w-full"
+              onClick={() => router.push("/settings/subscription")}
+            >
+              Upgrade to Pro
+            </Button>
+          </Card>
+        </div>
+      )}
+
       <div className="flex-1 overflow-y-auto min-h-0 px-4">
         <ChatMessageList ref={messagesRef}>
           {/* Initial Message */}
@@ -234,7 +288,7 @@ export default function AdvisorPage() {
             </Button>
 
             <Button
-              disabled={!input || isLoading}
+              disabled={!input || chatIsLoading}
               type="submit"
               size="sm"
               className="ml-auto gap-1.5"
