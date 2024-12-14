@@ -72,15 +72,15 @@ export function AddAccountDialog() {
       accountType: undefined,
       accountName: "",
       value: "",
-      currency: user?.currency ?? "",
+      currency: user?.settings.currency ?? "",
     },
   });
 
   useEffect(() => {
-    if (user?.currency) {
-      form.setValue("currency", user.currency);
+    if (user?.settings.currency) {
+      form.setValue("currency", user.settings.currency);
     }
-  }, [user?.currency, form]);
+  }, [user?.settings.currency, form]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -207,7 +207,7 @@ export function AddAccountDialog() {
                                     ? "Loading..."
                                     : "Currency"
                                 }
-                                defaultValue={user?.currency ?? ""}
+                                defaultValue={user?.settings.currency ?? ""}
                               />
                             </SelectTrigger>
                           </FormControl>

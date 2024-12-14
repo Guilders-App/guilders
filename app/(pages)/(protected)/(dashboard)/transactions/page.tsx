@@ -32,7 +32,7 @@ export default function TransactionsPage() {
               t.amount,
               t.currency,
               [],
-              user?.currency ?? "USD"
+              user?.settings.currency ?? "USD"
             )
           : 0),
       0
@@ -48,7 +48,7 @@ export default function TransactionsPage() {
                 t.amount,
                 t.currency,
                 [],
-                user?.currency ?? "USD"
+                user?.settings.currency ?? "USD"
               )
             )
           : 0),
@@ -143,7 +143,7 @@ export default function TransactionsPage() {
                   value={totalIncome}
                   format={{
                     style: "currency",
-                    currency: user?.currency ?? "USD",
+                    currency: user?.settings.currency ?? "USD",
                   }}
                 />
               )}
@@ -163,7 +163,7 @@ export default function TransactionsPage() {
                   value={totalExpenses}
                   format={{
                     style: "currency",
-                    currency: user?.currency ?? "USD",
+                    currency: user?.settings.currency ?? "USD",
                   }}
                 />
               )}
@@ -175,7 +175,7 @@ export default function TransactionsPage() {
       <TransactionsSankey
         transactions={transactions}
         isLoading={isLoading || isLoadingUser}
-        userCurrency={user?.currency ?? "EUR"}
+        userCurrency={user?.settings.currency ?? "EUR"}
       />
 
       <TransactionsCard menuComponent={menuComponent}>

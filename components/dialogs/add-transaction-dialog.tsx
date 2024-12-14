@@ -70,7 +70,7 @@ export function AddTransactionDialog() {
     defaultValues: {
       accountId: undefined,
       amount: "",
-      currency: user?.currency ?? "",
+      currency: user?.settings.currency ?? "",
       description: "",
       category: "",
       date: new Date().toISOString(),
@@ -87,10 +87,10 @@ export function AddTransactionDialog() {
   }, [form.watch("accountId"), accounts, form]);
 
   useEffect(() => {
-    if (user?.currency) {
-      form.setValue("currency", user.currency);
+    if (user?.settings.currency) {
+      form.setValue("currency", user.settings.currency);
     }
-  }, [user?.currency, form]);
+  }, [user?.settings.currency, form]);
 
   useEffect(() => {
     if (!isOpen) {

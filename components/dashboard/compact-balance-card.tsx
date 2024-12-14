@@ -47,7 +47,7 @@ export function CompactBalanceCard({
 }: CompactBalanceCardProps) {
   const { data: user } = useUser();
   const { data: rates } = useRates();
-  const userCurrency = user?.currency || "EUR";
+  const userCurrency = user?.settings.currency || "EUR";
 
   // Calculate total value and cost in user's currency
   const totalValue = accounts.reduce(

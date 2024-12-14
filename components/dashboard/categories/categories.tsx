@@ -16,8 +16,12 @@ export function NetWorthCategories() {
   const { data: user } = useUser();
 
   const categories = useMemo(() => {
-    return calculateCategories(accounts, rates, user?.currency ?? "EUR");
-  }, [accounts, rates, user?.currency]);
+    return calculateCategories(
+      accounts,
+      rates,
+      user?.settings.currency ?? "EUR"
+    );
+  }, [accounts, rates, user?.settings.currency]);
 
   const { positiveSum, negativeSum } = useMemo(() => {
     return calculateCategorySums(categories);

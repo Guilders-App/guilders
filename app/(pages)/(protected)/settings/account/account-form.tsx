@@ -71,7 +71,7 @@ export function AccountForm() {
     resolver: zodResolver(accountFormSchema),
     defaultValues: {
       email: user?.email ?? "",
-      currency: user?.currency ?? "",
+      currency: user?.settings.currency ?? "",
     },
   });
 
@@ -79,7 +79,7 @@ export function AccountForm() {
     if (user) {
       form.reset({
         email: user.email,
-        currency: user.currency,
+        currency: user.settings.currency,
       });
     }
   }, [user, form]);
