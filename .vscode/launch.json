@@ -24,7 +24,7 @@
       "name": "Supabase",
       "type": "node-terminal",
       "request": "launch",
-      "command": "bun run db:start && bun run db:seed"
+      "command": "bun run db:stop && bun run db:start && bun run db:seed"
     }
   ],
   "compounds": [
