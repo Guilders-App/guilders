@@ -4,7 +4,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const queryKey = ["user-settings"] as const;
 
-export type UserSettings = Tables<"user_settings">;
+export type UserSettings = Tables<"user_setting">;
+export type UserSubscription = Tables<"subscription">;
+
+export type UserData = {
+  email: string;
+  settings: UserSettings;
+  subscription: UserSubscription | null;
+};
 
 export function useUser() {
   return useQuery({
@@ -22,16 +29,17 @@ export function useUser() {
       }
       if (!user) throw new Error("No user found");
 
-      let settings: UserSettings;
-      const { data: userSettings, error } = await supabase
-        .from("user_settings")
+      // Fetch user settings
+      const { data: settings, error: settingsError } = await supabase
+        .from("user_setting")
         .select("*")
         .eq("user_id", user.id)
         .single();
 
-      if (error) {
-        const { data: userSettings, error: insertError } = await supabase
-          .from("user_settings")
+      if (settingsError) {
+        // Create default settings if none exist
+        const { data: newSettings, error: insertError } = await supabase
+          .from("user_setting")
           .insert({
             user_id: user.id,
             currency: "EUR",
@@ -44,16 +52,28 @@ export function useUser() {
           throw insertError;
         }
 
-        settings = userSettings;
-      } else {
-        settings = userSettings;
+        if (!newSettings) throw new Error("Failed to create user settings");
+
+        return {
+          email: user.email ?? "",
+          settings: newSettings,
+          subscription: null,
+        };
       }
 
       if (!settings) throw new Error("No user settings found");
 
+      // Fetch subscription data
+      const { data: subscription, error } = await supabase
+        .from("subscription")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
       return {
         email: user.email ?? "",
-        ...settings,
+        settings,
+        subscription: subscription ?? null,
       };
     },
   });
@@ -100,7 +120,7 @@ export function useUpdateUserSettings() {
         }
 
         const { data: settings, error: settingsError } = await supabase
-          .from("user_settings")
+          .from("user_setting")
           .update(updateData)
           .eq("user_id", user.id)
           .select()
@@ -109,9 +129,17 @@ export function useUpdateUserSettings() {
         if (settingsError) throw settingsError;
         if (!settings) throw new Error("Failed to update settings");
 
+        // Fetch subscription data
+        const { data: subscription } = await supabase
+          .from("subscription")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
+
         return {
           email: user.email ?? "",
-          ...settings,
+          settings,
+          subscription,
         };
       }
 
@@ -122,7 +150,7 @@ export function useUpdateUserSettings() {
       if (!user) throw new Error("No user found");
 
       const { data: settings, error } = await supabase
-        .from("user_settings")
+        .from("user_setting")
         .select("*")
         .eq("user_id", user.id)
         .single();
@@ -130,9 +158,17 @@ export function useUpdateUserSettings() {
       if (error) throw error;
       if (!settings) throw new Error("No user settings found");
 
+      // Fetch subscription data
+      const { data: subscription } = await supabase
+        .from("subscription")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
       return {
         email: user.email ?? "",
-        ...settings,
+        settings,
+        subscription,
       };
     },
     onSuccess: (data) => {

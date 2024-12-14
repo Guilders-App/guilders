@@ -25,6 +25,10 @@ const sidebarNavItems = [
     title: "API Key",
     href: "/settings/api-key",
   },
+  {
+    title: "Subscription",
+    href: "/settings/subscription",
+  },
 ];
 
 interface SettingsLayoutProps {

@@ -26,6 +26,11 @@ declare global {
       SALTEDGE_PUBLIC_KEY: string;
       SALTEDGE_CALLBACK_USERNAME: string;
       SALTEDGE_CALLBACK_PASSWORD: string;
+      // Stripe (billing)
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: string;
+      STRIPE_SECRET_KEY: string;
+      STRIPE_WEBHOOK_SECRET: string;
+      STRIPE_PRICE_ID: string;
       // Other
       NEXT_PUBLIC_CAL_URL: string;
     }
