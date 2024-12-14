@@ -22,9 +22,9 @@ export function ApiKeyForm() {
   const [deleting, setDeleting] = useState(false);
 
   const handleCopy = async () => {
-    if (!user?.api_key) return;
+    if (!user?.settings.api_key) return;
     setCopying(true);
-    await navigator.clipboard.writeText(user.api_key);
+    await navigator.clipboard.writeText(user.settings.api_key);
     setTimeout(() => setCopying(false), 1000);
   };
 
@@ -82,13 +82,13 @@ export function ApiKeyForm() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {user?.api_key ? (
+        {user?.settings.api_key ? (
           <>
             <div className="flex space-x-2">
               <Input
                 readOnly
                 type="password"
-                value={user.api_key}
+                value={user.settings.api_key}
                 className="font-mono"
               />
               <Button
