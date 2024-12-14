@@ -11,11 +11,15 @@ import {
 import { useCreateConnection } from "@/lib/hooks/useConnections";
 import { useDialog } from "@/lib/hooks/useDialog";
 import { useProvider } from "@/lib/hooks/useProviders";
+import { useUser } from "@/lib/hooks/useUser";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 export function AddLinkedAccountDialog() {
+  const router = useRouter();
+  const { data: user } = useUser();
   const { isOpen, data, close } = useDialog("addLinkedAccount");
   const { open: openProviderDialog } = useDialog("provider");
   const { data: provider } = useProvider(data?.institution?.provider_id);
@@ -24,7 +28,15 @@ export function AddLinkedAccountDialog() {
   if (!isOpen || !provider || !data?.institution) return null;
   const { institution } = data;
 
+  const isSubscribed = user?.subscription?.status === "active";
+
   const onContinue = async () => {
+    if (!isSubscribed) {
+      router.push("/settings/subscription");
+      close();
+      return;
+    }
+
     const { success, data: redirectUrl } = await createConnection({
       providerName: provider.name.toLocaleLowerCase(),
       institutionId: institution.id,
@@ -79,9 +91,18 @@ export function AddLinkedAccountDialog() {
           </div>
 
           <p className="text-muted-foreground text-sm">
-            This connection is provided by {provider.name}. By clicking
-            continue, you authorize {provider.name} to establish the connection
-            and access your financial data.
+            {isSubscribed ? (
+              <>
+                This connection is provided by {provider.name}. By clicking
+                continue, you authorize {provider.name} to establish the
+                connection and access your financial data.
+              </>
+            ) : (
+              <>
+                This feature requires a Pro subscription. Click continue to
+                upgrade your account and unlock automatic account tracking.
+              </>
+            )}
           </p>
         </div>
 
@@ -91,7 +112,9 @@ export function AddLinkedAccountDialog() {
             Please wait
           </Button>
         ) : (
-          <Button onClick={onContinue}>Continue</Button>
+          <Button onClick={onContinue}>
+            {isSubscribed ? "Continue" : "Upgrade to Pro"}
+          </Button>
         )}
       </DialogContent>
     </Dialog>
