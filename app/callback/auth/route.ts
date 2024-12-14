@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       // Create user settings if they don't exist
       if (data?.user) {
         const { error: settingsError } = await supabase
-          .from("user_settings")
+          .from("user_setting")
           .upsert({
             user_id: data.user.id,
           });
