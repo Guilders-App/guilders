@@ -355,7 +355,7 @@ export type Database = {
           },
         ]
       }
-      user_settings: {
+      user_setting: {
         Row: {
           api_key: string | null
           currency: string
@@ -409,6 +409,15 @@ export type Database = {
         | "non_investable"
         | "investable_easy_convert"
         | "investable_cash"
+      subscription_status:
+        | "trialing"
+        | "active"
+        | "canceled"
+        | "incomplete"
+        | "incomplete_expired"
+        | "past_due"
+        | "unpaid"
+        | "paused"
       taxability: "taxable" | "tax_free" | "tax_deferred"
     }
     CompositeTypes: {

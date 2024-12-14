@@ -172,7 +172,7 @@ const getAccountsContext = async (userId: string) => {
 
   // Get user settings
   const { data: userSettings } = await supabase
-    .from("user_settings")
+    .from("user_setting")
     .select("*")
     .eq("user_id", userId)
     .single();

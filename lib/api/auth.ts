@@ -21,7 +21,7 @@ export async function validateApiKey(apiKey: string): Promise<string | null> {
   const supabase = await createAdminClient();
 
   const { data: userSettings, error } = await supabase
-    .from("user_settings")
+    .from("user_setting")
     .select("user_id")
     .eq("api_key", apiKey)
     .single();
