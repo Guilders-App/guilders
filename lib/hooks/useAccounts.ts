@@ -1,7 +1,7 @@
 import { Account, AccountInsert, AccountUpdate } from "@/lib/db/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-const queryKey = ["accounts"] as const;
+export const queryKey = ["accounts"] as const;
 
 type AccountsResponse = {
   accounts: Account[];

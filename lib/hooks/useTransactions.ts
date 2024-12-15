@@ -4,6 +4,7 @@ import {
   TransactionUpdate,
 } from "@/lib/db/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryKey as accountsQueryKey } from "./useAccounts";
 
 const queryKey = ["transactions"] as const;
 
@@ -63,6 +64,7 @@ export function useAddTransaction() {
         ...old,
         newTransaction,
       ]);
+      queryClient.invalidateQueries({ queryKey: accountsQueryKey });
     },
   });
 }
@@ -91,6 +93,7 @@ export function useUpdateTransaction() {
             : transaction
         )
       );
+      queryClient.invalidateQueries({ queryKey: accountsQueryKey });
     },
   });
 }
@@ -109,6 +112,7 @@ export function useRemoveTransaction() {
       queryClient.setQueryData<Transaction[]>(queryKey, (old = []) =>
         old.filter((transaction) => transaction.id !== transactionId)
       );
+      queryClient.invalidateQueries({ queryKey: accountsQueryKey });
     },
   });
 }
