@@ -64,7 +64,7 @@ export function useUser() {
       if (!settings) throw new Error("No user settings found");
 
       // Fetch subscription data
-      const { data: subscription, error } = await supabase
+      const { data: subscription } = await supabase
         .from("subscription")
         .select("*")
         .eq("user_id", user.id)

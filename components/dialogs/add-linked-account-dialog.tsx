@@ -12,6 +12,7 @@ import { useCreateConnection } from "@/lib/hooks/useConnections";
 import { useDialog } from "@/lib/hooks/useDialog";
 import { useProvider } from "@/lib/hooks/useProviders";
 import { useUser } from "@/lib/hooks/useUser";
+import { isPro } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -27,8 +28,7 @@ export function AddLinkedAccountDialog() {
 
   if (!isOpen || !provider || !data?.institution) return null;
   const { institution } = data;
-
-  const isSubscribed = user?.subscription?.status === "active";
+  const isSubscribed = isPro(user);
 
   const onContinue = async () => {
     if (!isSubscribed) {

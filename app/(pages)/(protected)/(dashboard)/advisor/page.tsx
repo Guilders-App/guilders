@@ -13,6 +13,7 @@ import {
 import { ChatInput } from "@/components/ui/chat-input";
 import { ChatMessageList } from "@/components/ui/chat-message-list";
 import { useUser } from "@/lib/hooks/useUser";
+import { isPro } from "@/lib/utils";
 import { useChat } from "ai/react";
 import {
   Check,
@@ -50,7 +51,7 @@ const ExampleQuestions = [
 export default function AdvisorPage() {
   const router = useRouter();
   const { data: user, isLoading } = useUser();
-  const isSubscribed = user?.subscription?.status === "active";
+  const isSubscribed = isPro(user);
 
   const [isGenerating, setIsGenerating] = useState(false);
   const {

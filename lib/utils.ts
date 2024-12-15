@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { redirect } from "next/navigation";
 import { twMerge } from "tailwind-merge";
+import { UserData } from "./hooks/useUser";
 
 /**
  * Redirects to a specified path with an encoded message as a query parameter.
@@ -39,4 +40,11 @@ export function formatBytes(
       ? (accurateSizes[i] ?? "Bytes")
       : (sizes[i] ?? "Bytes")
   }`;
+}
+
+export function isPro(user: UserData | undefined) {
+  return (
+    user?.subscription?.status === "active" ||
+    user?.subscription?.status === "trialing"
+  );
 }

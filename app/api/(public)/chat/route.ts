@@ -106,7 +106,8 @@ export async function POST(request: NextRequest) {
     .eq("user_id", userId)
     .single();
 
-  const isSubscribed = subscription?.status === "active";
+  const isSubscribed =
+    subscription?.status === "active" || subscription?.status === "trialing";
 
   if (!isSubscribed) {
     return NextResponse.json(
