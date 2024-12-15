@@ -34,93 +34,65 @@ export async function POST(req: Request) {
 
   try {
     switch (event.type) {
-      case "checkout.session.completed": {
-        const session = event.data.object as Stripe.Checkout.Session;
-        if (session.mode === "subscription" && session.metadata?.user_id) {
-          await supabase.from("subscription").upsert({
-            user_id: session.metadata.user_id,
-            stripe_customer_id: session.customer as string,
-            status: "active",
-            current_period_start: new Date(
-              session.created * 1000
-            ).toISOString(),
-            current_period_end: new Date(
-              (session.created + 30 * 24 * 60 * 60) * 1000
-            ).toISOString(),
-          });
-        }
-        break;
-      }
-
-      case "invoice.paid": {
-        const invoice = event.data.object as Stripe.Invoice;
-        if (invoice.subscription) {
-          const subscription = await stripe.subscriptions.retrieve(
-            invoice.subscription as string
-          );
-
-          await supabase.from("subscription").upsert({
-            stripe_customer_id: invoice.customer as string,
+      case "customer.subscription.created":
+      case "customer.subscription.updated": {
+        const subscription = event.data.object as Stripe.Subscription;
+        const { error } = await supabase.from("subscription").upsert(
+          {
+            user_id: subscription.metadata.user_id,
+            stripe_customer_id: subscription.customer as string,
             status: subscription.status,
+            cancel_at: subscription.cancel_at
+              ? new Date(subscription.cancel_at * 1000).toISOString()
+              : null,
+            cancel_at_period_end: subscription.cancel_at_period_end,
+            canceled_at: subscription.canceled_at
+              ? new Date(subscription.canceled_at * 1000).toISOString()
+              : null,
             current_period_start: new Date(
               subscription.current_period_start * 1000
             ).toISOString(),
             current_period_end: new Date(
               subscription.current_period_end * 1000
             ).toISOString(),
-          });
+            trial_start: subscription.trial_start
+              ? new Date(subscription.trial_start * 1000).toISOString()
+              : null,
+            trial_end: subscription.trial_end
+              ? new Date(subscription.trial_end * 1000).toISOString()
+              : null,
+          },
+          { onConflict: "user_id,stripe_customer_id" }
+        );
+        if (error) {
+          console.error("Failed to create subscription entry", error);
         }
         break;
       }
 
-      case "customer.subscription.updated": {
-        const subscription = event.data.object as Stripe.Subscription;
-        await supabase.from("subscription").upsert({
-          stripe_customer_id: subscription.customer as string,
-          status: subscription.status,
-          cancel_at: subscription.cancel_at
-            ? new Date(subscription.cancel_at * 1000).toISOString()
-            : null,
-          cancel_at_period_end: subscription.cancel_at_period_end,
-          canceled_at: subscription.canceled_at
-            ? new Date(subscription.canceled_at * 1000).toISOString()
-            : null,
-          current_period_start: new Date(
-            subscription.current_period_start * 1000
-          ).toISOString(),
-          current_period_end: new Date(
-            subscription.current_period_end * 1000
-          ).toISOString(),
-        });
-        break;
-      }
-
-      case "customer.subscription.paused": {
-        const subscription = event.data.object as Stripe.Subscription;
-        await supabase.from("subscription").upsert({
-          stripe_customer_id: subscription.customer as string,
-          status: "paused",
-        });
-        break;
-      }
-
+      case "customer.subscription.paused":
       case "customer.subscription.resumed": {
         const subscription = event.data.object as Stripe.Subscription;
-        await supabase.from("subscription").upsert({
-          stripe_customer_id: subscription.customer as string,
-          status: "active",
-        });
+        await supabase
+          .from("subscription")
+          .update({
+            status: subscription.status,
+          })
+          .eq("user_id", subscription.metadata.user_id)
+          .eq("stripe_customer_id", subscription.customer as string);
         break;
       }
 
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
-        await supabase.from("subscription").upsert({
-          stripe_customer_id: subscription.customer as string,
-          status: "canceled",
-          canceled_at: new Date().toISOString(),
-          ended_at: new Date().toISOString(),
-        });
+        await supabase
+          .from("subscription")
+          .update({
+            status: "canceled",
+            canceled_at: new Date().toISOString(),
+            ended_at: new Date().toISOString(),
+          })
+          .eq("stripe_customer_id", subscription.customer as string);
         break;
       }
       case "customer.deleted": {

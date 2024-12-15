@@ -1,3 +1,4 @@
+import { createAdminClient } from "@/lib/db/admin";
 import { createClient } from "@/lib/db/server";
 import { stripe } from "@/lib/stripe/server";
 import { NextRequest, NextResponse } from "next/server";
@@ -5,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const POST = async (req: NextRequest) => {
   try {
     const supabase = await createClient();
+    const supabaseAdmin = await createAdminClient();
     const {
       data: { user },
       error: authError,
@@ -18,37 +20,58 @@ export const POST = async (req: NextRequest) => {
     }
 
     // Check if user already has an active subscription
-    const { data: existingSubscription } = await supabase
+    const { data: subscription } = await supabase
       .from("subscription")
       .select("*")
       .eq("user_id", user.id)
-      .eq("status", "active")
       .single();
 
-    if (existingSubscription) {
+    if (subscription && subscription.status === "active") {
       return NextResponse.json(
         { success: false, error: "User already has an active subscription" },
         { status: 400 }
       );
     }
 
-    // Get or create Stripe customer
-    let { data: subscription } = await supabase
-      .from("subscription")
-      .select("stripe_customer_id")
-      .eq("user_id", user.id)
-      .single();
-
     let customerId = subscription?.stripe_customer_id;
 
     if (!customerId) {
       const customer = await stripe.customers.create({
-        email: user.email!,
+        email: user.email,
         metadata: {
           user_id: user.id,
         },
       });
       customerId = customer.id;
+    } else {
+      await stripe.customers.update(customerId, {
+        metadata: {
+          user_id: user.id,
+        },
+      });
+    }
+
+    const { error: upsertError } = await supabaseAdmin
+      .from("subscription")
+      .upsert(
+        {
+          user_id: user.id,
+          stripe_customer_id: customerId,
+          status: "incomplete",
+        },
+        {
+          onConflict: "user_id",
+        }
+      )
+      .select()
+      .single();
+
+    if (upsertError) {
+      console.error("Failed to create subscription entry", upsertError);
+      return NextResponse.json(
+        { success: false, error: "Failed to create subscription entry" },
+        { status: 500 }
+      );
     }
 
     const headers = req.headers;
@@ -71,16 +94,19 @@ export const POST = async (req: NextRequest) => {
       success_url: `${origin}/settings/subscription?success=true`,
       cancel_url: `${origin}/settings/subscription?canceled=true`,
       automatic_tax: { enabled: true },
+      subscription_data: {
+        trial_settings: {
+          end_behavior: { missing_payment_method: "cancel" },
+        },
+        trial_period_days: 14,
+        metadata: {
+          user_id: user.id,
+        },
+      },
       metadata: {
         user_id: user.id,
       },
-    });
-
-    // Update or create subscription record
-    await supabase.from("subscription").upsert({
-      user_id: user.id,
-      stripe_customer_id: customerId,
-      status: "incomplete",
+      payment_method_collection: "if_required",
     });
 
     return NextResponse.json({ url: session.url });
