@@ -10,11 +10,13 @@
   "private": true,
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
-    "dev": "turbo run dev",
-    "build": "turbo run build",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "ngrok": "ngrok http 3000 --url=${NGROK_URL}"
+    "dev": "turbo dev --parallel",
+    "test": "turbo test --parallel",
+    "build": "turbo build",
+    "format": "biome format --write .",
+    "lint": "turbo lint && manypkg check",
+    "typecheck": "turbo typecheck",
+    "ngrok": "ngrok http 3001 --url=${NGROK_URL}"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

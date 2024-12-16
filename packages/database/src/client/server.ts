@@ -6,14 +6,15 @@ type CreateClientOptions = {
   admin?: boolean;
 };
 
-export const createClient = async (options: CreateClientOptions) => {
+export const createClient = async (options?: CreateClientOptions) => {
   const cookieStore = await cookies();
+  const { admin } = options ?? {};
 
-  const key = options.admin
+  const key = admin
     ? process.env.SUPABASE_SERVICE_ROLE_KEY
     : process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  const auth = options.admin
+  const auth = admin
     ? {
         persistSession: false,
         autoRefreshToken: false,

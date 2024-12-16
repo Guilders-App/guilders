@@ -24,13 +24,7 @@
   "exports": {
     "./server": "./src/client/server.ts",
     "./client": "./src/client/client.ts",
-    "./client-query": "./src/queries/client.ts",
-    "./job": "./src/client/job.ts",
-    "./mutations": "./src/mutations/index.ts",
     "./middleware": "./src/client/middleware.ts",
-    "./queries": "./src/queries/index.ts",
-    "./cached-queries": "./src/queries/cached-queries.ts",
-    "./storage": "./src/utils/storage.ts",
     "./types": "./src/types/index.ts"
   }
 }

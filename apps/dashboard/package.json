@@ -1,26 +1,11 @@
 {
-  "name": "guilders",
-  "version": "0.0.1",
-  "description": "Guilders - AI-powered financial companion",
-  "homepage": "https://guilders.app",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Guilders-App/guilders.git"
-  },
-  "license": "UNLICENSED",
+  "name": "@guilders/dashboard",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev -p 3001",
     "build": "next build",
-    "start": "next start",
-    "db:gen-types": "supabase gen types typescript --linked > ./lib/db/database.types.ts",
-    "db:pull": "supabase db pull && supabase db pull --schema storage",
-    "db:start": "supabase start",
-    "db:stop": "supabase stop",
-    "db:seed": "bun run scripts/seedDatabase.ts",
-    "emails:dev": "email dev -p 3001",
-    "emails:build": "bun run scripts/buildEmails.ts",
-    "ngrok": "ngrok http 3000 --url=${NGROK_URL}"
+    "start": "next start"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.0.4",
@@ -64,7 +49,6 @@
     "@types/recharts": "^1.8.29",
     "autoprefixer": "10.4.20",
     "postcss": "8.4.49",
-    "react-email": "3.0.3",
     "supabase": "^2.0.0",
     "typescript": "5.7.2"
   }

@@ -7,12 +7,14 @@
     "lint": "next lint",
     "format": "biome check --write .",
     "typecheck": "tsc --noEmit",
-    "dev": "next dev --turbopack",
+    "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start"
   },
   "dependencies": {
     "@guilders/ui": "workspace:*",
+    "@mdx-js/loader": "^3.1.0",
+    "@mdx-js/react": "^3.1.0",
     "@next/mdx": "^15.0.4",
     "geist": "^1.2.1",
     "lucide-react": "^0.468.0",
