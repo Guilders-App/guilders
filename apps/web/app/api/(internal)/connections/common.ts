@@ -1,0 +1,125 @@
+import { createClient } from "@/apps/web/lib/db/server";
+import { deregisterSaltEdgeUser } from "@/apps/web/lib/providers/saltedge/deregister";
+import { deregisterSnapTradeUser } from "@/apps/web/lib/providers/snaptrade/deregister";
+import { ConnectionProviderFunction } from "@/apps/web/lib/providers/types";
+import { NextResponse } from "next/server";
+
+export type ConnectBody = {
+  institution_id: string;
+  account_id?: string;
+};
+
+export const registerConnection = async (
+  providerName: string,
+  registerFunction: ConnectionProviderFunction
+) => {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "Invalid credentials" },
+        { status: 401 }
+      );
+    }
+
+    const { data: provider } = await supabase
+      .from("provider")
+      .select("id")
+      .eq("name", providerName)
+      .single();
+
+    if (!provider) {
+      return NextResponse.json(
+        { success: false, error: `Provider ${providerName} not found` },
+        { status: 500 }
+      );
+    }
+
+    const { data: connection } = await supabase
+      .from("provider_connection")
+      .select("*")
+      .eq("provider_id", provider.id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (connection) {
+      return NextResponse.json({ success: true, data: connection });
+    }
+
+    await registerFunction(user.id);
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Registration error:", error);
+    return NextResponse.json(
+      { success: false, error: "Error during registration" },
+      { status: 500 }
+    );
+  }
+};
+
+export const deregisterConnection = async (
+  providerName: string,
+  deregisterFunction?: ConnectionProviderFunction
+) => {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "Invalid credentials" },
+        { status: 401 }
+      );
+    }
+
+    const { data: provider } = await supabase
+      .from("provider")
+      .select("id")
+      .eq("name", providerName)
+      .single();
+
+    if (!provider) {
+      return NextResponse.json(
+        { success: false, error: `Provider ${providerName} not found` },
+        { status: 500 }
+      );
+    }
+
+    const { data: connection } = await supabase
+      .from("provider_connection")
+      .select("*")
+      .eq("provider_id", provider.id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (!connection) {
+      console.log("No connection found");
+      return NextResponse.json({ success: true });
+    }
+
+    if (deregisterFunction) {
+      await deregisterFunction(user.id);
+    } else {
+      if (providerName.toLowerCase() === "saltedge") {
+        await deregisterSaltEdgeUser(user.id);
+      } else if (providerName.toLowerCase() === "snaptrade") {
+        await deregisterSnapTradeUser(user.id);
+      }
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Deregistration error:", error);
+    return NextResponse.json(
+      { success: false, error: "Error during deregistration" },
+      { status: 500 }
+    );
+  }
+};

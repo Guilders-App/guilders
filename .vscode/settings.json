@@ -1,32 +1,31 @@
 {
-  "cSpell.words": [
-    "authtoken",
-    "Bento",
-    "clsx",
-    "cmdk",
-    "creditcard",
-    "Deregistering",
-    "deregistration",
-    "extralight",
-    "fkey",
-    "GOCARDLESS",
-    "hookform",
-    "Investability",
-    "lucide",
-    "NGROK",
-    "SALTEDGE",
-    "sankey",
-    "SNAPTRADE",
-    "Sonner",
-    "supabase",
-    "tailwindcss",
-    "tanstack",
-    "Tink",
-    "totp",
-    "Umami",
-    "Uncategorized",
-    "waitlist",
-    "zustand"
-  ],
-  "svg.preview.background": "editor"
+  "editor.defaultFormatter": "biomejs.biome",
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "editor.codeActionsOnSave": {
+    "quickfix.biome": "explicit",
+    "source.organizeImports.biome": "explicit"
+  },
+  "editor.formatOnSave": true,
+  "search.exclude": {
+    "**/node_modules": true
+  },
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

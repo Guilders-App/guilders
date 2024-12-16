@@ -1,0 +1,249 @@
+"use client";
+
+import { Button } from "@/apps/web/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/apps/web/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/apps/web/components/ui/form";
+import { Input } from "@/apps/web/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/apps/web/components/ui/select";
+import { accountSubtypeLabels, accountSubtypes } from "@/apps/web/lib/db/types";
+import { useAddAccount } from "@/apps/web/lib/hooks/useAccounts";
+import { useCurrencies } from "@/apps/web/lib/hooks/useCurrencies";
+import { useDialog } from "@/apps/web/lib/hooks/useDialog";
+import { useUser } from "@/apps/web/lib/hooks/useUser";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
+
+const formSchema = z.object({
+  accountType: z.enum(accountSubtypes),
+  accountName: z.string().min(1, "Account name is required."),
+  value: z
+    .string()
+    .min(1, "Value is required.")
+    .regex(/^\d+(\.\d{1,2})?$/, "Invalid number format."),
+  currency: z.string(),
+});
+
+type FormSchema = z.infer<typeof formSchema>;
+
+export function AddAccountDialog() {
+  const { isOpen, close } = useDialog("addManualAccount");
+  const [isLoading, setIsLoading] = useState(false);
+  const { data: user } = useUser();
+  const { mutate: addAccount } = useAddAccount();
+  const {
+    data: currencies,
+    isLoading: isCurrenciesLoading,
+    error: currenciesError,
+  } = useCurrencies();
+
+  if (currenciesError) {
+    toast.error("Error loading currencies", {
+      description: "Unable to load currency options. Please try again later.",
+    });
+  }
+
+  const form = useForm<FormSchema>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      accountType: undefined,
+      accountName: "",
+      value: "",
+      currency: user?.settings.currency ?? "",
+    },
+  });
+
+  useEffect(() => {
+    if (user?.settings.currency) {
+      form.setValue("currency", user.settings.currency);
+    }
+  }, [user?.settings.currency, form]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      form.reset();
+    }
+  }, [isOpen, form]);
+
+  const handleSubmit = form.handleSubmit(async (data) => {
+    setIsLoading(true);
+
+    try {
+      await addAccount({
+        name: data.accountName,
+        subtype: data.accountType,
+        value: parseFloat(data.value),
+        currency: data.currency,
+      });
+
+      toast.success("Account added!", {
+        description: "Your account has been added successfully.",
+      });
+    } catch (error) {
+      toast.error("Error adding account", {
+        description:
+          "There was an error adding your account. Please try again later.",
+      });
+      console.error("Error adding account:", error);
+    } finally {
+      setIsLoading(false);
+      close();
+    }
+  });
+
+  const customOrder = ["USD", "GBP", "EUR"];
+  const sortedCurrencies = useMemo(() => {
+    if (!currencies) return [];
+
+    const orderedCurrencies = customOrder
+      .map((code) => currencies.find((c) => c.code === code))
+      .filter((c): c is NonNullable<typeof c> => c !== undefined);
+
+    const remainingCurrencies = currencies
+      .filter((c) => !customOrder.includes(c.code))
+      .sort((a, b) => a.code.localeCompare(b.code));
+
+    return [...orderedCurrencies, ...remainingCurrencies];
+  }, [currencies]);
+
+  return (
+    <Dialog open={isOpen} onOpenChange={close}>
+      <DialogContent className="sm:max-w-[400px]">
+        <DialogHeader>
+          <DialogTitle>Add Account</DialogTitle>
+          <DialogDescription>
+            Enter the details of the new account you want to add.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...form}>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="accountType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Type</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select account type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {accountSubtypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {accountSubtypeLabels[type]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="accountName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter account name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="value"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Value</FormLabel>
+                  <div className="flex gap-2">
+                    <FormControl>
+                      <Input type="text" placeholder="Enter value" {...field} />
+                    </FormControl>
+                    <FormField
+                      control={form.control}
+                      name="currency"
+                      render={({ field }) => (
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          disabled={isCurrenciesLoading || !currencies}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-[100px]">
+                              <SelectValue
+                                placeholder={
+                                  isCurrenciesLoading
+                                    ? "Loading..."
+                                    : "Currency"
+                                }
+                                defaultValue={user?.settings.currency ?? ""}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {sortedCurrencies.map((currency) => (
+                              <SelectItem
+                                key={currency.code}
+                                value={currency.code}
+                              >
+                                {currency.code}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+                    />
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter>
+              <Button type="submit" disabled={isLoading} className="w-full">
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Adding...
+                  </>
+                ) : (
+                  "Add Account"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}

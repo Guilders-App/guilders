@@ -1,0 +1,36 @@
+{
+  "name": "@guilders/database",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "supabase gen types typescript --linked > src/types/db.ts",
+    "db:pull": "supabase db pull && supabase db pull --schema storage",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:seed": "bun run scripts/seedDatabase.ts"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.5.1",
+    "@supabase/supabase-js": "^2.46.1",
+    "supabase": "^2.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  },
+  "exports": {
+    "./server": "./src/client/server.ts",
+    "./client": "./src/client/client.ts",
+    "./client-query": "./src/queries/client.ts",
+    "./job": "./src/client/job.ts",
+    "./mutations": "./src/mutations/index.ts",
+    "./middleware": "./src/client/middleware.ts",
+    "./queries": "./src/queries/index.ts",
+    "./cached-queries": "./src/queries/cached-queries.ts",
+    "./storage": "./src/utils/storage.ts",
+    "./types": "./src/types/index.ts"
+  }
+}
