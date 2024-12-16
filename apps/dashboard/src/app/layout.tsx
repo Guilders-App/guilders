@@ -1,9 +1,9 @@
 import { Providers } from "@/components/common/providers";
 import { UmamiAnalytics } from "@/components/common/umami-analytics";
+import "@guilders/ui/globals.css";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import { defaultMetadata } from "./(pages)/metadata";
-import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`

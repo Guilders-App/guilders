@@ -1,9 +1,9 @@
 "use server";
 
+import crypto from "node:crypto";
 import { providerName, saltedge } from "@/lib/providers/saltedge/client";
 import { createClient } from "@guilders/database/server";
 import { type NextRequest, NextResponse } from "next/server";
-import crypto from "node:crypto";
 import type {
   SaltEdgeCallback,
   SaltEdgeDestroyCallback,

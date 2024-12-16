@@ -5,7 +5,11 @@
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "clean": "git clean -xdf .next .turbo node_modules",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@guilders/ui": "workspace:*",

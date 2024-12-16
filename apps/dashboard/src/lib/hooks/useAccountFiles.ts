@@ -78,7 +78,7 @@ export function useAccountFiles({
         `/api/accounts/${accountId}/documents/${encodeURIComponent(path)}`,
         {
           method: "GET",
-        }
+        },
       );
 
       if (!response.ok) {

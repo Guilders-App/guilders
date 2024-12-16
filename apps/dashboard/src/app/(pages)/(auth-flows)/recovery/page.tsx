@@ -80,7 +80,7 @@ export default function RecoveryPage() {
         if (error) throw error;
 
         toast.success("Password updated successfully");
-        router.push("/dashboard");
+        router.push("/");
       }
     } catch (error) {
       toast.error("Failed to update password", {
@@ -120,7 +120,7 @@ export default function RecoveryPage() {
       setPendingPassword(null);
 
       toast.success("Password updated successfully");
-      router.push("/dashboard");
+      router.push("/");
     } catch (error) {
       toast.error("Failed to verify code", {
         description: "Please check the code and try again.",

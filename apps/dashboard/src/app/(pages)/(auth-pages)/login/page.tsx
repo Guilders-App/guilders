@@ -79,7 +79,7 @@ function LoginForm() {
       if (verifyError) throw verifyError;
 
       toast.success("Signed in successfully");
-      router.push("/dashboard");
+      router.push("/");
     } catch (error) {
       toast.error("Failed to verify code", {
         description: "Please check the code and try again.",

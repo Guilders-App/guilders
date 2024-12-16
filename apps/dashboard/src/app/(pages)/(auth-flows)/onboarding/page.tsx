@@ -41,7 +41,7 @@ export default function OnboardingPage() {
       await updateUser.mutateAsync({
         password: data.password,
       });
-      router.push("/dashboard");
+      router.push("/");
     } catch (error) {
       console.error("Error setting password:", error);
     }

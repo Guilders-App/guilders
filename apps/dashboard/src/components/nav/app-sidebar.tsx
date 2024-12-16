@@ -38,7 +38,7 @@ export const navigationData: {
   navMain: [
     {
       title: "Dashboard",
-      url: "/dashboard",
+      url: "/",
       icon: LayoutDashboard,
       isActive: true,
     },

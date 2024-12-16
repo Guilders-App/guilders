@@ -30,14 +30,14 @@ export function getBreadcrumbs(pathname: string): Breadcrumb[] {
       pathname.startsWith("/transactions/")
     ) {
       return [
-        { title: "Dashboard", href: "/dashboard" },
+        { title: "Dashboard", href: "/" },
         { title: "Accounts", href: "/accounts" },
         { title: "Loading..." }, // This will be replaced by the dynamic component
       ];
     }
 
     // Default fallback
-    return [{ title: "Dashboard", href: "/dashboard" }];
+    return [{ title: "Dashboard", href: "/" }];
   }
 
   // Build breadcrumb trail
@@ -70,7 +70,7 @@ export function DynamicBreadcrumbs() {
   // Update breadcrumbs if we have account data
   if (accountId && account) {
     breadcrumbs = [
-      { title: "Dashboard", href: "/dashboard" },
+      { title: "Dashboard", href: "/" },
       { title: "Accounts", href: "/accounts" },
       { title: account.name },
     ];

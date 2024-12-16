@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "clean": "git clean -xdf .next .turbo node_modules",
-    "lint": "next lint",
-    "format": "biome check --write .",
-    "typecheck": "tsc --noEmit",
     "dev": "next dev -p 3000",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "clean": "git clean -xdf .next .turbo node_modules",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@guilders/ui": "workspace:*",

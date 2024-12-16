@@ -72,7 +72,7 @@ export async function signInAction(formData: FormData) {
     }
   }
 
-  redirect("/dashboard"); // or your redirect path
+  redirect("/"); // or your redirect path
 }
 
 export const forgotPasswordAction = async (formData: FormData) => {
