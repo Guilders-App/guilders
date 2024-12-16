@@ -1,17 +1,17 @@
 "use client";
 
-import { ChangeIndicator } from "@/apps/web/components/common/change-indicator";
-import { Card, CardContent } from "@/apps/web/components/ui/card";
+import { ChangeIndicator } from "@/components/common/change-indicator";
+import { useRates } from "@/lib/hooks/useRates";
+import { useUser } from "@/lib/hooks/useUser";
+import { convertToUserCurrency } from "@/lib/utils/financial";
+import type { Account } from "@guilders/database/types";
+import { Card, CardContent } from "@guilders/ui/card";
 import {
-  ChartConfig,
+  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/apps/web/components/ui/chart";
-import { Account } from "@/apps/web/lib/db/types";
-import { useRates } from "@/apps/web/lib/hooks/useRates";
-import { useUser } from "@/apps/web/lib/hooks/useUser";
-import { convertToUserCurrency } from "@/apps/web/lib/utils/financial";
+} from "@guilders/ui/chart";
 import NumberFlow from "@number-flow/react";
 import { Area, AreaChart, ResponsiveContainer } from "recharts";
 
@@ -57,9 +57,9 @@ export function CompactBalanceCard({
         account.value,
         account.currency,
         rates,
-        userCurrency
+        userCurrency,
       ),
-    0
+    0,
   );
 
   const totalCost = accounts.reduce(
@@ -69,9 +69,9 @@ export function CompactBalanceCard({
         account.cost || 0,
         account.currency,
         rates,
-        userCurrency
+        userCurrency,
       ),
-    0
+    0,
   );
 
   // Calculate change

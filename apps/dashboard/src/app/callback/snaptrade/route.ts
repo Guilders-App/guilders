@@ -1,10 +1,7 @@
 "use server";
 
-import { createAdminClient } from "@/apps/web/lib/db/admin";
-import {
-  providerName,
-  snaptrade,
-} from "@/apps/web/lib/providers/snaptrade/client";
+import { providerName, snaptrade } from "@/lib/providers/snaptrade/client";
+import { createClient } from "@guilders/database/server";
 import { NextResponse } from "next/server";
 import type {
   AccountHoldingsUpdatedWebhook,
@@ -28,7 +25,7 @@ export async function POST(request: Request) {
   if (!body || !body.eventType) {
     return NextResponse.json(
       { error: "Invalid webhook payload" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -39,7 +36,7 @@ export async function POST(request: Request) {
   ) {
     return NextResponse.json(
       { error: "Invalid webhook secret" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -93,7 +90,7 @@ export async function POST(request: Request) {
     default:
       return NextResponse.json(
         { error: "Unknown event type" },
-        { status: 400 }
+        { status: 400 },
       );
   }
 
@@ -101,7 +98,7 @@ export async function POST(request: Request) {
 }
 
 async function handleUserDeleted(body: UserDeletedWebhook) {
-  const supabase = await createAdminClient();
+  const supabase = await createClient({ admin: true });
 
   // Remove _deleted suffix from userId
   const userId = body.userId.replace("_deleted", "");
@@ -127,7 +124,7 @@ async function handleUserDeleted(body: UserDeletedWebhook) {
     console.error("Error deleting provider connection:", error);
     return NextResponse.json(
       { error: "Error deleting provider connection" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -135,7 +132,7 @@ async function handleUserDeleted(body: UserDeletedWebhook) {
 }
 
 async function handleConnectionAdded(body: ConnectionAddedWebhook) {
-  const supabase = await createAdminClient();
+  const supabase = await createClient({ admin: true });
 
   const { data: provider } = await supabase
     .from("provider")
@@ -159,7 +156,7 @@ async function handleConnectionAdded(body: ConnectionAddedWebhook) {
     console.error("Institution not found");
     return NextResponse.json(
       { error: "Institution not found" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -174,7 +171,7 @@ async function handleConnectionAdded(body: ConnectionAddedWebhook) {
     console.error("Provider connection not found");
     return NextResponse.json(
       { error: "Provider connection not found" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -188,7 +185,7 @@ async function handleConnectionAdded(body: ConnectionAddedWebhook) {
     console.error("Error inserting institution connection:", error);
     return NextResponse.json(
       { error: "Error inserting institution connection" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -196,7 +193,7 @@ async function handleConnectionAdded(body: ConnectionAddedWebhook) {
 }
 
 async function handleConnectionDeleted(body: ConnectionDeletedWebhook) {
-  const supabase = await createAdminClient();
+  const supabase = await createClient({ admin: true });
 
   const { data: provider } = await supabase
     .from("provider")
@@ -220,7 +217,7 @@ async function handleConnectionDeleted(body: ConnectionDeletedWebhook) {
     console.error("Provider connection not found");
     return NextResponse.json(
       { error: "Provider connection not found" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -234,7 +231,7 @@ async function handleConnectionDeleted(body: ConnectionDeletedWebhook) {
     console.error("Error deleting institution connection:", error);
     return NextResponse.json(
       { error: "Error deleting institution connection" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -242,7 +239,7 @@ async function handleConnectionDeleted(body: ConnectionDeletedWebhook) {
 }
 
 async function handleConnectionBroken(body: ConnectionBrokenWebhook) {
-  const supabase = await createAdminClient();
+  const supabase = await createClient({ admin: true });
 
   const { error } = await supabase
     .from("institution_connection")
@@ -253,7 +250,7 @@ async function handleConnectionBroken(body: ConnectionBrokenWebhook) {
     console.error("Error updating institution connection:", error);
     return NextResponse.json(
       { error: "Error updating institution connection" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -261,7 +258,7 @@ async function handleConnectionBroken(body: ConnectionBrokenWebhook) {
 }
 
 async function handleConnectionFixed(body: ConnectionFixedWebhook) {
-  const supabase = await createAdminClient();
+  const supabase = await createClient({ admin: true });
 
   const { error } = await supabase
     .from("institution_connection")
@@ -272,7 +269,7 @@ async function handleConnectionFixed(body: ConnectionFixedWebhook) {
     console.error("Error updating institution connection:", error);
     return NextResponse.json(
       { error: "Error updating institution connection" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -280,7 +277,7 @@ async function handleConnectionFixed(body: ConnectionFixedWebhook) {
 }
 
 async function handleAccountRemoved(body: AccountRemovedWebhook) {
-  const supabase = await createAdminClient();
+  const supabase = await createClient({ admin: true });
 
   const { error } = await supabase
     .from("account")
@@ -292,7 +289,7 @@ async function handleAccountRemoved(body: AccountRemovedWebhook) {
     console.error("Error deleting account:", error);
     return NextResponse.json(
       { error: "Error deleting account" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -304,9 +301,9 @@ async function handleAccountUpdate(
     | NewAccountAvailableWebhook
     | AccountHoldingsUpdatedWebhook
     | AccountTransactionsInitialUpdateWebhook
-    | AccountTransactionsUpdatedWebhook
+    | AccountTransactionsUpdatedWebhook,
 ) {
-  const supabase = await createAdminClient();
+  const supabase = await createClient({ admin: true });
 
   const { data: provider } = await supabase
     .from("provider")
@@ -330,7 +327,7 @@ async function handleAccountUpdate(
     console.error("Provider connection not found");
     return NextResponse.json(
       { error: "Provider connection not found" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -345,7 +342,7 @@ async function handleAccountUpdate(
     console.error("Error getting institution:", institution_error);
     return NextResponse.json(
       { error: "Error getting institution" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -360,7 +357,7 @@ async function handleAccountUpdate(
     console.error("Institution connection not found");
     return NextResponse.json(
       { error: "Institution connection not found" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -375,7 +372,7 @@ async function handleAccountUpdate(
     console.error("SnapTrade account not found");
     return NextResponse.json(
       { error: "SnapTrade account not found" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -388,7 +385,7 @@ async function handleAccountUpdate(
     console.error("SnapTrade account not fully synced");
     return NextResponse.json(
       { error: "SnapTrade account not fully synced" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -406,16 +403,17 @@ async function handleAccountUpdate(
           snapTradeAccount.balance.total?.currency?.toUpperCase() ?? "EUR",
         cost:
           accountResponse.positions?.reduce(
-            (acc, holding) =>
+            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+            (acc: number, holding: any) =>
               acc +
               (holding.average_purchase_price ?? 0) * (holding.units ?? 0),
-            0
+            0,
           ) ?? 0,
         institution_connection_id: institutionConnection.id,
         provider_account_id: snapTradeAccount.id,
         image: institution.logo_url,
       },
-      { onConflict: "institution_connection_id,provider_account_id" }
+      { onConflict: "institution_connection_id,provider_account_id" },
     )
     .select()
     .single();
@@ -424,7 +422,7 @@ async function handleAccountUpdate(
     console.error("Error inserting account:", error);
     return NextResponse.json(
       { error: "Error inserting account" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -449,7 +447,7 @@ async function handleAccountUpdate(
             institution_connection_id: institutionConnection.id,
             image: holding.symbol?.symbol?.logo_url,
           },
-          { onConflict: "parent,name" }
+          { onConflict: "parent,name" },
         )
         .single();
 
@@ -457,7 +455,7 @@ async function handleAccountUpdate(
         console.error("Error inserting account holding:", error);
         return NextResponse.json(
           { error: "Error inserting account holding" },
-          { status: 500 }
+          { status: 500 },
         );
       }
     }

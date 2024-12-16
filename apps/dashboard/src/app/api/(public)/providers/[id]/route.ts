@@ -1,4 +1,4 @@
-import { authenticate } from "@/apps/web/lib/api/auth";
+import { authenticate } from "@/lib/api/auth";
 import { NextResponse } from "next/server";
 /**
  * @swagger
@@ -27,13 +27,13 @@ import { NextResponse } from "next/server";
  */
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { client, userId, error } = await authenticate(request);
   if (error || !client || !userId) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -48,7 +48,7 @@ export async function GET(
   if (dbError) {
     return NextResponse.json(
       { success: false, error: dbError.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

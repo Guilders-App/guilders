@@ -1,10 +1,10 @@
-import { Account, AccountSubtype, Rate } from "@/apps/web/lib/db/types";
+import type { Account, AccountSubtype, Rate } from "@guilders/database/types";
 
 export function convertToUserCurrency(
   value: number,
   fromCurrency: string,
   rates: Rate[] | undefined,
-  userCurrency: string
+  userCurrency: string,
 ) {
   if (!rates) return value;
   if (fromCurrency === userCurrency) return value;
@@ -29,7 +29,7 @@ interface CategoryItem {
 export function calculateCategories(
   accounts: Account[] | undefined,
   rates: Rate[] | undefined,
-  userCurrency: string
+  userCurrency: string,
 ): CategoryGroups {
   if (!accounts) return { positive: [], negative: [] };
 
@@ -44,15 +44,15 @@ export function calculateCategories(
     stock: 0,
   };
 
-  accounts.forEach((account) => {
+  for (const account of accounts) {
     const convertedValue = convertToUserCurrency(
       account.value,
       account.currency,
       rates,
-      userCurrency
+      userCurrency,
     );
     categoryMap[account.subtype] += convertedValue;
-  });
+  }
 
   const categoriesArray = Object.entries(categoryMap)
     .map(([name, value]) => ({ name: name as AccountSubtype, value }))
@@ -68,10 +68,10 @@ export function calculateCategorySums(categories: CategoryGroups) {
   return {
     positiveSum: categories.positive.reduce(
       (sum, category) => sum + category.value,
-      0
+      0,
     ),
     negativeSum: Math.abs(
-      categories.negative.reduce((sum, category) => sum + category.value, 0)
+      categories.negative.reduce((sum, category) => sum + category.value, 0),
     ),
   };
 }

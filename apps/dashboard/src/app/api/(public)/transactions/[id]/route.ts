@@ -1,5 +1,5 @@
-import { authenticate } from "@/apps/web/lib/api/auth";
-import { TransactionUpdate } from "@/apps/web/lib/db/types";
+import { authenticate } from "@/lib/api/auth";
+import type { TransactionUpdate } from "@guilders/database/types";
 import { NextResponse } from "next/server";
 
 /**
@@ -34,13 +34,13 @@ import { NextResponse } from "next/server";
  */
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { client, userId, error } = await authenticate(request);
   if (error || !client || !userId) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -55,7 +55,7 @@ export async function GET(
         account:account_id (
           user_id
         )
-      `
+      `,
     )
     .eq("id", id)
     .eq("account.user_id", userId)
@@ -65,14 +65,14 @@ export async function GET(
     console.error("Supabase error:", dbError);
     return NextResponse.json(
       { success: false, error: "Error fetching transaction" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
   if (!transaction) {
     return NextResponse.json(
       { success: false, error: "Transaction not found" },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -109,13 +109,13 @@ export async function GET(
  */
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { client, userId, error } = await authenticate(request);
   if (error || !client || !userId) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -130,7 +130,7 @@ export async function DELETE(
   if (transactionError || !transaction) {
     return NextResponse.json(
       { success: false, error: "Transaction not found" },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -144,7 +144,7 @@ export async function DELETE(
   if (accountError || !account) {
     return NextResponse.json(
       { success: false, error: "Account not found" },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -157,7 +157,7 @@ export async function DELETE(
     console.error("Supabase error:", error);
     return NextResponse.json(
       { success: false, error: "Error deleting transaction" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -172,7 +172,7 @@ export async function DELETE(
     console.error("Supabase error:", updateError);
     return NextResponse.json(
       { success: false, error: "Error updating account balance" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -211,13 +211,13 @@ export async function DELETE(
  */
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { client, userId, error } = await authenticate(request);
   if (error || !client || !userId) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -235,7 +235,7 @@ export async function PUT(
   if (transactionError || !transaction) {
     return NextResponse.json(
       { success: false, error: "Transaction not found" },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -249,7 +249,7 @@ export async function PUT(
   if (accountError || !account) {
     return NextResponse.json(
       { success: false, error: "Account not found" },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -264,7 +264,7 @@ export async function PUT(
     console.error("Supabase error:", updateError);
     return NextResponse.json(
       { success: false, error: "Error updating transaction" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -280,7 +280,7 @@ export async function PUT(
     console.error("Supabase error:", updateAccountError);
     return NextResponse.json(
       { success: false, error: "Error updating account balance" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

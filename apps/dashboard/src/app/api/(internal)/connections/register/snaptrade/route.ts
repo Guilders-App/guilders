@@ -1,5 +1,5 @@
-import { providerName } from "@/apps/web/lib/providers/snaptrade/client";
-import { registerSnapTradeUser } from "@/apps/web/lib/providers/snaptrade/register";
+import { providerName } from "@/lib/providers/snaptrade/client";
+import { registerSnapTradeUser } from "@/lib/providers/snaptrade/register";
 import { registerConnection } from "../../common";
 
 /**

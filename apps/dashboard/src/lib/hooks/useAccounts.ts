@@ -1,4 +1,8 @@
-import { Account, AccountInsert, AccountUpdate } from "@/apps/web/lib/db/types";
+import type {
+  Account,
+  AccountInsert,
+  AccountUpdate,
+} from "@guilders/database/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const queryKey = ["accounts"] as const;
@@ -76,8 +80,8 @@ export function useUpdateAccount() {
     onSuccess: (updatedAccount) => {
       queryClient.setQueryData<Account[]>(queryKey, (old = []) =>
         old.map((account) =>
-          account.id === updatedAccount.id ? updatedAccount : account
-        )
+          account.id === updatedAccount.id ? updatedAccount : account,
+        ),
       );
     },
   });
@@ -95,7 +99,7 @@ export function useRemoveAccount() {
     },
     onSuccess: (accountId) => {
       queryClient.setQueryData<Account[]>(queryKey, (old = []) =>
-        old.filter((account) => account.id !== accountId)
+        old.filter((account) => account.id !== accountId),
       );
     },
   });

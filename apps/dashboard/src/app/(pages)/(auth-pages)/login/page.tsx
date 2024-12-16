@@ -1,22 +1,19 @@
 "use client";
 
-import { signInAction } from "@/apps/web/app/actions";
-import {
-  FormMessage,
-  Message,
-} from "@/apps/web/components/common/form-message";
-import { SubmitButton } from "@/apps/web/components/common/submit-button";
-import { Button } from "@/apps/web/components/ui/button";
-import { Input } from "@/apps/web/components/ui/input";
+import { signInAction } from "@/app/actions";
+import { FormMessage, type Message } from "@/components/common/form-message";
+import { SubmitButton } from "@/components/common/submit-button";
+import { createClient } from "@guilders/database/client";
+import { Button } from "@guilders/ui/button";
+import { Input } from "@guilders/ui/input";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
-} from "@/apps/web/components/ui/input-otp";
-import { Label } from "@/apps/web/components/ui/label";
-import { PasswordInput } from "@/apps/web/components/ui/password-input";
-import { createClient } from "@/apps/web/lib/db/client";
+} from "@guilders/ui/input-otp";
+import { Label } from "@guilders/ui/label";
+import { PasswordInput } from "@guilders/ui/password-input";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -33,9 +30,13 @@ function LoginForm() {
   const supabase = createClient();
 
   const message: Message = {
-    message: searchParams.has("message") ? searchParams.get("message")! : "",
-    error: searchParams.has("error") ? searchParams.get("error")! : "",
-    success: searchParams.has("success") ? searchParams.get("success")! : "",
+    message: searchParams.has("message")
+      ? (searchParams.get("message") ?? "")
+      : "",
+    error: searchParams.has("error") ? (searchParams.get("error") ?? "") : "",
+    success: searchParams.has("success")
+      ? (searchParams.get("success") ?? "")
+      : "",
   };
 
   const handleSubmit = async (formData: FormData) => {

@@ -1,25 +1,20 @@
 "use client";
 
-import { ChangeIndicator } from "@/apps/web/components/common/change-indicator";
+import { ChangeIndicator } from "@/components/common/change-indicator";
+import { Card, CardContent, CardHeader, CardTitle } from "@guilders/ui/card";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/apps/web/components/ui/card";
-import {
-  ChartConfig,
+  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/apps/web/components/ui/chart";
+} from "@guilders/ui/chart";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/apps/web/components/ui/select";
+} from "@guilders/ui/select";
 import NumberFlow from "@number-flow/react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 

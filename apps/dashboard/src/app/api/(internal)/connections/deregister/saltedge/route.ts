@@ -1,5 +1,5 @@
-import { providerName } from "@/apps/web/lib/providers/saltedge/client";
-import { deregisterSaltEdgeUser } from "@/apps/web/lib/providers/saltedge/deregister";
+import { providerName } from "@/lib/providers/saltedge/client";
+import { deregisterSaltEdgeUser } from "@/lib/providers/saltedge/deregister";
 import { deregisterConnection } from "../../common";
 
 /**

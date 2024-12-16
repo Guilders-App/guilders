@@ -1,8 +1,8 @@
-import { BalanceCard } from "@/apps/web/components/dashboard/balance-card";
-import { useAccounts } from "@/apps/web/lib/hooks/useAccounts";
-import { useRates } from "@/apps/web/lib/hooks/useRates";
-import { useUser } from "@/apps/web/lib/hooks/useUser";
-import { convertToUserCurrency } from "@/apps/web/lib/utils/financial";
+import { BalanceCard } from "@/components/dashboard/balance-card";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useRates } from "@/lib/hooks/useRates";
+import { useUser } from "@/lib/hooks/useUser";
+import { convertToUserCurrency } from "@/lib/utils/financial";
 
 export function NetWorthCard({ className }: { className?: string }) {
   const { data: accounts } = useAccounts();
@@ -15,7 +15,7 @@ export function NetWorthCard({ className }: { className?: string }) {
         account.value,
         account.currency,
         rates,
-        user?.settings.currency ?? "EUR"
+        user?.settings.currency ?? "EUR",
       );
       return acc + convertedValue;
     }, 0) ?? 0;
@@ -27,7 +27,7 @@ export function NetWorthCard({ className }: { className?: string }) {
         cost,
         account.currency,
         rates,
-        user?.settings.currency ?? "EUR"
+        user?.settings.currency ?? "EUR",
       );
       return acc + convertedCost;
     }, 0) ?? 0;

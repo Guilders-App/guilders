@@ -1,6 +1,5 @@
-import { authenticate } from "@/apps/web/lib/api/auth";
-import { Tables } from "@/apps/web/lib/db/database.types";
-import { TransactionInsert } from "@/apps/web/lib/db/types";
+import { authenticate } from "@/lib/api/auth";
+import type { Tables, TransactionInsert } from "@guilders/database/types";
 import { NextResponse } from "next/server";
 
 /**
@@ -35,7 +34,7 @@ export async function GET(request: Request) {
   if (error || !client || !userId) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -44,7 +43,7 @@ export async function GET(request: Request) {
 
   let query = client
     .from("transaction")
-    .select(`*, account:account_id(user_id)`)
+    .select("*, account:account_id(user_id)")
     .eq("account.user_id", userId);
 
   if (accountId) {
@@ -58,7 +57,7 @@ export async function GET(request: Request) {
   if (dbError) {
     return NextResponse.json(
       { success: false, error: "Error fetching transactions" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -102,7 +101,7 @@ export async function POST(request: Request) {
     if (error || !client || !userId) {
       return NextResponse.json(
         { success: false, error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -119,7 +118,7 @@ export async function POST(request: Request) {
     if (accountError || !account) {
       return NextResponse.json(
         { success: false, error: "Invalid account" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -134,7 +133,7 @@ export async function POST(request: Request) {
       console.error("Supabase error:", dbError);
       return NextResponse.json(
         { success: false, error: "Error creating transaction" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -153,7 +152,7 @@ export async function POST(request: Request) {
 
       return NextResponse.json(
         { success: false, error: "Error updating account balance" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -165,7 +164,7 @@ export async function POST(request: Request) {
     console.error("Error creating transaction:", error);
     return NextResponse.json(
       { success: false, error: "Error creating transaction" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

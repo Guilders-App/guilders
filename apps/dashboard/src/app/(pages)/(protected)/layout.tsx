@@ -1,10 +1,10 @@
 "use client";
 
-import { Dialogs } from "@/apps/web/components/dialogs/dialogs";
-import { AppSidebar } from "@/apps/web/components/nav/app-sidebar";
-import { SidebarProvider } from "@/apps/web/components/ui/sidebar";
-import { Toaster } from "@/apps/web/components/ui/sonner";
-import { ReactNode } from "react";
+import { Dialogs } from "@/components/dialogs/dialogs";
+import { AppSidebar } from "@/components/nav/app-sidebar";
+import { SidebarProvider } from "@guilders/ui/sidebar";
+import { Toaster } from "@guilders/ui/sonner";
+import type { ReactNode } from "react";
 
 const ProtectedLayout = ({ children }: { children: ReactNode }) => {
   return (

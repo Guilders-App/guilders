@@ -1,22 +1,22 @@
 "use client";
 
-import { Button } from "@/apps/web/components/ui/button";
+import { Button } from "@guilders/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/apps/web/components/ui/dialog";
-import { useCreateConnection } from "@/apps/web/lib/hooks/useConnections";
-import { useDialog } from "@/apps/web/lib/hooks/useDialog";
-import { useProvider } from "@/apps/web/lib/hooks/useProviders";
-import { useUser } from "@/apps/web/lib/hooks/useUser";
-import { isPro } from "@/apps/web/lib/utils";
+} from "@guilders/ui/dialog";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { useCreateConnection } from "../../lib/hooks/useConnections";
+import { useDialog } from "../../lib/hooks/useDialog";
+import { useProvider } from "../../lib/hooks/useProviders";
+import { useUser } from "../../lib/hooks/useUser";
+import { isPro } from "../../lib/utils";
 
 export function AddLinkedAccountDialog() {
   const router = useRouter();

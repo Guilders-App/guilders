@@ -1,16 +1,16 @@
-import { authenticate } from "@/apps/web/lib/api/auth";
-import { createClient } from "@/apps/web/lib/db/server";
-import { Account } from "@/apps/web/lib/db/types";
-import { getRates } from "@/apps/web/lib/db/utils";
+import { authenticate } from "@/lib/api/auth";
+import { getRates } from "@/lib/db/utils";
 import { anthropic } from "@ai-sdk/anthropic";
+import { createClient } from "@guilders/database/server";
+import type { Account } from "@guilders/database/types";
 import {
+  type CoreMessage,
+  type ImagePart,
+  type Message,
   convertToCoreMessages,
-  CoreMessage,
-  ImagePart,
-  Message,
   streamText,
 } from "ai";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
   if (error || !client || !userId) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
         error:
           "This feature requires a Pro subscription. Please upgrade to continue.",
       },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
   } catch {
     return NextResponse.json(
       { success: false, error: "Invalid request body" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -142,7 +142,7 @@ export async function POST(request: NextRequest) {
             ({
               type: "image",
               image: url,
-            }) as ImagePart
+            }) as ImagePart,
         ),
       ],
     },
@@ -179,14 +179,14 @@ const getAccountsContext = async (userId: string) => {
           )
         )
       )
-    `
+    `,
     )
     .eq("user_id", userId);
 
   // Get transactions
   const { data: transactions } = await supabase
     .from("transaction")
-    .select(`*, account!inner(*)`)
+    .select("*, account!inner(*)")
     .eq("account.user_id", userId)
     .order("date", { ascending: false })
     .limit(50);
@@ -241,7 +241,7 @@ const getAccountsContext = async (userId: string) => {
 
   // Create a map of all accounts with their children
   const accountsMap = new Map();
-  allAccounts.forEach((acc) => {
+  for (const acc of allAccounts) {
     accountsMap.set(acc.id, {
       ...acc,
       children: [],
@@ -261,11 +261,11 @@ const getAccountsContext = async (userId: string) => {
           }
         : null,
     });
-  });
+  }
 
   // Build the hierarchy
   const topLevelAccounts: Account[] = [];
-  allAccounts.forEach((acc) => {
+  for (const acc of allAccounts) {
     if (acc.parent) {
       const parentAccount = accountsMap.get(acc.parent);
       if (parentAccount) {
@@ -274,13 +274,13 @@ const getAccountsContext = async (userId: string) => {
     } else {
       topLevelAccounts.push(accountsMap.get(acc.id));
     }
-  });
+  }
 
   // Create structured financial summary with hierarchical accounts
   const summary: FinancialSummary = {
     netWorth: topLevelAccounts.reduce(
       (sum, acc) => sum + (acc.type === "asset" ? acc.value : -acc.value),
-      0
+      0,
     ),
     accounts: topLevelAccounts.map((account) => ({
       id: account.id,
@@ -359,7 +359,7 @@ ${acc.recentTransactions
         t.documents?.length
           ? `\n    Documents: ${t.documents.map((d) => `\n      - ${d}`).join("")}`
           : ""
-      }`
+      }`,
   )
   .join("\n")}`
       : ""
@@ -387,7 +387,7 @@ ${acc.recentTransactions
                     t.documents?.length
                       ? `\n          Documents: ${t.documents.map((d) => `\n            - ${d}`).join("")}`
                       : ""
-                  }`
+                  }`,
               )
               .join("")}`
           : ""
@@ -395,11 +395,11 @@ ${acc.recentTransactions
         child.documents?.length
           ? `\n      Documents: ${child.documents.map((d) => `\n        - ${d}`).join("")}`
           : ""
-      }`
+      }`,
           )
           .join("")}`
       : ""
-  }`
+  }`,
     )
     .join("")}
 

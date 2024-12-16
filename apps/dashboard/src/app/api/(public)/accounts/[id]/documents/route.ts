@@ -1,10 +1,10 @@
-import { authenticate } from "@/apps/web/lib/api/auth";
-import { createClient } from "@/apps/web/lib/db/server";
+import { authenticate } from "@/lib/api/auth";
+import { createClient } from "@guilders/database/server";
 import { NextResponse } from "next/server";
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   try {
@@ -12,7 +12,7 @@ export async function POST(
     if (error || !client || !userId) {
       return NextResponse.json(
         { success: false, error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -21,7 +21,7 @@ export async function POST(
     if (!file) {
       return NextResponse.json(
         { success: false, error: "No file provided" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -38,7 +38,7 @@ export async function POST(
     if (uploadError) {
       return NextResponse.json(
         { success: false, error: uploadError.message },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -51,7 +51,7 @@ export async function POST(
     if (accountError) {
       return NextResponse.json(
         { success: false, error: accountError.message },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -67,7 +67,7 @@ export async function POST(
       await supabase.storage.from("user_files").remove([filePath]);
       return NextResponse.json(
         { success: false, error: updateError.message },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -85,14 +85,14 @@ export async function POST(
     console.error("Error uploading file:", err);
     return NextResponse.json(
       { success: false, error: "Failed to upload file" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
   try {
@@ -100,7 +100,7 @@ export async function DELETE(
     if (error || !client || !userId) {
       return NextResponse.json(
         { success: false, error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -108,7 +108,7 @@ export async function DELETE(
     if (!path) {
       return NextResponse.json(
         { success: false, error: "No file path provided" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -125,13 +125,13 @@ export async function DELETE(
     if (accountError) {
       return NextResponse.json(
         { success: false, error: accountError.message },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     // Filter out the document to be deleted
     const updatedDocuments = (account.documents || []).filter(
-      (doc: string) => doc !== path
+      (doc: string) => doc !== path,
     );
 
     // Update the account with the new documents array
@@ -144,7 +144,7 @@ export async function DELETE(
     if (updateError) {
       return NextResponse.json(
         { success: false, error: updateError.message },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -162,7 +162,7 @@ export async function DELETE(
     console.error("Error deleting file:", err);
     return NextResponse.json(
       { success: false, error: "Failed to delete file" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

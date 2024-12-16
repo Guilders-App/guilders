@@ -1,15 +1,10 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/apps/web/components/ui/card";
-import { ChartConfig, ChartContainer } from "@/apps/web/components/ui/chart";
-import { Skeleton } from "@/apps/web/components/ui/skeleton";
-import { Transaction } from "@/apps/web/lib/db/types";
-import { convertToUserCurrency } from "@/apps/web/lib/utils/financial";
+import { convertToUserCurrency } from "@/lib/utils/financial";
+import type { Transaction } from "@guilders/database/types";
+import { Card, CardContent, CardHeader, CardTitle } from "@guilders/ui/card";
+import { type ChartConfig, ChartContainer } from "@guilders/ui/chart";
+import { Skeleton } from "@guilders/ui/skeleton";
 import { useMemo } from "react";
 import { Layer, Rectangle, Sankey } from "recharts";
 
@@ -134,6 +129,7 @@ function CustomNode({
   index,
   payload,
   userCurrency,
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 }: any) {
   const isIncome = payload.name.includes("Income");
   const formattedValue = new Intl.NumberFormat(undefined, {
@@ -188,6 +184,7 @@ function CustomLink({
   targetControlX,
   linkWidth,
   payload,
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 }: any) {
   const flowIndex = payload.flowIndex;
 
@@ -223,13 +220,13 @@ export function TransactionsSankey({
     const incomeCategories = new Set<string>();
     const expenseCategories = new Set<string>();
 
-    transactions.forEach((t) => {
+    for (const t of transactions) {
       if (t.amount > 0) {
         incomeCategories.add(t.category);
       } else {
         expenseCategories.add(t.category);
       }
-    });
+    }
 
     // Convert sets to arrays for mapping
     const incomeArray = Array.from(incomeCategories);
@@ -237,13 +234,14 @@ export function TransactionsSankey({
 
     // Calculate total values for each category
     const categoryTotals = new Map<string, number>();
-    transactions.forEach((t) => {
+
+    for (const t of transactions) {
       const amount = Math.abs(
-        convertToUserCurrency(t.amount, t.currency, [], userCurrency)
+        convertToUserCurrency(t.amount, t.currency, [], userCurrency),
       );
       const key = `${t.category} (${t.amount > 0 ? "Income" : "Expense"})`;
       categoryTotals.set(key, (categoryTotals.get(key) || 0) + amount);
-    });
+    }
 
     // Create nodes array: income categories -> Income node -> expense categories
     const nodes: SankeyNode[] = [
@@ -251,55 +249,55 @@ export function TransactionsSankey({
         (cat): SankeyNode => ({
           name: `${cat} (Income)`,
           value: categoryTotals.get(`${cat} (Income)`) || 0,
-        })
+        }),
       ),
       { name: "Income", value: 0 }, // Central income node
       ...expenseArray.map(
         (cat): SankeyNode => ({
           name: `${cat} (Expense)`,
           value: categoryTotals.get(`${cat} (Expense)`) || 0,
-        })
+        }),
       ),
     ];
 
     // Create indices maps
     const incomeIndices = new Map(
-      incomeArray.map((cat, index) => [cat, index])
+      incomeArray.map((cat, index) => [cat, index]),
     );
     const incomeNodeIndex = incomeArray.length; // Index of the central "Income" node
     const expenseIndices = new Map(
-      expenseArray.map((cat, index) => [cat, index + incomeArray.length + 1])
+      expenseArray.map((cat, index) => [cat, index + incomeArray.length + 1]),
     );
 
     const links: SankeyLink[] = [];
     let colorIndex = 0;
 
     // First set of links: from income categories to central Income node
-    incomeArray.forEach((incomeCat) => {
+    for (const incomeCat of incomeArray) {
       const incomeForCategory = transactions
         .filter((t) => t.amount > 0 && t.category === incomeCat)
         .reduce(
           (sum, t) =>
             sum + convertToUserCurrency(t.amount, t.currency, [], userCurrency),
-          0
+          0,
         );
 
       if (incomeForCategory > 0) {
         links.push({
-          source: incomeIndices.get(incomeCat)!,
+          source: incomeIndices.get(incomeCat) ?? 0,
           target: incomeNodeIndex,
           value: incomeForCategory,
           flowIndex: (colorIndex % 12) + 1, // Use all 12 colors
         });
         colorIndex++;
       }
-    });
+    }
 
     // Reset color index for expenses to start from first color again
     colorIndex = 0;
 
     // Second set of links: from central Income node to expense categories
-    expenseArray.forEach((expenseCat) => {
+    for (const expenseCat of expenseArray) {
       const expenseForCategory = Math.abs(
         transactions
           .filter((t) => t.amount < 0 && t.category === expenseCat)
@@ -307,20 +305,20 @@ export function TransactionsSankey({
             (sum, t) =>
               sum +
               convertToUserCurrency(t.amount, t.currency, [], userCurrency),
-            0
-          )
+            0,
+          ),
       );
 
       if (expenseForCategory > 0) {
         links.push({
           source: incomeNodeIndex,
-          target: expenseIndices.get(expenseCat)!,
+          target: expenseIndices.get(expenseCat) ?? 0,
           value: expenseForCategory,
           flowIndex: (colorIndex % 12) + 1, // Use all 12 colors
         });
         colorIndex++;
       }
-    });
+    }
 
     return { nodes, links };
   }, [transactions, userCurrency]);

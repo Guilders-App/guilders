@@ -1,4 +1,4 @@
-import { Institution } from "@/apps/web/lib/db/types";
+import type { Institution } from "@guilders/database/types";
 import { useQuery } from "@tanstack/react-query";
 import { useAccounts } from "./useAccounts";
 import { useInstitutionConnection } from "./useInstitutionConnection";
@@ -29,7 +29,7 @@ export function useInstitutionByAccountId(accountId: number | undefined) {
   const { data: accounts } = useAccounts();
   const account = accounts?.find((a) => a.id === accountId);
   const { data: institutionConnection } = useInstitutionConnection(
-    account?.institution_connection_id
+    account?.institution_connection_id,
   );
 
   return useInstitutionById(institutionConnection?.institution_id);

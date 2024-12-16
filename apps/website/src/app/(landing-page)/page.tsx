@@ -1,7 +1,7 @@
-import { FAQ } from "@/src/components/faq";
-import { Features } from "@/src/components/features";
-import { Hero } from "@/src/components/hero";
-import { Newsletter } from "@/src/components/newsletter";
+import { FAQ } from "@/components/faq";
+import { Features } from "@/components/features";
+import { Hero } from "@/components/hero";
+import { Newsletter } from "@/components/newsletter";
 import type { Metadata } from "next";
 import { defaultMetadata } from "../metadata";
 

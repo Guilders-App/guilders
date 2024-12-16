@@ -1,13 +1,13 @@
 "use client";
 
-import { Button } from "@/apps/web/components/ui/button";
-import { Card } from "@/apps/web/components/ui/card";
-import { Separator } from "@/apps/web/components/ui/separator";
-import { Skeleton } from "@/apps/web/components/ui/skeleton";
 import {
   useDeregisterUser,
   useGetConnections,
-} from "@/apps/web/lib/hooks/useConnections";
+} from "@/lib/hooks/useConnections";
+import { Button } from "@guilders/ui/button";
+import { Card } from "@guilders/ui/card";
+import { Separator } from "@guilders/ui/separator";
+import { Skeleton } from "@guilders/ui/skeleton";
 import { format } from "date-fns";
 import { Loader2, XCircle } from "lucide-react";
 import Image from "next/image";
@@ -37,6 +37,7 @@ export default function ConnectionsPage() {
       {isLoading ? (
         <div className="space-y-4">
           {Array.from({ length: 2 }).map((_, i) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
             <Card key={i} className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
@@ -72,7 +73,7 @@ export default function ConnectionsPage() {
         <div className="space-y-4">
           {connections
             ?.filter(
-              (connection) => !removedIds.includes(connection.provider_id)
+              (connection) => !removedIds.includes(connection.provider_id),
             )
             .map((connection) => (
               <Card key={connection.provider_id} className="p-4">

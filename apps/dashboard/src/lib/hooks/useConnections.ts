@@ -1,4 +1,4 @@
-import { Tables } from "@/apps/web/lib/db/database.types";
+import type { Tables } from "@guilders/database/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function useRegisterUser() {
@@ -8,12 +8,12 @@ export function useRegisterUser() {
         `/api/connections/register/${providerName.toLowerCase()}`,
         {
           method: "POST",
-        }
+        },
       );
       const data = await response.json();
       if (!data.success) {
         throw new Error(
-          data.error || `Failed to register a ${providerName} user`
+          data.error || `Failed to register a ${providerName} user`,
         );
       }
       return data;
@@ -28,12 +28,12 @@ export function useDeregisterUser() {
         `/api/connections/deregister/${providerName.toLowerCase()}`,
         {
           method: "POST",
-        }
+        },
       );
       const data = await response.json();
       if (!data.success) {
         throw new Error(
-          data.error || `Failed to deregister a ${providerName} user`
+          data.error || `Failed to deregister a ${providerName} user`,
         );
       }
       return data;
@@ -73,7 +73,7 @@ export function useCreateConnection() {
         {
           method: "POST",
           body: JSON.stringify({ institution_id: institutionId }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -107,7 +107,7 @@ export function useFixConnection() {
             institution_id: institutionId,
             account_id: accountId,
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -135,7 +135,7 @@ export function useRefreshConnection() {
         {
           method: "POST",
           body: JSON.stringify({ institutionConnectionId }),
-        }
+        },
       );
       const data = await response.json();
 

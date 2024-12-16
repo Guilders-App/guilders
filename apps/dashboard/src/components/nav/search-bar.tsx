@@ -1,9 +1,9 @@
 "use client";
 
-import { Button } from "@/apps/web/components/ui/button";
-import { useDialog } from "@/apps/web/lib/hooks/useDialog";
-import { cn } from "@/apps/web/lib/utils";
+import { Button } from "@guilders/ui/button";
+import { cn } from "@guilders/ui/cn";
 import { Command, Search } from "lucide-react";
+import { useDialog } from "../../lib/hooks/useDialog";
 
 export function SearchBar() {
   const { open } = useDialog("command");
@@ -18,7 +18,7 @@ export function SearchBar() {
         "border border-input",
         "ring-offset-background",
         "transition-colors",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
       )}
       onClick={() => open({ pages: [] })}
     >

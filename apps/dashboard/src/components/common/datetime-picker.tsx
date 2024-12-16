@@ -1,21 +1,17 @@
 "use client";
 
-import { Button } from "@/apps/web/components/ui/button";
-import { Calendar } from "@/apps/web/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/apps/web/components/ui/popover";
-import { ScrollArea } from "@/apps/web/components/ui/scroll-area";
+import { Button } from "@guilders/ui/button";
+import { Calendar } from "@guilders/ui/calendar";
+import { cn } from "@guilders/ui/cn";
+import { Popover, PopoverContent, PopoverTrigger } from "@guilders/ui/popover";
+import { ScrollArea } from "@guilders/ui/scroll-area";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/apps/web/components/ui/select";
-import { cn } from "@/apps/web/lib/utils";
+} from "@guilders/ui/select";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -47,7 +43,7 @@ export function DateTimePicker({
     if (!date) {
       const initialDate = new Date();
       const [hours, minutes] = defaultTimeString.split(":");
-      initialDate.setHours(parseInt(hours), parseInt(minutes));
+      initialDate.setHours(Number.parseInt(hours), Number.parseInt(minutes));
       onDateChange(initialDate);
       onTimeChange(defaultTimeString);
     }
@@ -58,7 +54,7 @@ export function DateTimePicker({
     if (date && time) {
       const [hours, minutes] = time.split(":");
       const newDate = new Date(date);
-      newDate.setHours(parseInt(hours), parseInt(minutes));
+      newDate.setHours(Number.parseInt(hours), Number.parseInt(minutes));
       onDateChange(newDate);
     }
   }, [time, date, onDateChange]);
@@ -72,7 +68,7 @@ export function DateTimePicker({
               variant="outline"
               className={cn(
                 "w-full font-normal justify-start text-left",
-                !date && "text-muted-foreground"
+                !date && "text-muted-foreground",
               )}
             >
               {date ? format(date, "PPP") : <span>Pick a date</span>}
@@ -87,7 +83,10 @@ export function DateTimePicker({
               onSelect={(selectedDate) => {
                 if (selectedDate) {
                   const [hours, minutes] = time.split(":");
-                  selectedDate.setHours(parseInt(hours), parseInt(minutes));
+                  selectedDate.setHours(
+                    Number.parseInt(hours),
+                    Number.parseInt(minutes),
+                  );
                 }
                 onDateChange(selectedDate);
                 setIsOpen(false);
@@ -121,7 +120,7 @@ export function DateTimePicker({
                 const minute = ((i % 4) * 15).toString().padStart(2, "0");
                 const timeString = `${hour}:${minute}`;
                 return (
-                  <SelectItem key={i} value={timeString}>
+                  <SelectItem key={timeString} value={timeString}>
                     {timeString}
                   </SelectItem>
                 );

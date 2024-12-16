@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/apps/web/components/ui/button";
+import { Button } from "@guilders/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,9 +8,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/apps/web/components/ui/dialog";
-import { useDialog } from "@/apps/web/lib/hooks/useDialog";
+} from "@guilders/ui/dialog";
 import { Loader2 } from "lucide-react";
+import { useDialog } from "../../lib/hooks/useDialog";
 
 interface ConfirmationDialogProps {
   title?: string;

@@ -1,7 +1,7 @@
-import { Metadata } from "next";
+import type { Metadata } from "next";
 
-import { SettingsSidebar } from "@/apps/web/components/settings/settings-sidebar";
-import { Separator } from "@/apps/web/components/ui/separator";
+import { SettingsSidebar } from "@/components/settings/settings-sidebar";
+import { Separator } from "@guilders/ui/separator";
 
 export const metadata: Metadata = {
   title: "Forms",

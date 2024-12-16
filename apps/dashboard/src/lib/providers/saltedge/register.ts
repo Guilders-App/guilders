@@ -1,10 +1,10 @@
-import { createClient } from "@/apps/web/lib/db/server";
-import { getProvider } from "@/apps/web/lib/db/utils";
-import { ConnectionProviderFunction, ConnectionResult } from "../types";
+import { createClient } from "@guilders/database/server";
+import { getProvider } from "../../db/utils";
+import type { ConnectionProviderFunction, ConnectionResult } from "../types";
 import { providerName, saltedge } from "./client";
 
 export const registerSaltEdgeUser: ConnectionProviderFunction = async (
-  userId: string
+  userId: string,
 ): Promise<ConnectionResult> => {
   const supabase = await createClient();
   const provider = await getProvider(providerName);
@@ -23,7 +23,7 @@ export const registerSaltEdgeUser: ConnectionProviderFunction = async (
     .eq("provider_id", provider.id)
     .single();
 
-  if (connection && connection.data) {
+  if (connection?.data) {
     return {
       success: true,
       data: connection.data,

@@ -1,7 +1,6 @@
 "use client";
 
-import { DateTimePicker } from "@/apps/web/components/common/datetime-picker";
-import { Button } from "@/apps/web/components/ui/button";
+import { Button } from "@guilders/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,7 +8,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/apps/web/components/ui/dialog";
+} from "@guilders/ui/dialog";
 import {
   Form,
   FormControl,
@@ -17,26 +16,27 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/apps/web/components/ui/form";
-import { Input } from "@/apps/web/components/ui/input";
+} from "@guilders/ui/form";
+import { Input } from "@guilders/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/apps/web/components/ui/select";
-import { useAccounts } from "@/apps/web/lib/hooks/useAccounts";
-import { useCurrencies } from "@/apps/web/lib/hooks/useCurrencies";
-import { useDialog } from "@/apps/web/lib/hooks/useDialog";
-import { useAddTransaction } from "@/apps/web/lib/hooks/useTransactions";
-import { useUser } from "@/apps/web/lib/hooks/useUser";
+} from "@guilders/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { DateTimePicker } from "../../components/common/datetime-picker";
+import { useAccounts } from "../../lib/hooks/useAccounts";
+import { useCurrencies } from "../../lib/hooks/useCurrencies";
+import { useDialog } from "../../lib/hooks/useDialog";
+import { useAddTransaction } from "../../lib/hooks/useTransactions";
+import { useUser } from "../../lib/hooks/useUser";
 
 const formSchema = z.object({
   accountId: z.number({
@@ -62,7 +62,7 @@ export function AddTransactionDialog() {
   const { data: user } = useUser();
 
   const manualAccounts = accounts?.filter(
-    (account) => !account.institution_connection_id
+    (account) => !account.institution_connection_id,
   );
 
   const form = useForm<FormSchema>({
@@ -102,7 +102,7 @@ export function AddTransactionDialog() {
     try {
       await addTransaction({
         account_id: data.accountId,
-        amount: parseFloat(data.amount),
+        amount: Number.parseFloat(data.amount),
         currency: data.currency,
         description: data.description,
         category: data.category,
@@ -140,7 +140,9 @@ export function AddTransactionDialog() {
                 <FormItem>
                   <FormLabel>Account</FormLabel>
                   <Select
-                    onValueChange={(value) => field.onChange(parseInt(value))}
+                    onValueChange={(value) =>
+                      field.onChange(Number.parseInt(value))
+                    }
                     defaultValue={field.value?.toString()}
                   >
                     <FormControl>
@@ -253,8 +255,8 @@ export function AddTransactionDialog() {
                           const currentDate = new Date(field.value);
                           const [hours, minutes] = time.split(":");
                           currentDate.setHours(
-                            parseInt(hours),
-                            parseInt(minutes)
+                            Number.parseInt(hours),
+                            Number.parseInt(minutes),
                           );
                           field.onChange(currentDate.toISOString());
                         }

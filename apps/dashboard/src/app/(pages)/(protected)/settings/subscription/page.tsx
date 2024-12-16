@@ -1,4 +1,4 @@
-import { Separator } from "@/apps/web/components/ui/separator";
+import { Separator } from "@guilders/ui/separator";
 import { SubscriptionForm } from "./subscription-form";
 
 export default function SubscriptionPage() {

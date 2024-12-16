@@ -1,6 +1,6 @@
-import { createClient } from "@/apps/web/lib/db/server";
-import { stripe } from "@/apps/web/lib/stripe/server";
-import { NextRequest, NextResponse } from "next/server";
+import { stripe } from "@/lib/stripe/server";
+import { createClient } from "@guilders/database/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 export const POST = async (req: NextRequest) => {
   try {
@@ -13,7 +13,7 @@ export const POST = async (req: NextRequest) => {
     if (authError || !user) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -27,7 +27,7 @@ export const POST = async (req: NextRequest) => {
     if (!subscription?.stripe_customer_id) {
       return NextResponse.json(
         { success: false, error: "No subscription found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -45,7 +45,7 @@ export const POST = async (req: NextRequest) => {
     console.error("Portal session error:", err);
     return NextResponse.json(
       { success: false, error: (err as Error).message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

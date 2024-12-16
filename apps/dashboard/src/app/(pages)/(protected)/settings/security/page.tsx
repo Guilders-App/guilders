@@ -1,4 +1,4 @@
-import { Separator } from "@/apps/web/components/ui/separator";
+import { Separator } from "@guilders/ui/separator";
 import { SecurityForm } from "./security-form";
 
 export default function SecurityPage() {

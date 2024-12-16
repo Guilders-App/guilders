@@ -1,15 +1,15 @@
 "use client";
 
-import { Button } from "@/apps/web/components/ui/button";
-import { Input } from "@/apps/web/components/ui/input";
+import { createClient } from "@guilders/database/client";
+import { Button } from "@guilders/ui/button";
+import { Input } from "@guilders/ui/input";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
-} from "@/apps/web/components/ui/input-otp";
-import { Label } from "@/apps/web/components/ui/label";
-import { createClient } from "@/apps/web/lib/db/client";
+} from "@guilders/ui/input-otp";
+import { Label } from "@guilders/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
@@ -26,7 +26,7 @@ const passwordSchema = z
       .min(8, "Password must be at least 8 characters")
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+        "Password must contain at least one uppercase letter, one lowercase letter, and one number",
       ),
     confirmPassword: z.string(),
   })
@@ -66,7 +66,7 @@ export default function RecoveryPage() {
         setNeedsMFA(true);
         // Get the first TOTP factor
         const totpFactor = factors.all.find(
-          (factor) => factor.factor_type === "totp"
+          (factor) => factor.factor_type === "totp",
         );
         if (totpFactor?.id) {
           setFactorId(totpFactor.id);
@@ -138,7 +138,7 @@ export default function RecoveryPage() {
       } = await supabase.auth.getUser();
 
       if (!user) {
-        router.push("/sign-in");
+        router.push("/login");
         return;
       }
     };

@@ -1,8 +1,8 @@
-import { createClient } from "@/apps/web/lib/db/server";
-import { saltedge } from "@/apps/web/lib/providers/saltedge/client";
-import { registerSaltEdgeUser } from "@/apps/web/lib/providers/saltedge/register";
+import { saltedge } from "@/lib/providers/saltedge/client";
+import { registerSaltEdgeUser } from "@/lib/providers/saltedge/register";
+import { createClient } from "@guilders/database/server";
 import { NextResponse } from "next/server";
-import { ConnectBody } from "../../common";
+import type { ConnectBody } from "../../common";
 
 export async function POST(request: Request) {
   try {
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -30,13 +30,13 @@ export async function POST(request: Request) {
     if (!institution) {
       return NextResponse.json(
         { success: false, error: "Institution not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     let customerId: string | null = null;
 
-    let { data: providerConnection } = await supabase
+    const { data: providerConnection } = await supabase
       .from("provider_connection")
       .select("secret")
       .eq("provider_id", institution.provider_id)
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
               success: false,
               error: `Failed to register SaltEdge user: ${error}`,
             },
-            { status: 500 }
+            { status: 500 },
           );
         }
         customerId = registeredConnection?.secret ?? null;
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
             success: false,
             error: `Error registering SaltEdge user: ${error}`,
           },
-          { status: 500 }
+          { status: 500 },
         );
       }
     } else {
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
     if (!customerId) {
       return NextResponse.json(
         { success: false, error: "Failed to get user customer id" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -84,20 +84,20 @@ export async function POST(request: Request) {
       {
         institution_id: institution.id.toString(),
         user_id: user.id,
-      }
+      },
     );
 
     if (!connection.connect_url) {
       return NextResponse.json(
         { success: false, error: "Failed to create connection" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     const redirectUrl = connection.connect_url;
     return NextResponse.json(
       { success: true, data: redirectUrl },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error(error);

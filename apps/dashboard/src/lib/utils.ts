@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from "clsx";
 import { redirect } from "next/navigation";
 import { twMerge } from "tailwind-merge";
-import { UserData } from "./hooks/useUser";
+import type { UserData } from "./hooks/useUser";
 
 /**
  * Redirects to a specified path with an encoded message as a query parameter.
@@ -13,7 +13,7 @@ import { UserData } from "./hooks/useUser";
 export function encodedRedirect(
   type: "error" | "success",
   path: string,
-  message: string
+  message: string,
 ) {
   return redirect(`${path}?${type}=${encodeURIComponent(message)}`);
 }
@@ -27,7 +27,7 @@ export function formatBytes(
   opts: {
     decimals?: number;
     sizeType?: "accurate" | "normal";
-  } = {}
+  } = {},
 ) {
   const { decimals = 0, sizeType = "normal" } = opts;
 
@@ -35,7 +35,7 @@ export function formatBytes(
   const accurateSizes = ["Bytes", "KiB", "MiB", "GiB", "TiB"];
   if (bytes === 0) return "0 Byte";
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return `${(bytes / Math.pow(1024, i)).toFixed(decimals)} ${
+  return `${(bytes / 1024 ** i).toFixed(decimals)} ${
     sizeType === "accurate"
       ? (accurateSizes[i] ?? "Bytes")
       : (sizes[i] ?? "Bytes")

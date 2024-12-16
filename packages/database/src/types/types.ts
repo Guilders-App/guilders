@@ -1,9 +1,4 @@
-import {
-  Enums,
-  Tables,
-  TablesInsert,
-  TablesUpdate,
-} from "@/apps/web/lib/db/database.types";
+import type { Enums, Tables, TablesInsert, TablesUpdate } from "./db";
 
 export type Category = {
   name: Enums<"account_subtype">;
@@ -73,7 +68,7 @@ export const getCategoryColor = (categoryName: AccountSubtype): string => {
 };
 
 export const getCategoryDisplayName = (
-  categoryName: AccountSubtype
+  categoryName: AccountSubtype,
 ): string => {
   return accountSubtypeLabels[categoryName] || categoryName;
 };

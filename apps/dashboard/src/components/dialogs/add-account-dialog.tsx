@@ -1,6 +1,10 @@
 "use client";
 
-import { Button } from "@/apps/web/components/ui/button";
+import {
+  accountSubtypeLabels,
+  accountSubtypes,
+} from "@guilders/database/types";
+import { Button } from "@guilders/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,7 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/apps/web/components/ui/dialog";
+} from "@guilders/ui/dialog";
 import {
   Form,
   FormControl,
@@ -16,26 +20,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/apps/web/components/ui/form";
-import { Input } from "@/apps/web/components/ui/input";
+} from "@guilders/ui/form";
+import { Input } from "@guilders/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/apps/web/components/ui/select";
-import { accountSubtypeLabels, accountSubtypes } from "@/apps/web/lib/db/types";
-import { useAddAccount } from "@/apps/web/lib/hooks/useAccounts";
-import { useCurrencies } from "@/apps/web/lib/hooks/useCurrencies";
-import { useDialog } from "@/apps/web/lib/hooks/useDialog";
-import { useUser } from "@/apps/web/lib/hooks/useUser";
+} from "@guilders/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useAddAccount } from "../../lib/hooks/useAccounts";
+import { useCurrencies } from "../../lib/hooks/useCurrencies";
+import { useDialog } from "../../lib/hooks/useDialog";
+import { useUser } from "../../lib/hooks/useUser";
 
 const formSchema = z.object({
   accountType: z.enum(accountSubtypes),
@@ -95,7 +98,7 @@ export function AddAccountDialog() {
       await addAccount({
         name: data.accountName,
         subtype: data.accountType,
-        value: parseFloat(data.value),
+        value: Number.parseFloat(data.value),
         currency: data.currency,
       });
 

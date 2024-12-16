@@ -1,5 +1,5 @@
-import { Button } from "@/apps/web/components/ui/button";
-import { useDialog } from "@/apps/web/lib/hooks/useDialog";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { Button } from "@guilders/ui/button";
 import { BadgeEuro } from "lucide-react";
 
 export function AccountsEmptyPlaceholder() {

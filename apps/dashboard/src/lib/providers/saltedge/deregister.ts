@@ -1,10 +1,10 @@
-import { createClient } from "@/apps/web/lib/db/server";
-import { getProvider } from "@/apps/web/lib/db/utils";
-import { ConnectionProviderFunction } from "../types";
+import { createClient } from "@guilders/database/client";
+import { getProvider } from "../../db/utils";
+import type { ConnectionProviderFunction } from "../types";
 import { providerName, saltedge } from "./client";
 
 export const deregisterSaltEdgeUser: ConnectionProviderFunction = async (
-  userId: string
+  userId: string,
 ) => {
   const supabase = await createClient();
   const provider = await getProvider(providerName);

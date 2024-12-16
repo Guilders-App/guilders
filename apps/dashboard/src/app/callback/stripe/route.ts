@@ -1,7 +1,7 @@
-import { createAdminClient } from "@/apps/web/lib/db/admin";
-import { stripe } from "@/apps/web/lib/stripe/server";
+import { stripe } from "@/lib/stripe/server";
+import { createClient } from "@guilders/database/server";
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
+import type Stripe from "stripe";
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   if (!signature || !process.env.STRIPE_WEBHOOK_SECRET) {
     return NextResponse.json(
       { error: "Missing stripe signature" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -21,16 +21,16 @@ export async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET
+      process.env.STRIPE_WEBHOOK_SECRET,
     );
   } catch (err) {
     return NextResponse.json(
       { error: `Webhook Error: ${(err as Error).message}` },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
-  const supabase = await createAdminClient();
+  const supabase = await createClient({ admin: true });
 
   try {
     switch (event.type) {
@@ -50,10 +50,10 @@ export async function POST(req: Request) {
               ? new Date(subscription.canceled_at * 1000).toISOString()
               : null,
             current_period_start: new Date(
-              subscription.current_period_start * 1000
+              subscription.current_period_start * 1000,
             ).toISOString(),
             current_period_end: new Date(
-              subscription.current_period_end * 1000
+              subscription.current_period_end * 1000,
             ).toISOString(),
             trial_start: subscription.trial_start
               ? new Date(subscription.trial_start * 1000).toISOString()
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
               ? new Date(subscription.trial_end * 1000).toISOString()
               : null,
           },
-          { onConflict: "user_id,stripe_customer_id" }
+          { onConflict: "user_id,stripe_customer_id" },
         );
         if (error) {
           console.error("Failed to create subscription entry", error);
@@ -110,7 +110,7 @@ export async function POST(req: Request) {
     console.error("Error processing webhook:", error);
     return NextResponse.json(
       { error: "Error processing webhook" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

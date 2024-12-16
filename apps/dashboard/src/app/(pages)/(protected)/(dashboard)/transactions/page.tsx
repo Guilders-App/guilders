@@ -1,22 +1,17 @@
 "use client";
 
-import { TransactionItem } from "@/apps/web/components/dashboard/transactions/transaction-item";
-import { TransactionsCard } from "@/apps/web/components/dashboard/transactions/transactions-card";
-import { TransactionsEmptyPlaceholder } from "@/apps/web/components/dashboard/transactions/transactions-placeholder";
-import { TransactionsSankey } from "@/apps/web/components/dashboard/transactions/transactions-sankey";
-import { Button } from "@/apps/web/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/apps/web/components/ui/card";
-import { Skeleton } from "@/apps/web/components/ui/skeleton";
-import { useDialog } from "@/apps/web/lib/hooks/useDialog";
-import { useTransactions } from "@/apps/web/lib/hooks/useTransactions";
-import { useUser } from "@/apps/web/lib/hooks/useUser";
-import { cn } from "@/apps/web/lib/utils";
-import { convertToUserCurrency } from "@/apps/web/lib/utils/financial";
+import { TransactionItem } from "@/components/dashboard/transactions/transaction-item";
+import { TransactionsCard } from "@/components/dashboard/transactions/transactions-card";
+import { TransactionsEmptyPlaceholder } from "@/components/dashboard/transactions/transactions-placeholder";
+import { TransactionsSankey } from "@/components/dashboard/transactions/transactions-sankey";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { useTransactions } from "@/lib/hooks/useTransactions";
+import { useUser } from "@/lib/hooks/useUser";
+import { cn } from "@/lib/utils";
+import { convertToUserCurrency } from "@/lib/utils/financial";
+import { Button } from "@guilders/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@guilders/ui/card";
+import { Skeleton } from "@guilders/ui/skeleton";
 import NumberFlow from "@number-flow/react";
 import { Filter, Plus, Search } from "lucide-react";
 import { useRef, useState } from "react";
@@ -37,10 +32,10 @@ export default function TransactionsPage() {
               t.amount,
               t.currency,
               [],
-              user?.settings.currency ?? "USD"
+              user?.settings.currency ?? "USD",
             )
           : 0),
-      0
+      0,
     ) ?? 0;
 
   const totalExpenses =
@@ -53,11 +48,11 @@ export default function TransactionsPage() {
                 t.amount,
                 t.currency,
                 [],
-                user?.settings.currency ?? "USD"
-              )
+                user?.settings.currency ?? "USD",
+              ),
             )
           : 0),
-      0
+      0,
     ) ?? 0;
 
   const totalTransactions = transactions?.length ?? 0;
@@ -82,7 +77,7 @@ export default function TransactionsPage() {
             "bg-background hover:bg-accent hover:text-accent-foreground",
             "ring-offset-background",
             "transition-colors",
-            "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
+            "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
           )}
           onClick={() => searchInputRef.current?.focus()}
         >
@@ -95,7 +90,7 @@ export default function TransactionsPage() {
               "flex w-full bg-transparent px-2 py-2 text-sm",
               "placeholder:text-muted-foreground",
               "focus:outline-none focus:ring-0",
-              "disabled:cursor-not-allowed disabled:opacity-50"
+              "disabled:cursor-not-allowed disabled:opacity-50",
             )}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -188,6 +183,7 @@ export default function TransactionsPage() {
           {isLoading ? (
             <div className="space-y-2">
               {[...Array(4)].map((_, index) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                 <Skeleton key={index} className="h-16 w-full" />
               ))}
             </div>

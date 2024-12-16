@@ -1,12 +1,12 @@
 "use client";
 
+import { useDialog } from "@/lib/hooks/useDialog";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
-} from "@/apps/web/components/ui/dialog";
-import { useDialog } from "@/apps/web/lib/hooks/useDialog";
+} from "@guilders/ui/dialog";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
@@ -102,6 +102,7 @@ export function ProviderDialog() {
         <iframe
           ref={iframeRef}
           src={data.redirectUri}
+          title="Provider Connection Dialog"
           className="w-full h-full border-none rounded-lg"
           allow="clipboard-read *; clipboard-write *"
         />

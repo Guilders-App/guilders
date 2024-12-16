@@ -1,7 +1,7 @@
-import { createClient } from "@/apps/web/lib/db/server";
-import { deregisterSaltEdgeUser } from "@/apps/web/lib/providers/saltedge/deregister";
-import { deregisterSnapTradeUser } from "@/apps/web/lib/providers/snaptrade/deregister";
-import { ConnectionProviderFunction } from "@/apps/web/lib/providers/types";
+import { deregisterSaltEdgeUser } from "@/lib/providers/saltedge/deregister";
+import { deregisterSnapTradeUser } from "@/lib/providers/snaptrade/deregister";
+import type { ConnectionProviderFunction } from "@/lib/providers/types";
+import { createClient } from "@guilders/database/server";
 import { NextResponse } from "next/server";
 
 export type ConnectBody = {
@@ -11,7 +11,7 @@ export type ConnectBody = {
 
 export const registerConnection = async (
   providerName: string,
-  registerFunction: ConnectionProviderFunction
+  registerFunction: ConnectionProviderFunction,
 ) => {
   try {
     const supabase = await createClient();
@@ -22,7 +22,7 @@ export const registerConnection = async (
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -35,7 +35,7 @@ export const registerConnection = async (
     if (!provider) {
       return NextResponse.json(
         { success: false, error: `Provider ${providerName} not found` },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -57,14 +57,14 @@ export const registerConnection = async (
     console.error("Registration error:", error);
     return NextResponse.json(
       { success: false, error: "Error during registration" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
 
 export const deregisterConnection = async (
   providerName: string,
-  deregisterFunction?: ConnectionProviderFunction
+  deregisterFunction?: ConnectionProviderFunction,
 ) => {
   try {
     const supabase = await createClient();
@@ -75,7 +75,7 @@ export const deregisterConnection = async (
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -88,7 +88,7 @@ export const deregisterConnection = async (
     if (!provider) {
       return NextResponse.json(
         { success: false, error: `Provider ${providerName} not found` },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -119,7 +119,7 @@ export const deregisterConnection = async (
     console.error("Deregistration error:", error);
     return NextResponse.json(
       { success: false, error: "Error during deregistration" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

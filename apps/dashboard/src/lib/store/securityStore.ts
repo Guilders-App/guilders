@@ -1,4 +1,4 @@
-import { createClient } from "@/apps/web/lib/db/client";
+import { createClient } from "@guilders/database/client";
 import { create } from "zustand";
 
 interface SecurityStore {
@@ -54,7 +54,7 @@ export const useSecurityStore = create<SecurityStore>((set, get) => ({
         set({ hasMFA: false });
       }
     } catch (error) {
-      throw error;
+      console.error("Error unenrolling MFA:", error);
     } finally {
       set({ isLoadingMFA: false });
     }

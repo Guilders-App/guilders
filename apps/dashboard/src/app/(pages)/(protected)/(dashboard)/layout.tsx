@@ -1,6 +1,6 @@
-import { AppTopBar } from "@/apps/web/components/nav/app-top-bar";
-import { SidebarInset } from "@/apps/web/components/ui/sidebar";
-import { ReactNode } from "react";
+import { AppTopBar } from "@/components/nav/app-top-bar";
+import { SidebarInset } from "@guilders/ui/sidebar";
+import type { ReactNode } from "react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (

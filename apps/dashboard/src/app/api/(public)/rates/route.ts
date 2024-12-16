@@ -1,6 +1,6 @@
-import { authenticate } from "@/apps/web/lib/api/auth";
-import { getRates } from "@/apps/web/lib/db/utils";
-import { NextRequest, NextResponse } from "next/server";
+import { authenticate } from "@/lib/api/auth";
+import { getRates } from "@/lib/db/utils";
+import { type NextRequest, NextResponse } from "next/server";
 
 /**
  * @swagger
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     if (error || !client || !userId) {
       return NextResponse.json(
         { success: false, error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     return NextResponse.json(
       { success: false, error: "Error fetching rates" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -32,7 +32,7 @@ export function useTransactionFiles({
           {
             method: "POST",
             body: formData,
-          }
+          },
         );
 
         if (!response.ok) {
@@ -64,7 +64,7 @@ export function useTransactionFiles({
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -87,7 +87,7 @@ export function useTransactionFiles({
         `/api/transactions/${transactionId}/documents/${encodeURIComponent(path)}`,
         {
           method: "GET",
-        }
+        },
       );
 
       if (!response.ok) {

@@ -104,8 +104,10 @@ export type Provider = {
   /** Whether the Provider supports explicit handling of Payment rejection due to insufficient funds */
   no_funds_rejection_supported: boolean;
   /** Types and details of credentials required from the User */
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   credentials_fields: Record<string, any>[];
   /** Types and details of interactive elements that the User may need to provide */
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   interactive_fields: Record<string, any>[];
 };
 
@@ -167,6 +169,7 @@ export type Connection = {
   /** The id of the last provided PSD2 consent */
   last_consent_id: string;
   /** Information about the latest executed attempt */
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   last_attempt: Record<string, any>;
   /** Information about the holder of this Connection */
   holder_info: {
@@ -233,6 +236,7 @@ interface ConnectionAttempt {
     | "savings"
   >;
   /** A JSON object that will be sent back on any of the Client's callbacks */
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   custom_fields?: Record<string, any>;
   /** The language of the Widget and the language of the returned error message(s).
    *  Possible values: any locale in ISO 639-1 format */
@@ -357,6 +361,7 @@ export type Account = {
   /** The currency code of the Account in ISO 4217 format */
   currency_code: string;
   /** Accounts extra associated with the Account */
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   extra: Record<string, any>;
   /** The date and time in UTC when the Account was imported */
   created_at: string;
@@ -391,6 +396,7 @@ export type Transaction = {
   /** Transaction's category */
   category: string;
   /** Extra data associated with the transaction */
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   extra: Record<string, any>;
   /** Time and date when the transaction was imported */
   created_at: string;

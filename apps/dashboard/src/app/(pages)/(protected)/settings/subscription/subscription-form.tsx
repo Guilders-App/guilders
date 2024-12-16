@@ -1,6 +1,8 @@
 "use client";
 
-import { Button } from "@/apps/web/components/ui/button";
+import { usePortalSession, useSubscription } from "@/lib/hooks/useSubscription";
+import { useUser } from "@/lib/hooks/useUser";
+import { Button } from "@guilders/ui/button";
 import {
   Card,
   CardContent,
@@ -8,12 +10,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/apps/web/components/ui/card";
-import {
-  usePortalSession,
-  useSubscription,
-} from "@/apps/web/lib/hooks/useSubscription";
-import { useUser } from "@/apps/web/lib/hooks/useUser";
+} from "@guilders/ui/card";
 import { Check, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";

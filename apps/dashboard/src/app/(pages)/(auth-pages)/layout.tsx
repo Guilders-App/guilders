@@ -1,6 +1,6 @@
-import { Button } from "@/apps/web/components/ui/button";
+import { Button } from "@guilders/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { defaultMetadata } from "../metadata";
 

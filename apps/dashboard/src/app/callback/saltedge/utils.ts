@@ -1,5 +1,5 @@
-import { Database } from "@/apps/web/lib/db/database.types";
-import { Account as SaltEdgeAccount } from "@/apps/web/lib/providers/saltedge/types";
+import type { Account as SaltEdgeAccount } from "@/lib/providers/saltedge/types";
+import type { Database } from "@guilders/database/types";
 
 export const NATURE_TO_TYPE_SUBTYPE: Record<
   SaltEdgeAccount["nature"],

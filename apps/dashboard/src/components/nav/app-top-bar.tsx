@@ -1,12 +1,12 @@
 "use client";
 
-import { ThemeSwitcher } from "@/apps/web/components/common/theme-switcher";
-import { SearchBar } from "@/apps/web/components/nav/search-bar";
-import { UserButton } from "@/apps/web/components/nav/user-button";
-import { Separator } from "@/apps/web/components/ui/separator";
-import { SidebarTrigger } from "@/apps/web/components/ui/sidebar";
-import { cn } from "@/apps/web/lib/utils";
+import { cn } from "@guilders/ui/cn";
+import { Separator } from "@guilders/ui/separator";
+import { SidebarTrigger } from "@guilders/ui/sidebar";
 import { useEffect, useState } from "react";
+import { ThemeSwitcher } from "../common/theme-switcher";
+import { SearchBar } from "../nav/search-bar";
+import { UserButton } from "../nav/user-button";
 import { DynamicBreadcrumbs } from "./dynamic-breadcrumbs";
 
 export function AppTopBar() {
@@ -29,7 +29,7 @@ export function AppTopBar() {
         "sticky z-20 top-0 flex h-16 shrink-0 items-center justify-between gap-2 px-4 transition-all duration-200",
         isScrolled
           ? "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 shadow-sm"
-          : "bg-muted/40"
+          : "bg-muted/40",
       )}
     >
       <div className="flex items-center gap-2">

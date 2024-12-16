@@ -1,8 +1,8 @@
-import { createClient } from "@/apps/web/lib/db/server";
-import { snaptrade } from "@/apps/web/lib/providers/snaptrade/client";
-import { registerSnapTradeUser } from "@/apps/web/lib/providers/snaptrade/register";
+import { snaptrade } from "@/lib/providers/snaptrade/client";
+import { registerSnapTradeUser } from "@/lib/providers/snaptrade/register";
+import { createClient } from "@guilders/database/server";
 import { NextResponse } from "next/server";
-import { ConnectBody } from "../../common";
+import type { ConnectBody } from "../../common";
 
 export async function POST(request: Request) {
   try {
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -28,13 +28,13 @@ export async function POST(request: Request) {
     if (!institution) {
       return NextResponse.json(
         { success: false, error: "Institution not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     let secret: string | null = null;
 
-    let { data: providerConnection } = await supabase
+    const { data: providerConnection } = await supabase
       .from("provider_connection")
       .select("secret")
       .eq("provider_id", institution.provider_id)
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
               success: false,
               error: `Failed to register SnapTrade user: ${error}`,
             },
-            { status: 500 }
+            { status: 500 },
           );
         }
         secret = registeredConnection?.secret ?? null;
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
             success: false,
             error: `Error registering SnapTrade user: ${error}`,
           },
-          { status: 500 }
+          { status: 500 },
         );
       }
     } else {
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     if (!secret) {
       return NextResponse.json(
         { success: false, error: "Failed to get user secret" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
       if (accountError || !account || !account.institution_connection_id) {
         return NextResponse.json(
           { success: false, error: "Account not found" },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
       if (institutionConnectionError || !institutionConnection) {
         return NextResponse.json(
           { success: false, error: "Institution connection not found" },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
@@ -110,7 +110,7 @@ export async function POST(request: Request) {
 
     const brokerages = await snaptrade.referenceData.listAllBrokerages();
     const brokerage = brokerages.data?.find(
-      (brokerage) => brokerage.id === institution.provider_institution_id
+      (brokerage) => brokerage.id === institution.provider_institution_id,
     );
 
     const response = await snaptrade.authentication.loginSnapTradeUser({
@@ -123,7 +123,7 @@ export async function POST(request: Request) {
     if (!response.data || !("redirectURI" in response.data)) {
       return NextResponse.json(
         { success: false, error: "Failed to generate redirect URL" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -131,7 +131,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       { success: true, data: redirectUrl },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     return NextResponse.json({ success: false, error: error }, { status: 500 });

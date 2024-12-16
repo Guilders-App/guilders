@@ -1,6 +1,9 @@
-import { Provider } from "@/apps/web/lib/db/types";
+import type { Provider } from "@guilders/database/types";
 import { useQuery } from "@tanstack/react-query";
+
 const queryKey = ["providers"] as const;
+const singleProviderKey = (id: number) => ["provider", id] as const;
+
 export function useProviders() {
   return useQuery({
     queryKey,
@@ -15,7 +18,7 @@ export function useProviders() {
     },
   });
 }
-const singleProviderKey = (id: number) => ["provider", id] as const;
+
 export function useProvider(id: number | undefined) {
   return useQuery({
     queryKey: singleProviderKey(id ?? -1),

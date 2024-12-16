@@ -1,4 +1,4 @@
-import { Separator } from "@/apps/web/components/ui/separator";
+import { Separator } from "@guilders/ui/separator";
 import { ApiKeyForm } from "./api-key-form";
 
 export default function ApiKeyPage() {

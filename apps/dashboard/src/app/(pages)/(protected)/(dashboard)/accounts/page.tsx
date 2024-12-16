@@ -1,12 +1,12 @@
 "use client";
 
-import { AccountsCard } from "@/apps/web/components/dashboard/accounts/account-card";
-import { AccountsEmptyPlaceholder } from "@/apps/web/components/dashboard/accounts/accounts-placeholder";
-import { CompactBalanceCard } from "@/apps/web/components/dashboard/compact-balance-card";
-import { Button } from "@/apps/web/components/ui/button";
-import { Skeleton } from "@/apps/web/components/ui/skeleton";
-import { useAccounts } from "@/apps/web/lib/hooks/useAccounts";
-import { useDialog } from "@/apps/web/lib/hooks/useDialog";
+import { AccountsCard } from "@/components/dashboard/accounts/account-card";
+import { AccountsEmptyPlaceholder } from "@/components/dashboard/accounts/accounts-placeholder";
+import { CompactBalanceCard } from "@/components/dashboard/compact-balance-card";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { Button } from "@guilders/ui/button";
+import { Skeleton } from "@guilders/ui/skeleton";
 import { Plus } from "lucide-react";
 
 export default function AccountsPage() {

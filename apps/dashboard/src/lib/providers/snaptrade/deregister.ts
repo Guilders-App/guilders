@@ -1,12 +1,12 @@
 "use server";
 
-import { createClient } from "@/apps/web/lib/db/server";
-import { getProvider } from "@/apps/web/lib/db/utils";
-import { ConnectionProviderFunction } from "../types";
+import { createClient } from "@guilders/database/server";
+import { getProvider } from "../../db/utils";
+import type { ConnectionProviderFunction } from "../types";
 import { providerName, snaptrade } from "./client";
 
 export const deregisterSnapTradeUser: ConnectionProviderFunction = async (
-  userId: string
+  userId: string,
 ) => {
   const supabase = await createClient();
   const provider = await getProvider(providerName);

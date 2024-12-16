@@ -1,10 +1,10 @@
-import { createClient } from "@/apps/web/lib/db/server";
-import { getProvider } from "@/apps/web/lib/db/utils";
-import { ConnectionProviderFunction, ConnectionResult } from "../types";
+import { createClient } from "@guilders/database/server";
+import { getProvider } from "../../db/utils";
+import type { ConnectionProviderFunction, ConnectionResult } from "../types";
 import { providerName, snaptrade } from "./client";
 
 export const registerSnapTradeUser: ConnectionProviderFunction = async (
-  userId: string
+  userId: string,
 ): Promise<ConnectionResult> => {
   const supabase = await createClient();
 
@@ -16,17 +16,17 @@ export const registerSnapTradeUser: ConnectionProviderFunction = async (
     };
   }
 
-  const connection = await supabase
+  const { data: connection } = await supabase
     .from("provider_connection")
     .select("*")
     .eq("user_id", userId)
     .eq("provider_id", provider.id)
     .single();
 
-  if (connection && connection.data) {
+  if (connection) {
     return {
       success: true,
-      data: connection.data,
+      data: connection,
     };
   }
 

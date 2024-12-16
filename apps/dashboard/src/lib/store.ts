@@ -1,10 +1,12 @@
-import { create, StateCreator } from "zustand";
+import { type StateCreator, create } from "zustand";
 import { createDialogStore } from "./store/dialogStore";
 
 export type StateSlice<T extends object> = StateCreator<T>;
 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 type StateFromFunctions<T extends [...any]> = T extends [infer F, ...infer R]
-  ? F extends (...args: any) => object
+  ? // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    F extends (...args: any) => object
     ? StateFromFunctions<R> & ReturnType<F>
     : unknown
   : unknown;

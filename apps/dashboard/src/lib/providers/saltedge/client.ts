@@ -1,5 +1,5 @@
-import * as crypto from "crypto";
-import {
+import * as crypto from "node:crypto";
+import type {
   Account,
   Country,
   CreateConnectionRequest,
@@ -34,13 +34,14 @@ export class SaltEdgeClient {
     if (!this.publicKey) {
       this.publicKey = process.env.SALTEDGE_PUBLIC_KEY;
     }
-    return this.publicKey!;
+    return this.publicKey;
   }
 
   private async getSignedHeaders(
     url: string,
     method: string,
-    body?: any
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    body?: any,
   ): Promise<SignedHeaders> {
     // Clean URL: remove trailing slash and empty query parameters
     const cleanUrl = url.replace(/\/+$/, "").replace(/\?$/, "");
@@ -65,23 +66,26 @@ export class SaltEdgeClient {
   private async request<T>(
     path: string,
     options: RequestInit & {
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       params?: Record<string, any>;
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       data?: any;
       isArray?: boolean;
-    } = {}
+    } = {},
   ): Promise<T> {
     const { params, data, isArray = false, ...fetchOptions } = options;
-    let allData: any[] = [];
+    let allData: T[] = [];
     let currentFromId: string | null = null;
 
     do {
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       const queryParams: Record<string, any> = {
         ...params,
         ...(currentFromId ? { from_id: currentFromId } : {}),
       };
 
       const queryString = queryParams
-        ? "?" + new URLSearchParams(queryParams).toString()
+        ? `?${new URLSearchParams(queryParams).toString()}`
         : "";
       const url = `${this.baseUrl}${path}${queryString}`;
 
@@ -157,7 +161,8 @@ export class SaltEdgeClient {
   async createConnection(
     customerId: string,
     institutionId: string,
-    customFields?: Record<string, any>
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    customFields?: Record<string, any>,
   ): Promise<CreateConnectionResponse> {
     return this.request<CreateConnectionResponse>("/connections/connect", {
       method: "POST",
@@ -192,7 +197,7 @@ export class SaltEdgeClient {
 
   async refreshConnection(
     customerId: string,
-    connectionId: string
+    connectionId: string,
   ): Promise<void> {
     return this.request<void>(`/connections/${connectionId}/refresh`, {
       method: "POST",
@@ -210,7 +215,7 @@ export class SaltEdgeClient {
 
   async backgroundRefreshConnection(
     customerId: string,
-    connectionId: string
+    connectionId: string,
   ): Promise<void> {
     return this.request<void>(
       `/connections/${connectionId}/background_refresh`,
@@ -225,15 +230,15 @@ export class SaltEdgeClient {
         },
         method: "POST",
         isArray: false,
-      }
+      },
     );
   }
 
   async getAccounts(
     customerId: string,
-    connectionId: string
+    connectionId: string,
   ): Promise<Account[]> {
-    return this.request<Account[]>(`/accounts`, {
+    return this.request<Account[]>("/accounts", {
       params: {
         customer_id: customerId,
         connection_id: connectionId,
@@ -244,9 +249,9 @@ export class SaltEdgeClient {
 
   async getTransactions(
     connectionId: string,
-    accountId: string
+    accountId: string,
   ): Promise<Transaction[]> {
-    return this.request<Transaction[]>(`/transactions`, {
+    return this.request<Transaction[]>("/transactions", {
       params: {
         connection_id: connectionId,
         account_id: accountId,

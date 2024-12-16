@@ -1,26 +1,21 @@
 "use client";
 
-import { AccountIcon } from "@/apps/web/components/dashboard/accounts/account-icon";
-import { AccountsTable } from "@/apps/web/components/dashboard/accounts/accounts-table";
-import { BalanceCard } from "@/apps/web/components/dashboard/balance-card";
-import { TransactionsTable } from "@/apps/web/components/dashboard/transactions/transactions-table";
-import { Button } from "@/apps/web/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/apps/web/components/ui/card";
+import { AccountIcon } from "@/components/dashboard/accounts/account-icon";
+import { AccountsTable } from "@/components/dashboard/accounts/accounts-table";
+import { BalanceCard } from "@/components/dashboard/balance-card";
+import { TransactionsTable } from "@/components/dashboard/transactions/transactions-table";
+import { useAccount, useRemoveAccount } from "@/lib/hooks/useAccounts";
+import { useRefreshConnection } from "@/lib/hooks/useConnections";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { Button } from "@guilders/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@guilders/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/apps/web/components/ui/dropdown-menu";
-import { Skeleton } from "@/apps/web/components/ui/skeleton";
-import { useAccount, useRemoveAccount } from "@/apps/web/lib/hooks/useAccounts";
-import { useRefreshConnection } from "@/apps/web/lib/hooks/useConnections";
-import { useDialog } from "@/apps/web/lib/hooks/useDialog";
+} from "@guilders/ui/dropdown-menu";
+import { Skeleton } from "@guilders/ui/skeleton";
 import { MoreHorizontal, Pencil, RefreshCw, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { use, useState } from "react";
@@ -32,7 +27,7 @@ export default function AccountPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  const { data: account, isLoading } = useAccount(parseInt(id));
+  const { data: account, isLoading } = useAccount(Number.parseInt(id));
   const [imageError, setImageError] = useState(false);
   const { open: openEdit } = useDialog("editAccount");
   const { open: openConfirmation } = useDialog("confirmation");
@@ -94,10 +89,10 @@ export default function AccountPage({
           toast.error(
             error instanceof Error
               ? error.message
-              : "Failed to refresh connection"
+              : "Failed to refresh connection",
           );
         },
-      }
+      },
     );
   };
 

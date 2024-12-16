@@ -1,10 +1,10 @@
-import { authenticate } from "@/apps/web/lib/api/auth";
-import { createClient } from "@/apps/web/lib/db/server";
+import { authenticate } from "@/lib/api/auth";
+import { createClient } from "@guilders/database/server";
 import { NextResponse } from "next/server";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ path: string }> }
+  { params }: { params: Promise<{ path: string }> },
 ) {
   const { path } = await params;
   try {
@@ -12,7 +12,7 @@ export async function GET(
     if (error || !client || !userId) {
       return NextResponse.json(
         { success: false, error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -24,7 +24,7 @@ export async function GET(
     if (signedUrlError) {
       return NextResponse.json(
         { success: false, error: signedUrlError.message },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -33,7 +33,7 @@ export async function GET(
     console.error("Error getting signed URL:", err);
     return NextResponse.json(
       { success: false, error: "Failed to get signed URL" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

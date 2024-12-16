@@ -1,12 +1,11 @@
-import { createAdminClient } from "@/apps/web/lib/db/admin";
-import { Tables } from "@/apps/web/lib/db/database.types";
-import { createClient } from "@/apps/web/lib/db/server";
+import { createClient } from "@guilders/database/server";
+import type { Tables } from "@guilders/database/types";
 import { NextResponse } from "next/server";
 import { deregisterConnection } from "../connections/common";
 
 export async function DELETE() {
   const supabase = await createClient();
-  const supabaseAdmin = await createAdminClient();
+  const supabaseAdmin = await createClient({ admin: true });
 
   const {
     data: { user },
@@ -16,7 +15,7 @@ export async function DELETE() {
   if (userError || !user) {
     return NextResponse.json(
       { success: false, error: "Unauthorized" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -28,7 +27,7 @@ export async function DELETE() {
       provider:provider_id (
         name
       )
-    `
+    `,
     )
     .eq("user_id", user.id)
     .returns<
@@ -41,7 +40,7 @@ export async function DELETE() {
   if (connectionsError || !connections)
     return NextResponse.json(
       { success: false, error: "Failed to fetch connections" },
-      { status: 500 }
+      { status: 500 },
     );
 
   for (const connection of connections) {
@@ -57,7 +56,7 @@ export async function DELETE() {
   if (error) {
     return NextResponse.json(
       { success: false, error: "Failed to delete user" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

@@ -1,15 +1,20 @@
 "use client";
 
-import { DateTimePicker } from "@/apps/web/components/common/datetime-picker";
-import { FileUploader } from "@/apps/web/components/common/file-uploader";
-import { Button } from "@/apps/web/components/ui/button";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { useTransactionFiles } from "@/lib/hooks/useTransactionFiles";
+import {
+  useRemoveTransaction,
+  useUpdateTransaction,
+} from "@/lib/hooks/useTransactions";
+import { Button } from "@guilders/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/apps/web/components/ui/dialog";
+} from "@guilders/ui/dialog";
 import {
   Form,
   FormControl,
@@ -17,39 +22,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/apps/web/components/ui/form";
-import { Input } from "@/apps/web/components/ui/input";
+} from "@guilders/ui/form";
+import { Input } from "@guilders/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/apps/web/components/ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/apps/web/components/ui/tabs";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/apps/web/components/ui/tooltip";
-import { useAccounts } from "@/apps/web/lib/hooks/useAccounts";
-import { useDialog } from "@/apps/web/lib/hooks/useDialog";
-import { useTransactionFiles } from "@/apps/web/lib/hooks/useTransactionFiles";
-import {
-  useRemoveTransaction,
-  useUpdateTransaction,
-} from "@/apps/web/lib/hooks/useTransactions";
+} from "@guilders/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@guilders/ui/tabs";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@guilders/ui/tooltip";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { DateTimePicker } from "../common/datetime-picker";
+import { FileUploader } from "../common/file-uploader";
 
 const formSchema = z.object({
   accountId: z.number({
@@ -89,7 +80,7 @@ export function EditTransactionDialog() {
     });
 
   const currentAccount = accounts?.find(
-    (account) => account.id === data?.transaction?.account_id
+    (account) => account.id === data?.transaction?.account_id,
   );
 
   const form = useForm<FormSchema>({
@@ -128,7 +119,7 @@ export function EditTransactionDialog() {
     const updatedTransaction = {
       id: transaction.id,
       account_id: formData.accountId,
-      amount: parseFloat(formData.amount),
+      amount: Number.parseFloat(formData.amount),
       description: formData.description,
       category: formData.category,
       date: formatDateForSubmit(formData.date),
@@ -205,7 +196,7 @@ export function EditTransactionDialog() {
                         <FormLabel>Account</FormLabel>
                         <Select
                           onValueChange={(value) =>
-                            field.onChange(parseInt(value))
+                            field.onChange(Number.parseInt(value))
                           }
                           defaultValue={field.value?.toString()}
                           disabled={isSyncedTransaction}
@@ -317,8 +308,8 @@ export function EditTransactionDialog() {
                                 const currentDate = new Date(field.value);
                                 const [hours, minutes] = time.split(":");
                                 currentDate.setHours(
-                                  parseInt(hours),
-                                  parseInt(minutes)
+                                  Number.parseInt(hours),
+                                  Number.parseInt(minutes),
                                 );
                                 field.onChange(currentDate.toISOString());
                               }

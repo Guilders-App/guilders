@@ -1,7 +1,6 @@
-import { createAdminClient } from "@/apps/web/lib/db/admin";
-import { Database } from "@/apps/web/lib/db/database.types";
-import { createClient } from "@/apps/web/lib/db/server";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@guilders/database/server";
+import type { Database } from "@guilders/database/types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
 export type SupabaseClientType = SupabaseClient<Database>;
@@ -18,7 +17,7 @@ type AuthResult = {
  * @returns The user ID if valid, null if invalid
  */
 export async function validateApiKey(apiKey: string): Promise<string | null> {
-  const supabase = await createAdminClient();
+  const supabase = await createClient({ admin: true });
 
   const { data: userSettings, error } = await supabase
     .from("user_setting")
@@ -42,7 +41,7 @@ export async function authenticate(request: Request): Promise<AuthResult> {
     if (userId) {
       return {
         userId,
-        client: createAdminClient(),
+        client: await createClient({ admin: true }),
         error: null,
       };
     }
@@ -61,7 +60,7 @@ export async function authenticate(request: Request): Promise<AuthResult> {
       client: null,
       error: NextResponse.json(
         { success: false, error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       ),
     };
   }

@@ -1,8 +1,8 @@
-import { createClient } from "@/apps/web/lib/db/server";
 import {
-  snaptrade,
   providerName as snapTradeProviderName,
-} from "@/apps/web/lib/providers/snaptrade/client";
+  snaptrade,
+} from "@/lib/providers/snaptrade/client";
+import { createClient } from "@guilders/database/server";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -15,14 +15,14 @@ export async function POST(request: Request) {
   if (!institutionConnectionId) {
     return NextResponse.json(
       { success: false, error: "Institution connection ID is required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   if (!user) {
     return NextResponse.json(
       { success: false, error: "Invalid credentials" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
   if (!provider) {
     return NextResponse.json(
       { success: false, error: "SnapTrade provider not found" },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
   if (!providerConnection || !providerConnection.secret) {
     return NextResponse.json(
       { success: false, error: "SnapTrade connection not found" },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
   if (!institutionConnection || !institutionConnection.connection_id) {
     return NextResponse.json(
       { success: false, error: "Institution connection not found" },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     if (status !== 200) {
       return NextResponse.json(
         { success: false, error: "Failed to refresh SnapTrade connection" },
-        { status }
+        { status },
       );
     }
 
@@ -86,7 +86,7 @@ export async function POST(request: Request) {
     console.error(error);
     return NextResponse.json(
       { success: false, error: "Failed to refresh SnapTrade connection" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

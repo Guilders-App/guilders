@@ -1,12 +1,7 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/apps/web/components/ui/card";
-import { ScrollArea, ScrollBar } from "@/apps/web/components/ui/scroll-area";
-import { cn } from "@/apps/web/lib/utils";
-import { ReactNode } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@guilders/ui/card";
+import { cn } from "@guilders/ui/cn";
+import { ScrollArea, ScrollBar } from "@guilders/ui/scroll-area";
+import type { ReactNode } from "react";
 import { TransactionsTable } from "./transactions-table";
 
 interface TransactionsCardProps {

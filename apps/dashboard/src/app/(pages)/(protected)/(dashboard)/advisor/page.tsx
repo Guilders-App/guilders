@@ -1,19 +1,19 @@
 "use client";
 
-import { Markdown } from "@/apps/web/components/common/markdown-component";
-import { Badge } from "@/apps/web/components/ui/badge";
-import { Button } from "@/apps/web/components/ui/button";
-import { Card } from "@/apps/web/components/ui/card";
+import { Markdown } from "@/components/common/markdown-component";
+import { useUser } from "@/lib/hooks/useUser";
+import { isPro } from "@/lib/utils";
+import { Badge } from "@guilders/ui/badge";
+import { Button } from "@guilders/ui/button";
+import { Card } from "@guilders/ui/card";
 import {
   ChatBubble,
   ChatBubbleAction,
   ChatBubbleAvatar,
   ChatBubbleMessage,
-} from "@/apps/web/components/ui/chat-bubble";
-import { ChatInput } from "@/apps/web/components/ui/chat-input";
-import { ChatMessageList } from "@/apps/web/components/ui/chat-message-list";
-import { useUser } from "@/apps/web/lib/hooks/useUser";
-import { isPro } from "@/apps/web/lib/utils";
+} from "@guilders/ui/chat-bubble";
+import { ChatInput } from "@guilders/ui/chat-input";
+import { ChatMessageList } from "@guilders/ui/chat-message-list";
 import { useChat } from "ai/react";
 import {
   Check,
@@ -197,48 +197,46 @@ export default function AdvisorPage() {
           )}
 
           {/* Messages */}
-          {messages &&
-            messages.map((message, index) => (
-              <ChatBubble
-                key={index}
-                variant={message.role == "user" ? "sent" : "received"}
-              >
-                <ChatBubbleAvatar
-                  src={message.role == "user" ? "/assets/user.png" : ""}
-                  fallback={message.role == "user" ? "👨🏽" : "🤖"}
-                />
-                <ChatBubbleMessage>
-                  {message.role === "assistant" ? (
-                    <Markdown>{message.content}</Markdown>
-                  ) : (
-                    message.content
-                  )}
+          {messages?.map((message, index) => (
+            <ChatBubble
+              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+              key={index}
+              variant={message.role === "user" ? "sent" : "received"}
+            >
+              <ChatBubbleAvatar
+                src={message.role === "user" ? "/assets/user.png" : ""}
+                fallback={message.role === "user" ? "👨🏽" : "🤖"}
+              />
+              <ChatBubbleMessage>
+                {message.role === "assistant" ? (
+                  <Markdown>{message.content}</Markdown>
+                ) : (
+                  message.content
+                )}
 
-                  {message.role === "assistant" &&
-                    messages.length - 1 === index && (
-                      <div className="flex items-center mt-1.5 gap-1">
-                        {!isGenerating && (
-                          <>
-                            {ChatAiIcons.map((icon, iconIndex) => {
-                              const Icon = icon.icon;
-                              return (
-                                <ChatBubbleAction
-                                  className="size-5"
-                                  key={iconIndex}
-                                  icon={<Icon className="size-3" />}
-                                  onClick={() =>
-                                    handleActionClick(icon.label, index)
-                                  }
-                                />
-                              );
-                            })}
-                          </>
-                        )}
-                      </div>
-                    )}
-                </ChatBubbleMessage>
-              </ChatBubble>
-            ))}
+                {message.role === "assistant" &&
+                  messages.length - 1 === index && (
+                    <div className="flex items-center mt-1.5 gap-1">
+                      {!isGenerating &&
+                        ChatAiIcons.map((icon, iconIndex) => {
+                          const Icon = icon.icon;
+                          return (
+                            <ChatBubbleAction
+                              className="size-5"
+                              // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                              key={iconIndex}
+                              icon={<Icon className="size-3" />}
+                              onClick={() =>
+                                handleActionClick(icon.label, index)
+                              }
+                            />
+                          );
+                        })}
+                    </div>
+                  )}
+              </ChatBubbleMessage>
+            </ChatBubble>
+          ))}
 
           {/* Loading */}
           {isGenerating && (
@@ -254,6 +252,7 @@ export default function AdvisorPage() {
           <div className="flex flex-wrap gap-2 mb-4">
             {ExampleQuestions.map((question, index) => (
               <Badge
+                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                 key={index}
                 variant="outline"
                 className="cursor-pointer bg-background hover:bg-secondary/80 px-3 py-2"

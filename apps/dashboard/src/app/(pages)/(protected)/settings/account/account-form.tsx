@@ -5,6 +5,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { useCurrencies } from "@/lib/hooks/useCurrencies";
+import {
+  useDeleteAccount,
+  useUpdateUserSettings,
+  useUser,
+} from "@/lib/hooks/useUser";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,8 +21,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/apps/web/components/ui/alert-dialog";
-import { Button } from "@/apps/web/components/ui/button";
+} from "@guilders/ui/alert-dialog";
+import { Button } from "@guilders/ui/button";
 import {
   Form,
   FormControl,
@@ -25,21 +31,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/apps/web/components/ui/form";
-import { Input } from "@/apps/web/components/ui/input";
+} from "@guilders/ui/form";
+import { Input } from "@guilders/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/apps/web/components/ui/select";
-import { useCurrencies } from "@/apps/web/lib/hooks/useCurrencies";
-import {
-  useDeleteAccount,
-  useUpdateUserSettings,
-  useUser,
-} from "@/apps/web/lib/hooks/useUser";
+} from "@guilders/ui/select";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";

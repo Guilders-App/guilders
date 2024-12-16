@@ -1,10 +1,10 @@
-import { createClient } from "@guilders/database/server";
-import { saltedge } from "../../lib/providers/saltedge/client";
+import { saltedge } from "@/apps/web/lib/providers/saltedge/client";
+import { createAdminClient } from "./admin";
 
 export const getProviders = async () => {
   // TODO: Add proper caching
   // "use cache";
-  const supabase = await createClient({ admin: true });
+  const supabase = await createAdminClient();
   const { data: providers } = await supabase.from("provider").select("*");
 
   if (!providers) {

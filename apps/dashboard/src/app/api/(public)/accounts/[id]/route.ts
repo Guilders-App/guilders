@@ -1,7 +1,10 @@
-import { authenticate } from "@/apps/web/lib/api/auth";
-import { TablesUpdate } from "@/apps/web/lib/db/database.types";
-import { createClient } from "@/apps/web/lib/db/server";
-import { Account, AccountUpdate } from "@/apps/web/lib/db/types";
+import { authenticate } from "@/lib/api/auth";
+import { createClient } from "@guilders/database/server";
+import type {
+  Account,
+  AccountUpdate,
+  TablesUpdate,
+} from "@guilders/database/types";
 import { NextResponse } from "next/server";
 
 /**
@@ -36,7 +39,7 @@ import { NextResponse } from "next/server";
  */
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const auth = await authenticate(request);
@@ -51,7 +54,7 @@ export async function GET(
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -73,7 +76,7 @@ export async function GET(
             )
           )
         )
-      `
+      `,
       )
       .eq("id", id)
       .eq("user_id", user.id)
@@ -83,7 +86,7 @@ export async function GET(
       console.error("Supabase error:", error);
       return NextResponse.json(
         { success: false, error: "Error fetching account" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -103,7 +106,7 @@ export async function GET(
             )
           )
         )
-      `
+      `,
       )
       .eq("user_id", user.id);
 
@@ -111,13 +114,13 @@ export async function GET(
       console.error("Supabase error:", childrenError);
       return NextResponse.json(
         { success: false, error: "Error fetching account children" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     // Create a map of all accounts
     const accountsMap = new Map<number, Account>();
-    allAccounts.forEach((acc) => {
+    for (const acc of allAccounts) {
       accountsMap.set(acc.id, {
         ...acc,
         children: [],
@@ -137,23 +140,24 @@ export async function GET(
             }
           : null,
       });
-    });
+    }
 
     // Build the children hierarchy for the requested account
-    allAccounts.forEach((acc) => {
+    for (const acc of allAccounts) {
       if (acc.parent) {
         const parentAccount = accountsMap.get(acc.parent);
-        if (parentAccount) {
-          parentAccount.children.push(accountsMap.get(acc.id)!);
+        const entry = accountsMap.get(acc.id);
+        if (parentAccount && entry) {
+          parentAccount.children.push(entry);
         }
       }
-    });
+    }
 
-    const accountWithChildren = accountsMap.get(parseInt(id));
+    const accountWithChildren = accountsMap.get(Number.parseInt(id));
     if (!accountWithChildren) {
       return NextResponse.json(
         { success: false, error: "Account not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -162,7 +166,7 @@ export async function GET(
     console.error("Error fetching account:", error);
     return NextResponse.json(
       { success: false, error: "Error fetching account" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -197,7 +201,7 @@ export async function GET(
  */
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const supabase = await createClient();
@@ -209,7 +213,7 @@ export async function DELETE(
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -223,7 +227,7 @@ export async function DELETE(
       console.error("Supabase error:", error);
       return NextResponse.json(
         { success: false, error: "Error deleting account" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -232,7 +236,7 @@ export async function DELETE(
     console.error("Error deleting account:", error);
     return NextResponse.json(
       { success: false, error: "Error deleting account" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -269,7 +273,7 @@ export async function DELETE(
  */
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const supabase = await createClient();
@@ -292,7 +296,7 @@ export async function PUT(
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -308,7 +312,7 @@ export async function PUT(
       console.error("Supabase error:", error);
       return NextResponse.json(
         { success: false, error: "Error updating account" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -317,7 +321,7 @@ export async function PUT(
     console.error("Error updating account:", error);
     return NextResponse.json(
       { success: false, error: "Error updating account" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -2,16 +2,13 @@
 
 import Link from "next/link";
 
-import {
-  Collapsible,
-  CollapsibleTrigger,
-} from "@/apps/web/components/ui/collapsible";
+import { Collapsible, CollapsibleTrigger } from "@guilders/ui/collapsible";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/apps/web/components/ui/sidebar";
-import { NavItem } from "./app-sidebar";
+} from "@guilders/ui/sidebar";
+import type { NavItem } from "./app-sidebar";
 
 export function NavItems({ items }: { items: NavItem[] }) {
   return (

@@ -1,16 +1,16 @@
 "use client";
 
 import {
-  Breadcrumb,
+  Breadcrumb as BreadcrumbComponent,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/apps/web/components/ui/breadcrumb";
-import { useAccount } from "@/apps/web/lib/hooks/useAccounts";
+} from "@guilders/ui/breadcrumb";
 import { usePathname } from "next/navigation";
 import React from "react";
+import { useAccount } from "../../lib/hooks/useAccounts";
 import { navigationData } from "./app-sidebar";
 
 export type Breadcrumb = {
@@ -62,7 +62,7 @@ export function getBreadcrumbs(pathname: string): Breadcrumb[] {
 export function DynamicBreadcrumbs() {
   const pathname = usePathname();
   const accountId = pathname.startsWith("/accounts/")
-    ? parseInt(pathname.split("/").pop()!)
+    ? Number.parseInt(pathname.split("/").pop() ?? "0")
     : undefined;
   const { data: account } = useAccount(accountId ?? 0);
   let breadcrumbs = getBreadcrumbs(pathname);
@@ -77,7 +77,7 @@ export function DynamicBreadcrumbs() {
   }
 
   return (
-    <Breadcrumb>
+    <BreadcrumbComponent>
       <BreadcrumbList>
         {breadcrumbs.map((breadcrumb, index) => (
           <React.Fragment key={breadcrumb.title}>
@@ -96,6 +96,6 @@ export function DynamicBreadcrumbs() {
           </React.Fragment>
         ))}
       </BreadcrumbList>
-    </Breadcrumb>
+    </BreadcrumbComponent>
   );
 }

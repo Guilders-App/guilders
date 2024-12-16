@@ -1,4 +1,4 @@
-import { Metadata } from "next/types";
+import type { Metadata } from "next/types";
 
 export const defaultMetadata: Metadata = {
   title: {
@@ -25,7 +25,7 @@ export const defaultMetadata: Metadata = {
     telephone: false,
   },
   icons: {
-    icon: "/app/favicon.ico",
+    icon: "/src/app/favicon.ico",
   },
   openGraph: {
     title: "Guilders - AI-Powered Personal Finance Management",

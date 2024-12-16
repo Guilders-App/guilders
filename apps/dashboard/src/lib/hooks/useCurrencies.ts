@@ -1,4 +1,4 @@
-import { Tables } from "@/apps/web/lib/db/database.types";
+import type { Tables } from "@guilders/database/types";
 import { useQuery } from "@tanstack/react-query";
 
 const queryKey = ["currencies"] as const;

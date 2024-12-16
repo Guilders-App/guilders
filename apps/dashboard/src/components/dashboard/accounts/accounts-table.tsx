@@ -1,8 +1,8 @@
-import { AccountItem } from "@/apps/web/components/dashboard/accounts/account-item";
-import { AccountsEmptyPlaceholder } from "@/apps/web/components/dashboard/accounts/accounts-placeholder";
-import { Skeleton } from "@/apps/web/components/ui/skeleton";
-import { Account } from "@/apps/web/lib/db/types";
-import { useAccounts } from "@/apps/web/lib/hooks/useAccounts";
+import { AccountItem } from "@/components/dashboard/accounts/account-item";
+import { AccountsEmptyPlaceholder } from "@/components/dashboard/accounts/accounts-placeholder";
+import { useAccounts } from "@/lib/hooks/useAccounts";
+import type { Account } from "@guilders/database/types";
+import { Skeleton } from "@guilders/ui/skeleton";
 
 interface AccountsTableProps {
   accounts?: Account[];
@@ -24,6 +24,7 @@ export function AccountsTable({
       {isLoading ? (
         <div className="space-y-2">
           {[...Array(4)].map((_, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
             <Skeleton key={index} className="h-10 w-full mb-2" />
           ))}
         </div>

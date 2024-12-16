@@ -1,23 +1,23 @@
 "use client";
 
-import { Badge } from "@/apps/web/components/ui/badge";
-import { Button } from "@/apps/web/components/ui/button";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { useSecurityStore } from "@/lib/store/securityStore";
+import { createClient } from "@guilders/database/client";
+import { Badge } from "@guilders/ui/badge";
+import { Button } from "@guilders/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/apps/web/components/ui/dialog";
+} from "@guilders/ui/dialog";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
-} from "@/apps/web/components/ui/input-otp";
-import { createClient } from "@/apps/web/lib/db/client";
-import { useDialog } from "@/apps/web/lib/hooks/useDialog";
-import { useSecurityStore } from "@/apps/web/lib/store/securityStore";
+} from "@guilders/ui/input-otp";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";

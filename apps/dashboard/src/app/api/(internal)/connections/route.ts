@@ -1,5 +1,5 @@
-import { createClient } from "@/apps/web/lib/db/server";
-import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@guilders/database/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 /**
  * @swagger
@@ -18,14 +18,14 @@ import { NextRequest, NextResponse } from "next/server";
  *       200:
  *         description: Successfully retrieved connections
  */
-export async function GET(request: NextRequest) {
+export async function GET(_: NextRequest) {
   const supabase = await createClient();
   const { data: userData, error: userError } = await supabase.auth.getUser();
 
   if (userError) {
     return NextResponse.json(
       { success: false, error: userError.message },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -38,14 +38,14 @@ export async function GET(request: NextRequest) {
         name,
         logo_url
       )
-    `
+    `,
     )
     .eq("user_id", userData.user.id);
 
   if (error) {
     return NextResponse.json(
       { success: false, error: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

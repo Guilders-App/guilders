@@ -4,16 +4,17 @@ import { Loader2, Upload, X } from "lucide-react";
 import * as React from "react";
 import { useEffect, useState } from "react";
 import Dropzone, {
-  DropEvent,
+  type DropEvent,
   type DropzoneProps,
   type FileRejection,
 } from "react-dropzone";
 import { toast } from "sonner";
 
-import { Button } from "@/apps/web/components/ui/button";
-import { ScrollArea } from "@/apps/web/components/ui/scroll-area";
-import { useControllableState } from "@/apps/web/lib/hooks/useControllableState";
-import { cn, formatBytes } from "@/apps/web/lib/utils";
+import { useControllableState } from "@/lib/hooks/useControllableState";
+import { formatBytes } from "@/lib/utils";
+import { Button } from "@guilders/ui/button";
+import { cn } from "@guilders/ui/cn";
+import { ScrollArea } from "@guilders/ui/scroll-area";
 
 interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
   value?: File[];
@@ -51,7 +52,7 @@ export function FileUploader({
 
   const [localDocuments, setLocalDocuments] = useState(existingDocuments);
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>(
-    {}
+    {},
   );
 
   useEffect(() => {
@@ -62,8 +63,9 @@ export function FileUploader({
     if (!onUpload) return;
 
     const uploading = newFiles.reduce(
+      // biome-ignore lint/performance/noAccumulatingSpread: <explanation>
       (acc, file) => ({ ...acc, [file.name]: true }),
-      {} as Record<string, boolean>
+      {} as Record<string, boolean>,
     );
     setUploadingFiles(uploading);
 
@@ -92,26 +94,26 @@ export function FileUploader({
       }
 
       const newFiles = acceptedFiles.map((file) =>
-        Object.assign(file, { preview: URL.createObjectURL(file) })
+        Object.assign(file, { preview: URL.createObjectURL(file) }),
       );
 
       setFiles(newFiles);
 
       if (rejectedFiles.length > 0) {
-        rejectedFiles.forEach(({ file }) => {
+        for (const { file } of rejectedFiles) {
           toast.error(`File ${file.name} was rejected`);
-        });
+        }
       }
 
       if (newFiles.length > 0) {
         toast.promise(handleUpload(newFiles), {
           loading: `Uploading ${newFiles.length > 1 ? "files" : "file"}...`,
-          success: `Upload complete`,
-          error: `Upload failed`,
+          success: "Upload complete",
+          error: "Upload failed",
         });
       }
     },
-    [files, maxFileCount, multiple]
+    [files, maxFileCount, multiple],
   );
 
   const onRemove = async (index: number) => {
@@ -157,7 +159,7 @@ export function FileUploader({
               "ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               isDragActive && "border-muted-foreground/50",
               isDisabled && "pointer-events-none opacity-60",
-              className
+              className,
             )}
           >
             <input {...getInputProps()} />
@@ -173,9 +175,9 @@ export function FileUploader({
       {((files?.length ?? 0) > 0 || localDocuments.length > 0) && (
         <ScrollArea className="h-fit w-full px-3">
           <div className="flex max-h-48 flex-col gap-4">
-            {localDocuments.map((path, index) => (
+            {localDocuments.map((path) => (
               <FileCard
-                key={`existing-${index}`}
+                key={path}
                 file={{
                   name: path.split("/").pop() || path,
                   size: 0,
@@ -190,7 +192,7 @@ export function FileUploader({
             ))}
             {files?.map((file, index) => (
               <FileCard
-                key={`new-${index}`}
+                key={file.name}
                 file={file}
                 onRemove={() => onRemove(index)}
                 isUploading={uploadingFiles[file.name]}
@@ -236,7 +238,7 @@ function DropzoneContent({
         <p className="text-sm text-muted-foreground/70">
           You can upload
           {maxFileCount > 1
-            ? ` ${maxFileCount === Infinity ? "multiple" : maxFileCount}
+            ? ` ${maxFileCount === Number.POSITIVE_INFINITY ? "multiple" : maxFileCount}
             files (up to ${formatBytes(maxSize)} each)`
             : ` a file with ${formatBytes(maxSize)}`}
         </p>

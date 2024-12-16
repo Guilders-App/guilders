@@ -1,4 +1,4 @@
-import { createClient } from "@/apps/web/lib/db/server";
+import { createClient } from "@guilders/database/server";
 import { NextResponse } from "next/server";
 
 /**
@@ -23,8 +23,8 @@ import { NextResponse } from "next/server";
  *         description: Successfully fetched institution connection
  */
 export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
+  _: Request,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const supabase = await createClient();
@@ -36,7 +36,7 @@ export async function GET(
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Invalid credentials" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -48,7 +48,7 @@ export async function GET(
         provider_connection!inner (
           user_id
         )
-      `
+      `,
       )
       .eq("id", id)
       .eq("provider_connection.user_id", user.id)
@@ -58,7 +58,7 @@ export async function GET(
       console.error("Error fetching institution connection:", error);
       return NextResponse.json(
         { success: false, error: "Error fetching institution connection" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -67,7 +67,7 @@ export async function GET(
     console.error("Error fetching institution connection:", error);
     return NextResponse.json(
       { success: false, error: "Error fetching institution connection" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

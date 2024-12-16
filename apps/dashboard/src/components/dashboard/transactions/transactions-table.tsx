@@ -1,5 +1,5 @@
-import { useTransactions } from "@/apps/web/lib/hooks/useTransactions";
-import { Skeleton } from "../../ui/skeleton";
+import { useTransactions } from "@/lib/hooks/useTransactions";
+import { Skeleton } from "@guilders/ui/skeleton";
 import { TransactionItem } from "./transaction-item";
 import { TransactionsEmptyPlaceholder } from "./transactions-placeholder";
 
@@ -11,6 +11,7 @@ export function TransactionsTable({ accountId }: { accountId?: number }) {
       {isLoading ? (
         <div className="space-y-2">
           {[...Array(4)].map((_, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
             <Skeleton key={index} className="h-10 w-full mb-2" />
           ))}
         </div>

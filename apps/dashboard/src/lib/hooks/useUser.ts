@@ -1,5 +1,5 @@
-import { createClient } from "@/apps/web/lib/db/client";
-import { Tables } from "@/apps/web/lib/db/database.types";
+import { createClient } from "@guilders/database/client";
+import type { Tables } from "@guilders/database/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 const queryKey = ["user-settings"] as const;

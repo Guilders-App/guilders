@@ -1,4 +1,4 @@
-import { authenticate } from "@/apps/web/lib/api/auth";
+import { authenticate } from "@/lib/api/auth";
 import { NextResponse } from "next/server";
 
 /**
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     if (error || !client || !userId) {
       return NextResponse.json(
         { success: false, error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -36,13 +36,13 @@ export async function GET(request: Request) {
           success: false,
           error: dbError?.message || "Error fetching institutions",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     if (process.env.NODE_ENV === "production") {
       data = data.filter(
-        (institution) => !institution.demo && institution.enabled
+        (institution) => !institution.demo && institution.enabled,
       );
     }
 
@@ -50,7 +50,7 @@ export async function GET(request: Request) {
   } catch (error) {
     return NextResponse.json(
       { success: false, error: "Error fetching institutions" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

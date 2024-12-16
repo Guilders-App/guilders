@@ -8,17 +8,17 @@ import {
   LogOut,
   Settings,
 } from "lucide-react";
-import * as React from "react";
+import type * as React from "react";
 
-import { signOutAction } from "@/apps/web/app/actions";
-import { NavItems } from "@/apps/web/components/nav/nav-main";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarRail,
-} from "@/apps/web/components/ui/sidebar";
+} from "@guilders/ui/sidebar";
+import { signOutAction } from "../../app/actions";
+import { NavItems } from "../nav/nav-main";
 
 export type NavItem = {
   title: string;

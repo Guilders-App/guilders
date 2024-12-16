@@ -1,15 +1,15 @@
 "use client";
 
-import { Button } from "@/apps/web/components/ui/button";
+import { useUpdateUserSettings, useUser } from "@/lib/hooks/useUser";
+import { Button } from "@guilders/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/apps/web/components/ui/card";
-import { Input } from "@/apps/web/components/ui/input";
-import { useUpdateUserSettings, useUser } from "@/apps/web/lib/hooks/useUser";
+} from "@guilders/ui/card";
+import { Input } from "@guilders/ui/input";
 import { Check, Copy, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";

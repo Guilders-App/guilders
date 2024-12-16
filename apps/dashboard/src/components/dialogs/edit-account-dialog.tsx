@@ -1,13 +1,17 @@
 "use client";
 
-import { FileUploader } from "@/apps/web/components/common/file-uploader";
-import { Button } from "@/apps/web/components/ui/button";
+import { useProvider } from "@/lib/hooks/useProviders";
+import {
+  accountSubtypeLabels,
+  accountSubtypes,
+} from "@guilders/database/types";
+import { Button } from "@guilders/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/apps/web/components/ui/dialog";
+} from "@guilders/ui/dialog";
 import {
   Form,
   FormControl,
@@ -15,33 +19,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/apps/web/components/ui/form";
-import { Input } from "@/apps/web/components/ui/input";
+} from "@guilders/ui/form";
+import { Input } from "@guilders/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/apps/web/components/ui/select";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/apps/web/components/ui/tabs";
-import { Textarea } from "@/apps/web/components/ui/textarea";
-import { accountSubtypeLabels, accountSubtypes } from "@/apps/web/lib/db/types";
-import { useAccountFiles } from "@/apps/web/lib/hooks/useAccountFiles";
-import { useUpdateAccount } from "@/apps/web/lib/hooks/useAccounts";
-import {
-  useFixConnection,
-  useGetConnections,
-} from "@/apps/web/lib/hooks/useConnections";
-import { useCurrencies } from "@/apps/web/lib/hooks/useCurrencies";
-import { useDialog } from "@/apps/web/lib/hooks/useDialog";
-import { useInstitutionByAccountId } from "@/apps/web/lib/hooks/useInstitutions";
-import { useProvider } from "@/apps/web/lib/hooks/useProviders";
+} from "@guilders/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@guilders/ui/tabs";
+import { Textarea } from "@guilders/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { AlertTriangle, Loader2 } from "lucide-react";
@@ -49,6 +37,16 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import { useAccountFiles } from "../../lib/hooks/useAccountFiles";
+import { useUpdateAccount } from "../../lib/hooks/useAccounts";
+import {
+  useFixConnection,
+  useGetConnections,
+} from "../../lib/hooks/useConnections";
+import { useCurrencies } from "../../lib/hooks/useCurrencies";
+import { useDialog } from "../../lib/hooks/useDialog";
+import { useInstitutionByAccountId } from "../../lib/hooks/useInstitutions";
+import { FileUploader } from "../common/file-uploader";
 
 const detailsSchema = z.object({
   accountType: z.enum(accountSubtypes),
@@ -88,7 +86,7 @@ export function EditAccountDialog() {
   const { data: connections } = useGetConnections();
   const institution = useInstitutionByAccountId(data?.account?.id);
   const connection = connections?.find(
-    (c) => c.id === data?.account?.institution_connection_id
+    (c) => c.id === data?.account?.institution_connection_id,
   );
   const { data: provider } = useProvider(connection?.provider_id);
   const { data: currencies } = useCurrencies();
@@ -100,7 +98,7 @@ export function EditAccountDialog() {
   const { uploadFile, deleteFile, getSignedUrl, isUploading } = useAccountFiles(
     {
       accountId: data?.account?.id ?? 0,
-    }
+    },
   );
 
   const form = useForm<FormSchema>({
@@ -167,11 +165,11 @@ export function EditAccountDialog() {
       id: account.id,
       subtype: data.accountType,
       name: data.accountName,
-      value: parseFloat(data.value),
+      value: Number.parseFloat(data.value),
       currency: data.currency,
       investable: data.investable,
       taxability: data.taxability,
-      tax_rate: data.taxRate ? parseFloat(data.taxRate) : null,
+      tax_rate: data.taxRate ? Number.parseFloat(data.taxRate) : null,
       notes: data.notes ?? "",
     };
 

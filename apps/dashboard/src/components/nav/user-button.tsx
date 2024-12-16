@@ -1,7 +1,6 @@
 "use client";
 
-import { signOutAction } from "@/apps/web/app/actions";
-import { Button } from "@/apps/web/components/ui/button";
+import { Button } from "@guilders/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,9 +8,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/apps/web/components/ui/dropdown-menu";
+} from "@guilders/ui/dropdown-menu";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { signOutAction } from "../../app/actions";
 
 export function UserButton() {
   const router = useRouter();

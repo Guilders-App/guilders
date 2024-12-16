@@ -1,4 +1,4 @@
-import { Tables } from "@/apps/web/lib/db/database.types";
+import type { Tables } from "@guilders/database/types";
 import { useQuery } from "@tanstack/react-query";
 
 const queryKey = ["institution-connections"] as const;
@@ -29,7 +29,7 @@ export function useInstitutionConnections() {
 }
 
 export function useInstitutionConnection(
-  connectionId: number | null | undefined
+  connectionId: number | null | undefined,
 ) {
   return useQuery({
     queryKey: [...queryKey, connectionId],
@@ -37,7 +37,7 @@ export function useInstitutionConnection(
       if (!connectionId) return null;
 
       const response = await fetch(
-        `/api/institution-connections/${connectionId}`
+        `/api/institution-connections/${connectionId}`,
       );
       if (!response.ok)
         throw new Error("Failed to fetch institution connection");

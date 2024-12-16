@@ -1,5 +1,5 @@
-import { Providers } from "@/apps/web/components/common/providers";
-import { UmamiAnalytics } from "@/apps/web/components/common/umami-analytics";
+import { Providers } from "@/components/common/providers";
+import { UmamiAnalytics } from "@/components/common/umami-analytics";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import { defaultMetadata } from "./(pages)/metadata";

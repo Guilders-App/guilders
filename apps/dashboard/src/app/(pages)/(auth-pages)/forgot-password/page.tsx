@@ -1,11 +1,8 @@
-import { forgotPasswordAction } from "@/apps/web/app/actions";
-import {
-  FormMessage,
-  Message,
-} from "@/apps/web/components/common/form-message";
-import { SubmitButton } from "@/apps/web/components/common/submit-button";
-import { Input } from "@/apps/web/components/ui/input";
-import { Label } from "@/apps/web/components/ui/label";
+import { forgotPasswordAction } from "@/app/actions";
+import { FormMessage, type Message } from "@/components/common/form-message";
+import { SubmitButton } from "@/components/common/submit-button";
+import { Input } from "@guilders/ui/input";
+import { Label } from "@guilders/ui/label";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -58,7 +55,7 @@ export default async function ForgotPassword(props: {
           <div className="flex justify-center gap-1 text-sm text-muted-foreground">
             <p>Remember your password?</p>
             <Link
-              href="/sign-in"
+              href="/login"
               className="font-medium text-primary hover:underline"
             >
               Sign in

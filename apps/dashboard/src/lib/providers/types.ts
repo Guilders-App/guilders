@@ -1,4 +1,4 @@
-import { Tables } from "@/apps/web/lib/db/database.types";
+import type { Tables } from "@guilders/database/types";
 
 export interface ConnectionResult {
   success: boolean;
@@ -6,6 +6,6 @@ export interface ConnectionResult {
   data?: Tables<"provider_connection">;
 }
 
-export interface ConnectionProviderFunction {
-  (userId: string): Promise<ConnectionResult>;
-}
+export type ConnectionProviderFunction = (
+  userId: string,
+) => Promise<ConnectionResult>;

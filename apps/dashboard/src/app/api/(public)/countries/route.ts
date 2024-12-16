@@ -1,5 +1,5 @@
-import { authenticate } from "@/apps/web/lib/api/auth";
-import { Tables } from "@/apps/web/lib/db/database.types";
+import { authenticate } from "@/lib/api/auth";
+import type { Tables } from "@guilders/database/types";
 import { NextResponse } from "next/server";
 
 /**
@@ -23,7 +23,7 @@ export async function GET(request: Request) {
   if (error || !client || !userId) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
   if (dbError) {
     return NextResponse.json(
       { success: false, error: "Error fetching countries" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

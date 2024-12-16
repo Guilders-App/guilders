@@ -1,4 +1,4 @@
-import { Tables } from "@/apps/web/lib/db/database.types";
+import type { Tables } from "@guilders/database/types";
 import { useQuery } from "@tanstack/react-query";
 
 const queryKey = ["countries"] as const;
@@ -22,7 +22,7 @@ export function useCountries() {
 
       // Create a Map for O(1) lookups
       const countriesMap = new Map(
-        countries.map((country) => [country.code, country.name])
+        countries.map((country) => [country.code, country.name]),
       );
 
       return {

@@ -1,9 +1,9 @@
-import { createAdminClient } from "@/apps/web/lib/db/admin";
-import { getProvider } from "@/apps/web/lib/db/utils";
+import { createClient } from "@guilders/database/server";
+import { getProvider } from "../../db/utils";
 import { providerName, snaptrade } from "./client";
 
 export const insertSnapTradeInstitutions = async () => {
-  const supabase = await createAdminClient();
+  const supabase = await createClient({ admin: true });
   const provider = await getProvider(providerName);
 
   if (!provider) {
@@ -22,13 +22,17 @@ export const insertSnapTradeInstitutions = async () => {
         institution.id &&
         institution.name &&
         institution.aws_s3_square_logo_url &&
-        institution.enabled
+        institution.enabled,
     )
     .map((institution) => ({
       provider_id: provider.id,
+      // biome-ignore lint/style/noNonNullAssertion: <explanation>
       provider_institution_id: institution.id!,
+      // biome-ignore lint/style/noNonNullAssertion: <explanation>
       name: institution.name!,
+      // biome-ignore lint/style/noNonNullAssertion: <explanation>
       logo_url: institution.aws_s3_square_logo_url!,
+      // biome-ignore lint/style/noNonNullAssertion: <explanation>
       enabled: institution.enabled!,
       country: null,
     }));

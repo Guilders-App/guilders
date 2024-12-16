@@ -1,5 +1,9 @@
-import { Account, Institution, Transaction } from "@/apps/web/lib/db/types";
-import { StateSlice } from "../store";
+import type {
+  Account,
+  Institution,
+  Transaction,
+} from "@guilders/database/types";
+import type { StateSlice } from "../store";
 
 export type DialogState =
   | {
@@ -57,7 +61,7 @@ export type DialogActions = {
 
 export const createDialogStore: StateSlice<DialogsState & DialogActions> = (
   set,
-  get
+  get,
 ) => ({
   dialogs: [],
   openDialog: (dialog) =>
@@ -74,7 +78,7 @@ export const createDialogStore: StateSlice<DialogsState & DialogActions> = (
   updateDialog: (dialog) =>
     set((state) => ({
       dialogs: state.dialogs.map((d) =>
-        d.type === dialog.type ? { ...dialog, isOpen: true } : d
+        d.type === dialog.type ? { ...dialog, isOpen: true } : d,
       ),
     })),
 });

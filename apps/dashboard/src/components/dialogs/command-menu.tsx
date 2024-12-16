@@ -1,6 +1,6 @@
 "use client";
 
-import { navigationData } from "@/apps/web/components/nav/app-sidebar";
+import type { Institution } from "@guilders/database/types";
 import {
   CommandDialog,
   CommandEmpty,
@@ -8,17 +8,17 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/apps/web/components/ui/command";
-import { Institution } from "@/apps/web/lib/db/types";
-import { useCountries } from "@/apps/web/lib/hooks/useCountries";
-import { useDialog } from "@/apps/web/lib/hooks/useDialog";
-import { useInstitutions } from "@/apps/web/lib/hooks/useInstitutions";
-import { useProviders } from "@/apps/web/lib/hooks/useProviders";
+} from "@guilders/ui/command";
 import { CommandLoading } from "cmdk";
 import { Banknote, Landmark, Link2, SquarePen } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { navigationData } from "../../components/nav/app-sidebar";
+import { useCountries } from "../../lib/hooks/useCountries";
+import { useDialog } from "../../lib/hooks/useDialog";
+import { useInstitutions } from "../../lib/hooks/useInstitutions";
+import { useProviders } from "../../lib/hooks/useProviders";
 
 export function CommandMenu() {
   const { isOpen, data, open, close, update } = useDialog("command");
@@ -170,7 +170,7 @@ export function CommandMenu() {
                 .map((item) => (
                   <CommandItem
                     key={item.title}
-                    onSelect={() => handleNavigate(item.url!)}
+                    onSelect={() => handleNavigate(item.url ?? "")}
                   >
                     {item.icon && <item.icon className="mr-2 h-4 w-4" />}
                     Go to {item.title}
@@ -180,18 +180,16 @@ export function CommandMenu() {
           </>
         )}
         {currentPage === "add-account" && (
-          <>
-            <CommandGroup>
-              <CommandItem onSelect={handleAddAccount}>
-                <SquarePen className="mr-2 h-4 w-4" />
-                Add Manual Account
-              </CommandItem>
-              <CommandItem onSelect={() => changePage("add-synced-account")}>
-                <Link2 className="mr-2 h-4 w-4" />
-                Add Synced Account
-              </CommandItem>
-            </CommandGroup>
-          </>
+          <CommandGroup>
+            <CommandItem onSelect={handleAddAccount}>
+              <SquarePen className="mr-2 h-4 w-4" />
+              Add Manual Account
+            </CommandItem>
+            <CommandItem onSelect={() => changePage("add-synced-account")}>
+              <Link2 className="mr-2 h-4 w-4" />
+              Add Synced Account
+            </CommandItem>
+          </CommandGroup>
         )}
         {currentPage === "add-synced-account" && (
           <>
@@ -216,7 +214,7 @@ export function CommandMenu() {
                     <span className="text-xs text-muted-foreground leading-3">
                       {institution.country
                         ? countriesData?.countriesMap.get(
-                            institution.country
+                            institution.country,
                           ) || "Global"
                         : "Global"}{" "}
                       •{" "}

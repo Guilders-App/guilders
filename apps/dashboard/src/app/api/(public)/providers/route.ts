@@ -1,4 +1,4 @@
-import { authenticate } from "@/apps/web/lib/api/auth";
+import { authenticate } from "@/lib/api/auth";
 import { NextResponse } from "next/server";
 
 /**
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   if (error || !client || !userId) {
     return NextResponse.json(
       { success: false, error: "Authentication required" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
   if (dbError) {
     return NextResponse.json(
       { success: false, error: dbError.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 

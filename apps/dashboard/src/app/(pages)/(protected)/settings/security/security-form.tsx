@@ -4,7 +4,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Button } from "@/apps/web/components/ui/button";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { useUpdateUserSettings } from "@/lib/hooks/useUser";
+import { useSecurityStore } from "@/lib/store/securityStore";
+import { Button } from "@guilders/ui/button";
 import {
   Form,
   FormControl,
@@ -13,11 +16,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/apps/web/components/ui/form";
-import { Input } from "@/apps/web/components/ui/input";
-import { useDialog } from "@/apps/web/lib/hooks/useDialog";
-import { useUpdateUserSettings } from "@/apps/web/lib/hooks/useUser";
-import { useSecurityStore } from "@/apps/web/lib/store/securityStore";
+} from "@guilders/ui/form";
+import { Input } from "@guilders/ui/input";
 import { Shield, X } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
@@ -29,7 +29,7 @@ const securityFormSchema = z
       .min(8, "Password must be at least 8 characters")
       .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+        "Password must contain at least one uppercase letter, one lowercase letter, and one number",
       ),
     confirmPassword: z.string(),
   })

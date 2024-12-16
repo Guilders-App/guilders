@@ -1,5 +1,5 @@
-import { providerName } from "@/apps/web/lib/providers/saltedge/client";
-import { registerSaltEdgeUser } from "@/apps/web/lib/providers/saltedge/register";
+import { providerName } from "@/lib/providers/saltedge/client";
+import { registerSaltEdgeUser } from "@/lib/providers/saltedge/register";
 import { registerConnection } from "../../common";
 
 /**

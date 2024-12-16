@@ -1,4 +1,4 @@
-import { Account } from "@/apps/web/lib/db/types";
+import type { Account } from "@guilders/database/types";
 import {
   Bitcoin,
   CarFront,

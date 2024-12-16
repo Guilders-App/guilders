@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@/apps/web/components/ui/button";
-import { Input } from "@/apps/web/components/ui/input";
-import { Label } from "@/apps/web/components/ui/label";
-import { createClient } from "@/apps/web/lib/db/client";
-import { useUpdateUserSettings } from "@/apps/web/lib/hooks/useUser";
+import { useUpdateUserSettings } from "@/lib/hooks/useUser";
+import { createClient } from "@guilders/database/client";
+import { Button } from "@guilders/ui/button";
+import { Input } from "@guilders/ui/input";
+import { Label } from "@guilders/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -54,7 +54,7 @@ export default function OnboardingPage() {
         data: { user },
       } = await supabase.auth.getUser();
       if (!user) {
-        router.push("/sign-in");
+        router.push("/login");
       }
     };
     checkSession();

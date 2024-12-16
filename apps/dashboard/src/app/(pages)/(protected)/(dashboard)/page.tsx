@@ -1,10 +1,10 @@
 "use client";
 
-import { AccountsCard } from "@/apps/web/components/dashboard/accounts/account-card";
-import { CategoriesCard } from "@/apps/web/components/dashboard/categories/categories-card";
-import { NetWorthCard } from "@/apps/web/components/dashboard/net-worth-card";
-import { TransactionsCard } from "@/apps/web/components/dashboard/transactions/transactions-card";
-import { Button } from "@/apps/web/components/ui/button";
+import { AccountsCard } from "@/components/dashboard/accounts/account-card";
+import { CategoriesCard } from "@/components/dashboard/categories/categories-card";
+import { NetWorthCard } from "@/components/dashboard/net-worth-card";
+import { TransactionsCard } from "@/components/dashboard/transactions/transactions-card";
+import { Button } from "@guilders/ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 

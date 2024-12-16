@@ -1,13 +1,10 @@
 "use server";
 
-import { createAdminClient } from "@/apps/web/lib/db/admin";
-import {
-  providerName,
-  saltedge,
-} from "@/apps/web/lib/providers/saltedge/client";
-import crypto from "crypto";
-import { NextRequest, NextResponse } from "next/server";
-import {
+import { providerName, saltedge } from "@/lib/providers/saltedge/client";
+import { createClient } from "@guilders/database/server";
+import { type NextRequest, NextResponse } from "next/server";
+import crypto from "node:crypto";
+import type {
   SaltEdgeCallback,
   SaltEdgeDestroyCallback,
   SaltEdgeFailureCallback,
@@ -26,12 +23,14 @@ export async function POST(request: NextRequest) {
     ? "https://badly-mutual-pigeon.ngrok-free.app/callback/saltedge"
     : request.url;
   const callbackCredentials = Buffer.from(
-    `${process.env.SALTEDGE_CALLBACK_USERNAME}:${process.env.SALTEDGE_CALLBACK_PASSWORD}`
+    `${process.env.SALTEDGE_CALLBACK_USERNAME}:${process.env.SALTEDGE_CALLBACK_PASSWORD}`,
   ).toString("base64");
 
   if (!auth || auth !== `Basic ${callbackCredentials}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  } else if (!signature || !verifySaltEdgeSignature(url, callback, signature)) {
+  }
+
+  if (!signature || !verifySaltEdgeSignature(url, callback, signature)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -61,7 +60,7 @@ export async function POST(request: NextRequest) {
 
 async function handleProviderStatusChange(callback: SaltEdgeProviderCallback) {
   const { data } = callback;
-  const supabase = await createAdminClient();
+  const supabase = await createClient({ admin: true });
 
   // Get provider
   const { data: provider, error: providerError } = await supabase
@@ -88,7 +87,7 @@ async function handleProviderStatusChange(callback: SaltEdgeProviderCallback) {
     console.error("Error updating institution:", institutionError);
     return NextResponse.json(
       { success: false, error: "Error updating institution" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -97,7 +96,7 @@ async function handleProviderStatusChange(callback: SaltEdgeProviderCallback) {
 
 async function handleConnectionDestroy(callback: SaltEdgeDestroyCallback) {
   const { data } = callback;
-  const supabase = await createAdminClient();
+  const supabase = await createClient({ admin: true });
 
   const { data: provider, error: providerError } = await supabase
     .from("provider")
@@ -122,7 +121,7 @@ async function handleConnectionDestroy(callback: SaltEdgeDestroyCallback) {
     console.error("Provider connection not found");
     return NextResponse.json(
       { error: "Provider connection not found" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -139,11 +138,11 @@ async function handleConnectionDestroy(callback: SaltEdgeDestroyCallback) {
   if (institutionConnectionError) {
     console.error(
       "Error deleting institution connection:",
-      institutionConnectionError
+      institutionConnectionError,
     );
     return NextResponse.json(
       { success: false, error: "Error deleting institution connection" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -158,7 +157,7 @@ async function handleFailure(callback: SaltEdgeFailureCallback) {
 
 async function handleSuccess(callback: SaltEdgeSuccessCallback) {
   const { data } = callback;
-  const supabase = await createAdminClient();
+  const supabase = await createClient({ admin: true });
 
   // Get provider
   const { data: provider } = await supabase
@@ -185,7 +184,7 @@ async function handleSuccess(callback: SaltEdgeSuccessCallback) {
     console.error("Provider connection not found");
     return NextResponse.json(
       { error: "Provider connection not found" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
@@ -204,18 +203,18 @@ async function handleSuccess(callback: SaltEdgeSuccessCallback) {
   if (institutionConnectionError) {
     console.error(
       "Error inserting institution connection:",
-      institutionConnectionError
+      institutionConnectionError,
     );
     return NextResponse.json(
       { success: false, error: "Error inserting institution connection" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
   // Get and process accounts
   const accounts = await saltedge.getAccounts(
     data.customer_id,
-    data.connection_id
+    data.connection_id,
   );
 
   const { error: accountsError } = await supabase.from("account").upsert(
@@ -232,7 +231,7 @@ async function handleSuccess(callback: SaltEdgeSuccessCallback) {
         provider_account_id: account.id,
       };
     }),
-    { onConflict: "institution_connection_id,provider_account_id" }
+    { onConflict: "institution_connection_id,provider_account_id" },
   );
 
   // Process transactions for each account
@@ -240,7 +239,7 @@ async function handleSuccess(callback: SaltEdgeSuccessCallback) {
     accounts.map(async (account) => {
       const transactions = await saltedge.getTransactions(
         data.connection_id,
-        account.id
+        account.id,
       );
 
       const { data: dbAccount } = await supabase
@@ -267,37 +266,45 @@ async function handleSuccess(callback: SaltEdgeSuccessCallback) {
             account_id: dbAccount.id,
             provider_transaction_id: transaction.id,
           })),
-          { onConflict: "provider_transaction_id,account_id" }
+          { onConflict: "provider_transaction_id,account_id" },
         );
 
       if (transactionsError) {
         console.error("Error inserting transactions:", transactionsError);
         throw transactionsError;
       }
-    })
+    }),
   );
 
   if (accountsError) {
     console.error("Error inserting accounts:", accountsError);
     return NextResponse.json(
       { success: false, error: "Error inserting accounts" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 
   return NextResponse.json({ success: true });
 }
 
-function verifySaltEdgeSignature(url: string, body: any, signature: string) {
+function verifySaltEdgeSignature(
+  url: string,
+  body: unknown,
+  signature: string,
+) {
   const publicKey = process.env.SALTEDGE_CALLBACK_SIGNATURE;
   const dataToVerify = `${url}|${JSON.stringify(body)}`;
   const verifier = crypto.createVerify("SHA256");
   verifier.update(dataToVerify);
 
+  if (!publicKey) {
+    throw new Error("SALTEDGE_CALLBACK_SIGNATURE is not set");
+  }
+
   try {
     // Verify the signature
     const signatureBuffer = Buffer.from(signature, "base64");
-    const isValid = verifier.verify(publicKey!, signatureBuffer);
+    const isValid = verifier.verify(publicKey, signatureBuffer);
     return isValid;
   } catch (error) {
     console.error("Verification error:", error);

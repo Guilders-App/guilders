@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/apps/web/lib/utils";
+import { cn } from "@guilders/ui/cn";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
@@ -30,7 +30,7 @@ const ThemeSwitcher = () => {
           viewBox="0 0 16 16"
           className={cn(
             "text-foreground/60",
-            theme === "system" && "text-foreground"
+            theme === "system" && "text-foreground",
           )}
         >
           <path
@@ -51,7 +51,7 @@ const ThemeSwitcher = () => {
           viewBox="0 0 16 16"
           className={cn(
             "text-foreground/60",
-            theme === "light" && "text-foreground"
+            theme === "light" && "text-foreground",
           )}
         >
           <path
@@ -72,7 +72,7 @@ const ThemeSwitcher = () => {
           viewBox="0 0 16 16"
           className={cn(
             "text-foreground/60",
-            theme === "dark" && "text-foreground"
+            theme === "dark" && "text-foreground",
           )}
         >
           <path
@@ -100,7 +100,7 @@ const ThemeSwitcher = () => {
                 index === options.length - 1 && "-mr-[1px]",
                 theme === value
                   ? "bg-background shadow-sm border"
-                  : "hover:bg-accent/50"
+                  : "hover:bg-accent/50",
               )}
               onClick={() => setTheme(value)}
             >

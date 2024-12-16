@@ -14,7 +14,7 @@ export function ChangeBadge({
 
   return (
     <span
-      className={`text-xs ${showAbsoluteChange == false ? "w-[84px]" : ""} ${
+      className={`text-xs ${showAbsoluteChange === false ? "w-[84px]" : ""} ${
         isPositive
           ? "bg-green-100 dark:bg-[#182f28] text-green-700 dark:text-[#2ff795]"
           : "bg-red-100 dark:bg-[#2d1e1e] text-red-700 dark:text-[#ff4d4d]"

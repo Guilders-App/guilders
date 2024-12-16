@@ -1,5 +1,5 @@
-import { insertSaltEdgeInstitutions } from "@/apps/web/lib/providers/saltedge/functions";
-import { insertSnapTradeInstitutions } from "@/apps/web/lib/providers/snaptrade/functions";
+import { insertSaltEdgeInstitutions } from "@/lib/providers/saltedge/functions";
+import { insertSnapTradeInstitutions } from "@/lib/providers/snaptrade/functions";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   ) {
     return NextResponse.json(
       { success: false, error: "Unauthorized" },
-      { status: 401 }
+      { status: 401 },
     );
   }
   await insertSnapTradeInstitutions();

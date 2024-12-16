@@ -1,12 +1,9 @@
-import { signUpAction } from "@/apps/web/app/actions";
-import {
-  FormMessage,
-  Message,
-} from "@/apps/web/components/common/form-message";
-import { SubmitButton } from "@/apps/web/components/common/submit-button";
-import { Input } from "@/apps/web/components/ui/input";
-import { Label } from "@/apps/web/components/ui/label";
-import { PasswordInput } from "@/apps/web/components/ui/password-input";
+import { signUpAction } from "@/app/actions";
+import { FormMessage, type Message } from "@/components/common/form-message";
+import { SubmitButton } from "@/components/common/submit-button";
+import { Input } from "@guilders/ui/input";
+import { Label } from "@guilders/ui/label";
+import { PasswordInput } from "@guilders/ui/password-input";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -89,7 +86,7 @@ export default async function Signup(props: {
           <div className="flex justify-center gap-1 text-xs text-muted-foreground">
             <p>Already have an account?</p>
             <Link
-              href="/sign-in"
+              href="/login"
               className="font-medium text-primary hover:underline"
             >
               Sign in

@@ -1,10 +1,10 @@
-import { createAdminClient } from "@/apps/web/lib/db/admin";
-import { getProvider } from "@/apps/web/lib/db/utils";
+import { createClient } from "@guilders/database/server";
+import { getProvider } from "../../db/utils";
 import { providerName, saltedge } from "./client";
-import { Provider } from "./types";
+import type { Provider } from "./types";
 
 export const insertSaltEdgeInstitutions = async () => {
-  const supabase = await createAdminClient();
+  const supabase = await createClient({ admin: true });
   const provider = await getProvider(providerName);
 
   if (!provider) {
@@ -16,7 +16,9 @@ export const insertSaltEdgeInstitutions = async () => {
   const filteredInstitutions = institutions.filter(
     (inst) =>
       inst.supported_iframe_embedding &&
-      (process.env.NODE_ENV !== "development" ? !isDemoInstitution(inst) : true)
+      (process.env.NODE_ENV !== "development"
+        ? !isDemoInstitution(inst)
+        : true),
   );
 
   const entries = filteredInstitutions.map((institution) => ({

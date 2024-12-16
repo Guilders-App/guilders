@@ -1,14 +1,9 @@
-import { AccountsTable } from "@/apps/web/components/dashboard/accounts/accounts-table";
-import { Button } from "@/apps/web/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/apps/web/components/ui/card";
-import { ScrollArea, ScrollBar } from "@/apps/web/components/ui/scroll-area";
-import { Account } from "@/apps/web/lib/db/types";
-import { cn } from "@/apps/web/lib/utils";
+import { AccountsTable } from "@/components/dashboard/accounts/accounts-table";
+import type { Account } from "@guilders/database/types";
+import { Button } from "@guilders/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@guilders/ui/card";
+import { cn } from "@guilders/ui/cn";
+import { ScrollArea, ScrollBar } from "@guilders/ui/scroll-area";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 

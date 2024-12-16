@@ -81,7 +81,7 @@ export const Header = () => {
             </Button>
           </Link>
           <div className="border-r hidden md:inline" />
-          <Link href="/sign-in">
+          <Link href={`${process.env.NEXT_PUBLIC_DASHBOARD_URL}/login`}>
             <Button variant="outline">Sign in</Button>
           </Link>
           {/* <Link href="/sign-up">

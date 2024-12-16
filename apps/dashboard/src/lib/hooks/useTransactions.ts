@@ -1,8 +1,8 @@
-import {
+import type {
   Transaction,
   TransactionInsert,
   TransactionUpdate,
-} from "@/apps/web/lib/db/types";
+} from "@guilders/database/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKey as accountsQueryKey } from "./useAccounts";
 
@@ -79,7 +79,7 @@ export function useUpdateTransaction() {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updatedTransaction),
-        }
+        },
       );
       if (!response.ok) throw new Error("Failed to update transaction");
       const data = (await response.json()) as SingleTransactionResponse;
@@ -90,8 +90,8 @@ export function useUpdateTransaction() {
         old.map((transaction) =>
           transaction.id === updatedTransaction.id
             ? updatedTransaction
-            : transaction
-        )
+            : transaction,
+        ),
       );
       queryClient.invalidateQueries({ queryKey: accountsQueryKey });
     },
@@ -110,7 +110,7 @@ export function useRemoveTransaction() {
     },
     onSuccess: (transactionId) => {
       queryClient.setQueryData<Transaction[]>(queryKey, (old = []) =>
-        old.filter((transaction) => transaction.id !== transactionId)
+        old.filter((transaction) => transaction.id !== transactionId),
       );
       queryClient.invalidateQueries({ queryKey: accountsQueryKey });
     },
