@@ -14,7 +14,7 @@
       "cache": false,
       "persistent": true
     },
-    "dashboard#build": {
+    "@guilders/dashboard#build": {
       "dependsOn": ["^build"],
       "env": [
         "NEXT_PUBLIC_SUPABASE_URL",
@@ -45,7 +45,7 @@
       ],
       "outputs": [".next/**", "!.next/cache/**"]
     },
-    "website#build": {
+    "@guilders/website#build": {
       "dependsOn": ["^build"],
       "env": [
         "NEXT_PUBLIC_UMAMI_WEBSITE_ID",
