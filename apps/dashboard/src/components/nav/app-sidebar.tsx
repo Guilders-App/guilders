@@ -47,7 +47,7 @@ export const navigationData: {
       url: "/advisor",
       icon: ConciergeBell,
       breadcrumb: {
-        parent: { title: "Dashboard", href: "/dashboard" },
+        parent: { title: "Dashboard", href: "/" },
       },
     },
     {
@@ -55,7 +55,7 @@ export const navigationData: {
       url: "/accounts",
       icon: Briefcase,
       breadcrumb: {
-        parent: { title: "Dashboard", href: "/dashboard" },
+        parent: { title: "Dashboard", href: "/" },
       },
     },
     {
@@ -63,7 +63,7 @@ export const navigationData: {
       url: "/transactions",
       icon: ArrowRightLeft,
       breadcrumb: {
-        parent: { title: "Dashboard", href: "/dashboard" },
+        parent: { title: "Dashboard", href: "/" },
       },
     },
   ],
