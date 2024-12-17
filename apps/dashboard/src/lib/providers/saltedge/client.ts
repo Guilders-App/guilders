@@ -1,5 +1,5 @@
 import { env } from "@/env";
-import * as crypto from "node:crypto";
+import { createSign } from "node:crypto";
 import type {
   Account,
   Country,
@@ -50,7 +50,7 @@ export class SaltEdgeClient {
     const bodyStr = body ? JSON.stringify({ data: body }) : "";
     const payload = `${expiresAt}|${method}|${cleanUrl}|${bodyStr}`;
     const privateKey = await this.getPrivateKey();
-    const signer = crypto.createSign("SHA256");
+    const signer = createSign("SHA256");
     signer.update(payload, "utf8");
     const signature = signer.sign(privateKey, "base64");
 

@@ -1,10 +1,12 @@
+import { env } from "@/env";
+
 export function UmamiAnalytics() {
   return (
-    process.env.NODE_ENV === "production" && (
+    env.NODE_ENV === "production" && (
       <script
         defer
         src="https://cloud.umami.is/script.js"
-        data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+        data-website-id={env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
       />
     )
   );
