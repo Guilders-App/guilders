@@ -8,10 +8,11 @@
     "format": "biome check --write .",
     "typecheck": "tsc --noEmit",
     "db:generate": "supabase gen types typescript --linked > src/types/db.ts",
-    "db:pull": "supabase db pull && supabase db pull --schema storage",
+    "db:pull": "supabase db pull --schema storage",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
-    "db:seed": "bun run scripts/seedDatabase.ts"
+    "db:seed": "bun run scripts/seedDatabase.ts",
+    "dev": "bun run db:stop && bun run db:start"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.1",

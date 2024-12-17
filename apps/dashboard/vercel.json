@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/cron/insert-institutions",
+      "path": "/src/app/cron/insert-institutions",
       "schedule": "0 5 * * *"
     }
   ]

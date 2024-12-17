@@ -7,8 +7,8 @@ export async function middleware(request: NextRequest) {
   const supabase = await createClient();
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const authPage =
     request.nextUrl.pathname.startsWith("/login") ||
@@ -16,7 +16,7 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/forgot-password");
 
   // Not authenticated
-  if (!session && !authPage) {
+  if (!user && !authPage) {
     const url = new URL("/login", request.url);
     url.searchParams.set("redirect", request.nextUrl.pathname);
 
