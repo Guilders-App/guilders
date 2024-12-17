@@ -1,3 +1,4 @@
+import { env } from "@/env";
 import { stripe } from "@/lib/stripe/server";
 import { createClient } from "@guilders/database/server";
 import { type NextRequest, NextResponse } from "next/server";
@@ -85,7 +86,7 @@ export const POST = async (req: NextRequest) => {
       },
       line_items: [
         {
-          price: process.env.STRIPE_PRICE_ID,
+          price: env.STRIPE_PRICE_ID,
           quantity: 1,
         },
       ],

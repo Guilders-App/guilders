@@ -1,5 +1,6 @@
 "use server";
 
+import { env } from "@/env";
 import { resend } from "../utils/resend";
 
 type SubscribeResult = {
@@ -22,7 +23,7 @@ export async function subscribeAction(
   try {
     await resend.contacts.create({
       email,
-      audienceId: process.env.RESEND_WAITLIST_AUDIENCE_ID,
+      audienceId: env.RESEND_WAITLIST_AUDIENCE_ID,
     });
 
     return {

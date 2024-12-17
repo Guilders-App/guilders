@@ -66,7 +66,7 @@ export const Hero = () => {
             </p>
           </div>
           {/* <div className="flex flex-row gap-3">
-            <Link href={process.env.NEXT_PUBLIC_CAL_URL}>
+            <Link href={env.NEXT_PUBLIC_CAL_URL}>
               <Button size="lg" variant="outline">
                 Jump on a call <PhoneCall className="w-4 h-4" />
               </Button>

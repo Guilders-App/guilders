@@ -1,6 +1,7 @@
 import { signUpAction } from "@/app/actions";
 import { FormMessage, type Message } from "@/components/common/form-message";
 import { SubmitButton } from "@/components/common/submit-button";
+import { env } from "@/env";
 import { Input } from "@guilders/ui/input";
 import { Label } from "@guilders/ui/label";
 import { PasswordInput } from "@guilders/ui/password-input";
@@ -57,7 +58,7 @@ export default async function Signup(props: {
               className="mt-2 w-full"
               pendingText="Creating account..."
               formAction={signUpAction}
-              disabled={process.env.NODE_ENV !== "development"}
+              disabled={env.NODE_ENV !== "development"}
             >
               Create account
             </SubmitButton>

@@ -1,3 +1,4 @@
+import { env } from "@/env";
 import { createClient } from "@guilders/database/server";
 import { getProvider } from "../../db/utils";
 import { providerName, saltedge } from "./client";
@@ -16,9 +17,7 @@ export const insertSaltEdgeInstitutions = async () => {
   const filteredInstitutions = institutions.filter(
     (inst) =>
       inst.supported_iframe_embedding &&
-      (process.env.NODE_ENV !== "development"
-        ? !isDemoInstitution(inst)
-        : true),
+      (env.NODE_ENV !== "development" ? !isDemoInstitution(inst) : true),
   );
 
   const entries = filteredInstitutions.map((institution) => ({

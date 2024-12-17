@@ -1,3 +1,4 @@
+import { env } from "@/env";
 import { stripe } from "@/lib/stripe/server";
 import { createClient } from "@guilders/database/server";
 import { NextResponse } from "next/server";
@@ -8,7 +9,7 @@ export async function POST(req: Request) {
   const headers = await req.headers;
   const signature = headers.get("stripe-signature");
 
-  if (!signature || !process.env.STRIPE_WEBHOOK_SECRET) {
+  if (!signature || !env.STRIPE_WEBHOOK_SECRET) {
     return NextResponse.json(
       { error: "Missing stripe signature" },
       { status: 400 },
@@ -21,7 +22,7 @@ export async function POST(req: Request) {
     event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET,
+      env.STRIPE_WEBHOOK_SECRET,
     );
   } catch (err) {
     return NextResponse.json(

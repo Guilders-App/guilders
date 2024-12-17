@@ -1,13 +1,15 @@
 "use client";
 
+import { env } from "@/env";
+
 export function UmamiAnalytics() {
-  if (!process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID) return null;
+  if (!env.NEXT_PUBLIC_UMAMI_WEBSITE_ID) return null;
 
   return (
     <script
       async
       src="https://analytics.umami.is/script.js"
-      data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
+      data-website-id={env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
     />
   );
 }

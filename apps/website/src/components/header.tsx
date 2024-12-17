@@ -1,5 +1,6 @@
 "use client";
 
+import { env } from "@/env";
 import { Button } from "@guilders/ui/button";
 import { cn } from "@guilders/ui/cn";
 import Image from "next/image";
@@ -72,16 +73,13 @@ export const Header = () => {
           </Link>
         </div>
         <div className="flex justify-end gap-4">
-          <Link
-            href={process.env.NEXT_PUBLIC_CAL_URL}
-            aria-label="Book a demo call"
-          >
+          <Link href={env.NEXT_PUBLIC_CAL_URL} aria-label="Book a demo call">
             <Button variant="ghost" className="hidden md:inline">
               Book a demo
             </Button>
           </Link>
           <div className="border-r hidden md:inline" />
-          <Link href={`${process.env.NEXT_PUBLIC_DASHBOARD_URL}/login`}>
+          <Link href={`${env.NEXT_PUBLIC_DASHBOARD_URL}/login`}>
             <Button variant="outline">Sign in</Button>
           </Link>
           {/* <Link href="/sign-up">

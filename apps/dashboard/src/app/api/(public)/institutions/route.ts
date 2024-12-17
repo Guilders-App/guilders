@@ -1,3 +1,4 @@
+import { env } from "@/env";
 import { authenticate } from "@/lib/api/auth";
 import { NextResponse } from "next/server";
 
@@ -40,7 +41,7 @@ export async function GET(request: Request) {
       );
     }
 
-    if (process.env.NODE_ENV === "production") {
+    if (env.NODE_ENV === "production") {
       data = data.filter(
         (institution) => !institution.demo && institution.enabled,
       );

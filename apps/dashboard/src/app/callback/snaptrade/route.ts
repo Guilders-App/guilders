@@ -1,5 +1,6 @@
 "use server";
 
+import { env } from "@/env";
 import { providerName, snaptrade } from "@/lib/providers/snaptrade/client";
 import { createClient } from "@guilders/database/server";
 import { NextResponse } from "next/server";
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
   // Authenticate webhook
   if (
     !body.webhookSecret ||
-    body.webhookSecret !== process.env.SNAPTRADE_WEBHOOK_SECRET
+    body.webhookSecret !== env.SNAPTRADE_WEBHOOK_SECRET
   ) {
     return NextResponse.json(
       { error: "Invalid webhook secret" },

@@ -5,13 +5,8 @@ import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import { defaultMetadata } from "./(pages)/metadata";
 
-const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
-
 export const metadata = {
   ...defaultMetadata,
-  metadataBase: new URL(defaultUrl),
 };
 
 export default function RootLayout({

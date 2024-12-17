@@ -1,3 +1,4 @@
+import { env } from "@/env";
 import { Button } from "@guilders/ui/button";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
@@ -25,7 +26,7 @@ export default async function Layout({
         size="sm"
         className="absolute top-4 left-4"
       >
-        <Link href={process.env.NEXT_PUBLIC_WEBSITE_URL ?? "/"}>
+        <Link href={env.NEXT_PUBLIC_WEBSITE_URL}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Link>

@@ -1,3 +1,4 @@
+import { env } from "@/env";
 import * as crypto from "node:crypto";
 import type {
   Account,
@@ -25,14 +26,14 @@ export class SaltEdgeClient {
 
   private async getPrivateKey(): Promise<string> {
     if (!this.privateKey) {
-      this.privateKey = process.env.SALTEDGE_PRIVATE_KEY;
+      this.privateKey = env.SALTEDGE_PRIVATE_KEY;
     }
     return this.privateKey;
   }
 
   private async getPublicKey(): Promise<string> {
     if (!this.publicKey) {
-      this.publicKey = process.env.SALTEDGE_PUBLIC_KEY;
+      this.publicKey = env.SALTEDGE_PUBLIC_KEY;
     }
     return this.publicKey;
   }
@@ -270,6 +271,6 @@ export class SaltEdgeClient {
 export const providerName = "SaltEdge";
 
 export const saltedge = new SaltEdgeClient({
-  appId: process.env.SALTEDGE_CLIENT_ID,
-  secret: process.env.SALTEDGE_CLIENT_SECRET,
+  appId: env.SALTEDGE_CLIENT_ID,
+  secret: env.SALTEDGE_CLIENT_SECRET,
 });

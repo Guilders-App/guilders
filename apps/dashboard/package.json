@@ -12,10 +12,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@guilders/ui": "workspace:*",
-    "@guilders/database": "workspace:*",
     "@ai-sdk/anthropic": "^1.0.4",
     "@ai-sdk/google": "^1.0.9",
+    "@guilders/database": "workspace:*",
+    "@guilders/ui": "workspace:*",
     "@hookform/resolvers": "^3.9.0",
     "@mdx-js/loader": "^3.1.0",
     "@mdx-js/react": "^3.1.0",
@@ -24,6 +24,7 @@
     "@scalar/nextjs-api-reference": "^0.4.104",
     "@stripe/stripe-js": "^5.3.0",
     "@supabase/ssr": "^0.5.2",
+    "@t3-oss/env-nextjs": "^0.11.1",
     "@tanstack/react-query": "^5.62.3",
     "@tanstack/react-query-devtools": "^5.62.3",
     "ai": "^4.0.13",
@@ -44,7 +45,7 @@
     "resend": "^4.0.1",
     "snaptrade-typescript-sdk": "9.0.60",
     "stripe": "^17.4.0",
-    "zod": "^3.23.8",
+    "zod": "^3.24.1",
     "zustand": "^5.0.2"
   },
   "devDependencies": {

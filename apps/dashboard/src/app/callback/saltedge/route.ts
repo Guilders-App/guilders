@@ -1,9 +1,10 @@
 "use server";
 
-import crypto from "node:crypto";
+import { env } from "@/env";
 import { providerName, saltedge } from "@/lib/providers/saltedge/client";
 import { createClient } from "@guilders/database/server";
 import { type NextRequest, NextResponse } from "next/server";
+import crypto from "node:crypto";
 import type {
   SaltEdgeCallback,
   SaltEdgeDestroyCallback,
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     ? "https://badly-mutual-pigeon.ngrok-free.app/callback/saltedge"
     : request.url;
   const callbackCredentials = Buffer.from(
-    `${process.env.SALTEDGE_CALLBACK_USERNAME}:${process.env.SALTEDGE_CALLBACK_PASSWORD}`,
+    `${env.SALTEDGE_CALLBACK_USERNAME}:${env.SALTEDGE_CALLBACK_PASSWORD}`,
   ).toString("base64");
 
   if (!auth || auth !== `Basic ${callbackCredentials}`) {
@@ -292,7 +293,7 @@ function verifySaltEdgeSignature(
   body: unknown,
   signature: string,
 ) {
-  const publicKey = process.env.SALTEDGE_CALLBACK_SIGNATURE;
+  const publicKey = env.SALTEDGE_CALLBACK_SIGNATURE;
   const dataToVerify = `${url}|${JSON.stringify(body)}`;
   const verifier = crypto.createVerify("SHA256");
   verifier.update(dataToVerify);
