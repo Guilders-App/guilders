@@ -11,15 +11,18 @@ import { PhoneCall } from "lucide-react";
 const questions = [
   {
     question: "How many financial institutions can I connect to?",
-    answer: `Currently, we support over 5000 banks, brokerages and other financial institutions in 46 countries. We are working on expanding this number.`,
+    answer:
+      "Currently, we support over 5000 banks, brokerages and other financial institutions in 46 countries. We are working on expanding this number.",
   },
   {
     question: "Does Guilders have access to my bank credentials?",
-    answer: `No, Guilders uses third party financial account aggregator services to connect to your bank and brokerage accounts. Your credentials are directly passed to the aggregator and never seen or stored by Guilders. The providers provide read-only data to Guilders, therefore we cannot make any transactions on your behalf.`,
+    answer:
+      "No, Guilders uses third party financial account aggregator services to connect to your bank and brokerage accounts. Your credentials are directly passed to the aggregator and never seen or stored by Guilders. The providers provide read-only data to Guilders, therefore we cannot make any transactions on your behalf.",
   },
   {
     question: "How does Guilders make money?",
-    answer: `We are currently free for early adopters. Due to the cost of making financial connections and offering AI services, we may charge a subscription fee in the future.`,
+    answer:
+      "We are currently free for early adopters. Due to the cost of making financial connections and offering AI services, we may charge a subscription fee in the future.",
   },
   {
     question: "Does Guilders sell my data?",
@@ -43,7 +46,8 @@ const questions = [
   },
   {
     question: "What happens when I delete my account?",
-    answer: `When you delete your account, we delete all your data from our database immediately and notify our aggregators to stop connecting your account and delete everything from their end.`,
+    answer:
+      "When you delete your account, we delete all your data from our database immediately and notify our aggregators to stop connecting your account and delete everything from their end.",
   },
 ];
 
@@ -74,7 +78,7 @@ export const FAQ = () => (
           className="w-full whitespace-pre-line"
         >
           {questions.map((question, index) => (
-            <AccordionItem key={index} value={"index-" + index}>
+            <AccordionItem key={index} value={`index-${index}`}>
               <AccordionTrigger>{question.question}</AccordionTrigger>
               <AccordionContent>{question.answer}</AccordionContent>
             </AccordionItem>
