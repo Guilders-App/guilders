@@ -1,0 +1,38 @@
+{
+  "name": "@guilders/website",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start",
+    "clean": "git clean -xdf .next .turbo node_modules",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@guilders/ui": "workspace:*",
+    "@mdx-js/loader": "^3.1.0",
+    "@mdx-js/react": "^3.1.0",
+    "@next/mdx": "^15.0.4",
+    "geist": "^1.2.1",
+    "lucide-react": "^0.468.0",
+    "next": "15.0.4",
+    "next-themes": "^0.4.4",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0",
+    "resend": "^4.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "^0.5.15",
+    "@types/mdx": "^2.0.13",
+    "@types/react": "19.0.1",
+    "@types/react-dom": "19.0.1",
+    "autoprefixer": "10.4.20",
+    "postcss": "8.4.49",
+    "typescript": "5.7.2"
+  }
+}

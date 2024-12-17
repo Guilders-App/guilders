@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/api/cron/insert-institutions",
-      "schedule": "0 5 * * *"
-    }
-  ]
-}

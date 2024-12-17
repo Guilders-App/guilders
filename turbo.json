@@ -1,0 +1,60 @@
+{
+  "$schema": "https://turborepo.org/schema.json",
+  "globalDependencies": ["**/.env"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "@guilders/dashboard#build": {
+      "dependsOn": ["^build"],
+      "env": [
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "NEXT_PUBLIC_UMAMI_WEBSITE_ID",
+        "RESEND_API_KEY",
+        "RESEND_WAITLIST_AUDIENCE_ID",
+        "CRON_SECRET",
+        "GOOGLE_GENERATIVE_AI_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "SNAPTRADE_CLIENT_ID",
+        "SNAPTRADE_CLIENT_SECRET",
+        "SNAPTRADE_WEBHOOK_SECRET",
+        "SALTEDGE_CLIENT_ID",
+        "SALTEDGE_CLIENT_SECRET",
+        "SALTEDGE_PRIVATE_KEY",
+        "SALTEDGE_PUBLIC_KEY",
+        "SALTEDGE_CALLBACK_USERNAME",
+        "SALTEDGE_CALLBACK_PASSWORD",
+        "SALTEDGE_CALLBACK_SIGNATURE",
+        "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+        "STRIPE_SECRET_KEY",
+        "STRIPE_PRICE_ID",
+        "STRIPE_WEBHOOK_SECRET",
+        "NEXT_PUBLIC_CAL_URL",
+        "NEXT_PUBLIC_WEBSITE_URL"
+      ],
+      "outputs": [".next/**", "!.next/cache/**"]
+    },
+    "@guilders/website#build": {
+      "dependsOn": ["^build"],
+      "env": [
+        "NEXT_PUBLIC_UMAMI_WEBSITE_ID",
+        "RESEND_API_KEY",
+        "RESEND_WAITLIST_AUDIENCE_ID",
+        "NEXT_PUBLIC_CAL_URL",
+        "NEXT_PUBLIC_DASHBOARD_URL"
+      ],
+      "outputs": [".next/**", "!.next/cache/**"]
+    }
+  }
+}
