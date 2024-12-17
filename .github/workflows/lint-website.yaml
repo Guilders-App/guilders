@@ -1,10 +1,12 @@
+name: Lint Website
+
 on:
   push:
     paths:
       - apps/website/**
       - packages/**
 jobs:
-  deploy-production:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,5 +19,3 @@ jobs:
         run: bun run lint --filter=@guilders/website
       - name: 🪐 Check TypeScript
         run: bun run typecheck --filter=@guilders/website
-      - name: 📦 Build
-        run: bun run build --filter=@guilders/website

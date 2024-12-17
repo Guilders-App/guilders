@@ -1,10 +1,12 @@
+name: Lint Dashboard
+
 on:
   push:
     paths:
       - apps/dashboard/**
       - packages/**
 jobs:
-  deploy-production:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -12,10 +14,8 @@ jobs:
         with:
           bun-version: latest
       - name: Install dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
       - name: 🔦 Run linter
         run: bun run lint --filter=@guilders/dashboard
       - name: 🪐 Check TypeScript
         run: bun run typecheck --filter=@guilders/dashboard
-      - name: 📦 Build
-        run: bun run build --filter=@guilders/dashboard
