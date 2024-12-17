@@ -78,7 +78,7 @@ export const FAQ = () => (
           className="w-full whitespace-pre-line"
         >
           {questions.map((question, index) => (
-            <AccordionItem key={index} value={`index-${index}`}>
+            <AccordionItem key={question.question} value={`index-${index}`}>
               <AccordionTrigger>{question.question}</AccordionTrigger>
               <AccordionContent>{question.answer}</AccordionContent>
             </AccordionItem>
