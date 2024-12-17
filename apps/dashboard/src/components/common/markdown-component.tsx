@@ -5,6 +5,7 @@ import remarkGfm from "remark-gfm";
 
 const NonMemoizedMarkdown = ({ children }: { children: string }) => {
   const components: Partial<Components> = {
+    // @ts-ignore
     code: ({ node, inline, className, children, ...props }) => {
       const match = /language-(\w+)/.exec(className || "");
       return !inline && match ? (
@@ -12,7 +13,6 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
           {...props}
           className={`${className} text-sm w-[80dvw] md:max-w-[500px] overflow-x-scroll bg-zinc-100 p-3 rounded-lg mt-2 dark:bg-zinc-800`}
         >
-          {/* @ts-ignore */}
           <code className={match[1]}>{children}</code>
         </pre>
       ) : (
@@ -20,7 +20,6 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
           className={`${className} text-sm bg-zinc-100 dark:bg-zinc-800 py-0.5 px-1 rounded-md`}
           {...props}
         >
-          {/* @ts-ignore */}
           {children}
         </code>
       );
@@ -28,7 +27,6 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
     ol: ({ node, children, ...props }) => {
       return (
         <ol className="list-decimal list-outside ml-4" {...props}>
-          {/* @ts-ignore */}
           {children}
         </ol>
       );
@@ -36,7 +34,6 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
     li: ({ node, children, ...props }) => {
       return (
         <li className="py-1" {...props}>
-          {/* @ts-ignore */}
           {children}
         </li>
       );
@@ -44,7 +41,6 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
     ul: ({ node, children, ...props }) => {
       return (
         <ul className="list-decimal list-outside ml-4" {...props}>
-          {/* @ts-ignore */}
           {children}
         </ul>
       );
@@ -52,7 +48,6 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
     strong: ({ node, children, ...props }) => {
       return (
         <span className="font-semibold" {...props}>
-          {/* @ts-ignore */}
           {children}
         </span>
       );
@@ -65,7 +60,6 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
           rel="noreferrer"
           {...props}
         >
-          {/* @ts-ignore */}
           {children}
         </Link>
       );
@@ -73,7 +67,6 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
     h1: ({ node, children, ...props }) => {
       return (
         <h1 className="text-3xl font-semibold mt-6 mb-2" {...props}>
-          {/* @ts-ignore */}
           {children}
         </h1>
       );
@@ -81,7 +74,6 @@ const NonMemoizedMarkdown = ({ children }: { children: string }) => {
     h2: ({ node, children, ...props }) => {
       return (
         <h2 className="text-2xl font-semibold mt-6 mb-2" {...props}>
-          {/* @ts-ignore */}
           {children}
         </h2>
       );
