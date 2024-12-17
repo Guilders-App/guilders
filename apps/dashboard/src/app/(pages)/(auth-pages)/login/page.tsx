@@ -27,6 +27,7 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [verifyCode, setVerifyCode] = useState("");
   const [factorId, setFactorId] = useState<string | null>(null);
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
   const supabase = createClient();
 
   const message: Message = {
@@ -42,11 +43,14 @@ function LoginForm() {
   const handleSubmit = async (formData: FormData) => {
     try {
       setIsLoading(true);
+      const redirectUrl = searchParams.get("redirect") || "/";
+      formData.append("redirect", redirectUrl);
       const result = await signInAction(formData);
 
       if (result?.error) {
         if (result.message === "mfa_required" && result.factorId) {
           setFactorId(result.factorId);
+          setRedirectUrl(result.redirect);
         } else {
           toast.error("Failed to sign in", {
             description: result.message,
@@ -79,7 +83,7 @@ function LoginForm() {
       if (verifyError) throw verifyError;
 
       toast.success("Signed in successfully");
-      router.push("/");
+      router.push(redirectUrl || "/");
     } catch (error) {
       toast.error("Failed to verify code", {
         description: "Please check the code and try again.",

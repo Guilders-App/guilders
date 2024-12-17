@@ -10,8 +10,13 @@ export async function middleware(request: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
+  const authPage =
+    request.nextUrl.pathname.startsWith("/login") ||
+    request.nextUrl.pathname.startsWith("/sign-up") ||
+    request.nextUrl.pathname.startsWith("/forgot-password");
+
   // Not authenticated
-  if (!session && request.nextUrl.pathname !== "/login") {
+  if (!session && !authPage) {
     const url = new URL("/login", request.url);
     url.searchParams.set("redirect", request.nextUrl.pathname);
 
@@ -26,7 +31,7 @@ export async function middleware(request: NextRequest) {
     mfaData &&
     mfaData.nextLevel === "aal2" &&
     mfaData.nextLevel !== mfaData.currentLevel &&
-    request.nextUrl.pathname !== "/login"
+    !authPage
   ) {
     const url = new URL("/login", request.url);
     url.searchParams.set("redirect", request.nextUrl.pathname);

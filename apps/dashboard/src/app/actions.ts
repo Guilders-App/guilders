@@ -42,6 +42,7 @@ export const signUpAction = async (formData: FormData) => {
 export async function signInAction(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
+  const redirectUrl = formData.get("redirect") as string;
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
@@ -63,16 +64,16 @@ export async function signInAction(formData: FormData) {
     const totpFactor = factors?.all[0];
 
     if (totpFactor) {
-      // TODO: It's not an error, but we need to notify the user that they need to verify their MFA
       return {
         error: true,
         message: "mfa_required",
         factorId: totpFactor.id,
+        redirect: redirectUrl,
       };
     }
   }
 
-  redirect("/"); // or your redirect path
+  redirect(redirectUrl || "/");
 }
 
 export const forgotPasswordAction = async (formData: FormData) => {

@@ -25,7 +25,7 @@ export default async function Layout({
         size="sm"
         className="absolute top-4 left-4"
       >
-        <Link href="/">
+        <Link href={process.env.NEXT_PUBLIC_WEBSITE_URL ?? "/"}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Link>
