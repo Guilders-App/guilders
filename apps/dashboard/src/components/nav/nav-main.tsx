@@ -17,7 +17,9 @@ export function NavItems({ items }: { items: NavItem[] }) {
   return (
     <SidebarMenu>
       {items.map((item) => {
-        const isActive = item.url ? pathname === item.url : false;
+        const isActive = item.url
+          ? pathname === item.url || pathname.startsWith(`${item.url}/`)
+          : false;
 
         return (
           <Collapsible

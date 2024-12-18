@@ -37,7 +37,7 @@ interface SettingsLayoutProps {
 
 export default function SettingsLayout({ children }: SettingsLayoutProps) {
   return (
-    <div className="hidden space-y-6 py-8 px-12 md:block bg-muted/40 h-full">
+    <div className="hidden space-y-6 py-8 px-12 md:block h-full">
       <div className="space-y-0.5">
         <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
         <p className="text-muted-foreground">Manage your account settings.</p>
