@@ -15,8 +15,10 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/sign-up") ||
     request.nextUrl.pathname.startsWith("/forgot-password");
 
+  const callbackPage = request.nextUrl.pathname.startsWith("/callback");
+
   // Not authenticated
-  if (!user && !authPage) {
+  if (!user && !authPage && !callbackPage) {
     const url = new URL("/login", request.url);
     url.searchParams.set("redirect", request.nextUrl.pathname);
 
@@ -31,7 +33,8 @@ export async function middleware(request: NextRequest) {
     mfaData &&
     mfaData.nextLevel === "aal2" &&
     mfaData.nextLevel !== mfaData.currentLevel &&
-    !authPage
+    !authPage &&
+    !callbackPage
   ) {
     const url = new URL("/login", request.url);
     url.searchParams.set("redirect", request.nextUrl.pathname);
