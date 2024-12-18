@@ -12,7 +12,7 @@ export function SearchBar() {
     <Button
       variant="outline"
       className={cn(
-        "relative h-9 w-9 p-0 xl:h-10 xl:w-64 xl:justify-start xl:px-3 xl:py-2",
+        "relative h-9 w-9 p-0 lg:h-10 lg:w-64 lg:justify-start lg:px-3 lg:py-2",
         "bg-background hover:bg-accent hover:text-accent-foreground",
         "text-muted-foreground",
         "border border-input",
@@ -22,9 +22,9 @@ export function SearchBar() {
       )}
       onClick={() => open({ pages: [] })}
     >
-      <Search className="h-4 w-4 xl:mr-2 shrink-0" />
-      <span className="hidden xl:inline-flex">Search...</span>
-      <kbd className="hidden xl:inline-flex h-5 items-center rounded border border-border bg-background px-1.5 font-[inherit] text-[0.750rem] font-medium text-muted-foreground/70 ml-auto">
+      <Search className="h-4 w-4 lg:mr-2 shrink-0" />
+      <span className="hidden lg:inline-flex">Search...</span>
+      <kbd className="hidden lg:inline-flex h-5 items-center rounded border border-border bg-background px-1.5 font-[inherit] text-[0.750rem] font-medium text-muted-foreground/70 ml-auto">
         ⌘K
       </kbd>
     </Button>

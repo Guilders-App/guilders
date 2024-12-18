@@ -4,7 +4,6 @@ import { cn } from "@guilders/ui/cn";
 import { Separator } from "@guilders/ui/separator";
 import { SidebarTrigger } from "@guilders/ui/sidebar";
 import { useEffect, useState } from "react";
-import { ThemeSwitcher } from "../common/theme-switcher";
 import { SearchBar } from "../nav/search-bar";
 import { UserButton } from "../nav/user-button";
 import { DynamicBreadcrumbs } from "./dynamic-breadcrumbs";
@@ -39,7 +38,6 @@ export function AppTopBar() {
       </div>
       <div className="flex items-center gap-2">
         <SearchBar />
-        <ThemeSwitcher />
         <UserButton />
       </div>
     </header>

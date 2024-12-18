@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { ThemeSelector } from "@/components/settings/theme-selector";
 import { useCurrencies } from "@/lib/hooks/useCurrencies";
 import {
   useDeleteAccount,
@@ -258,6 +259,7 @@ export function AccountForm() {
             </FormItem>
           )}
         />
+
         <Button
           type="submit"
           disabled={!form.formState.isDirty || form.formState.isSubmitting}
@@ -265,6 +267,9 @@ export function AccountForm() {
           {form.formState.isSubmitting ? "Updating..." : "Update account"}
         </Button>
       </form>
+      <div className="border-t pt-6">
+        <ThemeSelector />
+      </div>
       {deleteAccountButton}
     </Form>
   );

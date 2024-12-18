@@ -15,6 +15,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
       >
         {children}
       </ThemeProvider>
+      {/* For debugging */}
       {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     </QueryClientProvider>
   );
