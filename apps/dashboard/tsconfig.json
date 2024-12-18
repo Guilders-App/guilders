@@ -1,6 +1,12 @@
 {
   "extends": "@guilders/tsconfig/nextjs.json",
-  "include": ["**/*.ts", "**/*.tsx", "next-env.d.ts", ".next/types/**/*.ts"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "next-env.d.ts",
+    ".next/types/**/*.ts",
+    "../../packages/ui/src/submit-button.tsx"
+  ],
   "exclude": ["node_modules"],
   "compilerOptions": {
     "plugins": [

@@ -57,6 +57,7 @@
     "./sidebar": "./src/components/sidebar.tsx",
     "./skeleton": "./src/components/skeleton.tsx",
     "./sonner": "./src/components/sonner.tsx",
+    "./submit-button": "./src/components/submit-button.tsx",
     "./table": "./src/components/table.tsx",
     "./tabs": "./src/components/tabs.tsx",
     "./textarea": "./src/components/textarea.tsx",

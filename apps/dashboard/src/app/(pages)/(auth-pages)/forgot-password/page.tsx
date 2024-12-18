@@ -1,8 +1,8 @@
 import { forgotPasswordAction } from "@/app/actions";
 import { FormMessage, type Message } from "@/components/common/form-message";
-import { SubmitButton } from "@/components/common/submit-button";
 import { Input } from "@guilders/ui/input";
 import { Label } from "@guilders/ui/label";
+import { SubmitButton } from "@guilders/ui/submit-button";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -43,7 +43,7 @@ export default async function ForgotPassword(props: {
 
             <SubmitButton
               className="mt-2 w-full"
-              pendingText="Sending reset link..."
+              pendingText="Sending Reset Link..."
               formAction={forgotPasswordAction}
             >
               Send Reset Link

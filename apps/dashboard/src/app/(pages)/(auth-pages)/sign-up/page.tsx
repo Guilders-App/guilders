@@ -1,10 +1,10 @@
 import { signUpAction } from "@/app/actions";
 import { FormMessage, type Message } from "@/components/common/form-message";
-import { SubmitButton } from "@/components/common/submit-button";
 import { env } from "@/env";
 import { Input } from "@guilders/ui/input";
 import { Label } from "@guilders/ui/label";
 import { PasswordInput } from "@guilders/ui/password-input";
+import { SubmitButton } from "@guilders/ui/submit-button";
 import Image from "next/image";
 import Link from "next/link";
 

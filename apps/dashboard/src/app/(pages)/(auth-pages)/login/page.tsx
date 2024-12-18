@@ -2,7 +2,6 @@
 
 import { signInAction } from "@/app/actions";
 import { FormMessage, type Message } from "@/components/common/form-message";
-import { SubmitButton } from "@/components/common/submit-button";
 import { createClient } from "@guilders/database/client";
 import { Button } from "@guilders/ui/button";
 import { Input } from "@guilders/ui/input";
@@ -14,6 +13,7 @@ import {
 } from "@guilders/ui/input-otp";
 import { Label } from "@guilders/ui/label";
 import { PasswordInput } from "@guilders/ui/password-input";
+import { SubmitButton } from "@guilders/ui/submit-button";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -80,6 +80,8 @@ function LoginForm() {
         code: verifyCode,
       });
 
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       if (verifyError) throw verifyError;
 
       toast.success("Signed in successfully");
@@ -88,7 +90,6 @@ function LoginForm() {
       toast.error("Failed to verify code", {
         description: "Please check the code and try again.",
       });
-    } finally {
       setIsLoading(false);
     }
   };
