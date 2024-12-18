@@ -409,7 +409,9 @@ async function handleAccountUpdate(
               acc +
               (holding.average_purchase_price ?? 0) * (holding.units ?? 0),
             0,
-          ) ?? 0,
+          ) ??
+          snapTradeAccount.balance.total?.amount ??
+          0,
         institution_connection_id: institutionConnection.id,
         provider_account_id: snapTradeAccount.id,
         image: institution.logo_url,

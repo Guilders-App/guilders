@@ -1,3 +1,4 @@
+import type { ApiResponse } from "@/app/api/common";
 import type { Tables } from "@guilders/database/types";
 import { useQuery } from "@tanstack/react-query";
 
@@ -5,14 +6,7 @@ const queryKey = ["institution-connections"] as const;
 
 type InstitutionConnection = Tables<"institution_connection"> & {
   institution: Tables<"institution">;
-};
-
-type InstitutionConnectionsResponse = {
-  connections: InstitutionConnection[];
-};
-
-type SingleInstitutionConnectionResponse = {
-  connection: InstitutionConnection;
+  provider_connection: Pick<Tables<"provider_connection">, "user_id">;
 };
 
 export function useInstitutionConnections() {
@@ -22,8 +16,13 @@ export function useInstitutionConnections() {
       const response = await fetch("/api/institution-connections");
       if (!response.ok)
         throw new Error("Failed to fetch institution connections");
-      const data = (await response.json()) as InstitutionConnectionsResponse;
-      return data.connections;
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(
+          data.error || "Failed to fetch institution connections",
+        );
+      }
+      return data.data;
     },
   });
 }
@@ -31,7 +30,7 @@ export function useInstitutionConnections() {
 export function useInstitutionConnection(
   connectionId: number | null | undefined,
 ) {
-  return useQuery({
+  return useQuery<InstitutionConnection | null, Error>({
     queryKey: [...queryKey, connectionId],
     queryFn: async () => {
       if (!connectionId) return null;
@@ -41,7 +40,8 @@ export function useInstitutionConnection(
       );
       if (!response.ok)
         throw new Error("Failed to fetch institution connection");
-      const data = await response.json();
+      const data =
+        (await response.json()) as ApiResponse<InstitutionConnection>;
       if (!data.success) {
         throw new Error(data.error || "Failed to fetch institution connection");
       }

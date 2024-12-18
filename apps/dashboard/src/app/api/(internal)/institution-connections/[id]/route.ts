@@ -1,5 +1,11 @@
+import type { ApiResponse } from "@/app/api/common";
 import { createClient } from "@guilders/database/server";
+import type { Tables } from "@guilders/database/types";
 import { NextResponse } from "next/server";
+
+type InstitutionConnection = Tables<"institution_connection"> & {
+  provider_connection: Tables<"provider_connection">;
+};
 
 /**
  * @swagger
@@ -62,7 +68,10 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ success: true, data });
+    return NextResponse.json({
+      success: true,
+      data: data as InstitutionConnection,
+    } satisfies ApiResponse<InstitutionConnection>);
   } catch (error) {
     console.error("Error fetching institution connection:", error);
     return NextResponse.json(

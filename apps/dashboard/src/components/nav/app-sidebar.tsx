@@ -40,6 +40,7 @@ export const navigationData: {
       title: "Dashboard",
       url: "/",
       icon: LayoutDashboard,
+      isActive: true,
     },
     {
       title: "Advisor",

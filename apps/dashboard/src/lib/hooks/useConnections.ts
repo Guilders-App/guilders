@@ -51,6 +51,7 @@ export function useGetConnections() {
     queryFn: async () => {
       const response = await fetch("/api/connections");
       const data = await response.json();
+
       if (!data.success) {
         throw new Error(data.error || "Failed to fetch connections");
       }

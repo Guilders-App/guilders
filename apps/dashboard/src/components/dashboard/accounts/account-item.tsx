@@ -16,7 +16,6 @@ export function AccountItem({ account }: AccountItemProps) {
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation(); // Prevent accordion from toggling when clicking the row
     router.push(`/accounts/${account.id}`);
   };
 

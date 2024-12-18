@@ -1,5 +1,6 @@
 "use client";
 
+import { useInstitutionConnection } from "@/lib/hooks/useInstitutionConnection";
 import { useProvider } from "@/lib/hooks/useProviders";
 import {
   accountSubtypeLabels,
@@ -85,8 +86,11 @@ export function EditAccountDialog() {
   const { open: openProviderDialog } = useDialog("provider");
   const { data: connections } = useGetConnections();
   const institution = useInstitutionByAccountId(data?.account?.id);
+  const { data: institutionConnection } = useInstitutionConnection(
+    data?.account?.institution_connection_id,
+  );
   const connection = connections?.find(
-    (c) => c.id === data?.account?.institution_connection_id,
+    (c) => c.id === institutionConnection?.provider_connection_id,
   );
   const { data: provider } = useProvider(connection?.provider_id);
   const { data: currencies } = useCurrencies();
@@ -138,7 +142,12 @@ export function EditAccountDialog() {
   const isSyncedAccount = !!account.institution_connection_id;
 
   const handleFixConnection = async () => {
-    if (!institution || !provider) return;
+    if (!institution || !provider) {
+      toast.error("Failed to fix connection", {
+        description: "Unable to fix connection. Please try again later.",
+      });
+      return;
+    }
 
     const { success, data: redirectUrl } = await fixConnection({
       providerName: provider.name.toLocaleLowerCase(),
