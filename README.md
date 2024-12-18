@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./public/assets/logo/logo_text.svg" alt="Guilders" width="350" />
+  <img src="./apps/website/public/assets/logo/logo_text.svg" alt="Guilders" width="350" />
 </div>
 
 <div align="center">
