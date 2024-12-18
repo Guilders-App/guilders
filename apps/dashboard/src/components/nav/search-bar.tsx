@@ -2,7 +2,7 @@
 
 import { Button } from "@guilders/ui/button";
 import { cn } from "@guilders/ui/cn";
-import { Command, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useDialog } from "../../lib/hooks/useDialog";
 
 export function SearchBar() {
@@ -24,10 +24,9 @@ export function SearchBar() {
     >
       <Search className="h-4 w-4 xl:mr-2 shrink-0" />
       <span className="hidden xl:inline-flex">Search...</span>
-      <div className="hidden xl:inline-flex items-center gap-1 rounded-sm bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground ml-auto">
-        <Command className="h-3 w-3" />
-        <span className="text-sm">K</span>
-      </div>
+      <kbd className="hidden xl:inline-flex h-5 items-center rounded border border-border bg-background px-1.5 font-[inherit] text-[0.750rem] font-medium text-muted-foreground/70 ml-auto">
+        ⌘K
+      </kbd>
     </Button>
   );
 }
