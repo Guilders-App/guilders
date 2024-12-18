@@ -72,15 +72,19 @@ export const FAQ = () => (
             </div>
           </div>
         </div>
-        <Accordion
-          type="single"
-          collapsible
-          className="w-full whitespace-pre-line"
-        >
+        <Accordion type="single" collapsible className="w-full space-y-2">
           {questions.map((question, index) => (
-            <AccordionItem key={question.question} value={`index-${index}`}>
-              <AccordionTrigger>{question.question}</AccordionTrigger>
-              <AccordionContent>{question.answer}</AccordionContent>
+            <AccordionItem
+              className="rounded-lg border bg-background px-4 py-1"
+              key={question.question}
+              value={`index-${index}`}
+            >
+              <AccordionTrigger className="py-2 text-[15px] leading-6 hover:no-underline">
+                {question.question}
+              </AccordionTrigger>
+              <AccordionContent className="pb-2 text-muted-foreground">
+                {question.answer}
+              </AccordionContent>
             </AccordionItem>
           ))}
         </Accordion>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@guilders/ui/button";
+import { Avatar, AvatarFallback } from "@guilders/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@guilders/ui/dropdown-menu";
-import Image from "next/image";
+import { UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { signOutAction } from "../../app/actions";
 
@@ -19,15 +19,17 @@ export function UserButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button size="icon" className="h-8 w-8 overflow-hidden rounded-full">
-          <Image
-            src="/assets/user.png"
-            width={32}
-            height={32}
-            alt="Avatar"
-            className="aspect-square"
-          />
-        </Button>
+        <Avatar>
+          {/* <AvatarImage src="./avatar-80-07.jpg" alt="Kelly King" /> */}
+          <AvatarFallback>
+            <UserRound
+              size={16}
+              strokeWidth={2}
+              className="opacity-60"
+              aria-hidden="true"
+            />
+          </AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
         <DropdownMenuLabel>Account</DropdownMenuLabel>
