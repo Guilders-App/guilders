@@ -21,7 +21,10 @@ export type Breadcrumb = {
 export function getBreadcrumbs(pathname: string): Breadcrumb[] {
   // Find matching nav item
   const allNavItems = [...navigationData.navMain, ...navigationData.navFooter];
-  const currentItem = allNavItems.find((item) => item.url === pathname);
+  // Find the most specific matching route
+  const currentItem = allNavItems
+    .filter((item) => item.url && pathname.startsWith(item.url))
+    .sort((a, b) => (b.url?.length || 0) - (a.url?.length || 0))[0];
 
   if (!currentItem) {
     // Handle dynamic routes
@@ -54,6 +57,7 @@ export function getBreadcrumbs(pathname: string): Breadcrumb[] {
   // Add current page
   breadcrumbs.push({
     title: currentItem.title,
+    href: currentItem.url,
   });
 
   return breadcrumbs;
