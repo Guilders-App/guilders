@@ -5,32 +5,20 @@
       "name": "Next.js Debug",
       "type": "node-terminal",
       "request": "launch",
-      "command": "bun run dev"
+      "command": "bun dev"
     },
     {
       "name": "Ngrok Tunnel",
       "type": "node-terminal",
       "request": "launch",
       "envFile": "${workspaceFolder}/.env",
-      "command": "bun run ngrok"
-    },
-    {
-      "name": "Emails Server",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "bun run emails:dev"
-    },
-    {
-      "name": "Supabase",
-      "type": "node-terminal",
-      "request": "launch",
-      "command": "bun run db:stop && bun run db:start && bun run db:seed"
+      "command": "bun ngrok"
     }
   ],
   "compounds": [
     {
-      "name": "Next.js + Ngrok + Emails + Supabase",
-      "configurations": ["Next.js Debug", "Ngrok Tunnel", "Emails Server", "Supabase"]
+      "name": "Next.js + Ngrok",
+      "configurations": ["Next.js Debug", "Ngrok Tunnel"]
     }
   ]
 }

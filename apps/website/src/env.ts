@@ -2,6 +2,9 @@ import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 
 export const env = createEnv({
+  shared: {
+    NODE_ENV: z.enum(["development", "production"]),
+  },
   server: {
     RESEND_API_KEY: z.string(),
     RESEND_WAITLIST_AUDIENCE_ID: z.string(),
@@ -12,6 +15,8 @@ export const env = createEnv({
     NEXT_PUBLIC_DASHBOARD_URL: z.string(),
   },
   runtimeEnv: {
+    // Shared
+    NODE_ENV: process.env.NODE_ENV,
     // Server
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     RESEND_WAITLIST_AUDIENCE_ID: process.env.RESEND_WAITLIST_AUDIENCE_ID,

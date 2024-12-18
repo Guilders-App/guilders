@@ -23,6 +23,7 @@
     "@guilders/dashboard#build": {
       "dependsOn": ["^build"],
       "env": [
+        "NODE_ENV",
         "NEXT_PUBLIC_SUPABASE_URL",
         "NEXT_PUBLIC_SUPABASE_ANON_KEY",
         "SUPABASE_SERVICE_ROLE_KEY",
@@ -54,6 +55,7 @@
     "@guilders/website#build": {
       "dependsOn": ["^build"],
       "env": [
+        "NODE_ENV",
         "NEXT_PUBLIC_UMAMI_WEBSITE_ID",
         "RESEND_API_KEY",
         "RESEND_WAITLIST_AUDIENCE_ID",
