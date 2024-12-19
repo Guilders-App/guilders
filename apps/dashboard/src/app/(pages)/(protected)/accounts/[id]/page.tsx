@@ -1,14 +1,13 @@
 "use client";
 
+import { AccountsCard } from "@/components/dashboard/accounts/account-card";
 import { AccountIcon } from "@/components/dashboard/accounts/account-icon";
-import { AccountsTable } from "@/components/dashboard/accounts/accounts-table";
 import { BalanceCard } from "@/components/dashboard/balance-card";
-import { TransactionsTable } from "@/components/dashboard/transactions/transactions-table";
+import { TransactionsCard } from "@/components/dashboard/transactions/transactions-card";
 import { useAccount, useRemoveAccount } from "@/lib/hooks/useAccounts";
 import { useRefreshConnection } from "@/lib/hooks/useConnections";
 import { useDialog } from "@/lib/hooks/useDialog";
 import { Button } from "@guilders/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@guilders/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -176,28 +175,16 @@ export default function AccountPage({
           />
 
           {account.subtype === "depository" ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  {account.subtype === "depository"
-                    ? "Transactions"
-                    : "Holdings"}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <TransactionsTable accountId={account.id} />
-              </CardContent>
-            </Card>
+            // biome-ignore lint/complexity/noUselessFragments: Using it to override the default menu component
+            <TransactionsCard accountId={account.id} menuComponent={<></>} />
           ) : null}
           {account.subtype === "brokerage" && account.children.length > 0 ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>Holdings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <AccountsTable accounts={account.children} />
-              </CardContent>
-            </Card>
+            <AccountsCard
+              title="Holdings"
+              accounts={account.children}
+              // biome-ignore lint/complexity/noUselessFragments: Using it to override the default menu component
+              menuComponent={<></>}
+            />
           ) : null}
         </div>
       )}

@@ -6,32 +6,35 @@ import { cn } from "@guilders/ui/cn";
 import { ScrollArea, ScrollBar } from "@guilders/ui/scroll-area";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 interface AccountsCardProps {
   className?: string;
-  showViewAll?: boolean;
   title?: string;
+  menuComponent?: ReactNode;
   accounts?: Account[];
 }
 
 export function AccountsCard({
   className,
-  showViewAll = true,
   title = "Accounts",
+  menuComponent,
   accounts,
 }: AccountsCardProps) {
+  const accountsMenu = (
+    <Link href="/accounts">
+      <Button variant="secondary">
+        View All
+        <ArrowRight className="ml-2 h-4 w-4" />
+      </Button>
+    </Link>
+  );
+
   return (
     <Card className={cn("flex flex-col", className)}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <CardTitle>{title}</CardTitle>
-        {showViewAll && (
-          <Link href="/accounts">
-            <Button variant="secondary">
-              View All
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-        )}
+        {menuComponent || accountsMenu}
       </CardHeader>
       <CardContent className="flex-1 min-h-0">
         <ScrollArea className="h-full w-full">
