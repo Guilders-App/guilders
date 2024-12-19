@@ -79,7 +79,7 @@ export async function POST(req: Request) {
           .update({
             status: subscription.status,
           })
-          .eq("user_id", subscription.metadata.user_id)
+          .eq("user_id", subscription.metadata.user_id ?? "")
           .eq("stripe_customer_id", subscription.customer as string);
         break;
       }
