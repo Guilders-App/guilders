@@ -1,19 +1,21 @@
-import { type TSchema, t } from "elysia";
+import { z } from "@hono/zod-openapi";
 
-export type Response<T> =
-  | { data: T; error: null }
-  | { data: null; error: string };
+// Standard error response schema
+export const ErrorSchema = z.object({
+  data: z.null().openapi({
+    example: null,
+  }),
+  error: z.string().openapi({
+    example: "An error occurred",
+  }),
+});
 
-// Helper function to create response schemas
-export function createResponseSchema<T extends TSchema>(dataSchema: T) {
-  return t.Union([
-    t.Object({
-      data: dataSchema,
-      error: t.Null(),
+// Generic success schema that takes a schema type parameter
+export function createSuccessSchema<T extends z.ZodType>(dataSchema: T) {
+  return z.object({
+    data: dataSchema,
+    error: z.null().openapi({
+      example: null,
     }),
-    t.Object({
-      data: t.Null(),
-      error: t.String(),
-    }),
-  ]);
+  });
 }
