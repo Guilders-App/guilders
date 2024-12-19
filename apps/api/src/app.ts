@@ -1,4 +1,4 @@
-import { supabaseAuth } from "@/middleware/supabaseAuth";
+import countriesRoute from "@/routes/countries";
 import currenciesRoute from "@/routes/currencies";
 import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
@@ -6,14 +6,11 @@ import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
+import { supabaseAuth } from "./middleware/supabaseAuth";
 
 const app = new OpenAPIHono();
 
-app
-  .use("*", logger())
-  .use("*", cors())
-  .use("*", prettyJSON())
-  .use("*", supabaseAuth());
+app.use("*", logger()).use("*", cors()).use("*", prettyJSON());
 
 // Register security scheme
 app.openAPIRegistry.registerComponent("securitySchemes", "Bearer", {
@@ -49,7 +46,10 @@ app.onError((err, c) => {
 });
 
 // Mount routes
-const appRoutes = app.route("/currencies", currenciesRoute);
+app.use("*", supabaseAuth());
+const appRoutes = app
+  .route("/currencies", currenciesRoute)
+  .route("/countries", countriesRoute);
 
 // Start the server
 const port = 3003;

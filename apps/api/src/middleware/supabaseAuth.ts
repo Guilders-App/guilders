@@ -1,22 +1,9 @@
+import type { Variables } from "@/common/variables";
 import { env } from "@/env";
 import type { Database } from "@guilders/database/types";
-import {
-  type SupabaseClient,
-  type User,
-  createClient,
-} from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 import type { MiddlewareHandler } from "hono";
 import { HTTPException } from "hono/http-exception";
-
-type Variables = {
-  supabase: SupabaseClient<Database>;
-  user: User;
-};
-
-type AnonVariables = {
-  supabase: SupabaseClient<Database>;
-  user: User | null;
-};
 
 /**
  * Supabase authentication middleware that injects the Supabase client for authenticated users.
@@ -72,7 +59,7 @@ export function supabaseAuth(
 export function supabaseAnonAuth(
   supabaseUrl?: string,
   supabaseAnonKey?: string,
-): MiddlewareHandler<{ Variables: AnonVariables }> {
+): MiddlewareHandler<{ Variables: Variables }> {
   return async (c, next) => {
     const url = supabaseUrl ?? env.SUPABASE_URL;
     const key = supabaseAnonKey ?? env.SUPABASE_ANON_KEY;
@@ -107,13 +94,3 @@ export function supabaseAnonAuth(
     await next();
   };
 }
-
-// Type helper to access supabase and user in route handlers
-export type SupabaseAuthHono = {
-  Variables: Variables;
-};
-
-// Type helper to access supabase and user (possibly null) in route handlers
-export type SupabaseAnonAuthHono = {
-  Variables: AnonVariables;
-};

@@ -1,23 +1,23 @@
 import { ErrorSchema, createSuccessSchema } from "@/common/types";
 import type { Variables } from "@/common/variables";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import { CurrenciesSchema, CurrencySchema } from "./schema";
+import { CountriesSchema, CountrySchema } from "./schema";
 
 const app = new OpenAPIHono<{ Variables: Variables }>()
   .openapi(
     createRoute({
       method: "get",
       path: "/",
-      tags: ["Currencies"],
-      summary: "Get all currencies",
-      description: "Retrieve a list of all supported currencies",
+      tags: ["Countries"],
+      summary: "Get all countries",
+      description: "Retrieve a list of all supported countries",
       security: [{ Bearer: [] }],
       responses: {
         200: {
-          description: "List of currencies retrieved successfully",
+          description: "List of countries retrieved successfully",
           content: {
             "application/json": {
-              schema: createSuccessSchema(CurrenciesSchema),
+              schema: createSuccessSchema(CountriesSchema),
             },
           },
         },
@@ -33,7 +33,7 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
     }),
     async (c) => {
       const supabase = c.get("supabase");
-      const { data, error } = await supabase.from("currency").select("*");
+      const { data, error } = await supabase.from("country").select("*");
 
       if (error) {
         return c.json({ data: null, error: error.message }, 400);
@@ -52,8 +52,8 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
     createRoute({
       method: "get",
       path: "/:code",
-      tags: ["Currencies"],
-      summary: "Get currency by code",
+      tags: ["Countries"],
+      summary: "Get country by country code",
       parameters: [
         {
           name: "code",
@@ -61,23 +61,23 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
           required: true,
           schema: {
             type: "string",
-            minLength: 3,
-            maxLength: 3,
+            minLength: 2,
+            maxLength: 2,
           },
-          description: "Currency code (ISO 4217)",
+          description: "Country code (ISO 4217)", // TODO: What ISO is that?
         },
       ],
       responses: {
         200: {
-          description: "Currency found",
+          description: "Country found",
           content: {
             "application/json": {
-              schema: createSuccessSchema(CurrencySchema),
+              schema: createSuccessSchema(CountrySchema),
             },
           },
         },
         404: {
-          description: "Currency not found",
+          description: "Country not found",
           content: {
             "application/json": {
               schema: ErrorSchema,
@@ -97,8 +97,8 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
     async (c) => {
       const code = c.req.param("code").toUpperCase();
       const supabase = c.get("supabase");
-      const { data: currency, error } = await supabase
-        .from("currency")
+      const { data: country, error } = await supabase
+        .from("country")
         .select()
         .eq("code", code)
         .single();
@@ -107,11 +107,11 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
         return c.json({ data: null, error: error.message }, 500);
       }
 
-      if (!currency) {
+      if (!country) {
         return c.json({ data: null, error: `Currency ${code} not found` }, 404);
       }
 
-      return c.json({ data: currency, error: null }, 200);
+      return c.json({ data: country, error: null }, 200);
     },
   );
 

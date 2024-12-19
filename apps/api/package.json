@@ -6,7 +6,7 @@
     "build": "bun build src/app.ts --outdir dist --target bun"
   },
   "exports": {
-    ".": "./src/app.ts"
+    ".": "./src/client.ts"
   },
   "dependencies": {
     "@guilders/database": "workspace:*",
