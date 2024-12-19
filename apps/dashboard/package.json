@@ -16,6 +16,7 @@
     "@ai-sdk/google": "^1.0.9",
     "@guilders/database": "workspace:*",
     "@guilders/ui": "workspace:*",
+    "@guilders/api": "workspace:*",
     "@hookform/resolvers": "^3.9.0",
     "@mdx-js/loader": "^3.1.0",
     "@mdx-js/react": "^3.1.0",

@@ -43,6 +43,7 @@ export const env = createEnv({
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: z.string().min(1),
     // Other
     NEXT_PUBLIC_WEBSITE_URL: z.string().url(),
+    NEXT_PUBLIC_API_URL: z.string().url(),
   },
   runtimeEnv: {
     // Shared
@@ -74,5 +75,6 @@ export const env = createEnv({
       process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
     NEXT_PUBLIC_WEBSITE_URL: process.env.NEXT_PUBLIC_WEBSITE_URL,
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   },
 });
