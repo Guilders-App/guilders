@@ -53,15 +53,17 @@ export default function AccountsPage() {
           <div className="grid grid-cols-2 gap-4">
             <AccountsCard
               className="h-[500px]"
-              showViewAll={false}
               title="Assets"
               accounts={assets}
+              // biome-ignore lint/complexity/noUselessFragments: Using it to override the default menu component
+              menuComponent={<></>}
             />
             <AccountsCard
               className="h-[500px]"
-              showViewAll={false}
               title="Liabilities"
               accounts={liabilities}
+              // biome-ignore lint/complexity/noUselessFragments: Using it to override the default menu component
+              menuComponent={<></>}
             />
           </div>
         </div>

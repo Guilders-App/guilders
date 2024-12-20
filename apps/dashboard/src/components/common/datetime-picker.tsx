@@ -43,7 +43,10 @@ export function DateTimePicker({
     if (!date) {
       const initialDate = new Date();
       const [hours, minutes] = defaultTimeString.split(":");
-      initialDate.setHours(Number.parseInt(hours), Number.parseInt(minutes));
+      initialDate.setHours(
+        Number.parseInt(hours || "0"),
+        Number.parseInt(minutes || "0"),
+      );
       onDateChange(initialDate);
       onTimeChange(defaultTimeString);
     }
@@ -54,7 +57,10 @@ export function DateTimePicker({
     if (date && time) {
       const [hours, minutes] = time.split(":");
       const newDate = new Date(date);
-      newDate.setHours(Number.parseInt(hours), Number.parseInt(minutes));
+      newDate.setHours(
+        Number.parseInt(hours || "0"),
+        Number.parseInt(minutes || "0"),
+      );
       onDateChange(newDate);
     }
   }, [time, date, onDateChange]);
@@ -84,8 +90,8 @@ export function DateTimePicker({
                 if (selectedDate) {
                   const [hours, minutes] = time.split(":");
                   selectedDate.setHours(
-                    Number.parseInt(hours),
-                    Number.parseInt(minutes),
+                    Number.parseInt(hours || "0"),
+                    Number.parseInt(minutes || "0"),
                   );
                 }
                 onDateChange(selectedDate);
