@@ -20,9 +20,9 @@ export const useSecurityStore = create<SecurityStore>((set, get) => ({
       if (error) throw error;
 
       if (data.all.length > 0) {
-        if (data.all[0].status === "unverified") {
+        if (data.all[0]?.status === "unverified") {
           await supabase.auth.mfa.unenroll({
-            factorId: data.all[0].id,
+            factorId: data.all[0]?.id,
           });
           set({ hasMFA: false });
         } else {
