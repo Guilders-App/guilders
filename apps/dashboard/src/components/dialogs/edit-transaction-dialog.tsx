@@ -308,8 +308,8 @@ export function EditTransactionDialog() {
                                 const currentDate = new Date(field.value);
                                 const [hours, minutes] = time.split(":");
                                 currentDate.setHours(
-                                  Number.parseInt(hours),
-                                  Number.parseInt(minutes),
+                                  Number.parseInt(hours || "0"),
+                                  Number.parseInt(minutes || "0"),
                                 );
                                 field.onChange(currentDate.toISOString());
                               }
