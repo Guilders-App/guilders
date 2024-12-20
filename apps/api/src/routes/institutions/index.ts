@@ -1,23 +1,23 @@
 import { ErrorSchema, createSuccessSchema } from "@/common/types";
 import type { Variables } from "@/common/variables";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import { CountriesSchema, CountrySchema } from "./schema";
+import { InstitutionSchema, InstitutionsSchema } from "./schema";
 
 const app = new OpenAPIHono<{ Variables: Variables }>()
   .openapi(
     createRoute({
       method: "get",
       path: "/",
-      tags: ["Countries"],
-      summary: "Get all countries",
-      description: "Retrieve a list of all supported countries",
+      tags: ["Institutions"],
+      summary: "Get all institutions",
+      description: "Retrieve a list of all supported institutions",
       security: [{ Bearer: [] }],
       responses: {
         200: {
-          description: "List of countries retrieved successfully",
+          description: "List of institutions retrieved successfully",
           content: {
             "application/json": {
-              schema: createSuccessSchema(CountriesSchema),
+              schema: createSuccessSchema(InstitutionsSchema),
             },
           },
         },
@@ -33,15 +33,19 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
     }),
     async (c) => {
       const supabase = c.get("supabase");
-      const { data, error } = await supabase.from("country").select("*");
+      const { data, error } = await supabase.from("institution").select("*");
 
       if (error) {
         return c.json({ data: null, error: error.message }, 500);
       }
 
+      const filteredData = data.filter(
+        (institution) => !institution.demo && institution.enabled,
+      );
+
       return c.json(
         {
-          data,
+          data: filteredData,
           error: null,
         },
         200,
@@ -51,28 +55,26 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
   .openapi(
     createRoute({
       method: "get",
-      path: "/:code",
-      tags: ["Countries"],
-      summary: "Get country by country code",
+      path: "/:id",
+      tags: ["Institutions"],
+      summary: "Get institution by institution id",
       parameters: [
         {
-          name: "code",
+          name: "id",
           in: "path",
           required: true,
           schema: {
-            type: "string",
-            minLength: 2,
-            maxLength: 2,
+            type: "number",
           },
-          description: "Country code (ISO 4217)", // TODO: What ISO is that?
+          description: "Institution id",
         },
       ],
       responses: {
         200: {
-          description: "Country found",
+          description: "Institution found",
           content: {
             "application/json": {
-              schema: createSuccessSchema(CountrySchema),
+              schema: createSuccessSchema(InstitutionSchema),
             },
           },
         },
@@ -95,23 +97,26 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
       },
     }),
     async (c) => {
-      const code = c.req.param("code").toUpperCase();
+      const id = c.req.param("id");
       const supabase = c.get("supabase");
-      const { data: country, error } = await supabase
-        .from("country")
+      const { data: institution, error } = await supabase
+        .from("institution")
         .select()
-        .eq("code", code)
+        .eq("id", id)
         .single();
 
       if (error) {
         return c.json({ data: null, error: error.message }, 500);
       }
 
-      if (!country) {
-        return c.json({ data: null, error: `Currency ${code} not found` }, 404);
+      if (!institution) {
+        return c.json(
+          { data: null, error: `Institution ${id} not found` },
+          404,
+        );
       }
 
-      return c.json({ data: country, error: null }, 200);
+      return c.json({ data: institution, error: null }, 200);
     },
   );
 
