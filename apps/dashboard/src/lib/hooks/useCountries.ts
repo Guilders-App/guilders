@@ -1,34 +1,44 @@
-import type { Tables } from "@guilders/database/types";
 import { useQuery } from "@tanstack/react-query";
+import { getApiClient } from "../api";
 
 const queryKey = ["countries"] as const;
-
-type CountryData = {
-  countries: Tables<"country">[];
-  countriesMap: Map<string, string>; // code -> name mapping
-};
 
 export function useCountries() {
   return useQuery({
     queryKey,
     queryFn: async () => {
-      const response = await fetch("/api/countries");
-      if (!response.ok) throw new Error("Failed to fetch countries");
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.error || "Failed to fetch countries");
-      }
-      const countries = data.countries as Tables<"country">[];
+      const api = await getApiClient();
+      const { data, error } = await (await api.countries.$get()).json();
+      if (error) throw new Error(error);
+      return data;
+    },
+  });
+}
 
-      // Create a Map for O(1) lookups
-      const countriesMap = new Map(
-        countries.map((country) => [country.code, country.name]),
-      );
+export function useCountriesMap() {
+  const { data } = useCountries();
+  return data?.reduce(
+    (acc, country) => {
+      acc[country.code] = country.name;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+}
 
-      return {
-        countries,
-        countriesMap,
-      } as CountryData;
+export function useCountry(code: string) {
+  return useQuery({
+    queryKey: [...queryKey, code],
+    queryFn: async () => {
+      const api = await getApiClient();
+      const { data, error } = await (
+        await api.countries[":code"].$get({
+          param: { code },
+        })
+      ).json();
+
+      if (error) throw new Error(error);
+      return data;
     },
   });
 }

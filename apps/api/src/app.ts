@@ -1,7 +1,7 @@
 import countriesRoute from "@/routes/countries";
 import currenciesRoute from "@/routes/currencies";
-import { swaggerUI } from "@hono/swagger-ui";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { apiReference } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
@@ -20,13 +20,15 @@ app.openAPIRegistry.registerComponent("securitySchemes", "Bearer", {
 
 // Swagger UI
 app.get(
-  "/ui",
-  swaggerUI({
-    url: "/doc",
+  "/swagger",
+  apiReference({
+    spec: {
+      url: "/swagger.json",
+    },
   }),
 );
 
-app.doc("/doc", {
+app.doc("/swagger.json", {
   info: {
     title: "An API",
     version: "v1",
@@ -52,7 +54,7 @@ const appRoutes = app
   .route("/countries", countriesRoute);
 
 // Start the server
-const port = 3003;
+const port = 3002;
 Bun.serve({
   fetch: app.fetch,
   port,
@@ -60,4 +62,5 @@ Bun.serve({
 
 console.log(`🔥 Hono is running at http://localhost:${port}`);
 
+export { app };
 export type AppType = typeof appRoutes;

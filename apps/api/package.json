@@ -2,16 +2,15 @@
   "name": "@guilders/api",
   "version": "1.0.0",
   "scripts": {
-    "dev": "bun run --watch src/app.ts",
-    "build": "bun build src/app.ts --outdir dist --target bun"
+    "dev": "bun run --watch src/app.ts"
   },
   "exports": {
     ".": "./src/client.ts"
   },
   "dependencies": {
     "@guilders/database": "workspace:*",
-    "@hono/swagger-ui": "^0.5.0",
     "@hono/zod-openapi": "^0.18.3",
+    "@scalar/hono-api-reference": "^0.5.165",
     "@supabase/supabase-js": "^2.47.10",
     "hono": "^4.6.14",
     "zod": "^3.24.1"

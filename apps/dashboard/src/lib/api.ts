@@ -1,5 +1,20 @@
-import { env } from "@/env";
-import { treaty } from "@elysiajs/eden";
-import type { ElysiaApp } from "@guilders/api";
+import { createApiClient } from "@guilders/api";
+import { createClient } from "@guilders/database/client";
 
-export const api = treaty<ElysiaApp>(env.NEXT_PUBLIC_API_URL);
+export const getApiClient = async () => {
+  const supabase = await createClient();
+  const session = await supabase.auth.getSession();
+  const token = session.data.session?.access_token;
+
+  const api = createApiClient({
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const response = await api.currencies.$get();
+
+  console.log(response);
+
+  return api;
+};
