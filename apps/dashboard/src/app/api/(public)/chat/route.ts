@@ -355,7 +355,7 @@ Account Details:${summary.accounts
 ${acc.recentTransactions
   .map(
     (t) =>
-      `  - ${t.date}: ${t.amount} ${acc.currency} (${t.category})${
+      `  - ${t.date}: ${t.amount} ${acc.currency} (${t.category}) - ${t.description}${
         t.documents?.length
           ? `\n    Documents: ${t.documents.map((d) => `\n      - ${d}`).join("")}`
           : ""
@@ -383,7 +383,7 @@ ${acc.recentTransactions
           ? `\n      Recent Activity:${child.recentTransactions
               .map(
                 (t) =>
-                  `\n        - ${t.date}: ${t.amount} ${child.currency} (${t.category})${
+                  `\n        - ${t.date}: ${t.amount} ${child.currency} (${t.category}) - ${t.description}${
                     t.documents?.length
                       ? `\n          Documents: ${t.documents.map((d) => `\n            - ${d}`).join("")}`
                       : ""
