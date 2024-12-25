@@ -87,7 +87,7 @@ export function EditAccountDialog() {
   const { data: connections } = useGetConnections();
   const institution = useInstitutionByAccountId(data?.account?.id);
   const { data: institutionConnection } = useInstitutionConnection(
-    data?.account?.institution_connection_id,
+    data?.account?.institution_connection_id ?? 0,
   );
   const connection = connections?.find(
     (c) => c.id === institutionConnection?.provider_connection_id,

@@ -18,7 +18,7 @@ export function useInstitutionByAccountId(accountId: number | undefined) {
   const { data: accounts } = useAccounts();
   const account = accounts?.find((a) => a.id === accountId);
   const { data: institutionConnection } = useInstitutionConnection(
-    account?.institution_connection_id,
+    account?.institution_connection_id ?? 0,
   );
 
   return useInstitutionById(institutionConnection?.institution_id);

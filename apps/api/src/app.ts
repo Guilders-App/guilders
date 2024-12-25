@@ -7,6 +7,7 @@ import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 import { supabaseAuth } from "./middleware/supabaseAuth";
+import institutionConnectionsRoute from "./routes/institution-connections";
 import institutionsRoute from "./routes/institutions";
 const app = new OpenAPIHono();
 
@@ -52,7 +53,8 @@ app.use("*", supabaseAuth());
 const appRoutes = app
   .route("/currencies", currenciesRoute)
   .route("/countries", countriesRoute)
-  .route("/institutions", institutionsRoute);
+  .route("/institutions", institutionsRoute)
+  .route("/institution-connections", institutionConnectionsRoute);
 
 // Start the server
 const port = 3002;
