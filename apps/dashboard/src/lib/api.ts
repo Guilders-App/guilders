@@ -12,9 +12,5 @@ export const getApiClient = async () => {
     },
   });
 
-  const response = await api.currencies.$get();
-
-  console.log(response);
-
   return api;
 };

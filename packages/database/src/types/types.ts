@@ -19,6 +19,9 @@ export type Account = Tables<"account"> & {
   } | null;
 };
 
+export type Country = Tables<"country">;
+export type Currency = Tables<"currency">;
+
 export type AccountInsert = Omit<
   TablesInsert<"account">,
   "type" | "user_id" | "created_at" | "updated_at" | "connection_id"
