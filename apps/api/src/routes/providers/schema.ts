@@ -12,11 +12,9 @@ export const ProviderSchema = z
       example: "https://example.com/logo.png",
     }),
   })
-  .openapi("ProviderSchema");
+  .openapi("Provider");
 
-export const ProvidersSchema = z
-  .array(ProviderSchema)
-  .openapi("ProvidersSchema");
+export const ProvidersSchema = z.array(ProviderSchema);
 
 // Export inferred types
 export type Provider = z.infer<typeof ProviderSchema>;

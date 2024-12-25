@@ -12,11 +12,9 @@ export const CurrencySchema = z
       example: "United States",
     }),
   })
-  .openapi("CurrencySchema");
+  .openapi("Currency");
 
-export const CurrenciesSchema = z
-  .array(CurrencySchema)
-  .openapi("CurrenciesSchema");
+export const CurrenciesSchema = z.array(CurrencySchema);
 
 // Export inferred types
 export type Currency = z.infer<typeof CurrencySchema>;

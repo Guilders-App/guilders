@@ -9,11 +9,9 @@ export const CountrySchema = z
       example: "United States",
     }),
   })
-  .openapi("CountrySchema");
+  .openapi("Country");
 
-export const CountriesSchema = z
-  .array(CountrySchema)
-  .openapi("CountriesSchema");
+export const CountriesSchema = z.array(CountrySchema);
 
 // Export inferred types
 export type Country = z.infer<typeof CountrySchema>;

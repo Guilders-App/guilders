@@ -27,11 +27,9 @@ export const InstitutionSchema = z
       example: "ins_123456",
     }),
   })
-  .openapi("InstitutionSchema");
+  .openapi("Institution");
 
-export const InstitutionsSchema = z
-  .array(InstitutionSchema)
-  .openapi("InstitutionsSchema");
+export const InstitutionsSchema = z.array(InstitutionSchema);
 
 export type Institution = z.infer<typeof InstitutionSchema>;
 export type Institutions = z.infer<typeof InstitutionsSchema>;

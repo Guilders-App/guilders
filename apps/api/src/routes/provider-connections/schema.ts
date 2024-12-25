@@ -21,11 +21,9 @@ export const ProviderConnectionSchema = z
       example: "2024-01-01T00:00:00Z",
     }),
   })
-  .openapi("ProviderConnectionSchema");
+  .openapi("ProviderConnection");
 
-export const ProviderConnectionsSchema = z
-  .array(ProviderConnectionSchema)
-  .openapi("ProviderConnectionsSchema");
+export const ProviderConnectionsSchema = z.array(ProviderConnectionSchema);
 
 // Export inferred types
 export type ProviderConnection = z.infer<typeof ProviderConnectionSchema>;

@@ -1,15 +1,6 @@
 import { z } from "@hono/zod-openapi";
 import { InstitutionSchema } from "../institutions/schema";
-
-// Provider connection schema for the nested relationship
-const ProviderConnectionSchema = z.object({
-  id: z.number(),
-  user_id: z.string(),
-  provider_id: z.number(),
-  secret: z.string().nullable(),
-  created_at: z.string(),
-  updated_at: z.string(),
-});
+import { ProviderConnectionSchema } from "../provider-connections/schema";
 
 export const InstitutionConnectionSchema = z
   .object({
@@ -34,11 +25,11 @@ export const InstitutionConnectionSchema = z
     institution: InstitutionSchema,
     provider_connection: ProviderConnectionSchema.nullable(),
   })
-  .openapi("InstitutionConnectionSchema");
+  .openapi("InstitutionConnection");
 
-export const InstitutionConnectionsSchema = z
-  .array(InstitutionConnectionSchema)
-  .openapi("InstitutionConnectionsSchema");
+export const InstitutionConnectionsSchema = z.array(
+  InstitutionConnectionSchema,
+);
 
 // Export inferred types
 export type Institution = z.infer<typeof InstitutionSchema>;
