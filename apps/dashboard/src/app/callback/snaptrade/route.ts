@@ -4,6 +4,7 @@ import { env } from "@/env";
 import { providerName, snaptrade } from "@/lib/providers/snaptrade/client";
 import { createClient } from "@guilders/database/server";
 import { NextResponse } from "next/server";
+import type { Position } from "snaptrade-typescript-sdk";
 import type {
   AccountHoldingsUpdatedWebhook,
   AccountRemovedWebhook,
@@ -404,14 +405,13 @@ async function handleAccountUpdate(
           snapTradeAccount.balance.total?.currency?.toUpperCase() ?? "EUR",
         cost:
           accountResponse.positions?.reduce(
-            // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-            (acc: number, holding: any) =>
+            (acc: number, holding: Position) =>
               acc +
               (holding.average_purchase_price ?? 0) * (holding.units ?? 0),
             0,
           ) ??
           snapTradeAccount.balance.total?.amount ??
-          0,
+          null,
         institution_connection_id: institutionConnection.id,
         provider_account_id: snapTradeAccount.id,
         image: institution.logo_url,

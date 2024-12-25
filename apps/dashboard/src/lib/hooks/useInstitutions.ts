@@ -1,5 +1,5 @@
-import type { Institution } from "@guilders/database/types";
 import { useQuery } from "@tanstack/react-query";
+import { getApiClient } from "../api";
 import { useAccounts } from "./useAccounts";
 import { useInstitutionConnection } from "./useInstitutionConnection";
 
@@ -9,13 +9,10 @@ export function useInstitutions() {
   return useQuery({
     queryKey,
     queryFn: async () => {
-      const response = await fetch("/api/institutions");
-      if (!response.ok) throw new Error("Failed to fetch institutions");
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.error || "Failed to fetch institutions");
-      }
-      return data.data as Institution[];
+      const api = await getApiClient();
+      const { data, error } = await (await api.institutions.$get()).json();
+      if (error) throw new Error(error);
+      return data;
     },
   });
 }

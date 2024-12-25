@@ -79,7 +79,7 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
           },
         },
         404: {
-          description: "Country not found",
+          description: "Institution not found",
           content: {
             "application/json": {
               schema: ErrorSchema,
