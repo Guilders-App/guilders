@@ -5,7 +5,8 @@
     "dev": "bun run --watch src/app.ts"
   },
   "exports": {
-    ".": "./src/client.ts"
+    ".": "./src/client.ts",
+    "./types": "./src/types.ts"
   },
   "dependencies": {
     "@guilders/database": "workspace:*",

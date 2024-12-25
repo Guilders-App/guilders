@@ -14,3 +14,7 @@ export const CountrySchema = z
 export const CountriesSchema = z
   .array(CountrySchema)
   .openapi("CountriesSchema");
+
+// Export inferred types
+export type Country = z.infer<typeof CountrySchema>;
+export type Countries = z.infer<typeof CountriesSchema>;

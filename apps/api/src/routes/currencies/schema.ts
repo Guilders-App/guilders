@@ -17,3 +17,7 @@ export const CurrencySchema = z
 export const CurrenciesSchema = z
   .array(CurrencySchema)
   .openapi("CurrenciesSchema");
+
+// Export inferred types
+export type Currency = z.infer<typeof CurrencySchema>;
+export type Currencies = z.infer<typeof CurrenciesSchema>;

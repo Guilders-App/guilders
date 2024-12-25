@@ -1,12 +1,21 @@
-import type { Institution } from "@guilders/database/types";
+import { getApiClient } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 import { useAccounts } from "./useAccounts";
-import { useApiQuery } from "./useApiQuery";
 import { useInstitutionConnection } from "./useInstitutionConnection";
 
 const queryKey = ["institutions"] as const;
 
 export function useInstitutions() {
-  return useApiQuery<Institution[]>(queryKey, (api) => api.institutions);
+  return useQuery({
+    queryKey,
+    queryFn: async () => {
+      const api = await getApiClient();
+      const response = await api.institutions.$get();
+      const { data, error } = await response.json();
+      if (error) throw new Error(error);
+      return data;
+    },
+  });
 }
 
 export function useInstitutionById(institutionId: number | undefined) {

@@ -1,28 +1,28 @@
 import { ErrorSchema, createSuccessSchema } from "@/common/types";
 import type { Variables } from "@/common/variables";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import { CurrenciesSchema, CurrencySchema } from "./schema";
+import { ProviderSchema, ProvidersSchema } from "./schema";
 
 const app = new OpenAPIHono<{ Variables: Variables }>()
   .openapi(
     createRoute({
       method: "get",
       path: "/",
-      tags: ["Currencies"],
-      summary: "Get all currencies",
-      description: "Retrieve a list of all supported currencies",
+      tags: ["Providers"],
+      summary: "Get all providers",
+      description: "Retrieve a list of all available providers",
       security: [{ Bearer: [] }],
       responses: {
         200: {
-          description: "List of currencies retrieved successfully",
+          description: "List of providers retrieved successfully",
           content: {
             "application/json": {
-              schema: createSuccessSchema(CurrenciesSchema),
+              schema: createSuccessSchema(ProvidersSchema),
             },
           },
         },
-        500: {
-          description: "Internal Server Error",
+        400: {
+          description: "Bad Request",
           content: {
             "application/json": {
               schema: ErrorSchema,
@@ -33,10 +33,10 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
     }),
     async (c) => {
       const supabase = c.get("supabase");
-      const { data, error } = await supabase.from("currency").select("*");
+      const { data, error } = await supabase.from("provider").select("*");
 
       if (error) {
-        return c.json({ data: null, error: error.message }, 500);
+        return c.json({ data: null, error: error.message }, 400);
       }
 
       return c.json(
@@ -51,33 +51,33 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
   .openapi(
     createRoute({
       method: "get",
-      path: "/:code",
-      tags: ["Currencies"],
-      summary: "Get currency by code",
+      path: "/:id",
+      tags: ["Providers"],
+      summary: "Get provider by ID",
+      description: "Retrieve a specific provider by its ID",
+      security: [{ Bearer: [] }],
       parameters: [
         {
-          name: "code",
+          name: "id",
           in: "path",
           required: true,
           schema: {
-            type: "string",
-            minLength: 3,
-            maxLength: 3,
+            type: "number",
           },
-          description: "Currency code (ISO 4217)",
+          description: "Provider ID",
         },
       ],
       responses: {
         200: {
-          description: "Currency found",
+          description: "Provider found",
           content: {
             "application/json": {
-              schema: createSuccessSchema(CurrencySchema),
+              schema: createSuccessSchema(ProviderSchema),
             },
           },
         },
         404: {
-          description: "Currency not found",
+          description: "Provider not found",
           content: {
             "application/json": {
               schema: ErrorSchema,
@@ -95,23 +95,23 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
       },
     }),
     async (c) => {
-      const code = c.req.param("code").toUpperCase();
+      const id = c.req.param("id");
       const supabase = c.get("supabase");
-      const { data: currency, error } = await supabase
-        .from("currency")
+      const { data: provider, error } = await supabase
+        .from("provider")
         .select()
-        .eq("code", code)
+        .eq("id", id)
         .single();
 
       if (error) {
         return c.json({ data: null, error: error.message }, 500);
       }
 
-      if (!currency) {
-        return c.json({ data: null, error: `Currency ${code} not found` }, 404);
+      if (!provider) {
+        return c.json({ data: null, error: `Provider ${id} not found` }, 404);
       }
 
-      return c.json({ data: currency, error: null }, 200);
+      return c.json({ data: provider, error: null }, 200);
     },
   );
 

@@ -1,29 +1,33 @@
-import type { Tables } from "@guilders/database/types";
-import { useApiQuery } from "./useApiQuery";
+import { getApiClient } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 
 const queryKey = ["institution-connections"] as const;
 
-type InstitutionConnection = Tables<"institution_connection"> & {
-  institution: Tables<"institution">;
-  provider_connection: Pick<Tables<"provider_connection">, "user_id">;
-};
-
 export function useInstitutionConnections() {
-  return useApiQuery<InstitutionConnection[]>(
+  return useQuery({
     queryKey,
-    (api) => api["institution-connections"],
-  );
+    queryFn: async () => {
+      const api = await getApiClient();
+      const response = await api["institution-connections"].$get();
+      const { data, error } = await response.json();
+      if (error) throw new Error(error);
+      return data;
+    },
+  });
 }
 
 export function useInstitutionConnection(connectionId: number) {
-  return useApiQuery<InstitutionConnection | null>(
-    [...queryKey, connectionId],
-    (api) => ({
-      $get: () =>
-        api["institution-connections"][":id"].$get({
-          param: { id: connectionId.toString() },
-        }),
-    }),
-    { enabled: !!connectionId },
-  );
+  return useQuery({
+    queryKey: [...queryKey, connectionId],
+    queryFn: async () => {
+      const api = await getApiClient();
+      const response = await api["institution-connections"][":id"].$get({
+        param: { id: connectionId.toString() },
+      });
+      const { data, error } = await response.json();
+      if (error) throw new Error(error);
+      return data;
+    },
+    enabled: !!connectionId,
+  });
 }

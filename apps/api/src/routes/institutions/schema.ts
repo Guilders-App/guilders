@@ -32,3 +32,6 @@ export const InstitutionSchema = z
 export const InstitutionsSchema = z
   .array(InstitutionSchema)
   .openapi("InstitutionsSchema");
+
+export type Institution = z.infer<typeof InstitutionSchema>;
+export type Institutions = z.infer<typeof InstitutionsSchema>;

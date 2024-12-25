@@ -9,6 +9,8 @@ import { prettyJSON } from "hono/pretty-json";
 import { supabaseAuth } from "./middleware/supabaseAuth";
 import institutionConnectionsRoute from "./routes/institution-connections";
 import institutionsRoute from "./routes/institutions";
+import providerConnectionsRoute from "./routes/provider-connections";
+import providersRoute from "./routes/providers";
 const app = new OpenAPIHono();
 
 app.use("*", logger()).use("*", cors()).use("*", prettyJSON());
@@ -54,7 +56,9 @@ const appRoutes = app
   .route("/currencies", currenciesRoute)
   .route("/countries", countriesRoute)
   .route("/institutions", institutionsRoute)
-  .route("/institution-connections", institutionConnectionsRoute);
+  .route("/institution-connections", institutionConnectionsRoute)
+  .route("/providers", providersRoute)
+  .route("/provider-connections", providerConnectionsRoute);
 
 // Start the server
 const port = 3002;

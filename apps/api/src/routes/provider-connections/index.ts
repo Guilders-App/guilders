@@ -1,27 +1,24 @@
 import { ErrorSchema, createSuccessSchema } from "@/common/types";
 import type { Variables } from "@/common/variables";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import {
-  InstitutionConnectionSchema,
-  InstitutionConnectionsSchema,
-} from "./schema";
+import { ProviderConnectionSchema, ProviderConnectionsSchema } from "./schema";
 
 const app = new OpenAPIHono<{ Variables: Variables }>()
   .openapi(
     createRoute({
       method: "get",
       path: "/",
-      tags: ["Institution Connections"],
-      summary: "Get all institution connections",
+      tags: ["Provider Connections"],
+      summary: "Get all provider connections",
       description:
-        "Retrieve all institution connections for the authenticated user",
+        "Retrieve all provider connections for the authenticated user",
       security: [{ Bearer: [] }],
       responses: {
         200: {
-          description: "List of institution connections retrieved successfully",
+          description: "List of provider connections retrieved successfully",
           content: {
             "application/json": {
-              schema: createSuccessSchema(InstitutionConnectionsSchema),
+              schema: createSuccessSchema(ProviderConnectionsSchema),
             },
           },
         },
@@ -40,20 +37,9 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
       const user = c.get("user");
 
       const { data, error } = await supabase
-        .from("institution_connection")
-        .select(`
-          *,
-          institution (*),
-          provider_connection (
-            id,
-            user_id,
-            provider_id,
-            secret,
-            created_at,
-            updated_at
-          )
-        `)
-        .eq("provider_connection.user_id", user.id);
+        .from("provider_connection")
+        .select("*")
+        .eq("user_id", user.id);
 
       if (error) {
         return c.json({ data: null, error: error.message }, 500);
@@ -72,8 +58,8 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
     createRoute({
       method: "get",
       path: "/:id",
-      tags: ["Institution Connections"],
-      summary: "Get institution connection by ID",
+      tags: ["Provider Connections"],
+      summary: "Get provider connection by ID",
       parameters: [
         {
           name: "id",
@@ -82,20 +68,20 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
           schema: {
             type: "number",
           },
-          description: "Institution connection ID",
+          description: "Provider connection ID",
         },
       ],
       responses: {
         200: {
-          description: "Institution connection found",
+          description: "Provider connection found",
           content: {
             "application/json": {
-              schema: createSuccessSchema(InstitutionConnectionSchema),
+              schema: createSuccessSchema(ProviderConnectionSchema),
             },
           },
         },
         404: {
-          description: "Institution connection not found",
+          description: "Provider connection not found",
           content: {
             "application/json": {
               schema: ErrorSchema,
@@ -118,21 +104,10 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
       const user = c.get("user");
 
       const { data, error } = await supabase
-        .from("institution_connection")
-        .select(`
-          *,
-          institution (*),
-          provider_connection (
-            id,
-            user_id,
-            provider_id,
-            secret,
-            created_at,
-            updated_at
-          )
-        `)
+        .from("provider_connection")
+        .select("*")
         .eq("id", id)
-        .eq("provider_connection.user_id", user.id)
+        .eq("user_id", user.id)
         .single();
 
       if (error) {
@@ -141,7 +116,7 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
 
       if (!data) {
         return c.json(
-          { data: null, error: `Institution connection ${id} not found` },
+          { data: null, error: `Provider connection ${id} not found` },
           404,
         );
       }

@@ -1,10 +1,10 @@
-import type { Country } from "@guilders/database/types";
+import type { Countries, Country } from "@guilders/api/types";
 import { useApiQuery } from "./useApiQuery";
 
 const queryKey = ["countries"] as const;
 
 export function useCountries() {
-  return useApiQuery<Country[]>(queryKey, (api) => api.countries);
+  return useApiQuery<Countries>(queryKey, (api) => api.countries);
 }
 
 export function useCountriesMap() {
