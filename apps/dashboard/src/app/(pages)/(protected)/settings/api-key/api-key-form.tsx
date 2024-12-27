@@ -107,7 +107,8 @@ export function ApiKeyForm() {
             <Button
               variant="destructive"
               onClick={handleDelete}
-              disabled={deleting}
+              // disabled={deleting}
+              disabled={true}
             >
               {deleting ? (
                 <>
@@ -120,7 +121,11 @@ export function ApiKeyForm() {
             </Button>
           </>
         ) : (
-          <Button onClick={handleGenerate} disabled={generating}>
+          <Button
+            onClick={handleGenerate}
+            // disabled={generating}
+            disabled={true}
+          >
             {generating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
