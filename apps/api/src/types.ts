@@ -11,3 +11,8 @@ export type {
 } from "./routes/provider-connections/schema";
 export type { Provider, Providers } from "./routes/providers/schema";
 export type { Rate, Rates } from "./routes/rates/schema";
+export type {
+  Transaction,
+  TransactionInsert,
+  Transactions,
+} from "./routes/transactions/schema";

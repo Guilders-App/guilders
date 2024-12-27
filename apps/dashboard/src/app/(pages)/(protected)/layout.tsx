@@ -4,7 +4,6 @@ import { Dialogs } from "@/components/dialogs/dialogs";
 import { AppSidebar } from "@/components/nav/app-sidebar";
 import { AppTopBar } from "@/components/nav/app-top-bar";
 import { SidebarInset, SidebarProvider } from "@guilders/ui/sidebar";
-import { Toaster } from "@guilders/ui/sonner";
 import type { ReactNode } from "react";
 
 const ProtectedLayout = ({ children }: { children: ReactNode }) => {
@@ -17,7 +16,6 @@ const ProtectedLayout = ({ children }: { children: ReactNode }) => {
           {children}
         </main>
       </SidebarInset>
-      <Toaster />
       <Dialogs />
     </SidebarProvider>
   );

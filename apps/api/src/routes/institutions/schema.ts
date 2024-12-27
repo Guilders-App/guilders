@@ -11,9 +11,6 @@ export const InstitutionSchema = z
     country: z.string().nullable().openapi({
       example: "US",
     }),
-    demo: z.boolean().default(false).openapi({
-      example: false,
-    }),
     enabled: z.boolean().default(true).openapi({
       example: true,
     }),

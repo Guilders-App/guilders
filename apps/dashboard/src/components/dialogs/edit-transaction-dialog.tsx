@@ -124,23 +124,31 @@ export function EditTransactionDialog() {
       category: formData.category,
       date: formatDateForSubmit(formData.date),
       currency: transaction.currency,
+      documents: transaction.documents,
+      provider_transaction_id: transaction.provider_transaction_id,
     };
 
-    updateTransaction(updatedTransaction, {
-      onSuccess: () => {
-        toast.success("Transaction updated", {
-          description: "Your transaction has been updated successfully.",
-        });
-        close();
+    updateTransaction(
+      {
+        transactionId: transaction.id,
+        transaction: updatedTransaction,
       },
-      onError: (error) => {
-        toast.error("Error updating transaction", {
-          description:
-            "There was an error updating your transaction. Please try again.",
-        });
-        console.error("Error updating transaction:", error);
+      {
+        onSuccess: () => {
+          toast.success("Transaction updated", {
+            description: "Your transaction has been updated successfully.",
+          });
+          close();
+        },
+        onError: (error) => {
+          toast.error("Error updating transaction", {
+            description:
+              "There was an error updating your transaction. Please try again.",
+          });
+          console.error("Error updating transaction:", error);
+        },
       },
-    });
+    );
   });
 
   const handleDelete = async () => {

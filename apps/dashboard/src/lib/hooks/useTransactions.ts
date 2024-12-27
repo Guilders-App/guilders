@@ -1,47 +1,40 @@
-import type {
-  Transaction,
-  TransactionInsert,
-  TransactionUpdate,
-} from "@guilders/database/types";
+import type { Transaction, TransactionInsert } from "@guilders/api/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getApiClient } from "../api";
 import { queryKey as accountsQueryKey } from "./useAccounts";
 
 const queryKey = ["transactions"] as const;
 
-type TransactionsResponse = {
-  success: boolean;
-  transactions: Transaction[];
-};
-
-type SingleTransactionResponse = {
-  success: boolean;
-  transaction: Transaction;
-};
-
 export function useTransactions(accountId?: number) {
-  return useQuery<Transaction[], Error>({
+  return useQuery({
     queryKey,
     queryFn: async (): Promise<Transaction[]> => {
-      const url = accountId
-        ? `/api/transactions?accountId=${accountId}`
-        : "/api/transactions";
-
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("Failed to fetch transactions");
-      const data = (await response.json()) as TransactionsResponse;
-      return data.transactions;
+      const api = await getApiClient();
+      const response = await api.transactions.$get({
+        query: {
+          accountId,
+        },
+      });
+      const { data, error } = await response.json();
+      if (error || !data) throw new Error(error);
+      return data;
     },
   });
 }
 
 export function useTransaction(transactionId: number) {
-  return useQuery<Transaction, Error>({
+  return useQuery({
     queryKey: [...queryKey, transactionId],
     queryFn: async (): Promise<Transaction> => {
-      const response = await fetch(`/api/transactions/${transactionId}`);
-      if (!response.ok) throw new Error("Failed to fetch transaction");
-      const data = (await response.json()) as SingleTransactionResponse;
-      return data.transaction;
+      const api = await getApiClient();
+      const response = await api.transactions[":id"].$get({
+        param: {
+          id: transactionId.toString(),
+        },
+      });
+      const { data, error } = await response.json();
+      if (error || !data) throw new Error(error);
+      return data;
     },
   });
 }
@@ -50,14 +43,13 @@ export function useAddTransaction() {
   const queryClient = useQueryClient();
   return useMutation<Transaction, Error, TransactionInsert>({
     mutationFn: async (transaction): Promise<Transaction> => {
-      const response = await fetch("/api/transactions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(transaction),
+      const api = await getApiClient();
+      const response = await api.transactions.$post({
+        json: transaction,
       });
-      if (!response.ok) throw new Error("Failed to add transaction");
-      const data = (await response.json()) as SingleTransactionResponse;
-      return data.transaction;
+      const { data, error } = await response.json();
+      if (error || !data) throw new Error(error);
+      return data;
     },
     onSuccess: (newTransaction) => {
       queryClient.setQueryData<Transaction[]>(queryKey, (old = []) => [
@@ -71,19 +63,25 @@ export function useAddTransaction() {
 
 export function useUpdateTransaction() {
   const queryClient = useQueryClient();
-  return useMutation<Transaction, Error, TransactionUpdate>({
-    mutationFn: async (updatedTransaction): Promise<Transaction> => {
-      const response = await fetch(
-        `/api/transactions/${updatedTransaction.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedTransaction),
+  return useMutation<
+    Transaction,
+    Error,
+    { transactionId: number; transaction: TransactionInsert }
+  >({
+    mutationFn: async ({
+      transactionId,
+      transaction,
+    }): Promise<Transaction> => {
+      const api = await getApiClient();
+      const response = await api.transactions[":id"].$put({
+        param: {
+          id: transactionId.toString(),
         },
-      );
-      if (!response.ok) throw new Error("Failed to update transaction");
-      const data = (await response.json()) as SingleTransactionResponse;
-      return data.transaction;
+        json: transaction,
+      });
+      const { data, error } = await response.json();
+      if (error || !data) throw new Error(error);
+      return data;
     },
     onSuccess: (updatedTransaction) => {
       queryClient.setQueryData<Transaction[]>(queryKey, (old = []) =>
@@ -102,10 +100,14 @@ export function useRemoveTransaction() {
   const queryClient = useQueryClient();
   return useMutation<number, Error, number>({
     mutationFn: async (transactionId): Promise<number> => {
-      const response = await fetch(`/api/transactions/${transactionId}`, {
-        method: "DELETE",
+      const api = await getApiClient();
+      const response = await api.transactions[":id"].$delete({
+        param: {
+          id: transactionId.toString(),
+        },
       });
-      if (!response.ok) throw new Error("Failed to remove transaction");
+      const { data, error } = await response.json();
+      if (error || !data) throw new Error(error);
       return transactionId;
     },
     onSuccess: (transactionId) => {

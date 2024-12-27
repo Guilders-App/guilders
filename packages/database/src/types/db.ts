@@ -164,7 +164,6 @@ export type Database = {
       institution: {
         Row: {
           country: string | null;
-          demo: boolean;
           enabled: boolean;
           id: number;
           logo_url: string;
@@ -174,7 +173,6 @@ export type Database = {
         };
         Insert: {
           country?: string | null;
-          demo?: boolean;
           enabled?: boolean;
           id?: number;
           logo_url: string;
@@ -184,7 +182,6 @@ export type Database = {
         };
         Update: {
           country?: string | null;
-          demo?: boolean;
           enabled?: boolean;
           id?: number;
           logo_url?: string;
