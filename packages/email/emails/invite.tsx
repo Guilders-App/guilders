@@ -82,9 +82,9 @@ export const GuildersInviteUserEmail = ({
 };
 
 GuildersInviteUserEmail.PreviewProps = {
-  baseUrl: "http://localhost:3000",
+  baseUrl: "http://localhost:3001",
   inviteLink:
-    "https://guilders.app/callback/auth?token_hash=foo&type=invite&redirect_to=/onboarding",
+    "http://localhost:3001/callback/auth?token_hash=foo&type=invite&redirect_to=/onboarding",
 } as GuildersInviteUserEmailProps;
 
 GuildersInviteUserEmail.SupabaseProps = {

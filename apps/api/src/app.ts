@@ -13,6 +13,7 @@ import providerConnectionsRoute from "./routes/provider-connections";
 import providersRoute from "./routes/providers";
 import ratesRoute from "./routes/rates/index";
 import transactionsRoute from "./routes/transactions";
+import usersRoute from "./routes/users";
 
 const app = new OpenAPIHono();
 
@@ -63,7 +64,8 @@ const appRoutes = app
   .route("/providers", providersRoute)
   .route("/provider-connections", providerConnectionsRoute)
   .route("/rates", ratesRoute)
-  .route("/transactions", transactionsRoute);
+  .route("/transactions", transactionsRoute)
+  .route("/users", usersRoute);
 
 // Start the server
 const port = 3002;

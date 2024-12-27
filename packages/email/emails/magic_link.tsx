@@ -69,8 +69,9 @@ export const GuildersMagicLinkEmail = ({
 };
 
 GuildersMagicLinkEmail.PreviewProps = {
-  baseUrl: "http://localhost:3000",
-  magicLink: "https://guilders.app/callback/auth?token_hash=foo&type=magiclink",
+  baseUrl: "http://localhost:3001",
+  magicLink:
+    "http://localhost:3001/callback/auth?token_hash=foo&type=magiclink",
 } as GuildersMagicLinkEmailProps;
 
 GuildersMagicLinkEmail.SupabaseProps = {

@@ -1,6 +1,6 @@
+import { render } from "@react-email/render";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { render } from "@react-email/render";
 
 async function getAllEmails() {
   const emailsDir = path.join(process.cwd(), "emails");
