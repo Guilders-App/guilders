@@ -16,4 +16,4 @@ export type {
   TransactionInsert,
   Transactions,
 } from "./routes/transactions/schema";
-export type { User, Users } from "./routes/users/schema";
+export type { UpdateUser, User } from "./routes/users/schema";

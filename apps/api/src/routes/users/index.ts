@@ -1,7 +1,13 @@
 import { ErrorSchema, createSuccessSchema } from "@/common/types";
 import type { Variables } from "@/common/variables";
+import { supabaseAdmin } from "@/lib/supabase";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import { DeleteResponseSchema, UserSchema } from "./schema";
+import {
+  DeleteResponseSchema,
+  type UpdateUser,
+  UpdateUserSchema,
+  UserSchema,
+} from "./schema";
 
 const app = new OpenAPIHono<{ Variables: Variables }>()
   .openapi(
@@ -32,8 +38,196 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
       },
     }),
     async (c) => {
+      const supabase = c.get("supabase");
       const user = c.get("user");
-      return c.json({ data: user, error: null }, 200);
+
+      // Fetch user settings
+      const { data: settings, error: settingsError } = await supabase
+        .from("user_setting")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      // Fetch subscription status
+      const { data: subscription } = await supabase
+        .from("subscription")
+        .select("status")
+        .eq("user_id", user.id)
+        .single();
+
+      if (settingsError) {
+        // Create default settings if none exist
+        const { data: newSettings, error: createError } = await supabase
+          .from("user_setting")
+          .insert({ user_id: user.id, currency: "EUR" })
+          .select()
+          .single();
+
+        if (createError) {
+          return c.json(
+            { data: null, error: "Failed to create user settings" },
+            500,
+          );
+        }
+
+        return c.json(
+          {
+            data: {
+              email: user.email ?? "",
+              settings: newSettings,
+              subscription: { status: subscription?.status ?? "unsubscribed" },
+            },
+            error: null,
+          },
+          200,
+        );
+      }
+
+      return c.json(
+        {
+          data: {
+            email: user.email ?? "",
+            settings,
+            subscription: { status: subscription?.status ?? "unsubscribed" },
+          },
+          error: null,
+        },
+        200,
+      );
+    },
+  )
+  .openapi(
+    createRoute({
+      method: "patch",
+      path: "/me",
+      tags: ["Users"],
+      summary: "Update current user",
+      description: "Update the currently authenticated user's information",
+      security: [{ Bearer: [] }],
+      request: {
+        body: {
+          content: {
+            "application/json": {
+              schema: UpdateUserSchema,
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "User updated successfully",
+          content: {
+            "application/json": {
+              schema: createSuccessSchema(UserSchema),
+            },
+          },
+        },
+        500: {
+          description: "Internal Server Error",
+          content: {
+            "application/json": {
+              schema: ErrorSchema,
+            },
+          },
+        },
+      },
+    }),
+    async (c) => {
+      const supabase = c.get("supabase");
+      const user = c.get("user");
+      const { email, password, settings }: UpdateUser = await c.req.json();
+
+      // Handle auth updates if provided
+      if (email && email !== user.email) {
+        const { error: authError } =
+          await supabaseAdmin.auth.admin.updateUserById(user.id, {
+            email,
+            password,
+          });
+
+        if (authError) {
+          return c.json(
+            { data: null, error: "Failed to update auth details" },
+            500,
+          );
+        }
+      }
+
+      // Handle settings updates if provided
+      if (settings) {
+        const { error: settingsError } = await supabase
+          .from("user_setting")
+          .update(settings)
+          .eq("user_id", user.id);
+
+        if (settingsError) {
+          return c.json(
+            { data: null, error: "Failed to update settings" },
+            500,
+          );
+        }
+      }
+
+      const { data: subscription } = await supabase
+        .from("subscription")
+        .select("status")
+        .eq("user_id", user.id)
+        .single();
+
+      // Fetch user settings
+      const { data: userSettings, error: settingsError } = await supabase
+        .from("user_setting")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (settingsError) {
+        // Create default settings if none exist
+        const { data: newSettings, error: createError } = await supabase
+          .from("user_setting")
+          .insert({ user_id: user.id, currency: "EUR" })
+          .select()
+          .single();
+
+        if (createError) {
+          return c.json(
+            { data: null, error: "Failed to create user settings" },
+            500,
+          );
+        }
+
+        const {
+          data: { user: updatedUser },
+        } = await supabase.auth.admin.getUserById(user.id);
+
+        return c.json(
+          {
+            data: {
+              email: updatedUser?.email ?? "",
+              settings: newSettings,
+              subscription: { status: subscription?.status ?? "unsubscribed" },
+            },
+            error: null,
+          },
+          200,
+        );
+      }
+
+      const {
+        data: { user: updatedUser },
+      } = await supabase.auth.admin.getUserById(user.id);
+
+      return c.json(
+        {
+          data: {
+            email: updatedUser?.email ?? "",
+            settings: userSettings,
+            subscription: { status: subscription?.status ?? "unsubscribed" },
+          },
+          error: null,
+        },
+        200,
+      );
     },
   )
   .openapi(

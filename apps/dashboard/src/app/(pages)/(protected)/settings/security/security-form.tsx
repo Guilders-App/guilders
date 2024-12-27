@@ -74,6 +74,7 @@ export function SecurityForm() {
         description: "Your password has been updated successfully.",
       });
     } catch (error) {
+      console.error("Error updating password:", error);
       toast.error("Failed to update password", {
         description: "Please try again.",
       });

@@ -478,6 +478,7 @@ export type Database = {
         | "investable_easy_convert"
         | "investable_cash";
       subscription_status:
+        | "unsubscribed"
         | "trialing"
         | "active"
         | "canceled"
