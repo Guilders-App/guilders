@@ -11,6 +11,8 @@ import institutionConnectionsRoute from "./routes/institution-connections";
 import institutionsRoute from "./routes/institutions";
 import providerConnectionsRoute from "./routes/provider-connections";
 import providersRoute from "./routes/providers";
+import ratesRoute from "./routes/rates/index";
+
 const app = new OpenAPIHono();
 
 app.use("*", logger()).use("*", cors()).use("*", prettyJSON());
@@ -58,7 +60,8 @@ const appRoutes = app
   .route("/institutions", institutionsRoute)
   .route("/institution-connections", institutionConnectionsRoute)
   .route("/providers", providersRoute)
-  .route("/provider-connections", providerConnectionsRoute);
+  .route("/provider-connections", providerConnectionsRoute)
+  .route("/rates", ratesRoute);
 
 // Start the server
 const port = 3002;

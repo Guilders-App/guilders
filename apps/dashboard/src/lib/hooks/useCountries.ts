@@ -1,10 +1,19 @@
-import type { Countries, Country } from "@guilders/api/types";
-import { useApiQuery } from "./useApiQuery";
+import { useQuery } from "@tanstack/react-query";
+import { getApiClient } from "../api";
 
 const queryKey = ["countries"] as const;
 
 export function useCountries() {
-  return useApiQuery<Countries>(queryKey, (api) => api.countries);
+  return useQuery({
+    queryKey,
+    queryFn: async () => {
+      const api = await getApiClient();
+      const response = await api.countries.$get();
+      const { data, error } = await response.json();
+      if (error) throw new Error(error);
+      return data;
+    },
+  });
 }
 
 export function useCountriesMap() {
@@ -19,7 +28,14 @@ export function useCountriesMap() {
 }
 
 export function useCountry(code: string) {
-  return useApiQuery<Country>([...queryKey, code], (api) => ({
-    $get: () => api.countries[":code"].$get({ param: { code } }),
-  }));
+  return useQuery({
+    queryKey: [...queryKey, code],
+    queryFn: async () => {
+      const api = await getApiClient();
+      const response = await api.countries[":code"].$get({ param: { code } });
+      const { data, error } = await response.json();
+      if (error) throw new Error(error);
+      return data;
+    },
+  });
 }

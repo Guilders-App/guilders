@@ -10,3 +10,4 @@ export type {
   ProviderConnections,
 } from "./routes/provider-connections/schema";
 export type { Provider, Providers } from "./routes/providers/schema";
+export type { Rate, Rates } from "./routes/rates/schema";

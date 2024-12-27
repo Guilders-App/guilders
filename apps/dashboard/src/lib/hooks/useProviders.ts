@@ -20,3 +20,8 @@ export function useProviderById(providerId: number | undefined) {
   const { data: providers } = useProviders();
   return providers?.find((p) => p.id === providerId);
 }
+
+export function useProviderByName(providerName: string | undefined) {
+  const { data: providers } = useProviders();
+  return providers?.find((p) => p.name === providerName);
+}

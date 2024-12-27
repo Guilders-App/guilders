@@ -1,23 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
+import { getApiClient } from "../api";
 
 const queryKey = ["rates"] as const;
-
-type Rate = {
-  currency_code: string;
-  rate: number;
-};
 
 export function useRates() {
   return useQuery({
     queryKey,
     queryFn: async () => {
-      const response = await fetch("/api/rates");
-      if (!response.ok) throw new Error("Failed to fetch rates");
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.error || "Failed to fetch currencies");
-      }
-      return data.data as Rate[];
+      const api = await getApiClient();
+      const response = await api.rates.$get({ query: { base: "EUR" } });
+      const { data, error } = await response.json();
+      if (error) throw new Error(error);
+      return data;
     },
   });
 }

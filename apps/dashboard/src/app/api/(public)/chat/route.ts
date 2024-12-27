@@ -1,5 +1,5 @@
+import { getApiClient } from "@/lib/api";
 import { authenticate } from "@/lib/api/auth";
-import { getRates } from "@/lib/db/utils";
 import { anthropic } from "@ai-sdk/anthropic";
 import { createClient } from "@guilders/database/server";
 import type { Account } from "@guilders/database/types";
@@ -160,7 +160,17 @@ export async function POST(request: NextRequest) {
 
 const getAccountsContext = async (userId: string) => {
   const supabase = await createClient();
-  const exchangeRates = await getRates();
+  const api = await getApiClient();
+  const exchangeRatesResponse = await api.rates.$get({
+    query: { base: "EUR" },
+  });
+
+  if (exchangeRatesResponse.status !== 200) {
+    console.error("Failed to fetch exchange rates");
+    throw new Error("Failed to fetch exchange rates");
+  }
+
+  const { data: exchangeRates } = await exchangeRatesResponse.json();
 
   // Get all accounts with their connections
   const { data: allAccounts } = await supabase

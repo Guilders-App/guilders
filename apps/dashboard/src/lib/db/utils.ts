@@ -1,10 +1,7 @@
 import { createClient } from "@guilders/database/server";
-import { saltedge } from "../../lib/providers/saltedge/client";
 
 export const getProviders = async () => {
-  // TODO: Add proper caching
-  // "use cache";
-  const supabase = await createClient({ admin: true });
+  const supabase = await createClient();
   const { data: providers } = await supabase.from("provider").select("*");
 
   if (!providers) {
@@ -23,15 +20,4 @@ export const getProvider = async (providerName: string) => {
   }
 
   return provider;
-};
-
-export const getRates = async () => {
-  // TODO: Add proper caching
-  // "use cache";
-  const rates = await saltedge.getRates();
-
-  return rates.map(({ currency_code, rate }) => ({
-    currency_code,
-    rate,
-  }));
 };
