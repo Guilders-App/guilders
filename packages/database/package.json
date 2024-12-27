@@ -8,7 +8,7 @@
     "format": "biome check --write .",
     "typecheck": "tsc --noEmit",
     "db:generate": "supabase gen types typescript --linked > src/types/db.ts",
-    "db:pull": "supabase db pull --schema storage",
+    "db:pull": "supabase db pull",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
     "db:seed": "bun run scripts/seedDatabase.ts",
@@ -18,7 +18,7 @@
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.46.1",
     "@t3-oss/env-nextjs": "^0.11.1",
-    "supabase": "^2.0.0",
+    "supabase": "^2.1.1",
     "zod": "^3.24.1"
   },
   "devDependencies": {

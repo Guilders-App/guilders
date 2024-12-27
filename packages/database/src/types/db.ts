@@ -304,6 +304,29 @@ export type Database = {
           },
         ];
       };
+      rate: {
+        Row: {
+          currency_code: string;
+          rate: number;
+        };
+        Insert: {
+          currency_code: string;
+          rate: number;
+        };
+        Update: {
+          currency_code?: string;
+          rate?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "rates_currency_fkey";
+            columns: ["currency_code"];
+            isOneToOne: true;
+            referencedRelation: "currency";
+            referencedColumns: ["code"];
+          },
+        ];
+      };
       subscription: {
         Row: {
           cancel_at: string | null;
