@@ -1,5 +1,6 @@
 "use client";
 
+import { useProviderById } from "@/lib/hooks/useProviders";
 import { Button } from "@guilders/ui/button";
 import {
   Dialog,
@@ -14,7 +15,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useCreateConnection } from "../../lib/hooks/useConnections";
 import { useDialog } from "../../lib/hooks/useDialog";
-import { useProvider } from "../../lib/hooks/useProviders";
 import { useUser } from "../../lib/hooks/useUser";
 import { isPro } from "../../lib/utils";
 
@@ -23,7 +23,7 @@ export function AddLinkedAccountDialog() {
   const { data: user } = useUser();
   const { isOpen, data, close } = useDialog("addLinkedAccount");
   const { open: openProviderDialog } = useDialog("provider");
-  const { data: provider } = useProvider(data?.institution?.provider_id);
+  const provider = useProviderById(data?.institution?.provider_id);
   const { mutateAsync: createConnection, isPending } = useCreateConnection();
 
   if (!isOpen || !provider || !data?.institution) return null;

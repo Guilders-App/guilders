@@ -1,7 +1,7 @@
 "use client";
 
 import { useInstitutionConnection } from "@/lib/hooks/useInstitutionConnection";
-import { useProvider } from "@/lib/hooks/useProviders";
+import { useProviderById } from "@/lib/hooks/useProviders";
 import {
   accountSubtypeLabels,
   accountSubtypes,
@@ -92,7 +92,7 @@ export function EditAccountDialog() {
   const connection = connections?.find(
     (c) => c.id === institutionConnection?.provider_connection_id,
   );
-  const { data: provider } = useProvider(connection?.provider_id);
+  const provider = useProviderById(connection?.provider_id);
   const { data: currencies } = useCurrencies();
 
   const { mutate: updateAccount, isPending: isUpdating } = useUpdateAccount();

@@ -11,7 +11,7 @@ type CreateClientOptions = {
 };
 
 export const createClient = async (options?: CreateClientOptions) => {
-  const { admin, url, key, ssr } = options ?? {};
+  const { admin = false, url, key, ssr = true } = options ?? {};
 
   const supabaseUrl = url ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (!supabaseUrl) {
