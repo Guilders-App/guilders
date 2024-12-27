@@ -138,7 +138,7 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
       const { email, password, settings }: UpdateUser = await c.req.json();
 
       // Handle auth updates if provided
-      if (email && email !== user.email) {
+      if ((email && email !== user.email) || password) {
         const { error: authError } =
           await supabaseAdmin.auth.admin.updateUserById(user.id, {
             email,
