@@ -26,7 +26,7 @@ type PasswordForm = z.infer<typeof passwordSchema>;
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const updateUser = useUpdateUserSettings();
+  const { mutateAsync: updateUser } = useUpdateUserSettings();
 
   const {
     register,
@@ -38,7 +38,7 @@ export default function OnboardingPage() {
 
   const onSubmit = async (data: PasswordForm) => {
     try {
-      await updateUser.mutateAsync({
+      await updateUser({
         password: data.password,
       });
       router.push("/");

@@ -36,7 +36,7 @@ export function ApiKeyForm() {
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
 
-      await updateUserSettings({ apiKey });
+      await updateUserSettings({ settings: { api_key: apiKey } });
 
       toast.success("API Key generated", {
         description: "Your API key has been generated successfully.",
@@ -53,7 +53,7 @@ export function ApiKeyForm() {
   const handleDelete = async () => {
     try {
       setDeleting(true);
-      await updateUserSettings({ apiKey: null });
+      await updateUserSettings({ settings: { api_key: null } });
       toast.success("API Key deleted", {
         description: "Your API key has been deleted successfully.",
       });
