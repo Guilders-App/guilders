@@ -26,7 +26,7 @@ type PasswordForm = z.infer<typeof passwordSchema>;
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { mutateAsync: updateUser } = useUpdateUserSettings();
+  const { mutateAsync: updateUser, isPending } = useUpdateUserSettings();
 
   const {
     register,
@@ -89,7 +89,7 @@ export default function OnboardingPage() {
                 id="password"
                 type="password"
                 placeholder="Enter your new password"
-                disabled={updateUser.isPending}
+                disabled={isPending}
                 {...register("password")}
               />
               {errors.password && (
@@ -105,7 +105,7 @@ export default function OnboardingPage() {
                 id="confirmPassword"
                 type="password"
                 placeholder="Confirm your password"
-                disabled={updateUser.isPending}
+                disabled={isPending}
                 {...register("confirmPassword")}
               />
               {errors.confirmPassword && (
@@ -115,14 +115,8 @@ export default function OnboardingPage() {
               )}
             </div>
 
-            <Button
-              type="submit"
-              className="mt-2 w-full"
-              disabled={updateUser.isPending}
-            >
-              {updateUser.isPending
-                ? "Setting password..."
-                : "Set Password & Continue"}
+            <Button type="submit" className="mt-2 w-full" disabled={isPending}>
+              {isPending ? "Setting password..." : "Set Password & Continue"}
             </Button>
           </div>
         </form>
