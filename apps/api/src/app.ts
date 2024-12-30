@@ -3,6 +3,7 @@ import currenciesRoute from "@/routes/currencies";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { apiReference } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
+import { showRoutes } from "hono/dev";
 import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
@@ -75,6 +76,8 @@ Bun.serve({
 });
 
 console.log(`🔥 Hono is running at http://localhost:${port}`);
+
+showRoutes(app, { verbose: true });
 
 export { app };
 export type AppType = typeof appRoutes;

@@ -29,7 +29,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 import { DateTimePicker } from "../../components/common/datetime-picker";
 import { useAccounts } from "../../lib/hooks/useAccounts";
@@ -98,28 +97,17 @@ export function AddTransactionDialog() {
     }
   }, [isOpen, form]);
 
-  const handleSubmit = form.handleSubmit(async (data) => {
-    try {
-      await addTransaction({
-        account_id: data.accountId,
-        amount: Number.parseFloat(data.amount),
-        currency: data.currency,
-        description: data.description,
-        category: data.category,
-        date: new Date(data.date).toISOString(),
-      });
+  const handleSubmit = form.handleSubmit((data) => {
+    addTransaction({
+      account_id: data.accountId,
+      amount: Number.parseFloat(data.amount),
+      currency: data.currency,
+      description: data.description,
+      category: data.category,
+      date: new Date(data.date).toISOString(),
+    });
 
-      toast.success("Transaction added!", {
-        description: "Your transaction has been added successfully.",
-      });
-      close();
-    } catch (error) {
-      toast.error("Error adding transaction", {
-        description:
-          "There was an error adding your transaction. Please try again.",
-      });
-      console.error("Error adding transaction:", error);
-    }
+    close();
   });
 
   return (

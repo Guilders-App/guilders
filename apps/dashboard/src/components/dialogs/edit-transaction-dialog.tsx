@@ -37,7 +37,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 import { DateTimePicker } from "../common/datetime-picker";
 import { FileUploader } from "../common/file-uploader";
@@ -115,7 +114,7 @@ export function EditTransactionDialog() {
 
   const isSyncedTransaction = !!transaction.provider_transaction_id;
 
-  const handleSubmit = form.handleSubmit(async (formData) => {
+  const handleSubmit = form.handleSubmit((formData) => {
     const updatedTransaction = {
       id: transaction.id,
       account_id: formData.accountId,
@@ -128,45 +127,17 @@ export function EditTransactionDialog() {
       provider_transaction_id: transaction.provider_transaction_id,
     };
 
-    updateTransaction(
-      {
-        transactionId: transaction.id,
-        transaction: updatedTransaction,
-      },
-      {
-        onSuccess: () => {
-          toast.success("Transaction updated", {
-            description: "Your transaction has been updated successfully.",
-          });
-          close();
-        },
-        onError: (error) => {
-          toast.error("Error updating transaction", {
-            description:
-              "There was an error updating your transaction. Please try again.",
-          });
-          console.error("Error updating transaction:", error);
-        },
-      },
-    );
+    updateTransaction({
+      transactionId: transaction.id,
+      transaction: updatedTransaction,
+    });
+
+    close();
   });
 
-  const handleDelete = async () => {
-    deleteTransaction(transaction.id, {
-      onSuccess: () => {
-        toast.success("Transaction deleted", {
-          description: "Your transaction has been deleted successfully.",
-        });
-        close();
-      },
-      onError: (error) => {
-        toast.error("Error deleting transaction", {
-          description:
-            "There was an error deleting your transaction. Please try again.",
-        });
-        console.error("Error deleting transaction:", error);
-      },
-    });
+  const handleDelete = () => {
+    deleteTransaction(transaction.id);
+    close();
   };
 
   return (

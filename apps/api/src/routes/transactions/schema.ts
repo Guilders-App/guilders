@@ -38,6 +38,8 @@ export const TransactionSchema = z
 export const TransactionsSchema = z.array(TransactionSchema);
 export const CreateTransactionSchema = TransactionSchema.omit({
   id: true,
+  documents: true,
+  provider_transaction_id: true,
 }).openapi("CreateTransaction");
 
 // Export inferred types
