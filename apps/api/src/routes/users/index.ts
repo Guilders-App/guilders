@@ -46,7 +46,7 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
       // Fetch subscription status
       const { data: subscription } = await supabase
         .from("subscription")
-        .select("status")
+        .select("status, current_period_end, trial_end")
         .eq("user_id", user.id)
         .single();
 
@@ -70,7 +70,11 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
             data: {
               email: user.email ?? "",
               settings: newSettings,
-              subscription: { status: subscription?.status ?? "unsubscribed" },
+              subscription: {
+                status: subscription?.status ?? "unsubscribed",
+                current_period_end: subscription?.current_period_end ?? null,
+                trial_end: subscription?.trial_end ?? null,
+              },
             },
             error: null,
           },
@@ -83,7 +87,11 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
           data: {
             email: user.email ?? "",
             settings,
-            subscription: { status: subscription?.status ?? "unsubscribed" },
+            subscription: {
+              status: subscription?.status ?? "unsubscribed",
+              current_period_end: subscription?.current_period_end ?? null,
+              trial_end: subscription?.trial_end ?? null,
+            },
           },
           error: null,
         },
@@ -165,7 +173,7 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
 
       const { data: subscription } = await supabase
         .from("subscription")
-        .select("status")
+        .select("status, current_period_end, trial_end")
         .eq("user_id", user.id)
         .single();
 
@@ -200,7 +208,11 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
             data: {
               email: updatedUser?.email ?? "",
               settings: newSettings,
-              subscription: { status: subscription?.status ?? "unsubscribed" },
+              subscription: {
+                status: subscription?.status ?? "unsubscribed",
+                current_period_end: subscription?.current_period_end ?? null,
+                trial_end: subscription?.trial_end ?? null,
+              },
             },
             error: null,
           },
@@ -217,7 +229,11 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
           data: {
             email: updatedUser?.email ?? "",
             settings: userSettings,
-            subscription: { status: subscription?.status ?? "unsubscribed" },
+            subscription: {
+              status: subscription?.status ?? "unsubscribed",
+              current_period_end: subscription?.current_period_end ?? null,
+              trial_end: subscription?.trial_end ?? null,
+            },
           },
           error: null,
         },

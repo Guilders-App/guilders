@@ -24,6 +24,8 @@ const UserSettingsSchema = z
 const UserSubscriptionSchema = z
   .object({
     status: SubscriptionStatusEnum.nullable(),
+    current_period_end: z.string().nullable(),
+    trial_end: z.string().nullable(),
   })
   .openapi("UserSubscription");
 
