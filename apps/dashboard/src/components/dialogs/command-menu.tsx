@@ -1,6 +1,6 @@
 "use client";
 
-import type { Institution } from "@guilders/database/types";
+import type { Institution } from "@guilders/api/types";
 import {
   CommandDialog,
   CommandEmpty,
