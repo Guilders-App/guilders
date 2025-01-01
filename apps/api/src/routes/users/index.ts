@@ -1,13 +1,8 @@
-import { ErrorSchema, createSuccessSchema } from "@/common/types";
+import { ErrorSchema, VoidSchema, createSuccessSchema } from "@/common/types";
 import type { Variables } from "@/common/variables";
 import { supabaseAdmin } from "@/lib/supabase";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import {
-  DeleteResponseSchema,
-  type UpdateUser,
-  UpdateUserSchema,
-  UserSchema,
-} from "./schema";
+import { type UpdateUser, UpdateUserSchema, UserSchema } from "./schema";
 
 const app = new OpenAPIHono<{ Variables: Variables }>()
   .openapi(
@@ -243,7 +238,7 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
           description: "User deleted successfully",
           content: {
             "application/json": {
-              schema: createSuccessSchema(DeleteResponseSchema),
+              schema: createSuccessSchema(VoidSchema),
             },
           },
         },

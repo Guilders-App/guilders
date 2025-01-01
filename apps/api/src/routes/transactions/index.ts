@@ -1,9 +1,8 @@
-import { ErrorSchema, createSuccessSchema } from "@/common/types";
+import { ErrorSchema, VoidSchema, createSuccessSchema } from "@/common/types";
 import type { Variables } from "@/common/variables";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import {
   CreateTransactionSchema,
-  DeleteResponseSchema,
   TransactionSchema,
   TransactionsSchema,
 } from "./schema";
@@ -328,7 +327,7 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
           description: "Transaction deleted",
           content: {
             "application/json": {
-              schema: createSuccessSchema(DeleteResponseSchema),
+              schema: createSuccessSchema(VoidSchema),
             },
           },
         },

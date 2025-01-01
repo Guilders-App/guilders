@@ -96,24 +96,21 @@ export function AddAccountDialog() {
 
     try {
       await addAccount({
+        type:
+          data.accountType === "creditcard" || data.accountType === "loan"
+            ? "liability"
+            : "asset",
         name: data.accountName,
         subtype: data.accountType,
         value: Number.parseFloat(data.value),
         currency: data.currency,
       });
 
-      toast.success("Account added!", {
-        description: "Your account has been added successfully.",
-      });
+      close();
     } catch (error) {
-      toast.error("Error adding account", {
-        description:
-          "There was an error adding your account. Please try again later.",
-      });
       console.error("Error adding account:", error);
     } finally {
       setIsLoading(false);
-      close();
     }
   });
 

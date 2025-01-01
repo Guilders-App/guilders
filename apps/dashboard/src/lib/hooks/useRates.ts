@@ -10,7 +10,7 @@ export function useRates() {
       const api = await getApiClient();
       const response = await api.rates.$get({ query: { base: "EUR" } });
       const { data, error } = await response.json();
-      if (error) throw new Error(error);
+      if (error || !data) throw new Error(error);
       return data;
     },
   });

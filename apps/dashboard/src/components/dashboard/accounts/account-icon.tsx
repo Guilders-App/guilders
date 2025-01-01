@@ -1,4 +1,4 @@
-import type { Account } from "@guilders/database/types";
+import type { Account } from "@guilders/api/types";
 import {
   Bitcoin,
   CarFront,

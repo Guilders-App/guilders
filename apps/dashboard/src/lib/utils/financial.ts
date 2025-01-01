@@ -1,4 +1,5 @@
-import type { Account, AccountSubtype, Rate } from "@guilders/database/types";
+import type { Account, Rate } from "@guilders/api/types";
+import type { AccountSubtype } from "@guilders/database/types";
 
 export function convertToUserCurrency(
   value: number,
@@ -51,7 +52,7 @@ export function calculateCategories(
       rates,
       userCurrency,
     );
-    categoryMap[account.subtype] += convertedValue;
+    categoryMap[account.subtype as AccountSubtype] += convertedValue;
   }
 
   const categoriesArray = Object.entries(categoryMap)

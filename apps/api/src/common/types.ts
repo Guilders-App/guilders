@@ -19,3 +19,4 @@ export function createSuccessSchema<T extends z.ZodType>(dataSchema: T) {
     }),
   });
 }
+export const VoidSchema = z.object({}).openapi("VoidResponse");

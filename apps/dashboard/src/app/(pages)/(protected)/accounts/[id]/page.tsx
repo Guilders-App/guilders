@@ -61,11 +61,7 @@ export default function AccountPage({
       onConfirm: () => {
         removeAccount(account.id, {
           onSuccess: () => {
-            toast.success("Account deleted");
             router.push("/accounts");
-          },
-          onError: () => {
-            toast.error("Error deleting account");
           },
         });
       },

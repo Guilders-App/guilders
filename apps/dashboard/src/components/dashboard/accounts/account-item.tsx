@@ -1,5 +1,5 @@
 import { ChangeBadge } from "@/components/common/change-badge";
-import type { Account } from "@guilders/database/types";
+import type { Account } from "@guilders/api/types";
 import NumberFlow from "@number-flow/react";
 import { TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";

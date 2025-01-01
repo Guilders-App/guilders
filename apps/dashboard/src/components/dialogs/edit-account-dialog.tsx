@@ -3,6 +3,7 @@
 import { useInstitutionConnection } from "@/lib/hooks/useInstitutionConnection";
 import { useProviderById } from "@/lib/hooks/useProviders";
 import {
+  type AccountSubtype,
   accountSubtypeLabels,
   accountSubtypes,
 } from "@guilders/database/types";
@@ -108,7 +109,8 @@ export function EditAccountDialog() {
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      accountType: data?.account?.subtype ?? accountSubtypes[0],
+      accountType:
+        (data?.account?.subtype as AccountSubtype) ?? accountSubtypes[0],
       accountName: data?.account?.name ?? "",
       value: data?.account?.value.toString() ?? "",
       currency: data?.account?.currency ?? "",
@@ -123,7 +125,7 @@ export function EditAccountDialog() {
   useEffect(() => {
     if (data?.account) {
       form.reset({
-        accountType: data.account.subtype,
+        accountType: data.account.subtype as AccountSubtype,
         accountName: data.account.name,
         value: data.account.value.toString(),
         currency: data.account.currency,
@@ -171,7 +173,6 @@ export function EditAccountDialog() {
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const updatedAccount = {
-      id: account.id,
       subtype: data.accountType,
       name: data.accountName,
       value: Number.parseFloat(data.value),
@@ -182,21 +183,20 @@ export function EditAccountDialog() {
       notes: data.notes ?? "",
     };
 
-    updateAccount(updatedAccount, {
-      onSuccess: () => {
-        toast.success("Account updated", {
-          description: "Your account has been updated successfully.",
-        });
-        close();
+    updateAccount(
+      {
+        id: account.id,
+        account: updatedAccount,
       },
-      onError: (error) => {
-        toast.error("Error updating account", {
-          description:
-            "There was an error updating your account. Please try again.",
-        });
-        console.error("Error updating account:", error);
+      {
+        onSuccess: () => {
+          close();
+        },
+        onError: (error) => {
+          console.error("Error updating account:", error);
+        },
       },
-    });
+    );
   });
 
   const handleRemoveExistingDocument = async (path: string) => {

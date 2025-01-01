@@ -48,8 +48,6 @@ export const UpdateUserSchema = z
   })
   .openapi("UpdateUser");
 
-export const DeleteResponseSchema = z.object({}).openapi("DeleteResponse");
-
 // Export inferred types
 export type User = z.infer<typeof UserSchema>;
 export type UpdateUser = z.infer<typeof UpdateUserSchema>;

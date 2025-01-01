@@ -1,5 +1,5 @@
 import { AccountsTable } from "@/components/dashboard/accounts/accounts-table";
-import type { Account } from "@guilders/database/types";
+import type { Account } from "@guilders/api/types";
 import { Button } from "@guilders/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@guilders/ui/card";
 import { cn } from "@guilders/ui/cn";

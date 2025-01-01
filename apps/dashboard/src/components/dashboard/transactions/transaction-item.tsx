@@ -1,5 +1,5 @@
 import { useDialog } from "@/lib/hooks/useDialog";
-import type { Transaction } from "@guilders/database/types";
+import type { Transaction } from "@guilders/api/types";
 import NumberFlow from "@number-flow/react";
 
 interface TransactionItemProps {

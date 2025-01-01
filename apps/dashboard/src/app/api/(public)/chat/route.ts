@@ -1,8 +1,8 @@
 import { getApiClient } from "@/lib/api";
 import { authenticate } from "@/lib/api/auth";
 import { anthropic } from "@ai-sdk/anthropic";
+import type { Account } from "@guilders/api/types";
 import { createClient } from "@guilders/database/server";
-import type { Account } from "@guilders/database/types";
 import {
   type CoreMessage,
   type ImagePart,

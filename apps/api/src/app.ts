@@ -7,6 +7,7 @@ import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 import { supabaseAuth } from "./middleware/supabaseAuth";
+import accountsRoute from "./routes/accounts";
 import institutionConnectionsRoute from "./routes/institution-connections";
 import institutionsRoute from "./routes/institutions";
 import providerConnectionsRoute from "./routes/provider-connections";
@@ -65,7 +66,8 @@ const appRoutes = app
   .route("/provider-connections", providerConnectionsRoute)
   .route("/rates", ratesRoute)
   .route("/transactions", transactionsRoute)
-  .route("/users", usersRoute);
+  .route("/users", usersRoute)
+  .route("/accounts", accountsRoute);
 
 // Start the server
 const port = 3002;

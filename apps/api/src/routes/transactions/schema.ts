@@ -46,5 +46,3 @@ export const CreateTransactionSchema = TransactionSchema.omit({
 export type Transaction = z.infer<typeof TransactionSchema>;
 export type Transactions = z.infer<typeof TransactionsSchema>;
 export type TransactionInsert = z.infer<typeof CreateTransactionSchema>;
-
-export const DeleteResponseSchema = z.object({}).openapi("DeleteResponse");

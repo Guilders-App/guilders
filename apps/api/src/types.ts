@@ -1,3 +1,8 @@
+export type {
+  Account,
+  CreateAccount,
+  UpdateAccount,
+} from "./routes/accounts/schema";
 export type { Countries, Country } from "./routes/countries/schema";
 export type { Currencies, Currency } from "./routes/currencies/schema";
 export type {

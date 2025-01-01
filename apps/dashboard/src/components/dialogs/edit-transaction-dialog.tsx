@@ -127,17 +127,31 @@ export function EditTransactionDialog() {
       provider_transaction_id: transaction.provider_transaction_id,
     };
 
-    updateTransaction({
-      transactionId: transaction.id,
-      transaction: updatedTransaction,
-    });
-
-    close();
+    updateTransaction(
+      {
+        transactionId: transaction.id,
+        transaction: updatedTransaction,
+      },
+      {
+        onSuccess: () => {
+          close();
+        },
+        onError: (error) => {
+          console.error("Error updating transaction:", error);
+        },
+      },
+    );
   });
 
   const handleDelete = () => {
-    deleteTransaction(transaction.id);
-    close();
+    deleteTransaction(transaction.id, {
+      onSuccess: () => {
+        close();
+      },
+      onError: (error) => {
+        console.error("Error deleting transaction:", error);
+      },
+    });
   };
 
   return (
