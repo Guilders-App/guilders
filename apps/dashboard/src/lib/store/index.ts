@@ -1,5 +1,5 @@
 import { type StateCreator, create } from "zustand";
-import { createDialogStore } from "./store/dialogStore";
+import { createDialogStore } from "./dialogStore";
 
 export type StateSlice<T extends object> = StateCreator<T>;
 

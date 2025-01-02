@@ -1,5 +1,5 @@
 import type { Account, Institution, Transaction } from "@guilders/api/types";
-import type { StateSlice } from "../store";
+import type { StateSlice } from ".";
 
 export type DialogState =
   | {
