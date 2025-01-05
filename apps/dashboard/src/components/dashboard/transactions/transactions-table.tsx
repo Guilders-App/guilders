@@ -22,7 +22,7 @@ export function TransactionsTable({ accountId }: { accountId?: number }) {
           </p>
         </div>
       ) : transactions.length === 0 ? (
-        <TransactionsEmptyPlaceholder />
+        <TransactionsEmptyPlaceholder accountId={accountId} />
       ) : (
         transactions
           .sort((a, b) => b.date.localeCompare(a.date))

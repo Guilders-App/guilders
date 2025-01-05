@@ -2,7 +2,7 @@
 
 import { Loader2, Upload, X } from "lucide-react";
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Dropzone, {
   type DropEvent,
   type DropzoneProps,
@@ -12,6 +12,7 @@ import { toast } from "sonner";
 
 import { useControllableState } from "@/lib/hooks/useControllableState";
 import { formatBytes } from "@/lib/utils";
+import type { CreateDocumentResponse } from "@guilders/api/types";
 import { Button } from "@guilders/ui/button";
 import { cn } from "@guilders/ui/cn";
 import { ScrollArea } from "@guilders/ui/scroll-area";
@@ -19,15 +20,15 @@ import { ScrollArea } from "@guilders/ui/scroll-area";
 interface FileUploaderProps extends React.HTMLAttributes<HTMLDivElement> {
   value?: File[];
   onValueChange?: (files: File[]) => void;
-  onUpload?: (files: File[]) => Promise<string[]>;
+  onUpload?: (files: File[]) => Promise<CreateDocumentResponse[]>;
   accept?: DropzoneProps["accept"];
   maxSize?: number;
   maxFileCount?: number;
   multiple?: boolean;
   disabled?: boolean;
-  existingDocuments?: string[];
-  onRemoveExisting?: (path: string) => Promise<void>;
-  onView?: (path: string) => Promise<string>;
+  documents?: Array<{ id: number; name: string; path: string }>;
+  onRemoveExisting?: (id: number) => Promise<void>;
+  onView?: (id: number) => Promise<string>;
 }
 
 export function FileUploader({
@@ -39,7 +40,7 @@ export function FileUploader({
   maxFileCount = 1,
   multiple = false,
   disabled = false,
-  existingDocuments = [],
+  documents = [],
   onRemoveExisting,
   onView,
   className,
@@ -50,14 +51,9 @@ export function FileUploader({
     onChange: onValueChange,
   });
 
-  const [localDocuments, setLocalDocuments] = useState(existingDocuments);
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>(
     {},
   );
-
-  useEffect(() => {
-    setLocalDocuments(existingDocuments);
-  }, [existingDocuments]);
 
   const handleUpload = async (newFiles: File[]) => {
     if (!onUpload) return;
@@ -70,9 +66,9 @@ export function FileUploader({
     setUploadingFiles(uploading);
 
     try {
-      const uploadedFiles = await onUpload(newFiles);
-      setLocalDocuments((prev) => [...prev, ...uploadedFiles]);
+      await onUpload(newFiles);
       setFiles([]);
+      toast.success("Upload complete");
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Failed to upload files");
@@ -99,18 +95,8 @@ export function FileUploader({
 
       setFiles(newFiles);
 
-      if (rejectedFiles.length > 0) {
-        for (const { file } of rejectedFiles) {
-          toast.error(`File ${file.name} was rejected`);
-        }
-      }
-
       if (newFiles.length > 0) {
-        toast.promise(handleUpload(newFiles), {
-          loading: `Uploading ${newFiles.length > 1 ? "files" : "file"}...`,
-          success: "Upload complete",
-          error: "Upload failed",
-        });
+        handleUpload(newFiles);
       }
     },
     [files, maxFileCount, multiple],
@@ -123,12 +109,11 @@ export function FileUploader({
     onValueChange?.(newFiles);
   };
 
-  const handleRemoveExisting = async (path: string) => {
+  const handleRemoveExisting = async (id: number) => {
     if (!onRemoveExisting) return;
 
     try {
-      await onRemoveExisting(path);
-      setLocalDocuments((prev) => prev.filter((doc) => doc !== path));
+      await onRemoveExisting(id);
       toast.success("File removed");
     } catch (error) {
       toast.error("Failed to remove file");
@@ -137,7 +122,7 @@ export function FileUploader({
   };
 
   const isDisabled =
-    disabled || (files?.length ?? 0 + localDocuments.length) >= maxFileCount;
+    disabled || (files?.length ?? 0 + documents.length) >= maxFileCount;
 
   return (
     <div className="relative flex flex-col gap-6 overflow-hidden">
@@ -146,7 +131,7 @@ export function FileUploader({
         onDrop={onDrop}
         accept={accept}
         maxSize={maxSize}
-        maxFiles={maxFileCount - localDocuments.length}
+        maxFiles={maxFileCount - documents.length}
         multiple={maxFileCount > 1 || multiple}
         disabled={isDisabled}
         {...dropzoneProps}
@@ -172,21 +157,21 @@ export function FileUploader({
         )}
       </Dropzone>
 
-      {((files?.length ?? 0) > 0 || localDocuments.length > 0) && (
+      {((files?.length ?? 0) > 0 || documents.length > 0) && (
         <ScrollArea className="h-fit w-full px-3">
           <div className="flex max-h-48 flex-col gap-4">
-            {localDocuments.map((path) => (
+            {documents.map((doc) => (
               <FileCard
-                key={path}
+                key={doc.id}
                 file={{
-                  name: path.split("/").pop() || path,
+                  name: doc.name,
                   size: 0,
-                  type: path.toLowerCase().endsWith(".pdf")
+                  type: doc.path.toLowerCase().endsWith(".pdf")
                     ? "application/pdf"
                     : "image/*",
                 }}
-                path={path}
-                onRemove={() => handleRemoveExisting(path)}
+                documentId={doc.id}
+                onRemove={() => handleRemoveExisting(doc.id)}
                 onView={onView}
               />
             ))}
@@ -249,15 +234,15 @@ function DropzoneContent({
 
 interface FileCardProps {
   file: File | { name: string; size: number; type: string };
-  path?: string;
+  documentId?: number;
   onRemove: () => Promise<void>;
-  onView?: (path: string) => Promise<string>;
+  onView?: (id: number) => Promise<string>;
   isUploading?: boolean;
 }
 
 function FileCard({
   file,
-  path,
+  documentId,
   isUploading,
   onRemove,
   onView,
@@ -266,11 +251,11 @@ function FileCard({
   const [isRemoving, setIsRemoving] = useState(false);
 
   const handleView = async () => {
-    if (!path || !onView) return;
+    if (!documentId || !onView) return;
 
     setIsLoading(true);
     try {
-      const url = await onView(path);
+      const url = await onView(documentId);
       window.open(url, "_blank");
     } catch (error) {
       toast.error("Failed to open document");
@@ -309,7 +294,7 @@ function FileCard({
         </div>
       </div>
       <div className="flex items-center gap-2">
-        {path && (
+        {documentId && (
           <Button
             type="button"
             variant="ghost"

@@ -54,7 +54,7 @@ const formSchema = z.object({
 type FormSchema = z.infer<typeof formSchema>;
 
 export function AddTransactionDialog() {
-  const { isOpen, close } = useDialog("addTransaction");
+  const { isOpen, close, data } = useDialog("addTransaction");
   const { mutate: addTransaction, isPending } = useAddTransaction();
   const { data: accounts } = useAccounts();
   const { data: currencies } = useCurrencies();
@@ -76,14 +76,28 @@ export function AddTransactionDialog() {
     },
   });
 
-  // Set currency when account is selected
   useEffect(() => {
-    const accountId = form.watch("accountId");
-    const account = accounts?.find((a) => a.id === accountId);
-    if (account) {
-      form.setValue("currency", account.currency);
+    if (isOpen) {
+      if (data?.accountId) {
+        // Set the Account ID
+        form.setValue("accountId", data.accountId);
+
+        // Set the currency based on the selected account
+        const account = accounts?.find((a) => a.id === data.accountId);
+        if (account) {
+          form.setValue("currency", account.currency);
+        }
+      } else {
+        // Reset to undefined when no accountId is provided
+        // @ts-ignore
+        form.setValue("accountId", undefined);
+        // Reset to user's default currency
+        if (user?.settings.currency) {
+          form.setValue("currency", user.settings.currency);
+        }
+      }
     }
-  }, [form.watch("accountId"), accounts, form]);
+  }, [isOpen, data?.accountId, accounts, form, user?.settings.currency]);
 
   useEffect(() => {
     if (user?.settings.currency) {

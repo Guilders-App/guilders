@@ -161,6 +161,45 @@ export type Database = {
         };
         Relationships: [];
       };
+      document: {
+        Row: {
+          created_at: string;
+          entity_id: number;
+          entity_type: Database["public"]["Enums"]["document_entity_type"];
+          id: number;
+          name: string;
+          path: string;
+          size: number;
+          type: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          entity_id: number;
+          entity_type: Database["public"]["Enums"]["document_entity_type"];
+          id?: number;
+          name: string;
+          path: string;
+          size: number;
+          type: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          entity_id?: number;
+          entity_type?: Database["public"]["Enums"]["document_entity_type"];
+          id?: number;
+          name?: string;
+          path?: string;
+          size?: number;
+          type?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       institution: {
         Row: {
           country: string | null;
@@ -377,34 +416,40 @@ export type Database = {
           account_id: number;
           amount: number;
           category: string;
+          created_at: string;
           currency: string;
           date: string;
           description: string;
           documents: string[] | null;
           id: number;
           provider_transaction_id: string | null;
+          updated_at: string;
         };
         Insert: {
           account_id: number;
           amount: number;
           category?: string;
+          created_at?: string;
           currency: string;
           date: string;
           description: string;
           documents?: string[] | null;
           id?: number;
           provider_transaction_id?: string | null;
+          updated_at?: string;
         };
         Update: {
           account_id?: number;
           amount?: number;
           category?: string;
+          created_at?: string;
           currency?: string;
           date?: string;
           description?: string;
           documents?: string[] | null;
           id?: number;
           provider_transaction_id?: string | null;
+          updated_at?: string;
         };
         Relationships: [
           {
@@ -473,6 +518,7 @@ export type Database = {
         | "loan"
         | "stock";
       account_type: "asset" | "liability";
+      document_entity_type: "account" | "transaction";
       investable:
         | "non_investable"
         | "investable_easy_convert"

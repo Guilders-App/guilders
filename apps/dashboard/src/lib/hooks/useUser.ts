@@ -25,7 +25,6 @@ export function useUpdateUserSettings() {
       const api = await getApiClient();
       const response = await api.users.me.$patch({ json: input });
       const { data, error } = await response.json();
-      console.log("error", error);
       if (error) throw new Error(error);
       return data;
     },

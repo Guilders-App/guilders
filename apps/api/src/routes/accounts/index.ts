@@ -392,8 +392,6 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
       const user = c.get("user");
       const updates = await c.req.json();
 
-      console.log(updates);
-
       if (updates.subtype) {
         updates.type =
           updates.subtype === "creditcard" || updates.subtype === "loan"

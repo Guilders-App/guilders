@@ -2,7 +2,7 @@
 
 import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useDialog } from "@/lib/hooks/useDialog";
-import { useTransactionFiles } from "@/lib/hooks/useTransactionFiles";
+import { useFiles } from "@/lib/hooks/useFiles";
 import {
   useRemoveTransaction,
   useUpdateTransaction,
@@ -73,10 +73,10 @@ export function EditTransactionDialog() {
   const { mutate: deleteTransaction, isPending: isDeleting } =
     useRemoveTransaction();
   const { data: accounts } = useAccounts();
-  const { uploadFile, deleteFile, getSignedUrl, isUploading } =
-    useTransactionFiles({
-      transactionId: data?.transaction?.id ?? 0,
-    });
+  const { uploadFile, deleteFile, getSignedUrl, isUploading } = useFiles({
+    entityType: "transaction",
+    entityId: data?.transaction?.id ?? 0,
+  });
 
   const currentAccount = accounts?.find(
     (account) => account.id === data?.transaction?.account_id,
@@ -373,9 +373,13 @@ export function EditTransactionDialog() {
                             }}
                             onUpload={uploadFile}
                             disabled={isUploading}
-                            existingDocuments={
-                              data?.transaction?.documents ?? []
-                            }
+                            documents={data?.transaction?.documents?.map(
+                              (id) => ({
+                                id: Number(id),
+                                name: `Document ${id}`,
+                                path: "",
+                              }),
+                            )}
                             onRemoveExisting={deleteFile}
                             onView={getSignedUrl}
                           />

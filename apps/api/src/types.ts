@@ -6,6 +6,14 @@ export type {
 export type { Countries, Country } from "./routes/countries/schema";
 export type { Currencies, Currency } from "./routes/currencies/schema";
 export type {
+  CreateDocument,
+  CreateDocumentResponse,
+  DeleteDocument,
+  Document,
+  DocumentEntityType,
+  GetDocumentResponse,
+} from "./routes/documents/schema";
+export type {
   InstitutionConnection,
   InstitutionConnections,
 } from "./routes/institution-connections/schema";

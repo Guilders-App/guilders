@@ -1,5 +1,6 @@
 "use client";
 
+import { useFiles } from "@/lib/hooks/useFiles";
 import { useInstitutionConnection } from "@/lib/hooks/useInstitutionConnection";
 import { useProviderById } from "@/lib/hooks/useProviders";
 import {
@@ -39,7 +40,6 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useAccountFiles } from "../../lib/hooks/useAccountFiles";
 import { useUpdateAccount } from "../../lib/hooks/useAccounts";
 import {
   useFixConnection,
@@ -100,11 +100,10 @@ export function EditAccountDialog() {
   const { mutateAsync: fixConnection, isPending: isFixing } =
     useFixConnection();
 
-  const { uploadFile, deleteFile, getSignedUrl, isUploading } = useAccountFiles(
-    {
-      accountId: data?.account?.id ?? 0,
-    },
-  );
+  const { uploadFile, deleteFile, getSignedUrl, isUploading } = useFiles({
+    entityType: "account",
+    entityId: data?.account?.id ?? 0,
+  });
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
@@ -198,23 +197,6 @@ export function EditAccountDialog() {
       },
     );
   });
-
-  const handleRemoveExistingDocument = async (path: string) => {
-    try {
-      toast.promise(deleteFile(path), {
-        loading: "Removing document...",
-        success: () => {
-          return "Document removed successfully";
-        },
-        error: (err) => {
-          console.error("Error removing document:", err);
-          return "Failed to remove document";
-        },
-      });
-    } catch (error) {
-      // The error is handled by the toast.promise above
-    }
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={close}>
@@ -484,8 +466,12 @@ export function EditAccountDialog() {
                           }}
                           onUpload={uploadFile}
                           disabled={isUploading}
-                          existingDocuments={data?.account?.documents ?? []}
-                          onRemoveExisting={handleRemoveExistingDocument}
+                          documents={data?.account?.documents?.map((id) => ({
+                            id: Number(id),
+                            name: `Document ${id}`,
+                            path: "",
+                          }))}
+                          onRemoveExisting={deleteFile}
                           onView={getSignedUrl}
                         />
                       </FormControl>

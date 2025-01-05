@@ -51,12 +51,14 @@ export function useAddAccount() {
       const { data, error } = await response.json();
 
       if (!response.ok) {
+        console.log("error", error);
         throw new Error(
           error || `Error: ${response.status} ${response.statusText}`,
         );
       }
 
       if (error || !data) {
+        console.log("error", error);
         throw new Error(error || "Failed to add account");
       }
 

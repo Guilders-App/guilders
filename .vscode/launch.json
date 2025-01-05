@@ -2,23 +2,33 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Next.js Debug",
+      "name": "Debug Dashboard",
       "type": "node-terminal",
       "request": "launch",
+      "cwd": "${workspaceFolder}/apps/dashboard",
       "command": "bun dev"
+    },
+    {
+      "name": "Debug API",
+      "type": "node-terminal",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/api",
+      "command": "bun dev"
+    },
+    {
+      "name": "Debug Database",
+      "type": "node-terminal",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/packages/database",
+      "command": "bun db:start"
     },
     {
       "name": "Ngrok Tunnel",
       "type": "node-terminal",
       "request": "launch",
+      "cwd": "${workspaceFolder}",
       "envFile": "${workspaceFolder}/.env",
       "command": "bun ngrok"
-    }
-  ],
-  "compounds": [
-    {
-      "name": "Next.js + Ngrok",
-      "configurations": ["Next.js Debug", "Ngrok Tunnel"]
     }
   ]
 }

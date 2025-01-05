@@ -36,7 +36,6 @@ export function DateTimePicker({
 
   // Initialize time state with current time if no date provided
   const [time, setTime] = useState(defaultTimeString);
-  console.log(time);
 
   // Set initial date and time when component mounts
   useEffect(() => {
