@@ -174,7 +174,8 @@ export default function AccountPage({
             // biome-ignore lint/complexity/noUselessFragments: Using it to override the default menu component
             <TransactionsCard accountId={account.id} menuComponent={<></>} />
           ) : null}
-          {account.subtype === "brokerage" && account.children.length > 0 ? (
+          {account.subtype === "brokerage" &&
+          (account.children?.length ?? 0) > 0 ? (
             <AccountsCard
               title="Holdings"
               accounts={account.children}

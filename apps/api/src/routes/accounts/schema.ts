@@ -51,7 +51,7 @@ const BaseAccountSchema = z
   .openapi("BaseAccount");
 
 export const AccountSchema = BaseAccountSchema.extend({
-  children: z.array(BaseAccountSchema).default([]),
+  children: z.array(BaseAccountSchema).default([]).optional(),
 }).openapi("Account");
 
 export const AccountsSchema = z.array(AccountSchema);
