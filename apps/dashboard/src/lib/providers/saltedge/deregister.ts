@@ -1,5 +1,5 @@
 import { createClient } from "@guilders/database/client";
-import { getProvider } from "../../db/utils";
+import { getProvider } from "@guilders/database/utils";
 import type { ConnectionProviderFunction } from "../types";
 import { providerName, saltedge } from "./client";
 
@@ -7,7 +7,7 @@ export const deregisterSaltEdgeUser: ConnectionProviderFunction = async (
   userId: string,
 ) => {
   const supabase = await createClient();
-  const provider = await getProvider(providerName);
+  const provider = await getProvider(supabase, providerName);
 
   if (!provider) {
     return {

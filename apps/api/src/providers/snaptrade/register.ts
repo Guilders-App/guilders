@@ -1,9 +1,9 @@
 import { createClient } from "@guilders/database/server";
 import { getProvider } from "@guilders/database/utils";
 import type { ConnectionProviderFunction, ConnectionResult } from "../types";
-import { providerName, saltedge } from "./client";
+import { providerName, snaptrade } from "./client";
 
-export const registerSaltEdgeUser: ConnectionProviderFunction = async (
+export const registerSnapTradeUser: ConnectionProviderFunction = async (
   userId: string,
 ): Promise<ConnectionResult> => {
   const supabase = await createClient();
@@ -16,22 +16,25 @@ export const registerSaltEdgeUser: ConnectionProviderFunction = async (
     };
   }
 
-  const connection = await supabase
+  const { data: connection } = await supabase
     .from("provider_connection")
     .select("*")
     .eq("user_id", userId)
     .eq("provider_id", provider.id)
     .single();
 
-  if (connection?.data) {
+  if (connection) {
     return {
       success: true,
-      data: connection.data,
+      data: connection,
     };
   }
 
-  const response = await saltedge.createCustomer(userId);
-  if (!response) {
+  const response = await snaptrade.authentication.registerSnapTradeUser({
+    userId,
+  });
+
+  if (!response || !response.data || !response.data.userSecret) {
     console.error(`${providerName} registration error:`, response);
     return {
       success: false,
@@ -43,7 +46,7 @@ export const registerSaltEdgeUser: ConnectionProviderFunction = async (
     .from("provider_connection")
     .insert({
       user_id: userId,
-      secret: response.customer_id,
+      secret: response.data.userSecret,
       provider_id: provider.id,
     })
     .select()
