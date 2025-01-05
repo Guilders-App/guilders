@@ -42,7 +42,6 @@ async function insertCurrencyBeaconRates() {
 
   // Filter rates to only include supported currencies
   const filteredRates = [
-    { currency_code: "USD", rate: 1 },
     ...Object.entries(rates.rates)
       .filter(([currencyCode]) => supportedCurrencyCodes.has(currencyCode))
       .map(([currencyCode, rate]) => ({
