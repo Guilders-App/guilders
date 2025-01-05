@@ -61,7 +61,7 @@ export function CommandMenu() {
     close();
     setTimeout(() => {
       setSearch("");
-      openAddTransaction();
+      openAddTransaction({});
     }, 40);
   };
 

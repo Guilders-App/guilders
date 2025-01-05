@@ -107,7 +107,7 @@ export default function TransactionsPage() {
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold text-foreground">Transactions</h1>
-        <Button onClick={() => openAddTransaction()} size="sm">
+        <Button onClick={() => openAddTransaction({})} size="sm">
           <Plus className="h-4 w-4" />
           Add Transaction
         </Button>
