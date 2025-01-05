@@ -1,0 +1,364 @@
+import { ErrorSchema, VoidSchema, createSuccessSchema } from "@/common/types";
+import type { Variables } from "@/common/variables";
+import { getProvider } from "@/providers";
+import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
+import {
+  ConnectionResponseSchema,
+  CreateConnectionSchema,
+  ReconnectSchema,
+  RegisterConnectionSchema,
+  RegisterResponseSchema,
+} from "./schema";
+
+const app = new OpenAPIHono<{ Variables: Variables }>()
+  .openapi(
+    createRoute({
+      method: "post",
+      path: "/",
+      tags: ["Connections"],
+      summary: "Create a new provider connection",
+      security: [{ Bearer: [] }],
+      request: {
+        body: {
+          content: {
+            "application/json": {
+              schema: CreateConnectionSchema,
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Connection created successfully",
+          content: {
+            "application/json": {
+              schema: createSuccessSchema(ConnectionResponseSchema),
+            },
+          },
+        },
+        500: {
+          description: "Internal Server Error",
+          content: {
+            "application/json": {
+              schema: ErrorSchema,
+            },
+          },
+        },
+      },
+    }),
+    async (c) => {
+      try {
+        const supabase = c.get("supabase");
+        const user = c.get("user");
+        const { provider, institution_id } = await c.req.json();
+
+        const providerInstance = getProvider(provider);
+
+        // Get or create provider connection
+        const { data: providerConnection } = await supabase
+          .from("provider_connection")
+          .select("*")
+          .eq("provider_id", provider)
+          .eq("user_id", user.id)
+          .single();
+
+        let userSecret = providerConnection?.secret;
+
+        if (!userSecret) {
+          const registerResult = await providerInstance.registerUser(user.id);
+          if (!registerResult.success || !registerResult.data?.userSecret) {
+            return c.json(
+              { data: null, error: "Failed to register user with provider" },
+              500,
+            );
+          }
+          userSecret = registerResult.data.userSecret;
+        }
+
+        const result = await providerInstance.connect(
+          user.id,
+          userSecret,
+          institution_id,
+        );
+
+        if (!result.success || !result.data?.redirectURI) {
+          return c.json(
+            { data: null, error: result.error || "Unknown error" },
+            500,
+          );
+        }
+
+        return c.json({ data: result.data, error: null }, 200);
+      } catch (error) {
+        console.error("Provider connection error:", error);
+        return c.json(
+          { data: null, error: "Error connecting to provider" },
+          500,
+        );
+      }
+    },
+  )
+  .openapi(
+    createRoute({
+      method: "post",
+      path: "/reconnect",
+      tags: ["Connections"],
+      summary: "Reconnect an existing provider connection",
+      security: [{ Bearer: [] }],
+      request: {
+        body: {
+          content: {
+            "application/json": {
+              schema: ReconnectSchema,
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Reconnection initiated successfully",
+          content: {
+            "application/json": {
+              schema: createSuccessSchema(ConnectionResponseSchema),
+            },
+          },
+        },
+        404: {
+          description: "No existing connection found",
+          content: {
+            "application/json": {
+              schema: ErrorSchema,
+            },
+          },
+        },
+        500: {
+          description: "Internal Server Error",
+          content: {
+            "application/json": {
+              schema: ErrorSchema,
+            },
+          },
+        },
+      },
+    }),
+    async (c) => {
+      try {
+        const supabase = c.get("supabase");
+        const user = c.get("user");
+        const { provider, institution_id, account_id } = await c.req.json();
+
+        const providerInstance = getProvider(provider);
+
+        const { data: providerConnection } = await supabase
+          .from("provider_connection")
+          .select("*")
+          .eq("provider_id", provider)
+          .eq("user_id", user.id)
+          .single();
+
+        if (!providerConnection?.secret) {
+          return c.json(
+            { data: null, error: "No existing connection found" },
+            404,
+          );
+        }
+
+        const { data: account } = await supabase
+          .from("account")
+          .select("institution_connection!inner(connection_id)")
+          .eq("id", account_id)
+          .single();
+
+        if (!account?.institution_connection?.connection_id) {
+          return c.json(
+            { data: null, error: "No existing connection found for account" },
+            404,
+          );
+        }
+
+        const result = await providerInstance.reconnect(
+          user.id,
+          providerConnection.secret,
+          institution_id,
+          account.institution_connection.connection_id,
+        );
+
+        if (!result.success || !result.data?.redirectURI) {
+          return c.json(
+            { data: null, error: result.error || "Unknown error" },
+            500,
+          );
+        }
+
+        return c.json({ data: result.data, error: null }, 200);
+      } catch (error) {
+        console.error("Provider reconnection error:", error);
+        return c.json(
+          { data: null, error: "Error reconnecting to provider" },
+          500,
+        );
+      }
+    },
+  )
+  .openapi(
+    createRoute({
+      method: "post",
+      path: "/register",
+      tags: ["Connections"],
+      summary: "Register with a provider",
+      security: [{ Bearer: [] }],
+      request: {
+        body: {
+          content: {
+            "application/json": {
+              schema: RegisterConnectionSchema,
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Successfully registered with provider",
+          content: {
+            "application/json": {
+              schema: createSuccessSchema(RegisterResponseSchema),
+            },
+          },
+        },
+        500: {
+          description: "Internal Server Error",
+          content: {
+            "application/json": {
+              schema: ErrorSchema,
+            },
+          },
+        },
+      },
+    }),
+    async (c) => {
+      try {
+        const supabase = c.get("supabase");
+        const user = c.get("user");
+        const { provider } = await c.req.json();
+
+        const providerInstance = getProvider(provider);
+        const result = await providerInstance.registerUser(user.id);
+
+        if (!result.success || !result.data?.userSecret) {
+          return c.json(
+            {
+              data: null,
+              error: result.error || "Failed to register with provider",
+            },
+            500,
+          );
+        }
+
+        // Save the connection in the database
+        const { error: dbError } = await supabase
+          .from("provider_connection")
+          .insert({
+            user_id: user.id,
+            provider_id: provider,
+            secret: result.data.userSecret,
+          });
+
+        if (dbError) {
+          return c.json(
+            { data: null, error: "Failed to save provider connection" },
+            500,
+          );
+        }
+
+        return c.json(
+          { data: { secret: result.data.userSecret }, error: null },
+          200,
+        );
+      } catch (error) {
+        console.error("Registration error:", error);
+        return c.json({ data: null, error: "Error during registration" }, 500);
+      }
+    },
+  )
+  .openapi(
+    createRoute({
+      method: "post",
+      path: "/deregister",
+      tags: ["Connections"],
+      summary: "Deregister from a provider",
+      security: [{ Bearer: [] }],
+      request: {
+        body: {
+          content: {
+            "application/json": {
+              schema: RegisterConnectionSchema,
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Successfully deregistered from provider",
+          content: {
+            "application/json": {
+              schema: createSuccessSchema(VoidSchema),
+            },
+          },
+        },
+        500: {
+          description: "Internal Server Error",
+          content: {
+            "application/json": {
+              schema: ErrorSchema,
+            },
+          },
+        },
+      },
+    }),
+    async (c) => {
+      try {
+        const supabase = c.get("supabase");
+        const user = c.get("user");
+        const { provider } = await c.req.json();
+
+        const providerInstance = getProvider(provider);
+        const { data: connection } = await supabase
+          .from("provider_connection")
+          .select("*")
+          .eq("provider_id", provider)
+          .eq("user_id", user.id)
+          .single();
+
+        if (!connection) {
+          return c.json({ data: {}, error: null }, 200);
+        }
+
+        const result = await providerInstance.deregisterUser(user.id);
+
+        if (result.success) {
+          const { error: dbError } = await supabase
+            .from("provider_connection")
+            .delete()
+            .eq("provider_id", provider)
+            .eq("user_id", user.id);
+
+          if (dbError) {
+            return c.json(
+              { data: null, error: "Failed to remove provider connection" },
+              500,
+            );
+          }
+        }
+
+        return c.json({ data: {}, error: null }, 200);
+      } catch (error) {
+        console.error("Deregistration error:", error);
+        return c.json(
+          { data: null, error: "Error during deregistration" },
+          500,
+        );
+      }
+    },
+  );
+
+export default app;

@@ -1,10 +1,12 @@
 import { env } from "bun";
 import { Snaptrade } from "snaptrade-typescript-sdk";
 import type {
+  ConnectResult,
   DeregisterUserResult,
   IProvider,
   ProviderInstitution,
   Providers,
+  RefreshConnectionResult,
   RegisterUserResult,
 } from "../types";
 
@@ -106,5 +108,62 @@ export class SnapTradeProvider implements IProvider {
         error: "Failed to deregister user",
       };
     }
+  }
+
+  async connect(
+    userId: string,
+    userSecret: string,
+    institutionId: string,
+    connectionId?: string,
+  ): Promise<ConnectResult> {
+    try {
+      const response = await this.client.authentication.loginSnapTradeUser({
+        userId: userId,
+        userSecret: userSecret,
+        broker: institutionId,
+        reconnect: connectionId,
+      });
+
+      if (
+        !response.data ||
+        !("redirectURI" in response.data) ||
+        !response.data.redirectURI
+      ) {
+        return {
+          success: false,
+          error: "Failed to generate redirect URL",
+        };
+      }
+
+      return {
+        success: true,
+        data: {
+          redirectURI: response.data.redirectURI,
+        },
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: "Failed to connect to provider",
+      };
+    }
+  }
+
+  async reconnect(
+    userId: string,
+    userSecret: string,
+    institutionId: string,
+    connectionId: string,
+  ): Promise<RefreshConnectionResult> {
+    return this.connect(userId, userSecret, institutionId, connectionId);
+  }
+
+  async refreshConnection(
+    userId: string,
+    userSecret: string,
+    institutionId: string,
+    connectionId: string,
+  ): Promise<RefreshConnectionResult> {
+    throw new Error("Not implemented");
   }
 }

@@ -1,7 +1,7 @@
 import { BalanceCard } from "@/components/dashboard/balance-card";
-import { useAccounts } from "@/lib/hooks/useAccounts";
-import { useRates } from "@/lib/hooks/useRates";
-import { useUser } from "@/lib/hooks/useUser";
+import { useAccounts } from "@/lib/queries/useAccounts";
+import { useRates } from "@/lib/queries/useRates";
+import { useUser } from "@/lib/queries/useUser";
 import { convertToUserCurrency } from "@/lib/utils/financial";
 
 export function NetWorthCard({ className }: { className?: string }) {

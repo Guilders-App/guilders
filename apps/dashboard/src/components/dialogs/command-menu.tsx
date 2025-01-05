@@ -15,10 +15,10 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { navigationData } from "../../components/nav/app-sidebar";
-import { useCountriesMap } from "../../lib/hooks/useCountries";
 import { useDialog } from "../../lib/hooks/useDialog";
-import { useInstitutions } from "../../lib/hooks/useInstitutions";
 import { useProviders } from "../../lib/hooks/useProviders";
+import { useCountriesMap } from "../../lib/queries/useCountries";
+import { useInstitutions } from "../../lib/queries/useInstitutions";
 
 export function CommandMenu() {
   const { isOpen, data, open, close, update } = useDialog("command");

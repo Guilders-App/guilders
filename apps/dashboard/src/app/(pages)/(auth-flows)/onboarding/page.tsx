@@ -1,6 +1,6 @@
 "use client";
 
-import { useUpdateUserSettings } from "@/lib/hooks/useUser";
+import { useUpdateUserSettings } from "@/lib/queries/useUser";
 import { createClient } from "@guilders/database/client";
 import { Button } from "@guilders/ui/button";
 import { Input } from "@guilders/ui/input";

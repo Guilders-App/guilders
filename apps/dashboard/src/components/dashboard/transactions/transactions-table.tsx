@@ -1,4 +1,4 @@
-import { useTransactions } from "@/lib/hooks/useTransactions";
+import { useTransactions } from "@/lib/queries/useTransactions";
 import { Skeleton } from "@guilders/ui/skeleton";
 import { TransactionItem } from "./transaction-item";
 import { TransactionsEmptyPlaceholder } from "./transactions-placeholder";

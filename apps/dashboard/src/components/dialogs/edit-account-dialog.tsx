@@ -1,8 +1,9 @@
 "use client";
 
-import { useFiles } from "@/lib/hooks/useFiles";
-import { useInstitutionConnection } from "@/lib/hooks/useInstitutionConnection";
-import { useProviderById } from "@/lib/hooks/useProviders";
+import { useFiles } from "@/lib/queries/useFiles";
+import { useInstitutionConnection } from "@/lib/queries/useInstitutionConnection";
+import { useProviderConnections } from "@/lib/queries/useProviderConnections";
+import { useProviderById } from "@/lib/queries/useProviders";
 import {
   type AccountSubtype,
   accountSubtypeLabels,
@@ -40,14 +41,11 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useUpdateAccount } from "../../lib/hooks/useAccounts";
-import {
-  useFixConnection,
-  useGetConnections,
-} from "../../lib/hooks/useConnections";
-import { useCurrencies } from "../../lib/hooks/useCurrencies";
+import { useFixConnection } from "../../lib/hooks/useConnections";
 import { useDialog } from "../../lib/hooks/useDialog";
-import { useInstitutionByAccountId } from "../../lib/hooks/useInstitutions";
+import { useUpdateAccount } from "../../lib/queries/useAccounts";
+import { useCurrencies } from "../../lib/queries/useCurrencies";
+import { useInstitutionByAccountId } from "../../lib/queries/useInstitutions";
 import { FileUploader } from "../common/file-uploader";
 
 const detailsSchema = z.object({
@@ -85,7 +83,7 @@ type FormSchema = z.infer<typeof formSchema>;
 export function EditAccountDialog() {
   const { isOpen, data, close } = useDialog("editAccount");
   const { open: openProviderDialog } = useDialog("provider");
-  const { data: connections } = useGetConnections();
+  const { data: connections } = useProviderConnections();
   const institution = useInstitutionByAccountId(data?.account?.id);
   const { data: institutionConnection } = useInstitutionConnection(
     data?.account?.institution_connection_id ?? 0,

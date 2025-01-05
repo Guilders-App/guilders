@@ -1,6 +1,6 @@
 "use client";
 
-import { useProviderById } from "@/lib/hooks/useProviders";
+import { useProviderById } from "@/lib/queries/useProviders";
 import { Button } from "@guilders/ui/button";
 import {
   Dialog,
@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useCreateConnection } from "../../lib/hooks/useConnections";
 import { useDialog } from "../../lib/hooks/useDialog";
-import { useUser } from "../../lib/hooks/useUser";
+import { useUser } from "../../lib/queries/useUser";
 import { isPro } from "../../lib/utils";
 
 export function AddLinkedAccountDialog() {

@@ -6,12 +6,12 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { ThemeSelector } from "@/components/settings/theme-selector";
-import { useCurrencies } from "@/lib/hooks/useCurrencies";
+import { useCurrencies } from "@/lib/queries/useCurrencies";
 import {
   useDeleteAccount,
   useUpdateUserSettings,
   useUser,
-} from "@/lib/hooks/useUser";
+} from "@/lib/queries/useUser";
 import {
   AlertDialog,
   AlertDialogAction,

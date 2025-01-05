@@ -1,5 +1,4 @@
 import type { Institution } from "@/types";
-import type { Tables } from "@guilders/database/types";
 
 export type Providers = "SnapTrade";
 
@@ -14,6 +13,23 @@ export interface IProvider {
   getInstitutions: () => Promise<ProviderInstitution[]>;
   registerUser: (userId: string) => Promise<RegisterUserResult>;
   deregisterUser: (userId: string) => Promise<DeregisterUserResult>;
+  connect: (
+    userId: string,
+    userSecret: string,
+    institutionId: string,
+  ) => Promise<ConnectResult>;
+  reconnect: (
+    userId: string,
+    userSecret: string,
+    institutionId: string,
+    connectionId: string,
+  ) => Promise<ReconnectResult>;
+  refreshConnection: (
+    userId: string,
+    userSecret: string,
+    institutionId: string,
+    connectionId: string,
+  ) => Promise<RefreshConnectionResult>;
 }
 
 export type RegisterUserResult = {
@@ -21,6 +37,11 @@ export type RegisterUserResult = {
   error?: string;
   data?: {
     userId: string;
+    /*
+    User secret is used to authenticate the user with the provider
+    - Snaptrade = userSecret
+    - EnableBanking = ? (session token maybe)
+    */
     userSecret: string;
   };
 };
@@ -30,11 +51,17 @@ export type DeregisterUserResult = {
   error?: string;
 };
 
-export interface ConnectionResult {
+export type ConnectResult = {
   success: boolean;
   error?: string;
-  data?: Tables<"provider_connection">;
-}
-export type ConnectionProviderFunction = (
-  userId: string,
-) => Promise<ConnectionResult>;
+  data?: {
+    redirectURI: string;
+  };
+};
+
+export type ReconnectResult = ConnectResult;
+
+export type RefreshConnectionResult = {
+  success: boolean;
+  error?: string;
+};

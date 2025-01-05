@@ -1,6 +1,6 @@
 "use client";
 
-import { useUpdateUserSettings, useUser } from "@/lib/hooks/useUser";
+import { useUpdateUserSettings, useUser } from "@/lib/queries/useUser";
 import { Button } from "@guilders/ui/button";
 import {
   Card,

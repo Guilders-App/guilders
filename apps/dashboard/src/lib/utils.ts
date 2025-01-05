@@ -1,3 +1,4 @@
+import { env } from "@/env";
 import type { User } from "@guilders/api/types";
 import { type ClassValue, clsx } from "clsx";
 import { redirect } from "next/navigation";
@@ -45,6 +46,7 @@ export function formatBytes(
 export function isPro(user: User | undefined | null) {
   return (
     user?.subscription?.status === "active" ||
-    user?.subscription?.status === "trialing"
+    user?.subscription?.status === "trialing" ||
+    env.NEXT_PUBLIC_ALLOW_PREMIUM_FEATURES
   );
 }

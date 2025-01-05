@@ -1,12 +1,12 @@
 "use client";
 
-import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useDialog } from "@/lib/hooks/useDialog";
-import { useFiles } from "@/lib/hooks/useFiles";
+import { useAccounts } from "@/lib/queries/useAccounts";
+import { useFiles } from "@/lib/queries/useFiles";
 import {
   useRemoveTransaction,
   useUpdateTransaction,
-} from "@/lib/hooks/useTransactions";
+} from "@/lib/queries/useTransactions";
 import { Button } from "@guilders/ui/button";
 import {
   Dialog,

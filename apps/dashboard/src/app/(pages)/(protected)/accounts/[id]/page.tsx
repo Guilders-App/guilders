@@ -4,9 +4,9 @@ import { AccountsCard } from "@/components/dashboard/accounts/account-card";
 import { AccountIcon } from "@/components/dashboard/accounts/account-icon";
 import { BalanceCard } from "@/components/dashboard/balance-card";
 import { TransactionsCard } from "@/components/dashboard/transactions/transactions-card";
-import { useAccount, useRemoveAccount } from "@/lib/hooks/useAccounts";
 import { useRefreshConnection } from "@/lib/hooks/useConnections";
 import { useDialog } from "@/lib/hooks/useDialog";
+import { useAccount, useRemoveAccount } from "@/lib/queries/useAccounts";
 import { Button } from "@guilders/ui/button";
 import {
   DropdownMenu,

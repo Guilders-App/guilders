@@ -4,6 +4,11 @@ import { z } from "zod";
 export const env = createEnv({
   shared: {
     NODE_ENV: z.enum(["development", "production"]),
+    NEXT_PUBLIC_ALLOW_PREMIUM_FEATURES: z
+      .string()
+      .default("false")
+      .refine((s) => s === "true" || s === "false")
+      .transform((s) => s === "true"),
   },
   server: {
     // Supabase (database)
@@ -49,6 +54,8 @@ export const env = createEnv({
   runtimeEnv: {
     // Shared
     NODE_ENV: process.env.NODE_ENV,
+    NEXT_PUBLIC_ALLOW_PREMIUM_FEATURES:
+      process.env.NEXT_PUBLIC_ALLOW_PREMIUM_FEATURES,
     // Server
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     RESEND_API_KEY: process.env.RESEND_API_KEY,

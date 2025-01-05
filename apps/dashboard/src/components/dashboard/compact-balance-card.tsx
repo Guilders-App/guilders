@@ -1,8 +1,8 @@
 "use client";
 
 import { ChangeIndicator } from "@/components/common/change-indicator";
-import { useRates } from "@/lib/hooks/useRates";
-import { useUser } from "@/lib/hooks/useUser";
+import { useRates } from "@/lib/queries/useRates";
+import { useUser } from "@/lib/queries/useUser";
 import { convertToUserCurrency } from "@/lib/utils/financial";
 import type { Account } from "@guilders/api/types";
 import { Card, CardContent } from "@guilders/ui/card";

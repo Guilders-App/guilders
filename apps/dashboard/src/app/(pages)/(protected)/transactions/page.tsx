@@ -5,8 +5,8 @@ import { TransactionsCard } from "@/components/dashboard/transactions/transactio
 import { TransactionsEmptyPlaceholder } from "@/components/dashboard/transactions/transactions-placeholder";
 import { TransactionsSankey } from "@/components/dashboard/transactions/transactions-sankey";
 import { useDialog } from "@/lib/hooks/useDialog";
-import { useTransactions } from "@/lib/hooks/useTransactions";
-import { useUser } from "@/lib/hooks/useUser";
+import { useTransactions } from "@/lib/queries/useTransactions";
+import { useUser } from "@/lib/queries/useUser";
 import { cn } from "@/lib/utils";
 import { convertToUserCurrency } from "@/lib/utils/financial";
 import { Button } from "@guilders/ui/button";

@@ -31,11 +31,11 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { DateTimePicker } from "../../components/common/datetime-picker";
-import { useAccounts } from "../../lib/hooks/useAccounts";
-import { useCurrencies } from "../../lib/hooks/useCurrencies";
 import { useDialog } from "../../lib/hooks/useDialog";
-import { useAddTransaction } from "../../lib/hooks/useTransactions";
-import { useUser } from "../../lib/hooks/useUser";
+import { useAccounts } from "../../lib/queries/useAccounts";
+import { useCurrencies } from "../../lib/queries/useCurrencies";
+import { useAddTransaction } from "../../lib/queries/useTransactions";
+import { useUser } from "../../lib/queries/useUser";
 
 const formSchema = z.object({
   accountId: z.number({

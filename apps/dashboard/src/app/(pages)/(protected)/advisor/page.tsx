@@ -1,7 +1,7 @@
 "use client";
 
 import { Markdown } from "@/components/common/markdown-component";
-import { useUser } from "@/lib/hooks/useUser";
+import { useUser } from "@/lib/queries/useUser";
 import { isPro } from "@/lib/utils";
 import { Badge } from "@guilders/ui/badge";
 import { Button } from "@guilders/ui/button";

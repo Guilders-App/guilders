@@ -1,7 +1,7 @@
 "use client";
 
 import { usePortalSession, useSubscription } from "@/lib/hooks/useSubscription";
-import { useUser } from "@/lib/hooks/useUser";
+import { useUser } from "@/lib/queries/useUser";
 import { Button } from "@guilders/ui/button";
 import {
   Card,

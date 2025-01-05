@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { useDialog } from "@/lib/hooks/useDialog";
-import { useUpdateUserSettings } from "@/lib/hooks/useUser";
+import { useUpdateUserSettings } from "@/lib/queries/useUser";
 import { useSecurityStore } from "@/lib/store/securityStore";
 import { Button } from "@guilders/ui/button";
 import {

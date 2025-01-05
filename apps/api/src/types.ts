@@ -3,6 +3,11 @@ export type {
   CreateAccount,
   UpdateAccount,
 } from "./routes/accounts/schema";
+export type {
+  ConnectionResponse,
+  CreateConnection,
+  Reconnect,
+} from "./routes/connections/schema";
 export type { Countries, Country } from "./routes/countries/schema";
 export type { Currencies, Currency } from "./routes/currencies/schema";
 export type {

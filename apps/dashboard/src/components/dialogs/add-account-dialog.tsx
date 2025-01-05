@@ -35,10 +35,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useAddAccount } from "../../lib/hooks/useAccounts";
-import { useCurrencies } from "../../lib/hooks/useCurrencies";
 import { useDialog } from "../../lib/hooks/useDialog";
-import { useUser } from "../../lib/hooks/useUser";
+import { useAddAccount } from "../../lib/queries/useAccounts";
+import { useCurrencies } from "../../lib/queries/useCurrencies";
+import { useUser } from "../../lib/queries/useUser";
 
 const formSchema = z.object({
   accountType: z.enum(accountSubtypes),

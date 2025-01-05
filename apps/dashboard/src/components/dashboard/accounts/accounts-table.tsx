@@ -1,6 +1,6 @@
 import { AccountItem } from "@/components/dashboard/accounts/account-item";
 import { AccountsEmptyPlaceholder } from "@/components/dashboard/accounts/accounts-placeholder";
-import { useAccounts } from "@/lib/hooks/useAccounts";
+import { useAccounts } from "@/lib/queries/useAccounts";
 import type { Account } from "@guilders/api/types";
 import { Skeleton } from "@guilders/ui/skeleton";
 
