@@ -1,5 +1,10 @@
 "use client";
 
+import { navigationData } from "@/components/nav/app-sidebar";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { useCountriesMap } from "@/lib/queries/useCountries";
+import { useInstitutions } from "@/lib/queries/useInstitutions";
+import { useProviders } from "@/lib/queries/useProviders";
 import type { Institution } from "@guilders/api/types";
 import {
   CommandDialog,
@@ -14,11 +19,6 @@ import { Banknote, Landmark, Link2, SquarePen } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { navigationData } from "../../components/nav/app-sidebar";
-import { useDialog } from "../../lib/hooks/useDialog";
-import { useProviders } from "../../lib/hooks/useProviders";
-import { useCountriesMap } from "../../lib/queries/useCountries";
-import { useInstitutions } from "../../lib/queries/useInstitutions";
 
 export function CommandMenu() {
   const { isOpen, data, open, close, update } = useDialog("command");
