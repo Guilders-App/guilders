@@ -91,7 +91,6 @@ export function EditAccountDialog() {
   const connection = connections?.find(
     (c) => c.id === institutionConnection?.provider_connection_id,
   );
-  const provider = useProviderById(connection?.provider_id);
   const { data: currencies } = useCurrencies();
 
   const { mutate: updateAccount, isPending: isUpdating } = useUpdateAccount();
@@ -141,7 +140,7 @@ export function EditAccountDialog() {
   const isSyncedAccount = !!account.institution_connection_id;
 
   const handleFixConnection = async () => {
-    if (!institution || !provider) {
+    if (!institution || !connection) {
       toast.error("Failed to fix connection", {
         description: "Unable to fix connection. Please try again later.",
       });
@@ -149,7 +148,7 @@ export function EditAccountDialog() {
     }
 
     const { redirectURI } = await reconnectConnection({
-      provider: provider.name,
+      providerId: connection.provider_id.toString(),
       institutionId: institution.id.toString(),
       accountId: account.id.toString(),
     });

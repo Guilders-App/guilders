@@ -2,8 +2,8 @@ import { z } from "@hono/zod-openapi";
 
 export const CreateConnectionSchema = z
   .object({
-    provider: z.string().openapi({
-      example: "SnapTrade",
+    provider_id: z.string().openapi({
+      example: "1",
       description: "Provider identifier",
     }),
     institution_id: z.string().openapi({
@@ -15,8 +15,8 @@ export const CreateConnectionSchema = z
 
 export const ReconnectSchema = z
   .object({
-    provider: z.string().openapi({
-      example: "SnapTrade",
+    provider_id: z.string().openapi({
+      example: "1",
       description: "Provider identifier",
     }),
     institution_id: z.string().openapi({
@@ -41,8 +41,8 @@ export const ConnectionResponseSchema = z
 
 export const RegisterConnectionSchema = z
   .object({
-    provider: z.string().openapi({
-      example: "SnapTrade",
+    provider_id: z.string().openapi({
+      example: "1",
       description: "Provider identifier",
     }),
   })
@@ -59,13 +59,9 @@ export const RegisterResponseSchema = z
 
 export const RefreshConnectionSchema = z
   .object({
-    provider: z.string().openapi({
-      example: "SnapTrade",
+    provider_id: z.string().openapi({
+      example: "1",
       description: "Provider identifier",
-    }),
-    institution_id: z.string().openapi({
-      example: "inst_123",
-      description: "Institution ID to refresh",
     }),
     connection_id: z.string().openapi({
       example: "conn_123",

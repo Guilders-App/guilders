@@ -117,10 +117,22 @@ export class SnapTradeProvider implements IProvider {
     connectionId?: string,
   ): Promise<ConnectResult> {
     try {
+      const brokerages = await this.client.referenceData.listAllBrokerages();
+      const brokerage = brokerages.data?.find(
+        (brokerage) => brokerage.id === institutionId,
+      );
+
+      if (!brokerage) {
+        return {
+          success: false,
+          error: "Institution not found",
+        };
+      }
+
       const response = await this.client.authentication.loginSnapTradeUser({
         userId: userId,
         userSecret: userSecret,
-        broker: institutionId,
+        broker: brokerage?.slug,
         reconnect: connectionId,
       });
 
@@ -161,9 +173,30 @@ export class SnapTradeProvider implements IProvider {
   async refreshConnection(
     userId: string,
     userSecret: string,
-    institutionId: string,
     connectionId: string,
   ): Promise<RefreshConnectionResult> {
-    throw new Error("Not implemented");
+    try {
+      const response = await this.client.connections.refreshBrokerageAuthorization({
+        authorizationId: connectionId,
+        userId: userId,
+        userSecret: userSecret,
+      });
+
+      if (response.status !== 200) {
+        return {
+          success: false,
+          error: "Failed to refresh SnapTrade connection",
+        };
+      }
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: "Failed to refresh SnapTrade connection",
+      };
+    }
   }
 }

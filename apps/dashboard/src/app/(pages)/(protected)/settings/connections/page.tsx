@@ -132,9 +132,6 @@ export default function ConnectionsPage() {
                             },
                             onError: () => {
                               setDeregisteringId(null);
-                              toast.error("Failed to remove connection", {
-                                description: "Please try again later.",
-                              });
                             },
                           },
                         );

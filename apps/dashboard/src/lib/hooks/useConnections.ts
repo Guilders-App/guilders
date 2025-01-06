@@ -7,10 +7,10 @@ const queryKey = ["connections"] as const;
 
 export function useRegisterConnection() {
   return useMutation({
-    mutationFn: async (provider: string) => {
+    mutationFn: async (providerId: string) => {
       const api = await getApiClient();
       const response = await api.connections.register.$post({
-        json: { provider },
+        json: { provider_id: providerId },
       });
       const { data, error } = await response.json();
       if (error || !data)
@@ -27,14 +27,16 @@ export function useRegisterConnection() {
 
 export function useDeregisterConnection() {
   return useMutation({
-    mutationFn: async (provider: string) => {
+    mutationFn: async (providerId: string) => {
       const api = await getApiClient();
       const response = await api.connections.deregister.$post({
-        json: { provider },
+        json: { provider_id: providerId },
       });
       const { data, error } = await response.json();
-      if (error || !data)
+      if (error || !data) {
+        console.error(data, error);
         throw new Error(error || "Failed to deregister connection");
+      }
 
       return data;
     },
@@ -49,19 +51,17 @@ export function useDeregisterConnection() {
 export function useCreateConnection() {
   return useMutation({
     mutationFn: async ({
-      provider,
+      providerId,
       institutionId,
     }: {
-      provider: string;
+      providerId: string;
       institutionId: string;
     }): Promise<ConnectionResponse> => {
       const api = await getApiClient();
       const response = await api.connections.$post({
-        json: { provider, institution_id: institutionId },
+        json: { provider_id: providerId, institution_id: institutionId },
       });
       const { data, error } = await response.json();
-      console.error(data, error);
-      console.error(response);
       if (error || !data) {
         throw new Error(error || "Failed to create connection");
       }
@@ -80,17 +80,21 @@ export function useCreateConnection() {
 export function useReconnectConnection() {
   return useMutation({
     mutationFn: async ({
-      provider,
+      providerId,
       institutionId,
       accountId,
     }: {
-      provider: string;
+      providerId: string;
       institutionId: string;
       accountId: string;
     }): Promise<ConnectionResponse> => {
       const api = await getApiClient();
       const response = await api.connections.reconnect.$post({
-        json: { provider, institution_id: institutionId, account_id: accountId },
+        json: {
+          provider_id: providerId,
+          institution_id: institutionId,
+          account_id: accountId,
+        },
       });
       const { data, error } = await response.json();
       if (error || !data) throw new Error(error || "Failed to reconnect");
@@ -108,17 +112,18 @@ export function useReconnectConnection() {
 export function useRefreshConnection() {
   return useMutation({
     mutationFn: async ({
-      provider,
-      institutionId,
+      providerId,
       connectionId,
     }: {
-      provider: string;
-      institutionId: string;
+      providerId: string;
       connectionId: string;
     }): Promise<void> => {
       const api = await getApiClient();
       const response = await api.connections.refresh.$post({
-        json: { provider, institution_id: institutionId, connection_id: connectionId },
+        json: {
+          provider_id: providerId,
+          connection_id: connectionId,
+        },
       });
       const { error } = await response.json();
       if (error) throw new Error(error);

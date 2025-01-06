@@ -2,6 +2,7 @@ import { ErrorSchema, VoidSchema, createSuccessSchema } from "@/common/types";
 import type { Variables } from "@/common/variables";
 import { getProvider } from "@/providers";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
+import { Providers } from "@/providers/types";
 import {
   ConnectionResponseSchema,
   CreateConnectionSchema,
@@ -37,6 +38,14 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
             },
           },
         },
+        404: {
+          description: "Provider not found",
+          content: {
+            "application/json": {
+              schema: ErrorSchema,
+            },
+          },
+        },
         500: {
           description: "Internal Server Error",
           content: {
@@ -51,15 +60,24 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
       try {
         const supabase = c.get("supabase");
         const user = c.get("user");
-        const { provider, institution_id } = await c.req.json();
+        const { provider_id, institution_id } = await c.req.json();
 
-        const providerInstance = getProvider(provider);
+        const { data: providerDb, error: providerDbError } = await supabase
+          .from("provider")
+          .select()
+          .eq("id", provider_id)
+          .single();
 
-        // Get or create provider connection
+        if (providerDbError || !providerDb) {
+          return c.json({ data: null, error: "Provider not found" }, 404);
+        }
+
+        const providerInstance = getProvider(providerDb.name as Providers);
+
         const { data: providerConnection } = await supabase
           .from("provider_connection")
           .select("*")
-          .eq("provider_id", provider)
+          .eq("provider_id", providerDb.id)
           .eq("user_id", user.id)
           .single();
 
@@ -73,13 +91,42 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
               500,
             );
           }
+
+          const { error: insertError } = await supabase
+            .from("provider_connection")
+            .insert({
+              provider_id: providerDb.id,
+              user_id: user.id,
+              secret: registerResult.data.userSecret,
+            });
+
+          if (insertError) {
+            return c.json(
+              { data: null, error: "Failed to save provider connection" },
+              500,
+            );
+          }
+
           userSecret = registerResult.data.userSecret;
+        }
+
+        const { data: institution } = await supabase
+          .from("institution")
+          .select("*")
+          .eq("id", institution_id)
+          .single();
+
+        if (!institution) {
+          return c.json(
+            { data: null, error: "Institution not found" },
+            404,
+          );
         }
 
         const result = await providerInstance.connect(
           user.id,
           userSecret,
-          institution_id,
+          institution.provider_institution_id,
         );
 
         if (!result.success || !result.data?.redirectURI) {
@@ -91,7 +138,6 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
 
         return c.json({ data: result.data, error: null }, 200);
       } catch (error) {
-        console.error("Provider connection error:", error);
         return c.json(
           { data: null, error: "Error connecting to provider" },
           500,
@@ -146,14 +192,25 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
       try {
         const supabase = c.get("supabase");
         const user = c.get("user");
-        const { provider, institution_id, account_id } = await c.req.json();
+        const { provider_id, institution_id, account_id } = await c.req.json();
 
-        const providerInstance = getProvider(provider);
+        const { data: providerDb, error: providerDbError } = await supabase
+          .from("provider")
+          .select()
+          .eq("id", provider_id)
+          .single();
+
+        if (providerDbError || !providerDb) {
+          return c.json({ data: null, error: "Provider not found" }, 404);
+        }
+
+        const providerInstance = getProvider(providerDb.name as Providers);
+
 
         const { data: providerConnection } = await supabase
           .from("provider_connection")
           .select("*")
-          .eq("provider_id", provider)
+          .eq("provider_id", providerDb.id)
           .eq("user_id", user.id)
           .single();
 
@@ -177,10 +234,23 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
           );
         }
 
+        const { data: institution } = await supabase
+          .from("institution")
+          .select("*")
+          .eq("id", institution_id)
+          .single();
+
+        if (!institution) {
+          return c.json(
+            { data: null, error: "Institution not found" },
+            404,
+          );
+        }
+
         const result = await providerInstance.reconnect(
           user.id,
           providerConnection.secret,
-          institution_id,
+          institution.provider_institution_id,
           account.institution_connection.connection_id,
         );
 
@@ -193,7 +263,6 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
 
         return c.json({ data: result.data, error: null }, 200);
       } catch (error) {
-        console.error("Provider reconnection error:", error);
         return c.json(
           { data: null, error: "Error reconnecting to provider" },
           500,
@@ -226,6 +295,14 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
             },
           },
         },
+        404: {
+          description: "Provider not found",
+          content: {
+            "application/json": {
+              schema: ErrorSchema,
+            },
+          },
+        },
         500: {
           description: "Internal Server Error",
           content: {
@@ -240,9 +317,19 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
       try {
         const supabase = c.get("supabase");
         const user = c.get("user");
-        const { provider } = await c.req.json();
+        const { provider_id } = await c.req.json();
 
-        const providerInstance = getProvider(provider);
+        const { data: providerDb, error: providerDbError } = await supabase
+          .from("provider")
+          .select()
+          .eq("id", provider_id)
+          .single();
+
+        if (providerDbError || !providerDb) {
+          return c.json({ data: null, error: "Provider not found" }, 404);
+        }
+
+        const providerInstance = getProvider(providerDb.name as Providers);
         const result = await providerInstance.registerUser(user.id);
 
         if (!result.success || !result.data?.userSecret) {
@@ -260,7 +347,7 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
           .from("provider_connection")
           .insert({
             user_id: user.id,
-            provider_id: provider,
+            provider_id: provider_id,
             secret: result.data.userSecret,
           });
 
@@ -276,7 +363,6 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
           200,
         );
       } catch (error) {
-        console.error("Registration error:", error);
         return c.json({ data: null, error: "Error during registration" }, 500);
       }
     },
@@ -306,6 +392,14 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
             },
           },
         },
+        404: {
+          description: "Provider not found",
+          content: {
+            "application/json": {
+              schema: ErrorSchema,
+            },
+          },
+        },
         500: {
           description: "Internal Server Error",
           content: {
@@ -320,13 +414,24 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
       try {
         const supabase = c.get("supabase");
         const user = c.get("user");
-        const { provider } = await c.req.json();
+        const { provider_id } = await c.req.json();
 
-        const providerInstance = getProvider(provider);
+        const { data: providerDb, error: providerDbError } = await supabase
+          .from("provider")
+          .select("*")
+          .eq("id", provider_id)
+          .single();
+
+        if (providerDbError || !providerDb) {
+          return c.json({ data: null, error: "Provider not found" }, 404);
+        }
+
+        const providerInstance = getProvider(providerDb.name as Providers);
+
         const { data: connection } = await supabase
           .from("provider_connection")
           .select("*")
-          .eq("provider_id", provider)
+          .eq("provider_id", providerDb.id)
           .eq("user_id", user.id)
           .single();
 
@@ -337,10 +442,11 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
         const result = await providerInstance.deregisterUser(user.id);
 
         if (result.success) {
+          // Database deletion is also handled by the snaptrade webhook
           const { error: dbError } = await supabase
             .from("provider_connection")
             .delete()
-            .eq("provider_id", provider)
+            .eq("provider_id", providerDb.id)
             .eq("user_id", user.id);
 
           if (dbError) {
@@ -353,7 +459,6 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
 
         return c.json({ data: {}, error: null }, 200);
       } catch (error) {
-        console.error("Deregistration error:", error);
         return c.json(
           { data: null, error: "Error during deregistration" },
           500,
@@ -408,14 +513,24 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
       try {
         const supabase = c.get("supabase");
         const user = c.get("user");
-        const { provider, institution_id, connection_id } = await c.req.json();
+        const { provider_id, connection_id } = await c.req.json();
 
-        const providerInstance = getProvider(provider);
+        const { data: providerDb, error: providerDbError } = await supabase
+          .from("provider")
+          .select("*")
+          .eq("id", provider_id)
+          .single();
+
+        if (providerDbError || !providerDb) {
+          return c.json({ data: null, error: "Provider not found" }, 404);
+        }
+
+        const providerInstance = getProvider(providerDb.name as Providers);
 
         const { data: providerConnection } = await supabase
           .from("provider_connection")
           .select("*")
-          .eq("provider_id", provider)
+          .eq("provider_id", providerDb.id)
           .eq("user_id", user.id)
           .single();
 
@@ -429,7 +544,6 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
         const result = await providerInstance.refreshConnection(
           user.id,
           providerConnection.secret,
-          institution_id,
           connection_id,
         );
 
@@ -445,7 +559,6 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
 
         return c.json({ data: {}, error: null }, 200);
       } catch (error) {
-        console.error("Connection refresh error:", error);
         return c.json(
           { data: null, error: "Error refreshing connection" },
           500,

@@ -38,7 +38,7 @@ export function AddLinkedAccountDialog() {
     }
 
     const { redirectURI } = await createConnection({
-      provider: provider.name,
+      providerId: provider.id.toString(),
       institutionId: institution.id.toString(),
     });
 

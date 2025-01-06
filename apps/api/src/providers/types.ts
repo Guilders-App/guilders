@@ -27,7 +27,6 @@ export interface IProvider {
   refreshConnection: (
     userId: string,
     userSecret: string,
-    institutionId: string,
     connectionId: string,
   ) => Promise<RefreshConnectionResult>;
 }
