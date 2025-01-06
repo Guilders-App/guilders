@@ -2,7 +2,8 @@
   "name": "@guilders/api",
   "version": "1.0.0",
   "scripts": {
-    "dev": "bun run --watch src/app.ts"
+    "dev": "bun run --watch src/app.ts",
+    "start": "bun run src/app.ts"
   },
   "exports": {
     ".": "./src/client.ts",
