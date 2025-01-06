@@ -20,9 +20,6 @@ const nextConfig: NextConfig = {
       {
         hostname: "passiv-brokerage-logos.s3.ca-central-1.amazonaws.com",
       },
-      {
-        hostname: "storage.googleapis.com",
-      },
     ],
   },
 };
