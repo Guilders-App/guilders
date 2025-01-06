@@ -92,10 +92,8 @@ if (process.env.NODE_ENV === "development") {
     fetch: app.fetch,
     port,
   });
+
+  console.log(`🔥 Hono is running at http://localhost:${port}`);
 }
 
-console.log(`🔥 Hono is running at http://localhost:${port}`);
-
-export const GET = handle(app);
-export const POST = handle(app);
 export type AppType = typeof appRoutes;
