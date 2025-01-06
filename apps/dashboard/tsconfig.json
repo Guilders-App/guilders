@@ -9,10 +9,6 @@
   ],
   "exclude": ["node_modules"],
   "compilerOptions": {
-    "composite": true,
-    "declaration": true,
-    "declarationMap": true,
-    "incremental": true,
     "plugins": [
       {
         "name": "next"
