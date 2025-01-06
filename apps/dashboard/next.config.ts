@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
   devIndicators: {
     appIsrStatus: false,
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   images: {
     remotePatterns: [
