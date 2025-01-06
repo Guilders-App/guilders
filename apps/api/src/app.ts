@@ -65,6 +65,7 @@ app.route("/callback/stripe", stripeCallbackRoute);
 app.route("/callback/snaptrade", snaptradeCallbackRoute);
 
 // Mount routes
+// Supabase Auth only applies to routes below
 app.use("*", supabaseAuth());
 const appRoutes = app
   .route("/currencies", currenciesRoute)
