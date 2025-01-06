@@ -6,6 +6,7 @@ import "@/lib/env";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  transpilePackages: ["@guilders/database", "@guilders/api"],
   devIndicators: {
     appIsrStatus: false,
   },
