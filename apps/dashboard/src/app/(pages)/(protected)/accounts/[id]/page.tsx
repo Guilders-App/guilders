@@ -4,7 +4,7 @@ import { AccountsCard } from "@/components/dashboard/accounts/account-card";
 import { AccountIcon } from "@/components/dashboard/accounts/account-icon";
 import { BalanceCard } from "@/components/dashboard/balance-card";
 import { TransactionsCard } from "@/components/dashboard/transactions/transactions-card";
-import { useRefreshConnection } from "@/lib/hooks/useConnections";
+import { useRefreshConnection } from "@/lib/queries/useConnections";
 import { useDialog } from "@/lib/hooks/useDialog";
 import { useAccount, useRemoveAccount } from "@/lib/queries/useAccounts";
 import { Button } from "@guilders/ui/button";
@@ -73,8 +73,8 @@ export default function AccountPage({
 
     refreshConnection(
       {
-        providerName: account.institution_connection?.provider?.name || "",
-        institutionConnectionId: account.institution_connection_id,
+        providerId: account.institution_connection?.provider?.id.toString() || "",
+        connectionId: account.institution_connection_id.toString(),
       },
       {
         onSuccess: () => {

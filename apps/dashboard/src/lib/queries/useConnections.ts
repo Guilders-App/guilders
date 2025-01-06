@@ -3,8 +3,6 @@ import type { ConnectionResponse } from "@guilders/api/types";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-const queryKey = ["connections"] as const;
-
 export function useRegisterConnection() {
   return useMutation({
     mutationFn: async (providerId: string) => {

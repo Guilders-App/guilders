@@ -17,6 +17,7 @@ import providersRoute from "./routes/providers";
 import ratesRoute from "./routes/rates/index";
 import transactionsRoute from "./routes/transactions";
 import usersRoute from "./routes/users";
+import subscriptionRoute from "./routes/subscription";
 
 const app = new OpenAPIHono();
 
@@ -71,7 +72,8 @@ const appRoutes = app
   .route("/users", usersRoute)
   .route("/accounts", accountsRoute)
   .route("/documents", documentsRoute)
-  .route("/connections", connectionsRoute);
+  .route("/connections", connectionsRoute)
+  .route("/subscription", subscriptionRoute);
 
 // Start the server
 const port = 3002;

@@ -1,5 +1,5 @@
 "use client";
-import { useDeregisterConnection } from "@/lib/hooks/useConnections";
+import { useDeregisterConnection } from "@/lib/queries/useConnections";
 import { useProviderConnections } from "@/lib/queries/useProviderConnections";
 import { useProviders } from "@/lib/queries/useProviders";
 import { Button } from "@guilders/ui/button";

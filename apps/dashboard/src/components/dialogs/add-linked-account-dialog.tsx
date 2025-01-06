@@ -1,6 +1,6 @@
 "use client";
 
-import { useCreateConnection } from "@/lib/hooks/useConnections";
+import { useCreateConnection } from "@/lib/queries/useConnections";
 import { useDialog } from "@/lib/hooks/useDialog";
 import { useProviderById } from "@/lib/queries/useProviders";
 import { useUser } from "@/lib/queries/useUser";

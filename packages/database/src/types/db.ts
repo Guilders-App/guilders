@@ -374,10 +374,10 @@ export type Database = {
           ended_at: string | null;
           id: number;
           status: Database["public"]["Enums"]["subscription_status"] | null;
-          stripe_customer_id: string | null;
+          stripe_customer_id: string;
           trial_end: string | null;
           trial_start: string | null;
-          user_id: string | null;
+          user_id: string;
         };
         Insert: {
           cancel_at?: string | null;
@@ -389,10 +389,10 @@ export type Database = {
           ended_at?: string | null;
           id?: number;
           status?: Database["public"]["Enums"]["subscription_status"] | null;
-          stripe_customer_id?: string | null;
+          stripe_customer_id: string;
           trial_end?: string | null;
           trial_start?: string | null;
-          user_id?: string | null;
+          user_id: string;
         };
         Update: {
           cancel_at?: string | null;
@@ -404,10 +404,10 @@ export type Database = {
           ended_at?: string | null;
           id?: number;
           status?: Database["public"]["Enums"]["subscription_status"] | null;
-          stripe_customer_id?: string | null;
+          stripe_customer_id?: string;
           trial_end?: string | null;
           trial_start?: string | null;
-          user_id?: string | null;
+          user_id?: string;
         };
         Relationships: [];
       };

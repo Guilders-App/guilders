@@ -35,3 +35,7 @@ export type {
   Transactions,
 } from "./routes/transactions/schema";
 export type { UpdateUser, User } from "./routes/users/schema";
+export type {
+  CheckoutResponse,
+  PortalResponse,
+} from "./routes/subscription/schema";

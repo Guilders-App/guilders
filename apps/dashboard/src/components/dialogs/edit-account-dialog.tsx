@@ -1,6 +1,6 @@
 "use client";
 
-import { useReconnectConnection } from "@/lib/hooks/useConnections";
+import { useReconnectConnection } from "@/lib/queries/useConnections";
 import { useDialog } from "@/lib/hooks/useDialog";
 import { useUpdateAccount } from "@/lib/queries/useAccounts";
 import { useCurrencies } from "@/lib/queries/useCurrencies";
@@ -8,7 +8,6 @@ import { useFiles } from "@/lib/queries/useFiles";
 import { useInstitutionConnection } from "@/lib/queries/useInstitutionConnection";
 import { useInstitutionByAccountId } from "@/lib/queries/useInstitutions";
 import { useProviderConnections } from "@/lib/queries/useProviderConnections";
-import { useProviderById } from "@/lib/queries/useProviders";
 import {
   type AccountSubtype,
   accountSubtypeLabels,

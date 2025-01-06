@@ -38,6 +38,14 @@ export async function POST(req: Request) {
       case "customer.subscription.created":
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
+
+        if (!subscription.metadata.user_id) {
+          return NextResponse.json(
+            { error: "Missing user_id in metadata" },
+            { status: 400 },
+          );
+        }
+
         const { error } = await supabase.from("subscription").upsert(
           {
             user_id: subscription.metadata.user_id,
@@ -63,7 +71,7 @@ export async function POST(req: Request) {
               ? new Date(subscription.trial_end * 1000).toISOString()
               : null,
           },
-          { onConflict: "user_id,stripe_customer_id" },
+          { onConflict: "user_id" },
         );
         if (error) {
           console.error("Failed to create subscription entry", error);
