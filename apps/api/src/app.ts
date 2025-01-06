@@ -20,6 +20,9 @@ import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
+import { handle } from "hono/vercel";
+
+export const runtime = "nodejs";
 
 const app = new OpenAPIHono();
 
@@ -83,15 +86,16 @@ const appRoutes = app
   .route("/subscription", subscriptionRoute);
 
 // Start the server
-const port = 3002;
-Bun.serve({
-  fetch: app.fetch,
-  port,
-});
+if (process.env.NODE_ENV === "development") {
+  const port = 3002;
+  Bun.serve({
+    fetch: app.fetch,
+    port,
+  });
+}
 
 console.log(`🔥 Hono is running at http://localhost:${port}`);
 
-// showRoutes(app, { verbose: true });
-
-export { app };
+export const GET = handle(app);
+export const POST = handle(app);
 export type AppType = typeof appRoutes;
