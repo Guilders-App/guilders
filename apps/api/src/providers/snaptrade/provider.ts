@@ -1,4 +1,4 @@
-import { env } from "bun";
+import { env } from "@/env";
 import { Snaptrade } from "snaptrade-typescript-sdk";
 import type {
   ConnectResult,
@@ -176,11 +176,12 @@ export class SnapTradeProvider implements IProvider {
     connectionId: string,
   ): Promise<RefreshConnectionResult> {
     try {
-      const response = await this.client.connections.refreshBrokerageAuthorization({
-        authorizationId: connectionId,
-        userId: userId,
-        userSecret: userSecret,
-      });
+      const response =
+        await this.client.connections.refreshBrokerageAuthorization({
+          authorizationId: connectionId,
+          userId: userId,
+          userSecret: userSecret,
+        });
 
       if (response.status !== 200) {
         return {
