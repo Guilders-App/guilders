@@ -1,9 +1,9 @@
 import { ErrorSchema, createSuccessSchema } from "@/common/types";
-import type { Variables } from "@/common/variables";
+import type { Bindings, Variables } from "@/common/variables";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { ProviderSchema, ProvidersSchema } from "./schema";
 
-const app = new OpenAPIHono<{ Variables: Variables }>()
+const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
   .openapi(
     createRoute({
       method: "get",

@@ -1,22 +1,9 @@
-import { env } from "@/env";
-import { currencyBeacon } from "@/lib/currencyBeacon";
+import type { Bindings } from "@/common/variables";
+import { getCurrencyBeacon } from "@/lib/currencyBeacon";
 import { createClient } from "@guilders/database/server";
-import { NextResponse } from "next/server";
 
-export const dynamic = "force-dynamic";
-
-export async function GET(req: Request) {
-  if (req.headers.get("Authorization") !== `Bearer ${env.CRON_SECRET}`) {
-    return NextResponse.json(
-      { success: false, error: "Unauthorized" },
-      { status: 401 },
-    );
-  }
-  await insertCurrencyBeaconRates();
-  return new Response("OK");
-}
-
-async function insertCurrencyBeaconRates() {
+export async function insertRates(env: Bindings) {
+  const currencyBeacon = getCurrencyBeacon(env);
   const rates = await currencyBeacon.getLatestRates("USD");
   const supabase = await createClient({
     admin: true,
@@ -55,9 +42,10 @@ async function insertCurrencyBeaconRates() {
     return;
   }
 
-  const { error } = await supabase.from("rate").insert(filteredRates);
+  const { error } = await supabase.from("rate").upsert(filteredRates);
 
   if (error) {
     console.error("Error inserting rates", error);
+    return;
   }
 }

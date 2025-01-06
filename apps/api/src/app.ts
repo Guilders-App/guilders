@@ -1,5 +1,8 @@
 import snaptradeCallbackRoute from "@/callback/providers/snaptrade/route";
 import stripeCallbackRoute from "@/callback/stripe/route";
+import type { Bindings } from "@/common/variables";
+import { insertInstitutions } from "@/cron/insert-institutions/route";
+import { insertRates } from "@/cron/insert-rates/route";
 import { supabaseAuth } from "@/middleware/supabaseAuth";
 import accountsRoute from "@/routes/accounts";
 import connectionsRoute from "@/routes/connections";
@@ -14,27 +17,26 @@ import ratesRoute from "@/routes/rates/index";
 import subscriptionRoute from "@/routes/subscription";
 import transactionsRoute from "@/routes/transactions";
 import usersRoute from "@/routes/users";
+import type {
+  ExecutionContext,
+  ScheduledEvent,
+} from "@cloudflare/workers-types";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { apiReference } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
-import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
-import { handle } from "hono/vercel";
 
-export const runtime = "nodejs";
+const app = new OpenAPIHono<{ Bindings: Bindings }>();
 
-const app = new OpenAPIHono();
+app.use("*", cors()).use("*", prettyJSON());
 
-app.use("*", logger()).use("*", cors()).use("*", prettyJSON());
-
-// Register security scheme
+// OpenAPI / Swagger
 app.openAPIRegistry.registerComponent("securitySchemes", "Bearer", {
   type: "http",
   scheme: "bearer",
 });
 
-// Swagger UI
 app.get(
   "/swagger",
   apiReference({
@@ -85,15 +87,25 @@ const appRoutes = app
   .route("/connections", connectionsRoute)
   .route("/subscription", subscriptionRoute);
 
-// Start the server
-if (process.env.NODE_ENV === "development") {
-  const port = 3002;
-  Bun.serve({
-    fetch: app.fetch,
-    port,
-  });
-
-  console.log(`🔥 Hono is running at http://localhost:${port}`);
-}
-
 export type AppType = typeof appRoutes;
+export default {
+  scheduled: async (
+    event: ScheduledEvent,
+    env: Bindings,
+    ctx: ExecutionContext,
+  ) => {
+    if (!env) {
+      throw new Error("Bindings are not defined");
+    }
+
+    switch (event.cron) {
+      case "0 * * * *":
+        await insertRates(env);
+        break;
+      case "0 0 * * *":
+        await insertInstitutions(env);
+        break;
+    }
+  },
+  fetch: app.fetch,
+};

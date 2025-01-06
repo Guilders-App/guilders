@@ -1,26 +1,10 @@
-import { env } from "@/env";
+import type { Bindings } from "@/common/variables";
 import { getProvider } from "@/providers";
 import type { Providers } from "@/providers/types";
 import { createClient } from "@guilders/database/server";
 import { getProvider as getProviderDb } from "@guilders/database/utils";
-import { NextResponse } from "next/server";
 
-export const dynamic = "force-dynamic";
-
-export async function GET(req: Request) {
-  if (req.headers.get("Authorization") !== `Bearer ${env.CRON_SECRET}`) {
-    return NextResponse.json(
-      { success: false, error: "Unauthorized" },
-      { status: 401 },
-    );
-  }
-
-  await insertInstitutions();
-
-  return new Response("OK");
-}
-
-async function insertInstitutions() {
+export async function insertInstitutions(env: Bindings) {
   const supabase = await createClient({
     url: env.SUPABASE_URL,
     key: env.SUPABASE_SERVICE_ROLE_KEY,
@@ -31,7 +15,7 @@ async function insertInstitutions() {
 
   for (const providerName of providers) {
     const providerDb = await getProviderDb(supabase, providerName);
-    const provider = getProvider(providerName);
+    const provider = getProvider(providerName, env);
 
     if (!providerDb) {
       console.error(`Failed to fetch providers for ${providerName}`);
@@ -58,5 +42,3 @@ async function insertInstitutions() {
     );
   }
 }
-
-insertInstitutions();

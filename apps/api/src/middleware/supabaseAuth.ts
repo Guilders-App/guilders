@@ -1,5 +1,5 @@
-import type { Variables } from "@/common/variables";
-import { env } from "@/env";
+import type { Bindings, Variables } from "@/common/variables";
+import { getEnv } from "@/env";
 import type { Database } from "@guilders/database/types";
 import { createClient } from "@supabase/supabase-js";
 import type { MiddlewareHandler } from "hono";
@@ -12,8 +12,9 @@ import { HTTPException } from "hono/http-exception";
 export function supabaseAuth(
   supabaseUrl?: string,
   supabaseAnonKey?: string,
-): MiddlewareHandler<{ Variables: Variables }> {
+): MiddlewareHandler<{ Bindings: Bindings; Variables: Variables }> {
   return async (c, next) => {
+    const env = getEnv(c.env);
     const url = supabaseUrl ?? env.SUPABASE_URL;
     const key = supabaseAnonKey ?? env.SUPABASE_ANON_KEY;
 

@@ -1,4 +1,4 @@
-import { env } from "@/env";
+import type { Bindings } from "@/common/variables";
 import { Snaptrade } from "snaptrade-typescript-sdk";
 import type {
   ConnectResult,
@@ -14,7 +14,7 @@ export class SnapTradeProvider implements IProvider {
   readonly name: Providers = "SnapTrade";
   private readonly client: Snaptrade;
 
-  constructor() {
+  constructor(env: Bindings) {
     this.client = new Snaptrade({
       clientId: env.SNAPTRADE_CLIENT_ID,
       consumerKey: env.SNAPTRADE_CLIENT_SECRET,

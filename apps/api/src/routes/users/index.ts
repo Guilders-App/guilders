@@ -1,10 +1,11 @@
 import { ErrorSchema, VoidSchema, createSuccessSchema } from "@/common/types";
-import type { Variables } from "@/common/variables";
-import { supabaseAdmin } from "@/lib/supabase";
+import type { Bindings, Variables } from "@/common/variables";
+import { getEnv } from "@/env";
+import { createClient } from "@guilders/database/server";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { type UpdateUser, UpdateUserSchema, UserSchema } from "./schema";
 
-const app = new OpenAPIHono<{ Variables: Variables }>()
+const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
   .openapi(
     createRoute({
       method: "get",
@@ -138,7 +139,14 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
     async (c) => {
       const supabase = c.get("supabase");
       const user = c.get("user");
+      const env = getEnv(c.env);
       const { email, password, settings }: UpdateUser = await c.req.json();
+      const supabaseAdmin = await createClient({
+        url: env.SUPABASE_URL,
+        key: env.SUPABASE_SERVICE_ROLE_KEY,
+        admin: true,
+        ssr: false,
+      });
 
       // Handle auth updates if provided
       if ((email && email !== user.email) || password) {

@@ -1,4 +1,4 @@
-import { env } from "@/env";
+import type { Bindings } from "@/common/variables";
 import { z } from "zod";
 
 const BASE_URL = "https://api.currencybeacon.com/v1";
@@ -107,6 +107,5 @@ export class CurrencyBeaconClient {
   }
 }
 
-export const currencyBeacon = new CurrencyBeaconClient(
-  env.CURRENCY_BEACON_API_KEY,
-);
+export const getCurrencyBeacon = (env: Bindings) =>
+  new CurrencyBeaconClient(env.CURRENCY_BEACON_API_KEY);

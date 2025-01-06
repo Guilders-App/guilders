@@ -2,8 +2,12 @@
   "name": "@guilders/api",
   "version": "1.0.0",
   "scripts": {
-    "dev": "bun run --watch src/app.ts",
-    "start": "bun run src/app.ts"
+    "dev": "NODE_ENV=development wrangler dev",
+    "deploy": "wrangler deploy",
+    "clean": "git clean -xdf .next .turbo node_modules",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "typecheck": "tsc --noEmit"
   },
   "exports": {
     ".": "./src/client.ts",
@@ -14,12 +18,13 @@
     "@hono/zod-openapi": "^0.18.3",
     "@scalar/hono-api-reference": "^0.5.165",
     "@supabase/supabase-js": "^2.47.10",
-    "hono": "^4.6.14",
+    "hono": "^4.6.16",
+    "snaptrade-typescript-sdk": "9.0.60",
     "stripe": "^17.5.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.14",
-    "bun-types": "latest"
+    "@cloudflare/workers-types": "^4.20241230.0",
+    "wrangler": "^3.60.3"
   }
 }

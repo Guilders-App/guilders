@@ -1,9 +1,9 @@
 import { ErrorSchema, createSuccessSchema } from "@/common/types";
-import type { Variables } from "@/common/variables";
+import type { Bindings, Variables } from "@/common/variables";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { InstitutionSchema, InstitutionsSchema } from "./schema";
 
-const app = new OpenAPIHono<{ Variables: Variables }>()
+const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
   .openapi(
     createRoute({
       method: "get",
@@ -39,9 +39,7 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
         return c.json({ data: null, error: error.message }, 500);
       }
 
-      const filteredData = data.filter(
-        (institution) => !institution.demo && institution.enabled,
-      );
+      const filteredData = data.filter((institution) => institution.enabled);
 
       return c.json(
         {

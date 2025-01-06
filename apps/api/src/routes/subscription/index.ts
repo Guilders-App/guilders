@@ -1,12 +1,12 @@
 import { ErrorSchema, createSuccessSchema } from "@/common/types";
-import type { Variables } from "@/common/variables";
-import { env } from "@/env";
-import { stripe } from "@/lib/stripe";
+import type { Bindings, Variables } from "@/common/variables";
+import { getEnv } from "@/env";
+import { getStripe } from "@/lib/stripe";
 import { createClient } from "@guilders/database/server";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { CheckoutResponseSchema, PortalResponseSchema } from "./schema";
 
-const app = new OpenAPIHono<{ Variables: Variables }>()
+const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
   .openapi(
     createRoute({
       method: "post",
@@ -45,12 +45,14 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
       try {
         const supabase = c.get("supabase");
         const user = c.get("user");
+        const env = getEnv(c.env);
         const supabaseAdmin = await createClient({
           url: env.SUPABASE_URL,
           key: env.SUPABASE_SERVICE_ROLE_KEY,
           admin: true,
           ssr: false,
         });
+        const stripe = getStripe(env);
 
         // Check if user already has an active subscription
         const { data: subscription } = await supabase
@@ -196,6 +198,7 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
       try {
         const supabase = c.get("supabase");
         const user = c.get("user");
+        const stripe = getStripe(c.env);
 
         const { data: subscription } = await supabase
           .from("subscription")

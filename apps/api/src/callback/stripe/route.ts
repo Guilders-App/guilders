@@ -1,12 +1,15 @@
-import { env } from "@/env";
-import { stripe } from "@/lib/stripe";
+import type { Bindings } from "@/common/variables";
+import { getEnv } from "@/env";
+import { getStripe } from "@/lib/stripe";
 import { createClient } from "@guilders/database/server";
 import { Hono } from "hono";
 import type Stripe from "stripe";
 
-const app = new Hono().post("/", async (c) => {
+const app = new Hono<{ Bindings: Bindings }>().post("/", async (c) => {
   const body = await c.req.text();
   const signature = c.req.header("stripe-signature");
+  const env = getEnv(c.env);
+  const stripe = getStripe(env);
 
   if (!signature || !env.STRIPE_WEBHOOK_SECRET) {
     console.log("Missing stripe signature");

@@ -1,5 +1,6 @@
-import { env } from "@/env";
-import { snaptrade } from "@/providers/snaptrade/client";
+import type { Bindings } from "@/common/variables";
+import { getEnv } from "@/env";
+import { getSnaptrade } from "@/providers/snaptrade/client";
 import { createClient } from "@guilders/database/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Context, Hono } from "hono";
@@ -18,8 +19,9 @@ import type {
 } from "./types";
 
 const providerName = "SnapTrade";
-const app = new Hono().post("/", async (c) => {
+const app = new Hono<{ Bindings: Bindings }>().post("/", async (c) => {
   const body = (await c.req.json()) as SnapTradeWebhook;
+  const env = getEnv(c.env);
 
   if (!body || !body.eventType) {
     return c.json({ error: "Invalid webhook payload" }, 400);
@@ -253,6 +255,8 @@ async function handleAccountUpdate(
   if (!institutionConnection) {
     return c.json({ error: "Institution connection not found" }, 500);
   }
+
+  const snaptrade = getSnaptrade(c.env);
 
   const { data: accountResponse } =
     await snaptrade.accountInformation.getUserHoldings({

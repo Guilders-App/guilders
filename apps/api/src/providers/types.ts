@@ -1,3 +1,4 @@
+import type { Bindings } from "@/common/variables";
 import type { Institution } from "@/types";
 
 export type Providers = "SnapTrade";
@@ -6,6 +7,7 @@ export type ProviderInstitution = Omit<Institution, "id" | "provider_id">;
 
 export type ProviderParams = {
   provider: Providers;
+  env: Bindings;
 };
 
 export interface IProvider {
