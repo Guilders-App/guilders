@@ -1,37 +1,37 @@
-import { env } from "@/lib/env";
-import { stripe } from "@/lib/stripe/server";
+import { env } from "@/env";
+import { stripe } from "@/lib/stripe";
 import { createClient } from "@guilders/database/server";
-import { NextResponse } from "next/server";
+import { Hono } from "hono";
 import type Stripe from "stripe";
 
-export async function POST(req: Request) {
-  const body = await req.text();
-  const headers = await req.headers;
-  const signature = headers.get("stripe-signature");
+const app = new Hono().post("/", async (c) => {
+  const body = await c.req.text();
+  const signature = c.req.header("stripe-signature");
 
   if (!signature || !env.STRIPE_WEBHOOK_SECRET) {
-    return NextResponse.json(
-      { error: "Missing stripe signature" },
-      { status: 400 },
-    );
+    console.log("Missing stripe signature");
+    return c.json({ error: "Missing stripe signature" }, 400);
   }
 
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(
+    event = await stripe.webhooks.constructEventAsync(
       body,
       signature,
       env.STRIPE_WEBHOOK_SECRET,
     );
   } catch (err) {
-    return NextResponse.json(
-      { error: `Webhook Error: ${(err as Error).message}` },
-      { status: 400 },
-    );
+    console.log("Webhook Error:", err);
+    return c.json({ error: `Webhook Error: ${(err as Error).message}` }, 400);
   }
 
-  const supabase = await createClient({ admin: true });
+  const supabase = await createClient({
+    url: env.SUPABASE_URL,
+    key: env.SUPABASE_SERVICE_ROLE_KEY,
+    admin: true,
+    ssr: false,
+  });
 
   try {
     switch (event.type) {
@@ -40,10 +40,8 @@ export async function POST(req: Request) {
         const subscription = event.data.object as Stripe.Subscription;
 
         if (!subscription.metadata.user_id) {
-          return NextResponse.json(
-            { error: "Missing user_id in metadata" },
-            { status: 400 },
-          );
+          console.log("Missing user_id in metadata");
+          return c.json({ error: "Missing user_id in metadata" }, 400);
         }
 
         const { error } = await supabase.from("subscription").upsert(
@@ -74,27 +72,14 @@ export async function POST(req: Request) {
           { onConflict: "user_id" },
         );
         if (error) {
-          console.error("Failed to create subscription entry", error);
+          console.log("Error upserting subscription:", error);
+          throw error;
         }
         break;
       }
-
-      case "customer.subscription.paused":
-      case "customer.subscription.resumed": {
-        const subscription = event.data.object as Stripe.Subscription;
-        await supabase
-          .from("subscription")
-          .update({
-            status: subscription.status,
-          })
-          .eq("user_id", subscription.metadata.user_id ?? "")
-          .eq("stripe_customer_id", subscription.customer as string);
-        break;
-      }
-
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
-        await supabase
+        const { error } = await supabase
           .from("subscription")
           .update({
             status: "canceled",
@@ -102,24 +87,31 @@ export async function POST(req: Request) {
             ended_at: new Date().toISOString(),
           })
           .eq("stripe_customer_id", subscription.customer as string);
+        if (error) {
+          console.log("Error updating subscription:", error);
+          throw error;
+        }
         break;
       }
       case "customer.deleted": {
         const customer = event.data.object as Stripe.Customer;
-        await supabase
+        const { error } = await supabase
           .from("subscription")
           .delete()
           .eq("stripe_customer_id", customer.id);
+        if (error) {
+          console.log("Error deleting subscription:", error);
+          throw error;
+        }
         break;
       }
     }
 
-    return NextResponse.json({ received: true });
+    return c.json({ received: true });
   } catch (error) {
     console.error("Error processing webhook:", error);
-    return NextResponse.json(
-      { error: "Error processing webhook" },
-      { status: 500 },
-    );
+    return c.json({ error: "Error processing webhook" }, 500);
   }
-}
+});
+
+export default app;

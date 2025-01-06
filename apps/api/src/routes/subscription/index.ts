@@ -2,9 +2,9 @@ import { ErrorSchema, createSuccessSchema } from "@/common/types";
 import type { Variables } from "@/common/variables";
 import { env } from "@/env";
 import { stripe } from "@/lib/stripe";
+import { createClient } from "@guilders/database/server";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { CheckoutResponseSchema, PortalResponseSchema } from "./schema";
-import { createClient } from "@guilders/database/server";
 
 const app = new OpenAPIHono<{ Variables: Variables }>()
   .openapi(
@@ -46,11 +46,11 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
         const supabase = c.get("supabase");
         const user = c.get("user");
         const supabaseAdmin = await createClient({
-            url: env.SUPABASE_URL,
-            key: env.SUPABASE_SERVICE_ROLE_KEY,
-            admin: true,
-            ssr: false,
-          });
+          url: env.SUPABASE_URL,
+          key: env.SUPABASE_SERVICE_ROLE_KEY,
+          admin: true,
+          ssr: false,
+        });
 
         // Check if user already has an active subscription
         const { data: subscription } = await supabase
@@ -59,7 +59,10 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
           .eq("user_id", user.id)
           .single();
 
-        if (subscription && subscription.status && ["active", "trialing"].includes(subscription.status)) {
+        if (
+          subscription?.status &&
+          ["active", "trialing"].includes(subscription.status)
+        ) {
           return c.json(
             {
               data: null,
@@ -142,16 +145,16 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
         });
 
         if (!session.url) {
-          return c.json({ data: null, error: "Failed to create checkout session" }, 500);
+          return c.json(
+            { data: null, error: "Failed to create checkout session" },
+            500,
+          );
         }
 
         return c.json({ data: { url: session.url }, error: null }, 200);
       } catch (error) {
         console.error("Subscription error:", error);
-        return c.json(
-          { data: null, error: (error as Error).message },
-          500,
-        );
+        return c.json({ data: null, error: (error as Error).message }, 500);
       }
     },
   )
@@ -201,10 +204,7 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
           .single();
 
         if (!subscription?.stripe_customer_id) {
-          return c.json(
-            { data: null, error: "No subscription found" },
-            404,
-          );
+          return c.json({ data: null, error: "No subscription found" }, 404);
         }
 
         const origin = c.req.header("origin") || "http://localhost:3001";
@@ -215,15 +215,15 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
         });
 
         if (!session.url) {
-          return c.json({ data: null, error: "Failed to create portal session" }, 500);
+          return c.json(
+            { data: null, error: "Failed to create portal session" },
+            500,
+          );
         }
 
         return c.json({ data: { url: session.url }, error: null }, 200);
       } catch (error) {
-        return c.json(
-          { data: null, error: (error as Error).message },
-          500,
-        );
+        return c.json({ data: null, error: (error as Error).message }, 500);
       }
     },
   );

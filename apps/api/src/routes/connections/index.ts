@@ -1,8 +1,8 @@
 import { ErrorSchema, VoidSchema, createSuccessSchema } from "@/common/types";
 import type { Variables } from "@/common/variables";
 import { getProvider } from "@/providers";
+import type { Providers } from "@/providers/types";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import { Providers } from "@/providers/types";
 import {
   ConnectionResponseSchema,
   CreateConnectionSchema,
@@ -117,10 +117,7 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
           .single();
 
         if (!institution) {
-          return c.json(
-            { data: null, error: "Institution not found" },
-            404,
-          );
+          return c.json({ data: null, error: "Institution not found" }, 404);
         }
 
         const result = await providerInstance.connect(
@@ -206,7 +203,6 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
 
         const providerInstance = getProvider(providerDb.name as Providers);
 
-
         const { data: providerConnection } = await supabase
           .from("provider_connection")
           .select("*")
@@ -241,10 +237,7 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
           .single();
 
         if (!institution) {
-          return c.json(
-            { data: null, error: "Institution not found" },
-            404,
-          );
+          return c.json({ data: null, error: "Institution not found" }, 404);
         }
 
         const result = await providerInstance.reconnect(

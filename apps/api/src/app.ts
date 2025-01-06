@@ -1,23 +1,25 @@
+import snaptradeCallbackRoute from "@/callback/providers/snaptrade/route";
+import stripeCallbackRoute from "@/callback/stripe/route";
+import { supabaseAuth } from "@/middleware/supabaseAuth";
+import accountsRoute from "@/routes/accounts";
+import connectionsRoute from "@/routes/connections";
 import countriesRoute from "@/routes/countries";
 import currenciesRoute from "@/routes/currencies";
+import documentsRoute from "@/routes/documents";
+import institutionConnectionsRoute from "@/routes/institution-connections";
+import institutionsRoute from "@/routes/institutions";
+import providerConnectionsRoute from "@/routes/provider-connections";
+import providersRoute from "@/routes/providers";
+import ratesRoute from "@/routes/rates/index";
+import subscriptionRoute from "@/routes/subscription";
+import transactionsRoute from "@/routes/transactions";
+import usersRoute from "@/routes/users";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { apiReference } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
-import { supabaseAuth } from "./middleware/supabaseAuth";
-import accountsRoute from "./routes/accounts";
-import connectionsRoute from "./routes/connections";
-import documentsRoute from "./routes/documents";
-import institutionConnectionsRoute from "./routes/institution-connections";
-import institutionsRoute from "./routes/institutions";
-import providerConnectionsRoute from "./routes/provider-connections";
-import providersRoute from "./routes/providers";
-import ratesRoute from "./routes/rates/index";
-import transactionsRoute from "./routes/transactions";
-import usersRoute from "./routes/users";
-import subscriptionRoute from "./routes/subscription";
 
 const app = new OpenAPIHono();
 
@@ -57,6 +59,10 @@ app.onError((err, c) => {
 
   return c.json({ data: null, error: err.message }, 500);
 });
+
+// Mount callback routes
+app.route("/callback/stripe", stripeCallbackRoute);
+app.route("/callback/snaptrade", snaptradeCallbackRoute);
 
 // Mount routes
 app.use("*", supabaseAuth());
