@@ -11,6 +11,7 @@
   },
   "exports": {
     ".": "./src/client.ts",
+    "./app": "./src/app.ts",
     "./types": "./src/types.ts"
   },
   "dependencies": {
