@@ -1,7 +1,12 @@
 "use client";
 
+import { useReconnectConnection } from "@/lib/hooks/useConnections";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { useUpdateAccount } from "@/lib/queries/useAccounts";
+import { useCurrencies } from "@/lib/queries/useCurrencies";
 import { useFiles } from "@/lib/queries/useFiles";
 import { useInstitutionConnection } from "@/lib/queries/useInstitutionConnection";
+import { useInstitutionByAccountId } from "@/lib/queries/useInstitutions";
 import { useProviderConnections } from "@/lib/queries/useProviderConnections";
 import { useProviderById } from "@/lib/queries/useProviders";
 import {
@@ -41,11 +46,6 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useFixConnection } from "../../lib/hooks/useConnections";
-import { useDialog } from "../../lib/hooks/useDialog";
-import { useUpdateAccount } from "../../lib/queries/useAccounts";
-import { useCurrencies } from "../../lib/queries/useCurrencies";
-import { useInstitutionByAccountId } from "../../lib/queries/useInstitutions";
 import { FileUploader } from "../common/file-uploader";
 
 const detailsSchema = z.object({
@@ -95,8 +95,8 @@ export function EditAccountDialog() {
   const { data: currencies } = useCurrencies();
 
   const { mutate: updateAccount, isPending: isUpdating } = useUpdateAccount();
-  const { mutateAsync: fixConnection, isPending: isFixing } =
-    useFixConnection();
+  const { mutateAsync: reconnectConnection, isPending: isReconnecting } =
+    useReconnectConnection();
 
   const { uploadFile, deleteFile, getSignedUrl, isUploading } = useFiles({
     entityType: "account",
@@ -148,16 +148,16 @@ export function EditAccountDialog() {
       return;
     }
 
-    const { success, data: redirectUrl } = await fixConnection({
-      providerName: provider.name.toLocaleLowerCase(),
-      institutionId: institution.id,
-      accountId: account.id,
+    const { redirectURI } = await reconnectConnection({
+      provider: provider.name,
+      institutionId: institution.id.toString(),
+      accountId: account.id.toString(),
     });
 
-    if (success) {
+    if (redirectURI) {
       close();
       openProviderDialog({
-        redirectUri: redirectUrl,
+        redirectUri: redirectURI,
         operation: "reconnect",
       });
     } else {
@@ -237,9 +237,9 @@ export function EditAccountDialog() {
                         variant="outline"
                         className="border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-foreground ml-auto"
                         onClick={handleFixConnection}
-                        disabled={isFixing}
+                        disabled={isReconnecting}
                       >
-                        {isFixing ? (
+                        {isReconnecting ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             Fixing...

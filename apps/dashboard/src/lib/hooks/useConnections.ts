@@ -1,61 +1,47 @@
-import type { Tables } from "@guilders/database/types";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { getApiClient } from "@/lib/api";
+import type { ConnectionResponse } from "@guilders/api/types";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
-export function useRegisterUser() {
+const queryKey = ["connections"] as const;
+
+export function useRegisterConnection() {
   return useMutation({
-    mutationFn: async (providerName: string) => {
-      const response = await fetch(
-        `/api/connections/register/${providerName.toLowerCase()}`,
-        {
-          method: "POST",
-        },
-      );
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(
-          data.error || `Failed to register a ${providerName} user`,
-        );
-      }
+    mutationFn: async (provider: string) => {
+      const api = await getApiClient();
+      const response = await api.connections.register.$post({
+        json: { provider },
+      });
+      const { data, error } = await response.json();
+      if (error || !data)
+        throw new Error(error || "Failed to register connection");
       return data;
+    },
+    onError: (error) => {
+      toast.error("Failed to register connection", {
+        description: error.message,
+      });
     },
   });
 }
 
-export function useDeregisterUser() {
+export function useDeregisterConnection() {
   return useMutation({
-    mutationFn: async (providerName: string) => {
-      const response = await fetch(
-        `/api/connections/deregister/${providerName.toLowerCase()}`,
-        {
-          method: "POST",
-        },
-      );
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(
-          data.error || `Failed to deregister a ${providerName} user`,
-        );
-      }
+    mutationFn: async (provider: string) => {
+      const api = await getApiClient();
+      const response = await api.connections.deregister.$post({
+        json: { provider },
+      });
+      const { data, error } = await response.json();
+      if (error || !data)
+        throw new Error(error || "Failed to deregister connection");
+
       return data;
     },
-  });
-}
-
-type Connection = Tables<"provider_connection"> & {
-  provider: Tables<"provider">;
-};
-
-export function useGetConnections() {
-  return useQuery<Connection[]>({
-    queryKey: ["connections"],
-    queryFn: async () => {
-      const response = await fetch("/api/connections");
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.error || "Failed to fetch connections");
-      }
-      return data.data;
+    onError: (error) => {
+      toast.error("Failed to deregister connection", {
+        description: error.message,
+      });
     },
   });
 }
@@ -63,61 +49,58 @@ export function useGetConnections() {
 export function useCreateConnection() {
   return useMutation({
     mutationFn: async ({
-      providerName,
+      provider,
       institutionId,
     }: {
-      providerName: string;
-      institutionId: number;
-    }) => {
-      const response = await fetch(
-        `/api/connections/connect/${providerName.toLowerCase()}`,
-        {
-          method: "POST",
-          body: JSON.stringify({ institution_id: institutionId }),
-        },
-      );
-
-      const data = await response.json();
-
-      if (!data.success) {
-        console.error(data.error);
-        throw new Error(`Failed to create a ${providerName} connection`);
+      provider: string;
+      institutionId: string;
+    }): Promise<ConnectionResponse> => {
+      const api = await getApiClient();
+      const response = await api.connections.$post({
+        json: { provider, institution_id: institutionId },
+      });
+      const { data, error } = await response.json();
+      console.error(data, error);
+      console.error(response);
+      if (error || !data) {
+        throw new Error(error || "Failed to create connection");
       }
 
       return data;
     },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Failed to create connection", {
+        description: error.message,
+      });
+    },
   });
 }
 
-export function useFixConnection() {
+export function useReconnectConnection() {
   return useMutation({
     mutationFn: async ({
-      providerName,
+      provider,
       institutionId,
       accountId,
     }: {
-      providerName: string;
-      institutionId: number;
-      accountId: number;
-    }) => {
-      const response = await fetch(
-        `/api/connections/connect/${providerName.toLowerCase()}`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            institution_id: institutionId,
-            account_id: accountId,
-          }),
-        },
-      );
-
-      const data = await response.json();
-      if (!data.success) {
-        console.error(data.error);
-        throw new Error(`Failed to fix a ${providerName} connection`);
-      }
+      provider: string;
+      institutionId: string;
+      accountId: string;
+    }): Promise<ConnectionResponse> => {
+      const api = await getApiClient();
+      const response = await api.connections.reconnect.$post({
+        json: { provider, institution_id: institutionId, account_id: accountId },
+      });
+      const { data, error } = await response.json();
+      if (error || !data) throw new Error(error || "Failed to reconnect");
 
       return data;
+    },
+    onError: (error) => {
+      toast.error("Failed to reconnect", {
+        description: error.message,
+      });
     },
   });
 }
@@ -125,25 +108,30 @@ export function useFixConnection() {
 export function useRefreshConnection() {
   return useMutation({
     mutationFn: async ({
-      providerName,
-      institutionConnectionId,
+      provider,
+      institutionId,
+      connectionId,
     }: {
-      providerName: string;
-      institutionConnectionId: number;
-    }) => {
-      const response = await fetch(
-        `/api/connections/refresh/${providerName.toLowerCase()}`,
-        {
-          method: "POST",
-          body: JSON.stringify({ institutionConnectionId }),
-        },
-      );
-      const data = await response.json();
-
-      if (!data.success) {
-        throw new Error(data.error || "Failed to refresh the connection");
-      }
-      return data;
+      provider: string;
+      institutionId: string;
+      connectionId: string;
+    }): Promise<void> => {
+      const api = await getApiClient();
+      const response = await api.connections.refresh.$post({
+        json: { provider, institution_id: institutionId, connection_id: connectionId },
+      });
+      const { error } = await response.json();
+      if (error) throw new Error(error);
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh connection", {
+        description: error.message,
+      });
+    },
+    onSuccess: () => {
+      toast.success("Connection refreshed", {
+        description: "Your connection has been refreshed successfully.",
+      });
     },
   });
 }

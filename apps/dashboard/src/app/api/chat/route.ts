@@ -1,4 +1,4 @@
-import { env } from "@/env";
+import { env } from "@/lib/env";
 import { anthropic } from "@ai-sdk/anthropic";
 import type { Account, Document, Transaction } from "@guilders/api/types";
 import { createClient } from "@guilders/database/server";

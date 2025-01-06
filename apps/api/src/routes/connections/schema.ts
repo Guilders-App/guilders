@@ -57,6 +57,23 @@ export const RegisterResponseSchema = z
   })
   .openapi("RegisterResponse");
 
+export const RefreshConnectionSchema = z
+  .object({
+    provider: z.string().openapi({
+      example: "SnapTrade",
+      description: "Provider identifier",
+    }),
+    institution_id: z.string().openapi({
+      example: "inst_123",
+      description: "Institution ID to refresh",
+    }),
+    connection_id: z.string().openapi({
+      example: "conn_123",
+      description: "Connection ID to refresh",
+    }),
+  })
+  .openapi("RefreshConnection");
+
 // Export inferred types
 export type CreateConnection = z.infer<typeof CreateConnectionSchema>;
 export type Reconnect = z.infer<typeof ReconnectSchema>;

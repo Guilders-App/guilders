@@ -8,6 +8,7 @@ import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 import { supabaseAuth } from "./middleware/supabaseAuth";
 import accountsRoute from "./routes/accounts";
+import connectionsRoute from "./routes/connections";
 import documentsRoute from "./routes/documents";
 import institutionConnectionsRoute from "./routes/institution-connections";
 import institutionsRoute from "./routes/institutions";
@@ -69,7 +70,8 @@ const appRoutes = app
   .route("/transactions", transactionsRoute)
   .route("/users", usersRoute)
   .route("/accounts", accountsRoute)
-  .route("/documents", documentsRoute);
+  .route("/documents", documentsRoute)
+  .route("/connections", connectionsRoute);
 
 // Start the server
 const port = 3002;

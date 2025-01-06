@@ -1,4 +1,4 @@
-import { env } from "@/env";
+import { env } from "@/lib/env";
 import { createClient } from "@guilders/database/server";
 import { getProvider } from "@guilders/database/utils";
 import { providerName, saltedge } from "./client";

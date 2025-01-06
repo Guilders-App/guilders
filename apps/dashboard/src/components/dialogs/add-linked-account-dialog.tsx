@@ -1,6 +1,10 @@
 "use client";
 
+import { useCreateConnection } from "@/lib/hooks/useConnections";
+import { useDialog } from "@/lib/hooks/useDialog";
 import { useProviderById } from "@/lib/queries/useProviders";
+import { useUser } from "@/lib/queries/useUser";
+import { isPro } from "@/lib/utils";
 import { Button } from "@guilders/ui/button";
 import {
   Dialog,
@@ -13,10 +17,6 @@ import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { useCreateConnection } from "../../lib/hooks/useConnections";
-import { useDialog } from "../../lib/hooks/useDialog";
-import { useUser } from "../../lib/queries/useUser";
-import { isPro } from "../../lib/utils";
 
 export function AddLinkedAccountDialog() {
   const router = useRouter();
@@ -37,15 +37,15 @@ export function AddLinkedAccountDialog() {
       return;
     }
 
-    const { success, data: redirectUrl } = await createConnection({
-      providerName: provider.name.toLocaleLowerCase(),
-      institutionId: institution.id,
+    const { redirectURI } = await createConnection({
+      provider: provider.name,
+      institutionId: institution.id.toString(),
     });
 
-    if (success) {
+    if (redirectURI) {
       close();
       openProviderDialog({
-        redirectUri: redirectUrl,
+        redirectUri: redirectURI,
         operation: "connect",
       });
     } else {

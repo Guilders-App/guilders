@@ -1,4 +1,4 @@
-import { env } from "@/env";
+import { env } from "@/lib/env";
 import { Button } from "@guilders/ui/button";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";

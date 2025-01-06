@@ -1,6 +1,6 @@
 "use server";
 
-import { env } from "@/env";
+import { env } from "@/lib/env";
 import { providerName, snaptrade } from "@/lib/providers/snaptrade/client";
 import { createClient } from "@guilders/database/server";
 import { NextResponse } from "next/server";

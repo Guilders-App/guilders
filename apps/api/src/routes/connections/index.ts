@@ -6,6 +6,7 @@ import {
   ConnectionResponseSchema,
   CreateConnectionSchema,
   ReconnectSchema,
+  RefreshConnectionSchema,
   RegisterConnectionSchema,
   RegisterResponseSchema,
 } from "./schema";
@@ -355,6 +356,98 @@ const app = new OpenAPIHono<{ Variables: Variables }>()
         console.error("Deregistration error:", error);
         return c.json(
           { data: null, error: "Error during deregistration" },
+          500,
+        );
+      }
+    },
+  )
+  .openapi(
+    createRoute({
+      method: "post",
+      path: "/refresh",
+      tags: ["Connections"],
+      summary: "Refresh a provider connection",
+      security: [{ Bearer: [] }],
+      request: {
+        body: {
+          content: {
+            "application/json": {
+              schema: RefreshConnectionSchema,
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Connection refreshed successfully",
+          content: {
+            "application/json": {
+              schema: createSuccessSchema(VoidSchema),
+            },
+          },
+        },
+        404: {
+          description: "Connection not found",
+          content: {
+            "application/json": {
+              schema: ErrorSchema,
+            },
+          },
+        },
+        500: {
+          description: "Internal Server Error",
+          content: {
+            "application/json": {
+              schema: ErrorSchema,
+            },
+          },
+        },
+      },
+    }),
+    async (c) => {
+      try {
+        const supabase = c.get("supabase");
+        const user = c.get("user");
+        const { provider, institution_id, connection_id } = await c.req.json();
+
+        const providerInstance = getProvider(provider);
+
+        const { data: providerConnection } = await supabase
+          .from("provider_connection")
+          .select("*")
+          .eq("provider_id", provider)
+          .eq("user_id", user.id)
+          .single();
+
+        if (!providerConnection?.secret) {
+          return c.json(
+            { data: null, error: "No existing connection found" },
+            404,
+          );
+        }
+
+        const result = await providerInstance.refreshConnection(
+          user.id,
+          providerConnection.secret,
+          institution_id,
+          connection_id,
+        );
+
+        if (!result.success) {
+          return c.json(
+            {
+              data: null,
+              error: result.error || "Failed to refresh connection",
+            },
+            500,
+          );
+        }
+
+        return c.json({ data: {}, error: null }, 200);
+      } catch (error) {
+        console.error("Connection refresh error:", error);
+        return c.json(
+          { data: null, error: "Error refreshing connection" },
           500,
         );
       }

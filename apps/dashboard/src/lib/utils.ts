@@ -1,4 +1,4 @@
-import { env } from "@/env";
+import { env } from "@/lib/env";
 import type { User } from "@guilders/api/types";
 import { type ClassValue, clsx } from "clsx";
 import { redirect } from "next/navigation";

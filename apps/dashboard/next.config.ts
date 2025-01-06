@@ -2,7 +2,7 @@ import createMDX from "@next/mdx";
 import type { NextConfig } from "next";
 
 // Validate environment variables
-import "@/env";
+import "@/lib/env";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -22,10 +22,6 @@ const nextConfig: NextConfig = {
       },
       {
         hostname: "storage.googleapis.com",
-      },
-      // SaltEdge
-      {
-        hostname: "d1uuj3mi6rzwpm.cloudfront.net",
       },
     ],
   },

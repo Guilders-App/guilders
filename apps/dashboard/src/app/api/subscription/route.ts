@@ -1,4 +1,4 @@
-import { env } from "@/env";
+import { env } from "@/lib/env";
 import { stripe } from "@/lib/stripe/server";
 import { createClient } from "@guilders/database/server";
 import { type NextRequest, NextResponse } from "next/server";
