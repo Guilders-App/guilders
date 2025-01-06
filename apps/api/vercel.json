@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "src/cron/insert-rates",
+      "path": "./src/cron/insert-rates",
       "schedule": "0 * * * *"
     }
   ]
