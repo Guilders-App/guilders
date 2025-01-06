@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
     appIsrStatus: false,
   },
   typescript: {
+    // Disabled typechecking because of Hono RPC cross-project references
     ignoreBuildErrors: true,
   },
   pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
