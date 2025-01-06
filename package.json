@@ -11,12 +11,17 @@
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "turbo dev --parallel",
+    "dev:api": "turbo dev --filter=@guilders/api",
+    "dev:email": "turbo dev --filter=@guilders/email",
+    "dev:dashboard": "turbo dev --filter=@guilders/dashboard",
+    "dev:website": "turbo dev --filter=@guilders/website",
+    "dev:db": "turbo dev --filter=@guilders/database",
     "test": "turbo test --parallel",
     "build": "turbo build",
     "format": "biome check --write .",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
-    "ngrok": "ngrok http 3001 --url=${NGROK_URL}"
+    "ngrok": "ngrok http 3002 --url=${NGROK_URL}"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

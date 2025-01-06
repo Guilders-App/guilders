@@ -8,10 +8,10 @@
     "lint": "biome check .",
     "format": "biome check --write .",
     "typecheck": "tsc --noEmit",
-    "dev": "email dev -p 3002",
+    "dev": "email dev -p 3003",
     "start": "email start",
     "export": "email export",
-    "export:supabase": "bun run scripts/buildSupabaseTemplates.ts"
+    "export:supabase": "bun run scripts/buildTemplates.ts"
   },
   "dependencies": {
     "@react-email/components": "0.0.31",

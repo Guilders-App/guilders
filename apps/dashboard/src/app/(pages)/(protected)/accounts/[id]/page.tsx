@@ -4,9 +4,9 @@ import { AccountsCard } from "@/components/dashboard/accounts/account-card";
 import { AccountIcon } from "@/components/dashboard/accounts/account-icon";
 import { BalanceCard } from "@/components/dashboard/balance-card";
 import { TransactionsCard } from "@/components/dashboard/transactions/transactions-card";
-import { useAccount, useRemoveAccount } from "@/lib/hooks/useAccounts";
-import { useRefreshConnection } from "@/lib/hooks/useConnections";
+import { useRefreshConnection } from "@/lib/queries/useConnections";
 import { useDialog } from "@/lib/hooks/useDialog";
+import { useAccount, useRemoveAccount } from "@/lib/queries/useAccounts";
 import { Button } from "@guilders/ui/button";
 import {
   DropdownMenu,
@@ -61,11 +61,7 @@ export default function AccountPage({
       onConfirm: () => {
         removeAccount(account.id, {
           onSuccess: () => {
-            toast.success("Account deleted");
             router.push("/accounts");
-          },
-          onError: () => {
-            toast.error("Error deleting account");
           },
         });
       },
@@ -77,8 +73,8 @@ export default function AccountPage({
 
     refreshConnection(
       {
-        providerName: account.institution_connection?.provider?.name || "",
-        institutionConnectionId: account.institution_connection_id,
+        providerId: account.institution_connection?.provider?.id.toString() || "",
+        connectionId: account.institution_connection_id.toString(),
       },
       {
         onSuccess: () => {
@@ -178,7 +174,8 @@ export default function AccountPage({
             // biome-ignore lint/complexity/noUselessFragments: Using it to override the default menu component
             <TransactionsCard accountId={account.id} menuComponent={<></>} />
           ) : null}
-          {account.subtype === "brokerage" && account.children.length > 0 ? (
+          {account.subtype === "brokerage" &&
+          (account.children?.length ?? 0) > 0 ? (
             <AccountsCard
               title="Holdings"
               accounts={account.children}

@@ -69,9 +69,9 @@ export const GuildersConfirmationEmail = ({
 };
 
 GuildersConfirmationEmail.PreviewProps = {
-  baseUrl: "http://localhost:3000",
+  baseUrl: "http://localhost:3001",
   confirmationLink:
-    "https://guilders.app/callback/auth?token_hash=foo&type=signup",
+    "http://localhost:3001/callback/auth?token_hash=foo&type=signup",
 } as GuildersConfirmationEmailProps;
 
 GuildersConfirmationEmail.SupabaseProps = {

@@ -73,7 +73,7 @@ export async function signInAction(formData: FormData) {
     }
   }
 
-  redirect(redirectUrl || "/");
+  return { success: true, redirect: redirectUrl || "/" };
 }
 
 export const forgotPasswordAction = async (formData: FormData) => {

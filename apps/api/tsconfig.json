@@ -1,0 +1,10 @@
+{
+  "extends": "@guilders/tsconfig/base.json",
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": false,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}

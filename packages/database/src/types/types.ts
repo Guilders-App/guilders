@@ -1,35 +1,12 @@
-import type { Enums, Tables, TablesInsert, TablesUpdate } from "./db";
+import type { Enums } from "./db";
 
 export type Category = {
   name: Enums<"account_subtype">;
   value: number;
 };
 
-export type Institution = Tables<"institution">;
-export type Provider = Tables<"provider">;
-export type Account = Tables<"account"> & {
-  children: Account[];
-  institution_connection: {
-    broken: boolean;
-    institution: { name: string; logo_url: string };
-    provider?: {
-      id: number;
-      name: string;
-    };
-  } | null;
-};
-
-export type AccountInsert = Omit<
-  TablesInsert<"account">,
-  "type" | "user_id" | "created_at" | "updated_at" | "connection_id"
->;
-export type AccountUpdate = Omit<
-  TablesUpdate<"account">,
-  "type" | "user_id" | "created_at" | "updated_at" | "connection_id"
->;
 export type AccountSubtype = Enums<"account_subtype">;
 
-// TODO: Should we fetch this from the database?
 export const accountSubtypes = [
   "depository",
   "brokerage",
@@ -71,19 +48,4 @@ export const getCategoryDisplayName = (
   categoryName: AccountSubtype,
 ): string => {
   return accountSubtypeLabels[categoryName] || categoryName;
-};
-
-export type Transaction = Tables<"transaction">;
-export type TransactionInsert = Omit<
-  TablesInsert<"transaction">,
-  "provider_transaction_id"
->;
-export type TransactionUpdate = Omit<
-  TablesUpdate<"transaction">,
-  "provider_transaction_id"
->;
-
-export type Rate = {
-  currency_code: string;
-  rate: number;
 };

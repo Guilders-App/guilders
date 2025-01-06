@@ -5,8 +5,8 @@ import { TransactionsCard } from "@/components/dashboard/transactions/transactio
 import { TransactionsEmptyPlaceholder } from "@/components/dashboard/transactions/transactions-placeholder";
 import { TransactionsSankey } from "@/components/dashboard/transactions/transactions-sankey";
 import { useDialog } from "@/lib/hooks/useDialog";
-import { useTransactions } from "@/lib/hooks/useTransactions";
-import { useUser } from "@/lib/hooks/useUser";
+import { useTransactions } from "@/lib/queries/useTransactions";
+import { useUser } from "@/lib/queries/useUser";
 import { cn } from "@/lib/utils";
 import { convertToUserCurrency } from "@/lib/utils/financial";
 import { Button } from "@guilders/ui/button";
@@ -107,7 +107,7 @@ export default function TransactionsPage() {
     <div className="p-4 space-y-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold text-foreground">Transactions</h1>
-        <Button onClick={() => openAddTransaction()} size="sm">
+        <Button onClick={() => openAddTransaction({})} size="sm">
           <Plus className="h-4 w-4" />
           Add Transaction
         </Button>

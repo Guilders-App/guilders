@@ -3,8 +3,8 @@
 import { AccountsCard } from "@/components/dashboard/accounts/account-card";
 import { AccountsEmptyPlaceholder } from "@/components/dashboard/accounts/accounts-placeholder";
 import { CompactBalanceCard } from "@/components/dashboard/compact-balance-card";
-import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useDialog } from "@/lib/hooks/useDialog";
+import { useAccounts } from "@/lib/queries/useAccounts";
 import { Button } from "@guilders/ui/button";
 import { Skeleton } from "@guilders/ui/skeleton";
 import { Plus } from "lucide-react";

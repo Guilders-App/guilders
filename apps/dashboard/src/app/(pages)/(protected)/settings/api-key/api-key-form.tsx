@@ -1,6 +1,6 @@
 "use client";
 
-import { useUpdateUserSettings, useUser } from "@/lib/hooks/useUser";
+import { useUpdateUserSettings, useUser } from "@/lib/queries/useUser";
 import { Button } from "@guilders/ui/button";
 import {
   Card,
@@ -36,7 +36,7 @@ export function ApiKeyForm() {
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("");
 
-      await updateUserSettings({ apiKey });
+      await updateUserSettings({ settings: { api_key: apiKey } });
 
       toast.success("API Key generated", {
         description: "Your API key has been generated successfully.",
@@ -53,7 +53,7 @@ export function ApiKeyForm() {
   const handleDelete = async () => {
     try {
       setDeleting(true);
-      await updateUserSettings({ apiKey: null });
+      await updateUserSettings({ settings: { api_key: null } });
       toast.success("API Key deleted", {
         description: "Your API key has been deleted successfully.",
       });
@@ -107,7 +107,8 @@ export function ApiKeyForm() {
             <Button
               variant="destructive"
               onClick={handleDelete}
-              disabled={deleting}
+              // disabled={deleting}
+              disabled={true}
             >
               {deleting ? (
                 <>
@@ -120,7 +121,11 @@ export function ApiKeyForm() {
             </Button>
           </>
         ) : (
-          <Button onClick={handleGenerate} disabled={generating}>
+          <Button
+            onClick={handleGenerate}
+            // disabled={generating}
+            disabled={true}
+          >
             {generating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -10,7 +10,7 @@ import {
 } from "@guilders/ui/breadcrumb";
 import { usePathname } from "next/navigation";
 import React from "react";
-import { useAccount } from "../../lib/hooks/useAccounts";
+import { useAccount } from "../../lib/queries/useAccounts";
 import { navigationData } from "./app-sidebar";
 
 export type Breadcrumb = {

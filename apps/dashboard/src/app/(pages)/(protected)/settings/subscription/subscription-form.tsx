@@ -1,7 +1,7 @@
 "use client";
 
-import { usePortalSession, useSubscription } from "@/lib/hooks/useSubscription";
-import { useUser } from "@/lib/hooks/useUser";
+import { usePortalSession, useSubscription } from "@/lib/queries/useSubscription";
+import { useUser } from "@/lib/queries/useUser";
 import { Button } from "@guilders/ui/button";
 import {
   Card,
@@ -25,7 +25,7 @@ export function SubscriptionForm() {
 
   const handleSubscribe = async () => {
     try {
-      const url = await createSubscription();
+      const { url } = await createSubscription();
       router.push(url);
     } catch (error) {
       console.error(error);
@@ -37,7 +37,7 @@ export function SubscriptionForm() {
 
   const handleManageSubscription = async () => {
     try {
-      const url = await createPortalSession();
+      const { url } = await createPortalSession();
       router.push(url);
     } catch (error) {
       console.error(error);

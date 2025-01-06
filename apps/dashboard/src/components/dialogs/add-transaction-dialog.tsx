@@ -29,14 +29,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 import { DateTimePicker } from "../../components/common/datetime-picker";
-import { useAccounts } from "../../lib/hooks/useAccounts";
-import { useCurrencies } from "../../lib/hooks/useCurrencies";
 import { useDialog } from "../../lib/hooks/useDialog";
-import { useAddTransaction } from "../../lib/hooks/useTransactions";
-import { useUser } from "../../lib/hooks/useUser";
+import { useAccounts } from "../../lib/queries/useAccounts";
+import { useCurrencies } from "../../lib/queries/useCurrencies";
+import { useAddTransaction } from "../../lib/queries/useTransactions";
+import { useUser } from "../../lib/queries/useUser";
 
 const formSchema = z.object({
   accountId: z.number({
@@ -55,7 +54,7 @@ const formSchema = z.object({
 type FormSchema = z.infer<typeof formSchema>;
 
 export function AddTransactionDialog() {
-  const { isOpen, close } = useDialog("addTransaction");
+  const { isOpen, close, data } = useDialog("addTransaction");
   const { mutate: addTransaction, isPending } = useAddTransaction();
   const { data: accounts } = useAccounts();
   const { data: currencies } = useCurrencies();
@@ -77,14 +76,28 @@ export function AddTransactionDialog() {
     },
   });
 
-  // Set currency when account is selected
   useEffect(() => {
-    const accountId = form.watch("accountId");
-    const account = accounts?.find((a) => a.id === accountId);
-    if (account) {
-      form.setValue("currency", account.currency);
+    if (isOpen) {
+      if (data?.accountId) {
+        // Set the Account ID
+        form.setValue("accountId", data.accountId);
+
+        // Set the currency based on the selected account
+        const account = accounts?.find((a) => a.id === data.accountId);
+        if (account) {
+          form.setValue("currency", account.currency);
+        }
+      } else {
+        // Reset to undefined when no accountId is provided
+        // @ts-ignore
+        form.setValue("accountId", undefined);
+        // Reset to user's default currency
+        if (user?.settings.currency) {
+          form.setValue("currency", user.settings.currency);
+        }
+      }
     }
-  }, [form.watch("accountId"), accounts, form]);
+  }, [isOpen, data?.accountId, accounts, form, user?.settings.currency]);
 
   useEffect(() => {
     if (user?.settings.currency) {
@@ -98,28 +111,17 @@ export function AddTransactionDialog() {
     }
   }, [isOpen, form]);
 
-  const handleSubmit = form.handleSubmit(async (data) => {
-    try {
-      await addTransaction({
-        account_id: data.accountId,
-        amount: Number.parseFloat(data.amount),
-        currency: data.currency,
-        description: data.description,
-        category: data.category,
-        date: new Date(data.date).toISOString(),
-      });
+  const handleSubmit = form.handleSubmit((data) => {
+    addTransaction({
+      account_id: data.accountId,
+      amount: Number.parseFloat(data.amount),
+      currency: data.currency,
+      description: data.description,
+      category: data.category,
+      date: new Date(data.date).toISOString(),
+    });
 
-      toast.success("Transaction added!", {
-        description: "Your transaction has been added successfully.",
-      });
-      close();
-    } catch (error) {
-      toast.error("Error adding transaction", {
-        description:
-          "There was an error adding your transaction. Please try again.",
-      });
-      console.error("Error adding transaction:", error);
-    }
+    close();
   });
 
   return (

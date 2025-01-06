@@ -47,15 +47,21 @@ function LoginForm() {
       formData.append("redirect", redirectUrl);
       const result = await signInAction(formData);
 
-      if (result?.error) {
-        if (result.message === "mfa_required" && result.factorId) {
-          setFactorId(result.factorId);
-          setRedirectUrl(result.redirect);
-        } else {
-          toast.error("Failed to sign in", {
-            description: result.message,
-          });
-        }
+      if (result?.factorId) {
+        setFactorId(result.factorId);
+        setRedirectUrl(result.redirect);
+        return;
+      }
+
+      if (result?.error && result.message !== "mfa_required") {
+        toast.error("Failed to sign in", {
+          description: result.message || "Please try again.",
+        });
+        return;
+      }
+
+      if (result?.success) {
+        router.push(result.redirect);
       }
     } catch (error) {
       toast.error("Failed to sign in", {

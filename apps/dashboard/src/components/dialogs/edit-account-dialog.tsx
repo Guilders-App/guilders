@@ -1,8 +1,15 @@
 "use client";
 
-import { useInstitutionConnection } from "@/lib/hooks/useInstitutionConnection";
-import { useProvider } from "@/lib/hooks/useProviders";
+import { useReconnectConnection } from "@/lib/queries/useConnections";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { useUpdateAccount } from "@/lib/queries/useAccounts";
+import { useCurrencies } from "@/lib/queries/useCurrencies";
+import { useFiles } from "@/lib/queries/useFiles";
+import { useInstitutionConnection } from "@/lib/queries/useInstitutionConnection";
+import { useInstitutionByAccountId } from "@/lib/queries/useInstitutions";
+import { useProviderConnections } from "@/lib/queries/useProviderConnections";
 import {
+  type AccountSubtype,
   accountSubtypeLabels,
   accountSubtypes,
 } from "@guilders/database/types";
@@ -38,15 +45,6 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { useAccountFiles } from "../../lib/hooks/useAccountFiles";
-import { useUpdateAccount } from "../../lib/hooks/useAccounts";
-import {
-  useFixConnection,
-  useGetConnections,
-} from "../../lib/hooks/useConnections";
-import { useCurrencies } from "../../lib/hooks/useCurrencies";
-import { useDialog } from "../../lib/hooks/useDialog";
-import { useInstitutionByAccountId } from "../../lib/hooks/useInstitutions";
 import { FileUploader } from "../common/file-uploader";
 
 const detailsSchema = z.object({
@@ -84,31 +82,30 @@ type FormSchema = z.infer<typeof formSchema>;
 export function EditAccountDialog() {
   const { isOpen, data, close } = useDialog("editAccount");
   const { open: openProviderDialog } = useDialog("provider");
-  const { data: connections } = useGetConnections();
+  const { data: connections } = useProviderConnections();
   const institution = useInstitutionByAccountId(data?.account?.id);
   const { data: institutionConnection } = useInstitutionConnection(
-    data?.account?.institution_connection_id,
+    data?.account?.institution_connection_id ?? 0,
   );
   const connection = connections?.find(
     (c) => c.id === institutionConnection?.provider_connection_id,
   );
-  const { data: provider } = useProvider(connection?.provider_id);
   const { data: currencies } = useCurrencies();
 
   const { mutate: updateAccount, isPending: isUpdating } = useUpdateAccount();
-  const { mutateAsync: fixConnection, isPending: isFixing } =
-    useFixConnection();
+  const { mutateAsync: reconnectConnection, isPending: isReconnecting } =
+    useReconnectConnection();
 
-  const { uploadFile, deleteFile, getSignedUrl, isUploading } = useAccountFiles(
-    {
-      accountId: data?.account?.id ?? 0,
-    },
-  );
+  const { uploadFile, deleteFile, getSignedUrl, isUploading } = useFiles({
+    entityType: "account",
+    entityId: data?.account?.id ?? 0,
+  });
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      accountType: data?.account?.subtype ?? accountSubtypes[0],
+      accountType:
+        (data?.account?.subtype as AccountSubtype) ?? accountSubtypes[0],
       accountName: data?.account?.name ?? "",
       value: data?.account?.value.toString() ?? "",
       currency: data?.account?.currency ?? "",
@@ -123,7 +120,7 @@ export function EditAccountDialog() {
   useEffect(() => {
     if (data?.account) {
       form.reset({
-        accountType: data.account.subtype,
+        accountType: data.account.subtype as AccountSubtype,
         accountName: data.account.name,
         value: data.account.value.toString(),
         currency: data.account.currency,
@@ -142,23 +139,23 @@ export function EditAccountDialog() {
   const isSyncedAccount = !!account.institution_connection_id;
 
   const handleFixConnection = async () => {
-    if (!institution || !provider) {
+    if (!institution || !connection) {
       toast.error("Failed to fix connection", {
         description: "Unable to fix connection. Please try again later.",
       });
       return;
     }
 
-    const { success, data: redirectUrl } = await fixConnection({
-      providerName: provider.name.toLocaleLowerCase(),
-      institutionId: institution.id,
-      accountId: account.id,
+    const { redirectURI } = await reconnectConnection({
+      providerId: connection.provider_id.toString(),
+      institutionId: institution.id.toString(),
+      accountId: account.id.toString(),
     });
 
-    if (success) {
+    if (redirectURI) {
       close();
       openProviderDialog({
-        redirectUri: redirectUrl,
+        redirectUri: redirectURI,
         operation: "reconnect",
       });
     } else {
@@ -171,7 +168,6 @@ export function EditAccountDialog() {
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const updatedAccount = {
-      id: account.id,
       subtype: data.accountType,
       name: data.accountName,
       value: Number.parseFloat(data.value),
@@ -182,39 +178,21 @@ export function EditAccountDialog() {
       notes: data.notes ?? "",
     };
 
-    updateAccount(updatedAccount, {
-      onSuccess: () => {
-        toast.success("Account updated", {
-          description: "Your account has been updated successfully.",
-        });
-        close();
+    updateAccount(
+      {
+        id: account.id,
+        account: updatedAccount,
       },
-      onError: (error) => {
-        toast.error("Error updating account", {
-          description:
-            "There was an error updating your account. Please try again.",
-        });
-        console.error("Error updating account:", error);
+      {
+        onSuccess: () => {
+          close();
+        },
+        onError: (error) => {
+          console.error("Error updating account:", error);
+        },
       },
-    });
+    );
   });
-
-  const handleRemoveExistingDocument = async (path: string) => {
-    try {
-      toast.promise(deleteFile(path), {
-        loading: "Removing document...",
-        success: () => {
-          return "Document removed successfully";
-        },
-        error: (err) => {
-          console.error("Error removing document:", err);
-          return "Failed to remove document";
-        },
-      });
-    } catch (error) {
-      // The error is handled by the toast.promise above
-    }
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={close}>
@@ -257,9 +235,9 @@ export function EditAccountDialog() {
                         variant="outline"
                         className="border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-foreground ml-auto"
                         onClick={handleFixConnection}
-                        disabled={isFixing}
+                        disabled={isReconnecting}
                       >
-                        {isFixing ? (
+                        {isReconnecting ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             Fixing...
@@ -484,8 +462,12 @@ export function EditAccountDialog() {
                           }}
                           onUpload={uploadFile}
                           disabled={isUploading}
-                          existingDocuments={data?.account?.documents ?? []}
-                          onRemoveExisting={handleRemoveExistingDocument}
+                          documents={data?.account?.documents?.map((id) => ({
+                            id: Number(id),
+                            name: `Document ${id}`,
+                            path: "",
+                          }))}
+                          onRemoveExisting={deleteFile}
                           onView={getSignedUrl}
                         />
                       </FormControl>

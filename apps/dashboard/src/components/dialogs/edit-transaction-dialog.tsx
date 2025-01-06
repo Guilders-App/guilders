@@ -1,12 +1,12 @@
 "use client";
 
-import { useAccounts } from "@/lib/hooks/useAccounts";
 import { useDialog } from "@/lib/hooks/useDialog";
-import { useTransactionFiles } from "@/lib/hooks/useTransactionFiles";
+import { useAccounts } from "@/lib/queries/useAccounts";
+import { useFiles } from "@/lib/queries/useFiles";
 import {
   useRemoveTransaction,
   useUpdateTransaction,
-} from "@/lib/hooks/useTransactions";
+} from "@/lib/queries/useTransactions";
 import { Button } from "@guilders/ui/button";
 import {
   Dialog,
@@ -37,7 +37,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 import { DateTimePicker } from "../common/datetime-picker";
 import { FileUploader } from "../common/file-uploader";
@@ -74,10 +73,10 @@ export function EditTransactionDialog() {
   const { mutate: deleteTransaction, isPending: isDeleting } =
     useRemoveTransaction();
   const { data: accounts } = useAccounts();
-  const { uploadFile, deleteFile, getSignedUrl, isUploading } =
-    useTransactionFiles({
-      transactionId: data?.transaction?.id ?? 0,
-    });
+  const { uploadFile, deleteFile, getSignedUrl, isUploading } = useFiles({
+    entityType: "transaction",
+    entityId: data?.transaction?.id ?? 0,
+  });
 
   const currentAccount = accounts?.find(
     (account) => account.id === data?.transaction?.account_id,
@@ -115,7 +114,7 @@ export function EditTransactionDialog() {
 
   const isSyncedTransaction = !!transaction.provider_transaction_id;
 
-  const handleSubmit = form.handleSubmit(async (formData) => {
+  const handleSubmit = form.handleSubmit((formData) => {
     const updatedTransaction = {
       id: transaction.id,
       account_id: formData.accountId,
@@ -124,38 +123,32 @@ export function EditTransactionDialog() {
       category: formData.category,
       date: formatDateForSubmit(formData.date),
       currency: transaction.currency,
+      documents: transaction.documents,
+      provider_transaction_id: transaction.provider_transaction_id,
     };
 
-    updateTransaction(updatedTransaction, {
-      onSuccess: () => {
-        toast.success("Transaction updated", {
-          description: "Your transaction has been updated successfully.",
-        });
-        close();
+    updateTransaction(
+      {
+        transactionId: transaction.id,
+        transaction: updatedTransaction,
       },
-      onError: (error) => {
-        toast.error("Error updating transaction", {
-          description:
-            "There was an error updating your transaction. Please try again.",
-        });
-        console.error("Error updating transaction:", error);
+      {
+        onSuccess: () => {
+          close();
+        },
+        onError: (error) => {
+          console.error("Error updating transaction:", error);
+        },
       },
-    });
+    );
   });
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     deleteTransaction(transaction.id, {
       onSuccess: () => {
-        toast.success("Transaction deleted", {
-          description: "Your transaction has been deleted successfully.",
-        });
         close();
       },
       onError: (error) => {
-        toast.error("Error deleting transaction", {
-          description:
-            "There was an error deleting your transaction. Please try again.",
-        });
         console.error("Error deleting transaction:", error);
       },
     });
@@ -380,9 +373,13 @@ export function EditTransactionDialog() {
                             }}
                             onUpload={uploadFile}
                             disabled={isUploading}
-                            existingDocuments={
-                              data?.transaction?.documents ?? []
-                            }
+                            documents={data?.transaction?.documents?.map(
+                              (id) => ({
+                                id: Number(id),
+                                name: `Document ${id}`,
+                                path: "",
+                              }),
+                            )}
                             onRemoveExisting={deleteFile}
                             onView={getSignedUrl}
                           />

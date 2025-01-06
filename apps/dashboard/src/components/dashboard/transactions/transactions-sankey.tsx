@@ -1,7 +1,7 @@
 "use client";
 
 import { convertToUserCurrency } from "@/lib/utils/financial";
-import type { Transaction } from "@guilders/database/types";
+import type { Transaction } from "@guilders/api/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@guilders/ui/card";
 import { type ChartConfig, ChartContainer } from "@guilders/ui/chart";
 import { Skeleton } from "@guilders/ui/skeleton";

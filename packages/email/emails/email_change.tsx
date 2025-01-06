@@ -73,9 +73,9 @@ export const GuildersEmailChangeEmail = ({
 };
 
 GuildersEmailChangeEmail.PreviewProps = {
-  baseUrl: "http://localhost:3000",
+  baseUrl: "http://localhost:3001",
   changeLink:
-    "https://guilders.app/callback/auth?token_hash=foo&type=email_change",
+    "http://localhost:3001/callback/auth?token_hash=foo&type=email_change",
   currentEmail: "current@example.com",
   newEmail: "new@example.com",
 } as GuildersEmailChangeProps;

@@ -72,9 +72,9 @@ export const GuildersRecoveryEmail = ({
 };
 
 GuildersRecoveryEmail.PreviewProps = {
-  baseUrl: "http://localhost:3000",
+  baseUrl: "http://localhost:3001",
   recoveryLink:
-    "https://guilders.app/callback/auth?token_hash=foo&type=recovery&redirect_to=/settings/security",
+    "http://localhost:3001/callback/auth?token_hash=foo&type=recovery&redirect_to=/settings/security",
 } as GuildersRecoveryEmailProps;
 
 GuildersRecoveryEmail.SupabaseProps = {

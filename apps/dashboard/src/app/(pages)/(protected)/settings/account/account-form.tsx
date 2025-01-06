@@ -6,12 +6,12 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { ThemeSelector } from "@/components/settings/theme-selector";
-import { useCurrencies } from "@/lib/hooks/useCurrencies";
+import { useCurrencies } from "@/lib/queries/useCurrencies";
 import {
   useDeleteAccount,
   useUpdateUserSettings,
   useUser,
-} from "@/lib/hooks/useUser";
+} from "@/lib/queries/useUser";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -77,11 +77,16 @@ export function AccountForm() {
   });
 
   useEffect(() => {
-    if (user) {
-      form.reset({
-        email: user.email,
-        currency: user.settings.currency,
-      });
+    if (user?.email) {
+      form.reset(
+        {
+          email: user.email,
+          currency: user.settings.currency,
+        },
+        {
+          keepDirtyValues: true,
+        },
+      );
     }
   }, [user, form]);
 
@@ -137,9 +142,14 @@ export function AccountForm() {
 
   async function onSubmit(data: AccountFormValues) {
     try {
-      await updateUserSettings({ email: data.email, currency: data.currency });
+      const isEmailChanged = data.email !== user?.email;
 
-      if (data.email !== user?.email) {
+      await updateUserSettings({
+        ...(isEmailChanged ? { email: data.email } : {}),
+        settings: { currency: data.currency },
+      });
+
+      if (isEmailChanged) {
         toast.success("Email verification sent", {
           description: "Please check your email for a verification link.",
         });

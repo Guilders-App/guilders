@@ -1,9 +1,7 @@
 "use client";
-
-import {
-  useDeregisterUser,
-  useGetConnections,
-} from "@/lib/hooks/useConnections";
+import { useDeregisterConnection } from "@/lib/queries/useConnections";
+import { useProviderConnections } from "@/lib/queries/useProviderConnections";
+import { useProviders } from "@/lib/queries/useProviders";
 import { Button } from "@guilders/ui/button";
 import { Card } from "@guilders/ui/card";
 import { Separator } from "@guilders/ui/separator";
@@ -20,10 +18,11 @@ export default function ConnectionsPage() {
     isLoading,
     isError,
     refetch,
-  } = useGetConnections();
-  const { mutate: deregisterConnection } = useDeregisterUser();
+  } = useProviderConnections();
+  const { mutate: deregisterConnection } = useDeregisterConnection();
   const [deregisteringId, setDeregisteringId] = useState<number | null>(null);
   const [removedIds, setRemovedIds] = useState<number[]>([]);
+  const { data: providers } = useProviders();
 
   return (
     <div className="space-y-6">
@@ -81,15 +80,27 @@ export default function ConnectionsPage() {
                   <div className="flex items-center space-x-4">
                     <div className="relative h-8 w-24">
                       <Image
-                        src={connection.provider.logo_url}
-                        alt={`${connection.provider.name} logo`}
+                        src={
+                          providers?.find(
+                            (provider) =>
+                              provider.id === connection.provider_id,
+                          )?.logo_url ?? ""
+                        }
+                        alt={`${
+                          providers?.find(
+                            (provider) =>
+                              provider.id === connection.provider_id,
+                          )?.name ?? ""
+                        } logo`}
                         fill
                         className="object-contain"
                       />
                     </div>
                     <div>
                       <div className="font-medium">
-                        {connection.provider.name}
+                        {providers?.find(
+                          (provider) => provider.id === connection.provider_id,
+                        )?.name ?? ""}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         Connected{" "}
@@ -108,22 +119,22 @@ export default function ConnectionsPage() {
                       size="sm"
                       onClick={() => {
                         setDeregisteringId(connection.provider_id);
-                        deregisterConnection(connection.provider.name, {
-                          onSuccess: () => {
-                            setRemovedIds((prev) => [
-                              ...prev,
-                              connection.provider_id,
-                            ]);
-                            setDeregisteringId(null);
-                            refetch();
+                        deregisterConnection(
+                          connection.provider_id.toString(),
+                          {
+                            onSuccess: () => {
+                              setRemovedIds((prev) => [
+                                ...prev,
+                                connection.provider_id,
+                              ]);
+                              setDeregisteringId(null);
+                              refetch();
+                            },
+                            onError: () => {
+                              setDeregisteringId(null);
+                            },
                           },
-                          onError: () => {
-                            setDeregisteringId(null);
-                            toast.error("Failed to remove connection", {
-                              description: "Please try again later.",
-                            });
-                          },
-                        });
+                        );
                       }}
                     >
                       Remove

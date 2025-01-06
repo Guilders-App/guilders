@@ -1,4 +1,4 @@
-import { useTransactions } from "@/lib/hooks/useTransactions";
+import { useTransactions } from "@/lib/queries/useTransactions";
 import { Skeleton } from "@guilders/ui/skeleton";
 import { TransactionItem } from "./transaction-item";
 import { TransactionsEmptyPlaceholder } from "./transactions-placeholder";
@@ -22,7 +22,7 @@ export function TransactionsTable({ accountId }: { accountId?: number }) {
           </p>
         </div>
       ) : transactions.length === 0 ? (
-        <TransactionsEmptyPlaceholder />
+        <TransactionsEmptyPlaceholder accountId={accountId} />
       ) : (
         transactions
           .sort((a, b) => b.date.localeCompare(a.date))

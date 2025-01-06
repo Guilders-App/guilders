@@ -1,6 +1,6 @@
 import { signUpAction } from "@/app/actions";
 import { FormMessage, type Message } from "@/components/common/form-message";
-import { env } from "@/env";
+import { env } from "@/lib/env";
 import { Input } from "@guilders/ui/input";
 import { Label } from "@guilders/ui/label";
 import { PasswordInput } from "@guilders/ui/password-input";

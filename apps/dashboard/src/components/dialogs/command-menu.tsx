@@ -1,6 +1,11 @@
 "use client";
 
-import type { Institution } from "@guilders/database/types";
+import { navigationData } from "@/components/nav/app-sidebar";
+import { useDialog } from "@/lib/hooks/useDialog";
+import { useCountriesMap } from "@/lib/queries/useCountries";
+import { useInstitutions } from "@/lib/queries/useInstitutions";
+import { useProviders } from "@/lib/queries/useProviders";
+import type { Institution } from "@guilders/api/types";
 import {
   CommandDialog,
   CommandEmpty,
@@ -14,11 +19,6 @@ import { Banknote, Landmark, Link2, SquarePen } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { navigationData } from "../../components/nav/app-sidebar";
-import { useCountries } from "../../lib/hooks/useCountries";
-import { useDialog } from "../../lib/hooks/useDialog";
-import { useInstitutions } from "../../lib/hooks/useInstitutions";
-import { useProviders } from "../../lib/hooks/useProviders";
 
 export function CommandMenu() {
   const { isOpen, data, open, close, update } = useDialog("command");
@@ -27,7 +27,7 @@ export function CommandMenu() {
   const { open: openLinkedAccount } = useDialog("addLinkedAccount");
   const { data: institutions, isLoading } = useInstitutions();
   const { data: providers } = useProviders();
-  const { data: countriesData } = useCountries();
+  const countriesMap = useCountriesMap();
   const [search, setSearch] = useState("");
   const router = useRouter();
 
@@ -61,7 +61,7 @@ export function CommandMenu() {
     close();
     setTimeout(() => {
       setSearch("");
-      openAddTransaction();
+      openAddTransaction({});
     }, 40);
   };
 
@@ -94,7 +94,7 @@ export function CommandMenu() {
 
       const searchLower = search.toLowerCase();
       const countryName = institution.country
-        ? countriesData?.countriesMap.get(institution.country) || "Global"
+        ? countriesMap?.[institution.country] || "Global"
         : "Global";
 
       return (
@@ -102,7 +102,7 @@ export function CommandMenu() {
         countryName.toLowerCase().includes(searchLower)
       );
     });
-  }, [search, allInstitutions, countriesData?.countriesMap]);
+  }, [search, allInstitutions, countriesMap]);
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -213,9 +213,7 @@ export function CommandMenu() {
                     <span className="text-md">{institution.name}</span>
                     <span className="text-xs text-muted-foreground leading-3">
                       {institution.country
-                        ? countriesData?.countriesMap.get(
-                            institution.country,
-                          ) || "Global"
+                        ? countriesMap?.[institution.country] || "Global"
                         : "Global"}{" "}
                       •{" "}
                       {providers?.find((p) => p.id === institution.provider_id)

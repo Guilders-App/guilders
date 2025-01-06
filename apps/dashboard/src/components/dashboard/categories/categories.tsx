@@ -1,6 +1,6 @@
-import { useAccounts } from "@/lib/hooks/useAccounts";
-import { useRates } from "@/lib/hooks/useRates";
-import { useUser } from "@/lib/hooks/useUser";
+import { useAccounts } from "@/lib/queries/useAccounts";
+import { useRates } from "@/lib/queries/useRates";
+import { useUser } from "@/lib/queries/useUser";
 import {
   calculateCategories,
   calculateCategorySums,

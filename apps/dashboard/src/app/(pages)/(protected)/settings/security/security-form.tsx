@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { useDialog } from "@/lib/hooks/useDialog";
-import { useUpdateUserSettings } from "@/lib/hooks/useUser";
+import { useUpdateUserSettings } from "@/lib/queries/useUser";
 import { useSecurityStore } from "@/lib/store/securityStore";
 import { Button } from "@guilders/ui/button";
 import {
@@ -74,6 +74,7 @@ export function SecurityForm() {
         description: "Your password has been updated successfully.",
       });
     } catch (error) {
+      console.error("Error updating password:", error);
       toast.error("Failed to update password", {
         description: "Please try again.",
       });

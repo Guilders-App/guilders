@@ -1,6 +1,7 @@
 import { Providers } from "@/components/common/providers";
 import { UmamiAnalytics } from "@/components/common/umami-analytics";
 import "@guilders/ui/globals.css";
+import { Toaster } from "@guilders/ui/sonner";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
 import { defaultMetadata } from "./(pages)/metadata";
@@ -25,6 +26,7 @@ export default function RootLayout({
       </head>
       <body className="bg-background text-foreground">
         <Providers>{children}</Providers>
+        <Toaster />
       </body>
     </html>
   );

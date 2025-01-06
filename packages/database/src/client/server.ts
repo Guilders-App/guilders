@@ -1,20 +1,71 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient as createClientAdmin } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
-import { env } from "../env";
 import type { Database } from "../types";
+
+const conWarn = console.warn;
+const conLog = console.log;
+
+const IGNORE_WARNINGS = [
+  "Using the user object as returned from supabase.auth.getSession()",
+];
+
+console.warn = (...args) => {
+  const match = args.find((arg) =>
+    typeof arg === "string"
+      ? IGNORE_WARNINGS.find((warning) => arg.includes(warning))
+      : false,
+  );
+  if (!match) {
+    conWarn(...args);
+  }
+};
+
+console.log = (...args) => {
+  const match = args.find((arg) =>
+    typeof arg === "string"
+      ? IGNORE_WARNINGS.find((warning) => arg.includes(warning))
+      : false,
+  );
+  if (!match) {
+    conLog(...args);
+  }
+};
 
 type CreateClientOptions = {
   admin?: boolean;
+  url?: string;
+  key?: string;
+  ssr?: boolean;
 };
 
 export const createClient = async (options?: CreateClientOptions) => {
+  const { admin = false, url, key, ssr = true } = options ?? {};
+
+  const supabaseUrl = url ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!supabaseUrl) {
+    throw new Error(
+      "Supabase URL is required. Provide it via options or NEXT_PUBLIC_SUPABASE_URL environment variable.",
+    );
+  }
+
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  const supabaseKey = key ?? (admin ? serviceRoleKey : anonKey);
+  if (!supabaseKey) {
+    throw new Error(
+      `Supabase key is required. Provide it via options or ${
+        admin ? "SUPABASE_SERVICE_ROLE_KEY" : "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+      } environment variable.`,
+    );
+  }
+
+  if (!ssr) {
+    return createClientAdmin<Database>(supabaseUrl, supabaseKey);
+  }
+
   const cookieStore = await cookies();
-  const { admin } = options ?? {};
-
-  const key = admin
-    ? env.SUPABASE_SERVICE_ROLE_KEY
-    : env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
   const auth = admin
     ? {
         persistSession: false,
@@ -23,7 +74,7 @@ export const createClient = async (options?: CreateClientOptions) => {
       }
     : {};
 
-  return createServerClient<Database>(env.NEXT_PUBLIC_SUPABASE_URL, key, {
+  return createServerClient<Database>(supabaseUrl, supabaseKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();

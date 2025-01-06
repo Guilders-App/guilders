@@ -1,6 +1,8 @@
+import { env } from "@/lib/env";
 import type { Metadata } from "next/types";
 
 export const defaultMetadata: Metadata = {
+  metadataBase: new URL(env.NEXT_PUBLIC_DASHBOARD_URL),
   title: {
     default: "Guilders - AI-Powered Personal Finance Management",
     template: "%s | Guilders",

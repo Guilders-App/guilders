@@ -161,10 +161,48 @@ export type Database = {
         };
         Relationships: [];
       };
+      document: {
+        Row: {
+          created_at: string;
+          entity_id: number;
+          entity_type: Database["public"]["Enums"]["document_entity_type"];
+          id: number;
+          name: string;
+          path: string;
+          size: number;
+          type: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          entity_id: number;
+          entity_type: Database["public"]["Enums"]["document_entity_type"];
+          id?: number;
+          name: string;
+          path: string;
+          size: number;
+          type: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          entity_id?: number;
+          entity_type?: Database["public"]["Enums"]["document_entity_type"];
+          id?: number;
+          name?: string;
+          path?: string;
+          size?: number;
+          type?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       institution: {
         Row: {
           country: string | null;
-          demo: boolean;
           enabled: boolean;
           id: number;
           logo_url: string;
@@ -174,7 +212,6 @@ export type Database = {
         };
         Insert: {
           country?: string | null;
-          demo?: boolean;
           enabled?: boolean;
           id?: number;
           logo_url: string;
@@ -184,7 +221,6 @@ export type Database = {
         };
         Update: {
           country?: string | null;
-          demo?: boolean;
           enabled?: boolean;
           id?: number;
           logo_url?: string;
@@ -304,6 +340,29 @@ export type Database = {
           },
         ];
       };
+      rate: {
+        Row: {
+          currency_code: string;
+          rate: number;
+        };
+        Insert: {
+          currency_code: string;
+          rate: number;
+        };
+        Update: {
+          currency_code?: string;
+          rate?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "rates_currency_fkey";
+            columns: ["currency_code"];
+            isOneToOne: true;
+            referencedRelation: "currency";
+            referencedColumns: ["code"];
+          },
+        ];
+      };
       subscription: {
         Row: {
           cancel_at: string | null;
@@ -315,10 +374,10 @@ export type Database = {
           ended_at: string | null;
           id: number;
           status: Database["public"]["Enums"]["subscription_status"] | null;
-          stripe_customer_id: string | null;
+          stripe_customer_id: string;
           trial_end: string | null;
           trial_start: string | null;
-          user_id: string | null;
+          user_id: string;
         };
         Insert: {
           cancel_at?: string | null;
@@ -330,10 +389,10 @@ export type Database = {
           ended_at?: string | null;
           id?: number;
           status?: Database["public"]["Enums"]["subscription_status"] | null;
-          stripe_customer_id?: string | null;
+          stripe_customer_id: string;
           trial_end?: string | null;
           trial_start?: string | null;
-          user_id?: string | null;
+          user_id: string;
         };
         Update: {
           cancel_at?: string | null;
@@ -345,10 +404,10 @@ export type Database = {
           ended_at?: string | null;
           id?: number;
           status?: Database["public"]["Enums"]["subscription_status"] | null;
-          stripe_customer_id?: string | null;
+          stripe_customer_id?: string;
           trial_end?: string | null;
           trial_start?: string | null;
-          user_id?: string | null;
+          user_id?: string;
         };
         Relationships: [];
       };
@@ -357,34 +416,40 @@ export type Database = {
           account_id: number;
           amount: number;
           category: string;
+          created_at: string;
           currency: string;
           date: string;
           description: string;
           documents: string[] | null;
           id: number;
           provider_transaction_id: string | null;
+          updated_at: string;
         };
         Insert: {
           account_id: number;
           amount: number;
           category?: string;
+          created_at?: string;
           currency: string;
           date: string;
           description: string;
           documents?: string[] | null;
           id?: number;
           provider_transaction_id?: string | null;
+          updated_at?: string;
         };
         Update: {
           account_id?: number;
           amount?: number;
           category?: string;
+          created_at?: string;
           currency?: string;
           date?: string;
           description?: string;
           documents?: string[] | null;
           id?: number;
           provider_transaction_id?: string | null;
+          updated_at?: string;
         };
         Relationships: [
           {
@@ -453,11 +518,13 @@ export type Database = {
         | "loan"
         | "stock";
       account_type: "asset" | "liability";
+      document_entity_type: "account" | "transaction";
       investable:
         | "non_investable"
         | "investable_easy_convert"
         | "investable_cash";
       subscription_status:
+        | "unsubscribed"
         | "trialing"
         | "active"
         | "canceled"
