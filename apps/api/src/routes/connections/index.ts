@@ -439,23 +439,23 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
 
         const result = await providerInstance.deregisterUser(user.id);
 
-        if (result.success) {
-          // Database deletion is also handled by the snaptrade webhook
-          const { error: dbError } = await supabase
-            .from("provider_connection")
-            .delete()
-            .eq("provider_id", providerDb.id)
-            .eq("user_id", user.id);
-
-          if (dbError) {
-            return c.json(
-              { data: null, error: "Failed to remove provider connection" },
-              500,
-            );
-          }
-        } else {
+        if (!result.success) {
           return c.json(
             { data: null, error: "Failed to deregister from provider" },
+            500,
+          );
+        }
+
+        // Database deletion is also handled by the snaptrade webhook
+        const { error: dbError } = await supabase
+          .from("provider_connection")
+          .delete()
+          .eq("provider_id", providerDb.id)
+          .eq("user_id", user.id);
+
+        if (dbError) {
+          return c.json(
+            { data: null, error: "Failed to remove provider connection" },
             500,
           );
         }
