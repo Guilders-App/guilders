@@ -67,7 +67,7 @@ app.onError((err, c) => {
 
 // Mount callback routes
 app.route("/callback/stripe", stripeCallbackRoute);
-app.route("/callback/snaptrade", snaptradeCallbackRoute);
+app.route("/callback/providers/snaptrade", snaptradeCallbackRoute);
 
 // Mount routes
 // Supabase Auth only applies to routes below
