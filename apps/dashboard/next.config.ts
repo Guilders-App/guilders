@@ -18,7 +18,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       // Guilders Bucket
       {
-        hostname: "evolcpeagtzeheagxreb.supabase.co",
+        hostname: "db.guilders.app",
       },
       // SnapTrade
       {
