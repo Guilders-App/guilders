@@ -229,8 +229,6 @@ const getAccountsContext = async (userId: string) => {
 
   const prompt = generatePrompt(summary);
 
-  console.log(prompt);
-
   return {
     text: prompt,
     images: Array.from(documentUrls.values()),
