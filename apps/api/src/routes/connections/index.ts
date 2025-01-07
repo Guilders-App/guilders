@@ -453,6 +453,11 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
               500,
             );
           }
+        } else {
+          return c.json(
+            { data: null, error: "Failed to deregister from provider" },
+            500,
+          );
         }
 
         return c.json({ data: {}, error: null }, 200);
