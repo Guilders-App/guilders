@@ -37,11 +37,11 @@ const NavItem = ({ item, pathname }: NavItemProps) => (
                     "after:absolute after:inset-0 after:bg-foreground/5 after:rounded-md",
                   ]
                 : "after:absolute after:inset-0 after:bg-foreground/0 after:rounded-md after:transition-colors hover:after:bg-foreground/5",
-              "h-12 w-12",
+              "h-11 w-11",
             )}
           >
             <item.icon className="h-5 w-5 relative z-10" />
-            <span className="relative z-10 md:hidden ml-3">{item.name}</span>
+            <span className="sr-only">{item.name}</span>
           </Link>
         ) : (
           <button
@@ -51,17 +51,15 @@ const NavItem = ({ item, pathname }: NavItemProps) => (
               "flex items-center justify-center rounded-md text-sm transition-colors relative",
               "hover:text-accent-foreground",
               "after:absolute after:inset-0 after:bg-foreground/0 after:rounded-md after:transition-colors hover:after:bg-foreground/5",
-              "h-12 w-12",
+              "h-11 w-11",
             )}
           >
             <item.icon className="h-5 w-5 relative z-10" />
-            <span className="relative z-10 md:hidden ml-3">{item.name}</span>
+            <span className="sr-only">{item.name}</span>
           </button>
         )}
       </TooltipTrigger>
-      <TooltipContent side="right" className="hidden md:block">
-        {item.name}
-      </TooltipContent>
+      <TooltipContent side="right">{item.name}</TooltipContent>
     </Tooltip>
   </li>
 );
@@ -70,10 +68,10 @@ export function MainMenu() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-col flex-1 py-4">
+    <nav className="flex flex-col flex-1 mt-4 py-4">
       <div className="flex-1">
         <TooltipProvider delayDuration={0}>
-          <ul className="flex flex-col items-center gap-1">
+          <ul className="flex flex-col items-center gap-1.5">
             {mainNavigation.map((item) => (
               <NavItem key={item.name} item={item} pathname={pathname} />
             ))}
@@ -83,7 +81,7 @@ export function MainMenu() {
 
       <div>
         <TooltipProvider delayDuration={0}>
-          <ul className="flex flex-col items-center gap-1">
+          <ul className="flex flex-col items-center gap-1.5">
             {bottomNavigation.map((item) => (
               <NavItem key={item.name} item={item} pathname={pathname} />
             ))}

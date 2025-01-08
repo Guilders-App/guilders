@@ -81,7 +81,7 @@ export function SettingsTabs({
             key={item.href}
             href={item.href}
             className={cn(
-              "flex items-center px-3 py-2 text-sm font-medium relative transition-colors",
+              "flex items-center px-3 py-2 text-sm font-medium relative transition-colors rounded-md",
               "after:absolute after:inset-x-0 after:bottom-0 after:-mb-1 after:h-0.5",
               "hover:bg-accent hover:text-foreground",
               pathname === item.href

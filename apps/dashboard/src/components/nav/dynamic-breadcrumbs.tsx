@@ -87,9 +87,14 @@ export function DynamicBreadcrumbs({ className }: { className?: string }) {
           <React.Fragment key={breadcrumb.name}>
             <BreadcrumbItem className="hidden md:block">
               {index === breadcrumbs.length - 1 ? (
-                <BreadcrumbPage>{breadcrumb.name}</BreadcrumbPage>
+                <BreadcrumbPage className="text-[15px] font-medium">
+                  {breadcrumb.name}
+                </BreadcrumbPage>
               ) : (
-                <BreadcrumbLink href={breadcrumb.href}>
+                <BreadcrumbLink
+                  href={breadcrumb.href}
+                  className="text-[15px] font-medium"
+                >
                   {breadcrumb.name}
                 </BreadcrumbLink>
               )}
