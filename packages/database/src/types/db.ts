@@ -252,7 +252,7 @@ export type Database = {
           created_at: string;
           id: number;
           institution_id: number;
-          provider_connection_id: number | null;
+          provider_connection_id: number;
         };
         Insert: {
           broken?: boolean;
@@ -260,7 +260,7 @@ export type Database = {
           created_at?: string;
           id?: number;
           institution_id: number;
-          provider_connection_id?: number | null;
+          provider_connection_id?: number;
         };
         Update: {
           broken?: boolean;
@@ -268,7 +268,7 @@ export type Database = {
           created_at?: string;
           id?: number;
           institution_id?: number;
-          provider_connection_id?: number | null;
+          provider_connection_id?: number;
         };
         Relationships: [
           {
