@@ -1,6 +1,7 @@
 import { createSign } from "node:crypto";
 import type {
   ASPSP,
+  AuthorizeSessionResponse,
   StartAuthorizationRequest,
   StartAuthorizationResponse,
 } from "./types";
@@ -136,6 +137,21 @@ export class EnableBankingClient {
           state: params.state,
           psu_id: params.userId,
         } as StartAuthorizationRequest,
+      },
+    });
+  }
+
+  async authorizeSession(params: {
+    code: string;
+  }) {
+    return this.request<AuthorizeSessionResponse>({
+      endpoint: "/sessions",
+      returnType: "single",
+      options: {
+        method: "POST",
+        body: {
+          code: params.code,
+        },
       },
     });
   }

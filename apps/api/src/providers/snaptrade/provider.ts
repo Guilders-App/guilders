@@ -1,11 +1,15 @@
 import type { Bindings } from "@/common/variables";
+import type { Account } from "@/types";
 import { Snaptrade } from "snaptrade-typescript-sdk";
 import type {
+  AccountParams,
   ConnectResult,
+  ConnectionParams,
   DeregisterUserResult,
   IProvider,
   ProviderInstitution,
   Providers,
+  ReconnectResult,
   RefreshConnectionResult,
   RegisterUserResult,
 } from "../types";
@@ -110,16 +114,18 @@ export class SnapTradeProvider implements IProvider {
     }
   }
 
-  async connect(
-    userId: string,
-    userSecret: string,
-    institutionId: string,
-    connectionId?: string,
-  ): Promise<ConnectResult> {
+  async connect(params: ConnectionParams): Promise<ConnectResult> {
     try {
+      if (!params.userSecret) {
+        return {
+          success: false,
+          error: "User secret is required",
+        };
+      }
+
       const brokerages = await this.client.referenceData.listAllBrokerages();
       const brokerage = brokerages.data?.find(
-        (brokerage) => brokerage.id === institutionId,
+        (brokerage) => brokerage.id === params.providerInstitutionId,
       );
 
       if (!brokerage) {
@@ -130,10 +136,10 @@ export class SnapTradeProvider implements IProvider {
       }
 
       const response = await this.client.authentication.loginSnapTradeUser({
-        userId: userId,
-        userSecret: userSecret,
+        userId: params.userId,
+        userSecret: params.userSecret,
         broker: brokerage?.slug,
-        reconnect: connectionId,
+        reconnect: params.connectionId,
       });
 
       if (
@@ -161,13 +167,8 @@ export class SnapTradeProvider implements IProvider {
     }
   }
 
-  async reconnect(
-    userId: string,
-    userSecret: string,
-    institutionId: string,
-    connectionId: string,
-  ): Promise<RefreshConnectionResult> {
-    return this.connect(userId, userSecret, institutionId, connectionId);
+  async reconnect(params: ConnectionParams): Promise<ReconnectResult> {
+    return this.connect(params);
   }
 
   async refreshConnection(
@@ -199,5 +200,9 @@ export class SnapTradeProvider implements IProvider {
         error: "Failed to refresh SnapTrade connection",
       };
     }
+  }
+
+  async getAccounts(params: AccountParams): Promise<Account[]> {
+    throw new Error("Not implemented");
   }
 }

@@ -15,7 +15,7 @@ export async function insertInstitutions(env: Bindings) {
 
   for (const providerName of providers) {
     const providerDb = await getProviderDb(supabase, providerName);
-    const provider = getProvider(providerName, env);
+    const provider = getProvider(providerName, supabase, env);
 
     if (!providerDb) {
       console.error(`Failed to fetch providers for ${providerName}`);

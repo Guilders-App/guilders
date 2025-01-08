@@ -1,21 +1,29 @@
 import type { Bindings } from "@/common/variables";
+import type { Account } from "@/types";
+import type { DatabaseClient } from "@guilders/database/types";
 import type {
+  AccountParams,
   ConnectResult,
+  ConnectionParams,
   DeregisterUserResult,
   IProvider,
   ProviderInstitution,
   Providers,
+  ReconnectResult,
   RefreshConnectionResult,
   RegisterUserResult,
 } from "../types";
 import { EnableBankingClient } from "./client";
+import type { ConnectionState } from "./types";
 
 export class EnableBankingProvider implements IProvider {
   readonly name: Providers = "EnableBanking";
   private readonly client: EnableBankingClient;
+  private readonly supabase: DatabaseClient;
   private readonly apiUrl: string;
 
-  constructor(env: Bindings) {
+  constructor(supabase: DatabaseClient, env: Bindings) {
+    this.supabase = supabase;
     this.client = new EnableBankingClient(
       env.ENABLEBANKING_CLIENT_ID,
       env.ENABLEBANKING_CLIENT_PRIVATE_KEY,
@@ -65,25 +73,31 @@ export class EnableBankingProvider implements IProvider {
     };
   }
 
-  async connect(
-    userId: string,
-    userSecret: string,
-    institutionId: string,
-  ): Promise<ConnectResult> {
+  async connect(params: ConnectionParams): Promise<ConnectResult> {
+    console.log("params", params);
+    if (!params.institutionId) {
+      throw new Error("Institution ID is required");
+    }
+
     const { maximum_consent_validity, country, name } =
-      this.getInstitutionDetails(institutionId);
+      this.getInstitutionDetails(params.providerInstitutionId);
 
     if (!maximum_consent_validity || !country || !name) {
       throw new Error("Invalid institution ID format");
     }
+
+    const state: ConnectionState = {
+      userId: params.userId,
+      institutionId: params.institutionId,
+    };
 
     const authorization = await this.client.createAuthorization({
       validUntil: maximum_consent_validity,
       aspspName: name,
       aspspCountry: country,
       redirectUrl: `${this.apiUrl}/callback/providers/enablebanking`,
-      state: "returned",
-      userId: userId,
+      state: JSON.stringify(state),
+      userId: params.userId,
     });
 
     return {
@@ -94,13 +108,8 @@ export class EnableBankingProvider implements IProvider {
     };
   }
 
-  async reconnect(
-    userId: string,
-    userSecret: string,
-    institutionId: string,
-    connectionId: string,
-  ): Promise<RefreshConnectionResult> {
-    throw new Error("Not implemented");
+  async reconnect(params: ConnectionParams): Promise<ReconnectResult> {
+    return this.connect(params);
   }
 
   async refreshConnection(
@@ -109,5 +118,9 @@ export class EnableBankingProvider implements IProvider {
     connectionId: string,
   ): Promise<RefreshConnectionResult> {
     throw new Error("Not implemented");
+  }
+
+  async getAccounts(params: AccountParams): Promise<Account[]> {
+    return [];
   }
 }

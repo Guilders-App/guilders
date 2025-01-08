@@ -17,14 +17,14 @@
     "@guilders/database": "workspace:*",
     "@hono/zod-openapi": "^0.18.3",
     "@scalar/hono-api-reference": "^0.5.165",
-    "@supabase/supabase-js": "^2.47.10",
+    "@supabase/supabase-js": "^2.47.12",
     "hono": "^4.6.16",
-    "snaptrade-typescript-sdk": "9.0.60",
+    "snaptrade-typescript-sdk": "9.0.70",
     "stripe": "^17.5.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241230.0",
-    "wrangler": "^3.60.3"
+    "wrangler": "^3.100.0"
   }
 }

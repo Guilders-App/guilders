@@ -1,4 +1,4 @@
-import { string, z } from "zod";
+import { z } from "zod";
 
 const PsuTypeSchema = z.enum(["personal", "business"]);
 
@@ -69,6 +69,56 @@ const AuthMethodSchema = z.object({
     .boolean()
     .describe(
       "Flag showing whether the current authentication method is hidden from the user. If `true` then the user will not be able to select this authentication method. It is only possible to select this authentication method via API.",
+    ),
+});
+
+const ClearingSystemMemberIdentificationSchema = z.object({
+  clearing_system_id: z
+    .string()
+    .optional()
+    .describe(
+      "Specification of a pre-agreed offering between clearing agents or the channel through which the payment instruction is processed.",
+    ),
+  member_id: z
+    .string()
+    .optional()
+    .describe("Identification of a member of a clearing system."), // TODO: This is a number in the example
+});
+
+const FinancialInstitutionIdentificationSchema = z.object({
+  bic_fi: z
+    .string()
+    .optional()
+    .describe(
+      'Code allocated to a financial institution by the ISO 9362 Registration Authority as described in ISO 9362 "Banking - Banking telecommunication messages - Business identification code (BIC)".',
+    ),
+  clearing_system_member_id:
+    ClearingSystemMemberIdentificationSchema.optional().describe(
+      "Clearing system member identification code",
+    ),
+  name: z.string().optional().describe("Name of the financial institution"),
+});
+
+const UsageSchema = z.enum([
+  "ORGA", // Professional Account
+  "PRIV", // Private Personal Account
+]);
+
+const CashAccountTypeSchema = z.enum([
+  "CACC", // Account used to post debits and credits when no specific account has been nominated
+  "CARD", // Account used for card payments only
+  "CASH", // Account used for the payment of cash
+  "LOAN", // Account used for loans
+  "OTHR", // Account not otherwise specified
+  "SVGS", // Account used for savings
+]);
+
+const AmountTypeSchema = z.object({
+  currency: z.string().describe("ISO 4217 code of the currency of the amount"),
+  amount: z
+    .string()
+    .describe(
+      "Numerical value or monetary figure associated with a particular transaction, representing balance on an account, a fee or similar. Represented as a decimal number, using . (dot) as a decimal separator. Allowed precision (number of digits after the decimal separator) varies depending on the currency and is validated differently depending on the context.",
     ),
 });
 
@@ -253,8 +303,86 @@ const StartAuthorizationResponseSchema = z.object({
     ),
 });
 
+const AccountResourceSchema = z.object({
+  account_id: AccountIdentificationSchema.optional().describe(
+    "Primary account identifier",
+  ),
+  all_account_ids: z
+    .array(GenericIdentificationSchema)
+    .optional()
+    .describe(
+      "All account identifiers provided by ASPSPs (including primary identifier available in the accountId field)",
+    ),
+  account_servicer:
+    FinancialInstitutionIdentificationSchema.optional().describe(
+      "Information about the financial institution servicing the account",
+    ),
+  name: z.string().optional().describe("Account holder(s) name"),
+  details: z
+    .string()
+    .optional()
+    .describe("Account description set by PSU or provided by ASPSP"),
+  usage: UsageSchema.optional().describe("Specifies the usage of the account"),
+  cash_account_type: CashAccountTypeSchema.describe(
+    "Specifies the type of the account",
+  ),
+  product: z
+    .string()
+    .optional()
+    .describe(
+      "Product Name of the Bank for this account, proprietary definition",
+    ),
+  currency: z.string().describe("Specifies the currency of the account"),
+  psu_status: z
+    .string()
+    .optional()
+    .describe(
+      "Relationship between the PSU and the account - Account Holder - Co-account Holder - Attorney",
+    ),
+  credit_limit: AmountTypeSchema.optional().describe(
+    "Specifies credit limit of the account",
+  ),
+  legal_age: z
+    .boolean()
+    .nullable()
+    .optional()
+    .describe(
+      "Specifies whether Enable Banking is confident that the account holder is of legal age or is a minor. The field takes the following values: true if the account holder is of legal age; false if the account holder is a minor; null (or the field is not set) if it is not possible to determine whether the account holder is of legal age or a minor or if the legal age check is not applicable (in cases such as if the account holder is a legal entity or there are multiple account co-holders)",
+    ),
+  uid: z
+    .string()
+    .uuid()
+    .optional()
+    .describe(
+      "Unique account identificator used for fetching account balances and transactions. It is valid only until the session to which the account belongs is in the AUTHORIZED status. It can be not set in case it is know that it is not possible to fetch balances and transactions for the account (for example, in case the account is blocked or closed at the ASPSP side).",
+    ),
+  identification_hash: z
+    .string()
+    .describe(
+      "Primary account identification hash. It can be used for matching accounts between multiple sessions (even in case the sessions are authorized by different PSUs).",
+    ),
+  identification_hashes: z
+    .array(z.string())
+    .describe(
+      "List of possible account identification hashes. Identification hash is based on the account number. Some accounts may have multiple account numbers (e.g. IBAN and BBAN). This field contains all possible hashes. Not all of these hashes can be used to uniquely identify an account and that the primary goal of them is to be able to fuzzy matching of accounts by certain properties. Primary hash is included in this list.",
+    ),
+});
+
 const AuthorizeSessionRequestSchema = z.object({
   code: z.string().describe("Authorization code returned when redirecting PSU"),
+});
+
+const AuthorizeSessionResponseSchema = z.object({
+  session_id: z.string().uuid().describe("ID of the PSU session"),
+  accounts: z
+    .array(AccountResourceSchema)
+    .optional()
+    .describe("List of authorized accounts"),
+  aspsp: ASPSPSchema.describe("List of authorized accounts"),
+  psu_type: PsuTypeSchema.describe("PSU type used with the session"),
+  access: AccessSchema.describe(
+    "Scope of access requested from ASPSP and confirmed by PSU",
+  ),
 });
 
 export type ASPSP = z.infer<typeof ASPSPSchema>;
@@ -267,3 +395,11 @@ export type StartAuthorizationResponse = z.infer<
 export type AuthorizeSessionRequest = z.infer<
   typeof AuthorizeSessionRequestSchema
 >;
+export type AuthorizeSessionResponse = z.infer<
+  typeof AuthorizeSessionResponseSchema
+>;
+
+export type ConnectionState = {
+  userId: string;
+  institutionId: string;
+};

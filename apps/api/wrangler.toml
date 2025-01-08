@@ -15,9 +15,3 @@ crons = ["0 * * * *", "0 0 * * *"]
 
 [observability]
 enabled = true
-
-[env.local.vars]
-API_URL = "https://badly-mutual-pigeon.ngrok-free.app"
-
-[env.production.vars]
-API_URL = "https://api.guilders.app"
