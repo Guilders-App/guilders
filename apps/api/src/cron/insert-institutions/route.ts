@@ -11,7 +11,7 @@ export async function insertInstitutions(env: Bindings) {
     admin: true,
     ssr: false,
   });
-  const providers: Providers[] = ["SnapTrade"];
+  const providers: Providers[] = ["SnapTrade", "EnableBanking"];
 
   for (const providerName of providers) {
     const providerDb = await getProviderDb(supabase, providerName);

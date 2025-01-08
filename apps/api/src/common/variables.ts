@@ -7,6 +7,9 @@ export type Variables = {
 };
 
 export type Bindings = {
+  // Common
+  API_URL: string;
+
   // Supabase
   SUPABASE_URL: string;
   SUPABASE_ANON_KEY: string;
@@ -24,4 +27,8 @@ export type Bindings = {
   SNAPTRADE_CLIENT_ID: string;
   SNAPTRADE_CLIENT_SECRET: string;
   SNAPTRADE_WEBHOOK_SECRET: string;
+
+  // EnableBanking
+  ENABLEBANKING_CLIENT_ID: string;
+  ENABLEBANKING_CLIENT_PRIVATE_KEY: string;
 };

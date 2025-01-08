@@ -1,7 +1,7 @@
 import type { Bindings } from "@/common/variables";
 import type { Institution } from "@/types";
 
-export type Providers = "SnapTrade";
+export type Providers = "SnapTrade" | "EnableBanking";
 
 export type ProviderInstitution = Omit<Institution, "id" | "provider_id">;
 
