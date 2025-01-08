@@ -1,97 +1,27 @@
 "use client";
 
-import {
-  ArrowRightLeft,
-  Briefcase,
-  ConciergeBell,
-  LayoutDashboard,
-  LogOut,
-  Settings,
-} from "lucide-react";
-import type * as React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { MainMenu } from "./mainmenu";
 
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarRail,
-} from "@guilders/ui/sidebar";
-import { signOutAction } from "../../app/actions";
-import { NavItems } from "../nav/nav-main";
-
-export type NavItem = {
-  title: string;
-  url?: string;
-  icon?: React.ElementType;
-  isActive?: boolean;
-  onClick?: () => void;
-  breadcrumb?: {
-    parent?: { title: string; href: string };
-  };
-};
-
-export const navigationData: {
-  navMain: NavItem[];
-  navFooter: NavItem[];
-} = {
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/",
-      icon: LayoutDashboard,
-    },
-    {
-      title: "Advisor",
-      url: "/advisor",
-      icon: ConciergeBell,
-      breadcrumb: {
-        parent: { title: "Dashboard", href: "/" },
-      },
-    },
-    {
-      title: "Accounts",
-      url: "/accounts",
-      icon: Briefcase,
-      breadcrumb: {
-        parent: { title: "Dashboard", href: "/" },
-      },
-    },
-    {
-      title: "Transactions",
-      url: "/transactions",
-      icon: ArrowRightLeft,
-      breadcrumb: {
-        parent: { title: "Dashboard", href: "/" },
-      },
-    },
-  ],
-  navFooter: [
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: Settings,
-    },
-    {
-      title: "Log Out",
-      icon: LogOut,
-      onClick: signOutAction,
-    },
-  ],
-} as const;
-
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar() {
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarContent>
-        <SidebarGroup>
-          <NavItems items={navigationData.navMain} />
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter>
-        <NavItems items={navigationData.navFooter} />
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
+    <aside className="h-screen w-[280px] md:w-[70px] bg-muted/40 flex-shrink-0 flex flex-col fixed top-0 left-0">
+      {/* Logo */}
+      <div className="h-16 flex items-center justify-center">
+        <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/assets/logo/logo.svg"
+            alt="Guilders Logo"
+            height={36}
+            width={36}
+            priority
+          />
+        </Link>
+      </div>
+
+      {/* Main Navigation */}
+      <MainMenu />
+    </aside>
   );
 }
