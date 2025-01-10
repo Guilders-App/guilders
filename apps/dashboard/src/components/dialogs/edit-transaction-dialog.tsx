@@ -9,13 +9,6 @@ import {
 } from "@/lib/queries/useTransactions";
 import { Button } from "@guilders/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@guilders/ui/dialog";
-import {
   Form,
   FormControl,
   FormField,
@@ -31,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@guilders/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@guilders/ui/tabs";
+import { Sheet, SheetContent, SheetTitle } from "@guilders/ui/sheet";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@guilders/ui/tooltip";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash2 } from "lucide-react";
@@ -40,6 +33,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { DateTimePicker } from "../common/datetime-picker";
 import { FileUploader } from "../common/file-uploader";
+import { AccountIcon } from "../dashboard/accounts/account-icon";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@guilders/ui/accordion";
 
 const formSchema = z.object({
   accountId: z.number({
@@ -144,7 +144,7 @@ export function EditTransactionDialog() {
   });
 
   const handleDelete = () => {
-    deleteTransaction(transaction.id, {
+    deleteTransaction(transaction, {
       onSuccess: () => {
         close();
       },
@@ -155,32 +155,42 @@ export function EditTransactionDialog() {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={close}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogDescription className="hidden">
-          Edit the details of this transaction.
-        </DialogDescription>
-        <DialogHeader>
-          <DialogTitle>Edit Transaction</DialogTitle>
-        </DialogHeader>
+    <Sheet open={isOpen} onOpenChange={close}>
+      <SheetContent className="overflow-hidden p-0 flex flex-col h-full">
+        <div className="p-6 flex-1 overflow-y-auto">
+          <SheetTitle className="hidden">Edit Transaction</SheetTitle>
 
-        <Form {...form}>
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-6">
-              <Tabs defaultValue="details" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="details">Details</TabsTrigger>
-                  <TabsTrigger value="documents">Documents</TabsTrigger>
-                </TabsList>
+          {currentAccount && (
+            <div className="flex items-center space-x-4 pb-6 border-b">
+              <AccountIcon
+                account={currentAccount}
+                width={40}
+                height={40}
+                hasImageError={false}
+                onImageError={() => {}}
+              />
+              <div>
+                <h2 className="text-lg font-semibold">{currentAccount.name}</h2>
+                <p className="text-sm text-muted-foreground">
+                  {currentAccount.institution_connection_id
+                    ? "Connected Account"
+                    : "Manual Account"}
+                </p>
+              </div>
+            </div>
+          )}
 
-                <TabsContent value="details" className="space-y-4">
-                  {isSyncedTransaction && (
-                    <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-                      This transaction is managed by an external connection. It
-                      cannot be edited.
-                    </div>
-                  )}
+          <Form {...form}>
+            <form onSubmit={handleSubmit} className="mt-6">
+              <div className="space-y-4 pb-8">
+                {isSyncedTransaction && (
+                  <div className="text-sm text-muted-foreground bg-muted p-4 rounded-md">
+                    This transaction is managed by an external connection. It
+                    cannot be edited.
+                  </div>
+                )}
 
+                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="accountId"
@@ -243,7 +253,9 @@ export function EditTransactionDialog() {
                       </FormItem>
                     )}
                   />
+                </div>
 
+                <div className="grid grid-cols-2 gap-4">
                   <FormField
                     control={form.control}
                     name="description"
@@ -279,136 +291,143 @@ export function EditTransactionDialog() {
                       </FormItem>
                     )}
                   />
+                </div>
 
-                  <FormField
-                    control={form.control}
-                    name="date"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Date & Time</FormLabel>
-                        <FormControl>
-                          <DateTimePicker
-                            date={
-                              field.value ? new Date(field.value) : undefined
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date & Time</FormLabel>
+                      <FormControl>
+                        <DateTimePicker
+                          date={field.value ? new Date(field.value) : undefined}
+                          onDateChange={(date) => {
+                            if (date) {
+                              field.onChange(date.toISOString());
                             }
-                            onDateChange={(date) => {
-                              if (date) {
-                                field.onChange(date.toISOString());
-                              }
-                            }}
-                            onTimeChange={(time) => {
-                              if (field.value) {
-                                const currentDate = new Date(field.value);
-                                const [hours, minutes] = time.split(":");
-                                currentDate.setHours(
-                                  Number.parseInt(hours || "0"),
-                                  Number.parseInt(minutes || "0"),
-                                );
-                                field.onChange(currentDate.toISOString());
-                              }
-                            }}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          }}
+                          onTimeChange={(time) => {
+                            if (field.value) {
+                              const currentDate = new Date(field.value);
+                              const [hours, minutes] = time.split(":");
+                              currentDate.setHours(
+                                Number.parseInt(hours || "0"),
+                                Number.parseInt(minutes || "0"),
+                              );
+                              field.onChange(currentDate.toISOString());
+                            }
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <div className="pt-4 border-t space-y-2">
-                    <p className="text-sm font-medium">Danger Zone</p>
-                    <p className="text-sm text-muted-foreground">
-                      Deleting this transaction will permanently remove it. This
-                      action cannot be undone.
-                    </p>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            onClick={handleDelete}
-                            disabled={isDeleting || isSyncedTransaction}
-                          >
-                            {isDeleting ? (
-                              <>
-                                <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                                Deleting...
-                              </>
-                            ) : (
-                              <>
-                                <Trash2 className="mr-2 h-3 w-3" />
-                                Delete Transaction
-                              </>
-                            )}
-                          </Button>
-                        </div>
-                      </TooltipTrigger>
-                      {isSyncedTransaction && (
-                        <TooltipContent>
-                          Synced transactions cannot be deleted. Remove the
-                          connection instead.
-                        </TooltipContent>
-                      )}
-                    </Tooltip>
-                  </div>
-                </TabsContent>
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="documents">
+                    <AccordionTrigger>Documents</AccordionTrigger>
+                    <AccordionContent>
+                      <FormField
+                        control={form.control}
+                        name="documents"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <FileUploader
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                maxFileCount={10}
+                                maxSize={10 * 1024 * 1024}
+                                accept={{
+                                  "application/pdf": [],
+                                  "image/*": [],
+                                }}
+                                onUpload={uploadFile}
+                                disabled={isUploading}
+                                documents={data?.transaction?.documents?.map(
+                                  (id) => ({
+                                    id: Number(id),
+                                    name: `Document ${id}`,
+                                    path: "",
+                                  }),
+                                )}
+                                onRemoveExisting={deleteFile}
+                                onView={getSignedUrl}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
 
-                <TabsContent value="documents" className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="documents"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Transaction Documents</FormLabel>
-                        <FormControl>
-                          <FileUploader
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            maxFileCount={10}
-                            maxSize={10 * 1024 * 1024}
-                            accept={{
-                              "application/pdf": [],
-                              "image/*": [],
-                            }}
-                            onUpload={uploadFile}
-                            disabled={isUploading}
-                            documents={data?.transaction?.documents?.map(
-                              (id) => ({
-                                id: Number(id),
-                                name: `Document ${id}`,
-                                path: "",
-                              }),
-                            )}
-                            onRemoveExisting={deleteFile}
-                            onView={getSignedUrl}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </TabsContent>
-              </Tabs>
+                  <AccordionItem value="danger">
+                    <AccordionTrigger>Danger Zone</AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-4">
+                        <p className="text-sm text-muted-foreground">
+                          Deleting this transaction will permanently remove it.
+                          This action cannot be undone.
+                        </p>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div>
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                onClick={handleDelete}
+                                disabled={isDeleting || isSyncedTransaction}
+                              >
+                                {isDeleting ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                                    Deleting...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Trash2 className="mr-2 h-3 w-3" />
+                                    Delete Transaction
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </TooltipTrigger>
+                          {isSyncedTransaction && (
+                            <TooltipContent>
+                              Synced transactions cannot be deleted. Remove the
+                              connection instead.
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
 
-              <Button
-                type="submit"
-                disabled={isUpdating || isDeleting || isSyncedTransaction}
-                className="w-full"
-              >
-                {isUpdating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  "Save Changes"
-                )}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+              <div className="absolute bottom-0 left-0 right-0 flex justify-end p-4 bg-background border-t">
+                <Button
+                  type="submit"
+                  disabled={isUpdating || isDeleting || isSyncedTransaction}
+                >
+                  {isUpdating ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
