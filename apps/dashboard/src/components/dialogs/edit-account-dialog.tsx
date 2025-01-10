@@ -234,14 +234,14 @@ export function EditAccountDialog() {
           )}
 
           {isSyncedAccount && (
-            <div className="text-sm text-muted-foreground bg-muted p-4 rounded-md mt-6">
+            <div className="text-sm text-muted-foreground bg-muted p-4 rounded-md mt-4">
               This account is managed by an external connection. Some fields
               cannot be edited.
             </div>
           )}
 
           {account.institution_connection?.broken && (
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 mt-4">
               <div className="text-sm text-yellow-500 bg-yellow-500/10 p-4 rounded-md flex items-center gap-2">
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5" />
