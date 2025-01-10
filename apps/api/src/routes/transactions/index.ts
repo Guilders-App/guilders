@@ -279,9 +279,10 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       const user = c.get("user");
       const updates = await c.req.json();
 
-      const { data: existing } = await supabase
+      // Get existing transaction with account details
+      const { data: existing, error: existingError } = await supabase
         .from("transaction")
-        .select("*, account:account_id(user_id)")
+        .select("*, account:account_id(user_id, value)")
         .eq("id", id)
         .eq("account.user_id", user.id)
         .single();
@@ -290,18 +291,43 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
         return c.json({ data: null, error: "Transaction not found" }, 404);
       }
 
-      const { data, error } = await supabase
-        .from("transaction")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
+      // Calculate the difference in amount
+      const amountDifference = updates.amount - existing.amount;
 
-      if (error) {
-        return c.json({ data: null, error: error.message }, 500);
+      // Update the transaction
+      const { data: updatedTransaction, error: transactionError } =
+        await supabase
+          .from("transaction")
+          .update(updates)
+          .eq("id", id)
+          .select()
+          .single();
+
+      if (transactionError) {
+        return c.json({ data: null, error: transactionError.message }, 500);
       }
 
-      return c.json({ data, error: null }, 200);
+      // Update the account value
+      const { error: updateError } = await supabase
+        .from("account")
+        .update({
+          value: existing.account.value + amountDifference,
+        })
+        .eq("id", existing.account_id);
+
+      if (updateError) {
+        // Rollback the transaction update
+        await supabase
+          .from("transaction")
+          .update({ amount: existing.amount })
+          .eq("id", id);
+        return c.json(
+          { data: null, error: "Error updating account balance" },
+          500,
+        );
+      }
+
+      return c.json({ data: updatedTransaction, error: null }, 200);
     },
   )
   .openapi(
@@ -354,9 +380,10 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       const supabase = c.get("supabase");
       const user = c.get("user");
 
-      const { data: existing } = await supabase
+      // Get existing transaction with account details
+      const { data: existing, error: existingError } = await supabase
         .from("transaction")
-        .select("*, account:account_id(user_id)")
+        .select("*, account:account_id(user_id, value)")
         .eq("id", id)
         .eq("account.user_id", user.id)
         .single();
@@ -365,13 +392,46 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
         return c.json({ data: null, error: "Transaction not found" }, 404);
       }
 
-      const { error } = await supabase
+      // Delete the transaction
+      const { error: deleteError } = await supabase
         .from("transaction")
         .delete()
         .eq("id", id);
 
-      if (error) {
-        return c.json({ data: null, error: error.message }, 500);
+      if (deleteError) {
+        return c.json({ data: null, error: deleteError.message }, 500);
+      }
+
+      // Update the account value by removing the transaction amount
+      const { error: updateError } = await supabase
+        .from("account")
+        .update({
+          value: existing.account.value - existing.amount,
+        })
+        .eq("id", existing.account_id);
+
+      if (updateError) {
+        // Attempt to rollback the transaction deletion
+        const { error: rollbackError } = await supabase
+          .from("transaction")
+          .insert(existing)
+          .select();
+
+        if (rollbackError) {
+          return c.json(
+            {
+              data: null,
+              error:
+                "Critical error: Transaction deleted but account balance update failed. Manual intervention required.",
+            },
+            500,
+          );
+        }
+
+        return c.json(
+          { data: null, error: "Error updating account balance" },
+          500,
+        );
       }
 
       return c.json({ data: {}, error: null }, 200);
