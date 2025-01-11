@@ -2,6 +2,7 @@
 
 import { cn } from "@guilders/ui/cn";
 import { ScrollArea, ScrollBar } from "@guilders/ui/scroll-area";
+import { motion } from "framer-motion";
 import { CreditCard, Key, Satellite, Shield, UserCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -82,15 +83,25 @@ export function SettingsTabs({
             href={item.href}
             className={cn(
               "flex items-center px-3 py-2 text-sm font-medium relative transition-colors rounded-md",
-              "after:absolute after:inset-x-0 after:bottom-0 after:-mb-1 after:h-0.5",
               "hover:bg-accent hover:text-foreground",
               pathname === item.href
-                ? "text-foreground after:bg-primary"
+                ? "text-foreground"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
             {getIcon(item.title)}
             {item.title}
+            {pathname === item.href && (
+              <motion.div
+                layoutId="activeTab"
+                className="absolute inset-x-0 bottom-0 h-0.5 -mb-1 bg-primary"
+                transition={{
+                  type: "spring",
+                  stiffness: 400,
+                  damping: 40,
+                }}
+              />
+            )}
           </Link>
         ))}
       </nav>
