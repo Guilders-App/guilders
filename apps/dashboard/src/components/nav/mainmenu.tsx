@@ -37,7 +37,7 @@ const NavItem = ({ item, pathname }: NavItemProps) => (
                     "after:absolute after:inset-0 after:bg-foreground/5 after:rounded-md",
                   ]
                 : "after:absolute after:inset-0 after:bg-foreground/0 after:rounded-md after:transition-colors hover:after:bg-foreground/5",
-              "h-11 w-11",
+              "h-10 w-10",
             )}
           >
             <item.icon className="h-5 w-5 relative z-10" />

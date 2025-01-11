@@ -25,20 +25,20 @@ export function AppSidebar() {
         className={cn(
           "h-screen w-16 flex-shrink-0 flex flex-col fixed top-0 left-0 z-50",
           // Different background based on screen size
-          "bg-muted md:bg-muted/40",
+          "bg-background border-r border-border",
           // Only apply transform on mobile
           "md:transform-none",
           "transition-transform duration-200",
           !isOpen && "-translate-x-full md:translate-x-0",
         )}
       >
-        <div className="h-9 flex items-center justify-end pr-3 mt-4">
+        <div className="h-8 flex items-center justify-center mt-4">
           <Link href="/" className="flex items-center">
             <Image
-              src="/assets/logo/logo.svg"
+              src="/assets/logo/logo_greyscale.svg"
               alt="Guilders Logo"
-              height={36}
-              width={36}
+              height={32}
+              width={32}
               priority
             />
           </Link>
