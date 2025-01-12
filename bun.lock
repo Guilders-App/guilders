@@ -18,7 +18,7 @@
         "@scalar/hono-api-reference": "^0.5.165",
         "@supabase/supabase-js": "^2.47.10",
         "hono": "^4.6.16",
-        "snaptrade-typescript-sdk": "9.0.60",
+        "snaptrade-typescript-sdk": "9.0.71",
         "stripe": "^17.5.0",
         "zod": "^3.24.1",
       },
@@ -412,7 +412,7 @@
 
     "@floating-ui/utils": ["@floating-ui/utils@0.2.8", "", {}, "sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig=="],
 
-    "@guilders/api": ["@guilders/api@workspace:apps/api", { "dependencies": { "@guilders/database": "packages/database", "@hono/zod-openapi": "^0.18.3", "@scalar/hono-api-reference": "^0.5.165", "@supabase/supabase-js": "^2.47.10", "hono": "^4.6.16", "snaptrade-typescript-sdk": "9.0.60", "stripe": "^17.5.0", "zod": "^3.24.1" }, "devDependencies": { "@cloudflare/workers-types": "^4.20241230.0", "wrangler": "^3.101.0" } }],
+    "@guilders/api": ["@guilders/api@workspace:apps/api", { "dependencies": { "@guilders/database": "packages/database", "@hono/zod-openapi": "^0.18.3", "@scalar/hono-api-reference": "^0.5.165", "@supabase/supabase-js": "^2.47.10", "hono": "^4.6.16", "snaptrade-typescript-sdk": "9.0.71", "stripe": "^17.5.0", "zod": "^3.24.1" }, "devDependencies": { "@cloudflare/workers-types": "^4.20241230.0", "wrangler": "^3.101.0" } }],
 
     "@guilders/dashboard": ["@guilders/dashboard@workspace:apps/dashboard", { "dependencies": { "@ai-sdk/anthropic": "^1.0.4", "@ai-sdk/google": "^1.0.9", "@guilders/api": "apps/api", "@guilders/database": "packages/database", "@guilders/ui": "packages/ui", "@hookform/resolvers": "^3.9.0", "@mdx-js/loader": "^3.1.0", "@mdx-js/react": "^3.1.0", "@next/mdx": "^15.1.1", "@number-flow/react": "^0.4.2", "@scalar/nextjs-api-reference": "^0.4.104", "@t3-oss/env-nextjs": "^0.11.1", "@tanstack/react-query": "^5.62.3", "@tanstack/react-query-devtools": "^5.62.3", "ai": "^4.0.13", "date-fns": "^4.1.0", "framer-motion": "^11.17.0", "geist": "^1.2.1", "lucide-react": "^0.468.0", "motion": "^11.13.1", "next": "15.1.1", "next-themes": "^0.4.4", "react": "19.0.0", "react-dom": "19.0.0", "react-dropzone": "^14.3.5", "react-hook-form": "7.53.2", "react-markdown": "^9.0.1", "recharts": "2.14.1", "remark-gfm": "^4.0.0", "resend": "^4.0.1", "zod": "^3.24.1", "zustand": "^5.0.2" }, "devDependencies": { "@tailwindcss/typography": "^0.5.15", "@types/mdx": "^2.0.13", "@types/react": "19.0.1", "@types/react-dom": "19.0.1", "@types/recharts": "^1.8.29", "autoprefixer": "10.4.20", "postcss": "8.4.49", "typescript": "^5.7.2" } }],
 
@@ -916,7 +916,7 @@
 
     "autoprefixer": ["autoprefixer@10.4.20", "", { "dependencies": { "browserslist": "^4.23.3", "caniuse-lite": "^1.0.30001646", "fraction.js": "^4.3.7", "normalize-range": "^0.1.2", "picocolors": "^1.0.1", "postcss-value-parser": "^4.2.0" }, "peerDependencies": { "postcss": "^8.1.0" }, "bin": { "autoprefixer": "bin/autoprefixer" } }, "sha512-XY25y5xSv/wEoqzDyXXME4AFfkZI0P23z6Fs3YgymDnKJkCGOnkL0iTxCa85UTqaSgfcqyf3UA6+c7wUvx/16g=="],
 
-    "axios": ["axios@1.7.4", "", { "dependencies": { "follow-redirects": "^1.15.6", "form-data": "^4.0.0", "proxy-from-env": "^1.1.0" } }, "sha512-DukmaFRnY6AzAALSH4J2M3k6PkaC+MfaAGdEERRWcC9q3/TWQwLpHR8ZRLKTdQ3aBDL64EdluRDjJqKw+BPZEw=="],
+    "axios": ["axios@1.7.9", "", { "dependencies": { "follow-redirects": "^1.15.6", "form-data": "^4.0.0", "proxy-from-env": "^1.1.0" } }, "sha512-LhLcE7Hbiryz8oMDdDptSrWowmB4Bl6RCt6sIJKpRB4XtVf0iEgewX3au/pJqm+Py1kCASkb/FFKjxQaLtxJvw=="],
 
     "bail": ["bail@2.0.2", "", {}, "sha512-0xO6mYd7JB2YesxDKplafRpsiOzPt9V02ddPCLbY1xYGPOX24NTyN50qnUxgCPcSoYMhKpAuBTjQoRZCAkUDRw=="],
 
@@ -1732,7 +1732,7 @@
 
     "simple-swizzle": ["simple-swizzle@0.2.2", "", { "dependencies": { "is-arrayish": "^0.3.1" } }, "sha512-JA//kQgZtbuY83m+xT+tXJkmJncGMTFT+C+g2h2R9uxkYIrE2yy9sgmcLhCnw57/WSD+Eh3J97FPEDFnbXnDUg=="],
 
-    "snaptrade-typescript-sdk": ["snaptrade-typescript-sdk@9.0.60", "", { "dependencies": { "axios": "1.7.4" } }, "sha512-2dZw5gfyP8/0LacPEfzmQ/sGC/JNuZekFeH7n/K7AUJ5IjORWUfcJCkscC5mqkQFi3VGzvQn4e77cU5VOeTDcA=="],
+    "snaptrade-typescript-sdk": ["snaptrade-typescript-sdk@9.0.71", "", { "dependencies": { "axios": "1.7.9" } }, "sha512-sS1qk6WP03VTKGbHLHrXIvc272+MhEumuGstJUUveQ6E5pOaLn9GeO743mns15HC2yeaT13jI8GS9tYTi35kTw=="],
 
     "socket.io": ["socket.io@4.8.0", "", { "dependencies": { "accepts": "~1.3.4", "base64id": "~2.0.0", "cors": "~2.8.5", "debug": "~4.3.2", "engine.io": "~6.6.0", "socket.io-adapter": "~2.5.2", "socket.io-parser": "~4.2.4" } }, "sha512-8U6BEgGjQOfGz3HHTYaC/L1GaxDCJ/KM0XTkJly0EhZ5U/du9uNEZy4ZgYzEzIqlx2CMm25CrCqr1ck899eLNA=="],
 
