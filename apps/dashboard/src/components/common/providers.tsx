@@ -1,5 +1,6 @@
 "use client";
 
+import { TooltipProvider } from "@guilders/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 
@@ -13,7 +14,7 @@ export const Providers = ({ children }: { children: React.ReactNode }) => {
         enableSystem
         disableTransitionOnChange
       >
-        {children}
+        <TooltipProvider>{children}</TooltipProvider>
       </ThemeProvider>
       {/* For debugging */}
       {/* <ReactQueryDevtools initialIsOpen={false} /> */}

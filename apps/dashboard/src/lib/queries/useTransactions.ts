@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getApiClient } from "../api";
 import { queryKey as accountsQueryKey } from "./useAccounts";
+import { queryKey as accountQueryKey } from "./useAccounts";
 
 const queryKey = ["transactions"] as const;
 
@@ -72,11 +73,14 @@ export function useAddTransaction() {
         ...old,
         newTransaction,
       ]);
-      queryClient.invalidateQueries({ queryKey: accountsQueryKey });
-
-      toast.success("Transaction added successfully", {
-        description: "Your transaction has been added to your account.",
+      queryClient.invalidateQueries({
+        queryKey: [...accountQueryKey, newTransaction.account_id],
       });
+      queryClient.invalidateQueries({
+        queryKey: accountQueryKey,
+      });
+
+      toast.success("Transaction added successfully");
     },
   });
 }
@@ -128,59 +132,50 @@ export function useUpdateTransaction() {
       );
 
       queryClient.invalidateQueries({
-        queryKey: accountsQueryKey,
+        queryKey: [...accountQueryKey, updatedTransaction.account_id],
       });
-
       queryClient.invalidateQueries({
-        queryKey: queryKey,
-        exact: true,
+        queryKey: accountQueryKey,
       });
 
-      toast.success("Transaction updated", {
-        description: "Your transaction has been updated successfully.",
-      });
+      toast.success("Transaction updated");
     },
   });
 }
 
 export function useRemoveTransaction() {
   const queryClient = useQueryClient();
-  return useMutation<number, Error, number>({
-    mutationFn: async (transactionId): Promise<number> => {
+  return useMutation<number, Error, Transaction>({
+    mutationFn: async (transaction): Promise<number> => {
       const api = await getApiClient();
       const response = await api.transactions[":id"].$delete({
         param: {
-          id: transactionId.toString(),
+          id: transaction.id.toString(),
         },
       });
       const { data, error } = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok || error) {
         throw new Error(
           error || `Error: ${response.status} ${response.statusText}`,
         );
       }
 
-      if (error || !data) {
-        throw new Error(error || "Failed to delete transaction");
-      }
-
-      return transactionId;
+      return transaction.id;
     },
-    onError: (error) => {
-      toast.error("Failed to delete transaction", {
-        description: error.message || "Please try again later",
-      });
-    },
-    onSuccess: (transactionId) => {
+    onSuccess: (transactionId, transaction) => {
       queryClient.setQueryData<Transaction[]>(queryKey, (old = []) =>
-        old.filter((transaction) => transaction.id !== transactionId),
+        old.filter((t) => t.id !== transactionId),
       );
-      queryClient.invalidateQueries({ queryKey: accountsQueryKey });
 
-      toast.success("Transaction deleted", {
-        description: "Your transaction has been deleted successfully.",
+      queryClient.invalidateQueries({
+        queryKey: [...accountQueryKey, transaction.account_id],
       });
+      queryClient.invalidateQueries({
+        queryKey: accountQueryKey,
+      });
+
+      toast.success("Transaction deleted");
     },
   });
 }

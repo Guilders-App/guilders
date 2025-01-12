@@ -70,13 +70,12 @@ export function useAddAccount() {
       });
     },
     onSuccess: (newAccount) => {
+      queryClient.setQueryData([...queryKey, newAccount.id], newAccount);
       queryClient.setQueryData<Account[]>(queryKey, (old = []) => [
         ...old,
         newAccount,
       ]);
-      toast.success("Account added successfully", {
-        description: "Your account has been created.",
-      });
+      toast.success("Account added successfully");
     },
   });
 }
@@ -112,14 +111,16 @@ export function useUpdateAccount() {
       });
     },
     onSuccess: (updatedAccount) => {
+      queryClient.setQueryData(
+        [...queryKey, updatedAccount.id],
+        updatedAccount,
+      );
       queryClient.setQueryData<Account[]>(queryKey, (old = []) =>
         old.map((account) =>
           account.id === updatedAccount.id ? updatedAccount : account,
         ),
       );
-      toast.success("Account updated", {
-        description: "Your account has been updated successfully.",
-      });
+      toast.success("Account updated");
     },
   });
 }
@@ -154,12 +155,11 @@ export function useRemoveAccount() {
       });
     },
     onSuccess: (accountId) => {
+      queryClient.removeQueries({ queryKey: [...queryKey, accountId] });
       queryClient.setQueryData<Account[]>(queryKey, (old = []) =>
         old.filter((account) => account.id !== accountId),
       );
-      toast.success("Account deleted", {
-        description: "Your account has been deleted successfully.",
-      });
+      toast.success("Account deleted");
     },
   });
 }

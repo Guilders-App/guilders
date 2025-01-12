@@ -1,6 +1,6 @@
 "use client";
 
-import { navigationData } from "@/components/nav/app-sidebar";
+import { bottomNavigation, mainNavigation } from "@/lib/config/navigation";
 import { useDialog } from "@/lib/hooks/useDialog";
 import { useCountriesMap } from "@/lib/queries/useCountries";
 import { useInstitutions } from "@/lib/queries/useInstitutions";
@@ -165,15 +165,15 @@ export function CommandMenu() {
               </CommandItem>
             </CommandGroup>
             <CommandGroup heading="Navigation">
-              {[...navigationData.navMain, ...navigationData.navFooter]
-                .filter((item) => item.url)
+              {[...mainNavigation, ...bottomNavigation]
+                .filter((item) => item.href)
                 .map((item) => (
                   <CommandItem
-                    key={item.title}
-                    onSelect={() => handleNavigate(item.url ?? "")}
+                    key={item.name}
+                    onSelect={() => handleNavigate(item.href ?? "")}
                   >
                     {item.icon && <item.icon className="mr-2 h-4 w-4" />}
-                    Go to {item.title}
+                    Go to {item.name}
                   </CommandItem>
                 ))}
             </CommandGroup>

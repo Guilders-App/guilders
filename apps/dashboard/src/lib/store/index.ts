@@ -1,5 +1,6 @@
 import { type StateCreator, create } from "zustand";
 import { createDialogStore } from "./dialogStore";
+import { createMenuStore } from "./menuStore";
 
 export type StateSlice<T extends object> = StateCreator<T>;
 
@@ -11,8 +12,11 @@ type StateFromFunctions<T extends [...any]> = T extends [infer F, ...infer R]
     : unknown
   : unknown;
 
-type State = StateFromFunctions<[typeof createDialogStore]>;
+type State = StateFromFunctions<
+  [typeof createDialogStore, typeof createMenuStore]
+>;
 
 export const useStore = create<State>((...a) => ({
   ...createDialogStore(...a),
+  ...createMenuStore(...a),
 }));

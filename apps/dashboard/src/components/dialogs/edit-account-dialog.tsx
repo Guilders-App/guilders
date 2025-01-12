@@ -1,8 +1,8 @@
 "use client";
 
-import { useReconnectConnection } from "@/lib/queries/useConnections";
 import { useDialog } from "@/lib/hooks/useDialog";
-import { useUpdateAccount } from "@/lib/queries/useAccounts";
+import { useRemoveAccount, useUpdateAccount } from "@/lib/queries/useAccounts";
+import { useReconnectConnection } from "@/lib/queries/useConnections";
 import { useCurrencies } from "@/lib/queries/useCurrencies";
 import { useFiles } from "@/lib/queries/useFiles";
 import { useInstitutionConnection } from "@/lib/queries/useInstitutionConnection";
@@ -13,13 +13,13 @@ import {
   accountSubtypeLabels,
   accountSubtypes,
 } from "@guilders/database/types";
-import { Button } from "@guilders/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@guilders/ui/dialog";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@guilders/ui/accordion";
+import { Button } from "@guilders/ui/button";
 import {
   Form,
   FormControl,
@@ -36,16 +36,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@guilders/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@guilders/ui/tabs";
+import { Sheet, SheetContent, SheetTitle } from "@guilders/ui/sheet";
 import { Textarea } from "@guilders/ui/textarea";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@guilders/ui/tooltip";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DialogDescription } from "@radix-ui/react-dialog";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { AlertTriangle, Loader2, Trash2 } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { FileUploader } from "../common/file-uploader";
+import { AccountIcon } from "../dashboard/accounts/account-icon";
 
 const detailsSchema = z.object({
   accountType: z.enum(accountSubtypes),
@@ -95,6 +96,7 @@ export function EditAccountDialog() {
   const { mutate: updateAccount, isPending: isUpdating } = useUpdateAccount();
   const { mutateAsync: reconnectConnection, isPending: isReconnecting } =
     useReconnectConnection();
+  const { mutate: deleteAccount, isPending: isDeleting } = useRemoveAccount();
 
   const { uploadFile, deleteFile, getSignedUrl, isUploading } = useFiles({
     entityType: "account",
@@ -194,107 +196,128 @@ export function EditAccountDialog() {
     );
   });
 
+  const handleDelete = () => {
+    deleteAccount(account.id, {
+      onSuccess: () => {
+        close();
+      },
+      onError: (error) => {
+        console.error("Error deleting account:", error);
+      },
+    });
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={close}>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogDescription className="hidden">
-          Edit the details of this account.
-        </DialogDescription>
-        <DialogHeader>
-          <DialogTitle>Edit Account</DialogTitle>
-        </DialogHeader>
+    <Sheet open={isOpen} onOpenChange={close}>
+      <SheetContent className="overflow-hidden p-0 flex flex-col h-full">
+        <div className="p-6 flex-1 overflow-y-auto">
+          <SheetTitle className="hidden">Edit Account</SheetTitle>
 
-        <Form {...form}>
-          <form onSubmit={handleSubmit}>
-            <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="tax">Tax</TabsTrigger>
-                <TabsTrigger value="notes">Notes</TabsTrigger>
-                <TabsTrigger value="documents">Documents</TabsTrigger>
-              </TabsList>
+          {account && (
+            <div className="flex items-center space-x-4 pb-6 border-b">
+              <AccountIcon
+                account={account}
+                width={40}
+                height={40}
+                hasImageError={false}
+                onImageError={() => {}}
+              />
+              <div>
+                <h2 className="text-lg font-semibold">{account.name}</h2>
+                <p className="text-sm text-muted-foreground">
+                  {account.institution_connection_id
+                    ? "Connected Account"
+                    : "Manual Account"}
+                </p>
+              </div>
+            </div>
+          )}
 
-              <TabsContent value="details" className="space-y-4">
-                {isSyncedAccount && (
-                  <div className="text-sm text-muted-foreground bg-muted p-3 rounded-md mb-4">
-                    This account is managed by an external connection. Some
-                    fields cannot be edited.
-                  </div>
-                )}
-                {account.institution_connection?.broken && (
-                  <div className="flex flex-col gap-2">
-                    <div className="text-sm text-yellow-500 bg-yellow-500/10 p-3 rounded-md flex items-center gap-2">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-5 w-5" />
-                        <span>
-                          This account&apos;s connection needs to be fixed.
-                        </span>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-foreground ml-auto"
-                        onClick={handleFixConnection}
-                        disabled={isReconnecting}
-                      >
-                        {isReconnecting ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Fixing...
-                          </>
-                        ) : (
-                          "Fix Connection"
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                )}
-                <FormField
-                  control={form.control}
-                  name="accountType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Type</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        disabled={isSyncedAccount}
-                      >
+          {isSyncedAccount && (
+            <div className="text-sm text-muted-foreground bg-muted p-4 rounded-md mt-4">
+              This account is managed by an external connection. Some fields
+              cannot be edited.
+            </div>
+          )}
+
+          {account.institution_connection?.broken && (
+            <div className="flex flex-col gap-2 mt-4">
+              <div className="text-sm text-yellow-500 bg-yellow-500/10 p-4 rounded-md flex items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5" />
+                  <span>This account&apos;s connection needs to be fixed.</span>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="border-yellow-500 text-yellow-500 hover:bg-yellow-500/10 hover:text-foreground ml-auto"
+                  onClick={handleFixConnection}
+                  disabled={isReconnecting}
+                >
+                  {isReconnecting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Fixing...
+                    </>
+                  ) : (
+                    "Fix Connection"
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <Form {...form}>
+            <form onSubmit={handleSubmit} className="mt-6">
+              <div className="space-y-4 pb-8">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="accountName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select account type" />
-                          </SelectTrigger>
+                          <Input
+                            placeholder="Enter account name"
+                            {...field}
+                            disabled={isSyncedAccount}
+                          />
                         </FormControl>
-                        <SelectContent>
-                          {accountSubtypes.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {accountSubtypeLabels[type]}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="accountName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter account name"
-                          {...field}
+                  <FormField
+                    control={form.control}
+                    name="accountType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Type</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
                           disabled={isSyncedAccount}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select account type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {accountSubtypes.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {accountSubtypeLabels[type]}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
@@ -321,7 +344,7 @@ export function EditAccountDialog() {
                               disabled={isSyncedAccount}
                             >
                               <FormControl>
-                                <SelectTrigger className="w-[100px]">
+                                <SelectTrigger className="max-w-[142px]">
                                   <SelectValue placeholder="Currency" />
                                 </SelectTrigger>
                               </FormControl>
@@ -343,156 +366,215 @@ export function EditAccountDialog() {
                     </FormItem>
                   )}
                 />
-              </TabsContent>
 
-              <TabsContent value="tax" className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="investable"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Investability</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select investability" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="non_investable">
-                            Non-investable
-                          </SelectItem>
-                          <SelectItem value="investable_easy_convert">
-                            Easily Convertible
-                          </SelectItem>
-                          <SelectItem value="investable_cash">Cash</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="tax">
+                    <AccordionTrigger>Tax Settings</AccordionTrigger>
+                    <AccordionContent className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="investable"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Investability</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select investability" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="non_investable">
+                                  Non-investable
+                                </SelectItem>
+                                <SelectItem value="investable_easy_convert">
+                                  Easily Convertible
+                                </SelectItem>
+                                <SelectItem value="investable_cash">
+                                  Cash
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                <FormField
-                  control={form.control}
-                  name="taxability"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Taxability</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select taxability" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="taxable">Taxable</SelectItem>
-                          <SelectItem value="tax_free">Tax Free</SelectItem>
-                          <SelectItem value="tax_deferred">
-                            Tax Deferred
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      <FormField
+                        control={form.control}
+                        name="taxability"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Taxability</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select taxability" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="taxable">Taxable</SelectItem>
+                                <SelectItem value="tax_free">
+                                  Tax Free
+                                </SelectItem>
+                                <SelectItem value="tax_deferred">
+                                  Tax Deferred
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-                <FormField
-                  control={form.control}
-                  name="taxRate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tax Rate (%)</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="text"
-                          placeholder="Enter tax rate"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </TabsContent>
+                      <FormField
+                        control={form.control}
+                        name="taxRate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Tax Rate (%)</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="text"
+                                placeholder="Enter tax rate"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
 
-              <TabsContent value="notes" className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="notes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Notes</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Enter notes about this account"
-                          className="resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </TabsContent>
+                  <AccordionItem value="notes">
+                    <AccordionTrigger>Notes</AccordionTrigger>
+                    <AccordionContent>
+                      <FormField
+                        control={form.control}
+                        name="notes"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Enter notes about this account"
+                                className="resize-none"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
 
-              <TabsContent value="documents" className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="documents"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Account Documents</FormLabel>
-                      <FormControl>
-                        <FileUploader
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          maxFileCount={10}
-                          maxSize={10 * 1024 * 1024}
-                          accept={{
-                            "application/pdf": [],
-                            "image/*": [],
-                          }}
-                          onUpload={uploadFile}
-                          disabled={isUploading}
-                          documents={data?.account?.documents?.map((id) => ({
-                            id: Number(id),
-                            name: `Document ${id}`,
-                            path: "",
-                          }))}
-                          onRemoveExisting={deleteFile}
-                          onView={getSignedUrl}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </TabsContent>
-            </Tabs>
+                  <AccordionItem value="documents">
+                    <AccordionTrigger>Documents</AccordionTrigger>
+                    <AccordionContent>
+                      <FormField
+                        control={form.control}
+                        name="documents"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <FileUploader
+                                value={field.value}
+                                onValueChange={field.onChange}
+                                maxFileCount={10}
+                                maxSize={10 * 1024 * 1024}
+                                accept={{
+                                  "application/pdf": [],
+                                  "image/*": [],
+                                }}
+                                onUpload={uploadFile}
+                                disabled={isUploading}
+                                documents={data?.account?.documents?.map(
+                                  (id) => ({
+                                    id: Number(id),
+                                    name: `Document ${id}`,
+                                    path: "",
+                                  }),
+                                )}
+                                onRemoveExisting={deleteFile}
+                                onView={getSignedUrl}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </AccordionContent>
+                  </AccordionItem>
 
-            <div className="mt-4">
-              <Button type="submit" disabled={isUpdating} className="w-full">
-                {isUpdating ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  "Save Changes"
-                )}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+                  <AccordionItem value="danger" className="hidden">
+                    <AccordionTrigger>Danger Zone</AccordionTrigger>
+                    <AccordionContent>
+                      <div className="space-y-4">
+                        <p className="text-sm text-muted-foreground">
+                          Deleting this account will permanently remove it and
+                          all associated transactions. This action cannot be
+                          undone.
+                        </p>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div>
+                              <Button
+                                type="button"
+                                variant="destructive"
+                                size="sm"
+                                onClick={handleDelete}
+                                disabled={isDeleting || isSyncedAccount}
+                              >
+                                {isDeleting ? (
+                                  <>
+                                    <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                                    Deleting...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Trash2 className="mr-2 h-3 w-3" />
+                                    Delete Account
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </TooltipTrigger>
+                          {isSyncedAccount && (
+                            <TooltipContent>
+                              Connected accounts cannot be deleted. Remove the
+                              connection instead.
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+
+                <div className="absolute bottom-0 left-0 right-0 flex justify-end p-4 bg-background border-t">
+                  <Button type="submit" disabled={isUpdating}>
+                    {isUpdating ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save Changes"
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </form>
+          </Form>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }

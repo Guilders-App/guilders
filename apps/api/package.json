@@ -19,12 +19,12 @@
     "@scalar/hono-api-reference": "^0.5.165",
     "@supabase/supabase-js": "^2.47.12",
     "hono": "^4.6.16",
-    "snaptrade-typescript-sdk": "9.0.70",
+    "snaptrade-typescript-sdk": "9.0.71",
     "stripe": "^17.5.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241230.0",
-    "wrangler": "^3.100.0"
+    "wrangler": "^3.101.0"
   }
 }
