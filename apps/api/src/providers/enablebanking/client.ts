@@ -1,4 +1,23 @@
-import { createSign } from "node:crypto";
+function base64UrlEncode(data: unknown): string {
+  return Buffer.from(JSON.stringify(data))
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+function pemToArrayBuffer(pem: string): ArrayBuffer {
+  // Handle both raw PEM and escaped newline format
+  const normalizedPem = pem.includes("\\n") ? pem.replace(/\\n/g, "\n") : pem;
+
+  const base64 = normalizedPem
+    .replace(/-----BEGIN PRIVATE KEY-----/, "")
+    .replace(/-----END PRIVATE KEY-----/, "")
+    .replace(/\n/g, "");
+
+  return Buffer.from(base64, "base64").buffer;
+}
+
 import type {
   ASPSP,
   AuthorizeSessionResponse,
@@ -23,29 +42,48 @@ export class EnableBankingClient {
   private readonly baseUrl = "https://api.enablebanking.com";
   private jwt: string | null = null;
   private jwtExpiry = 0;
+  private cryptoKey: CryptoKey | null = null;
 
   constructor(
     private readonly clientId: string,
     private readonly privateKey: string,
   ) {}
 
-  private async generateJWT(): Promise<string> {
-    const now = Math.floor(new Date().getTime() / 1000);
+  private async getCryptoKey(): Promise<CryptoKey> {
+    if (this.cryptoKey) return this.cryptoKey;
 
-    if (this.jwt && this.jwtExpiry > now + 300) {
-      return this.jwt;
+    const privateKeyBuffer = pemToArrayBuffer(this.privateKey);
+
+    try {
+      this.cryptoKey = await crypto.subtle.importKey(
+        "pkcs8",
+        privateKeyBuffer,
+        {
+          name: "RSASSA-PKCS1-v1_5",
+          hash: { name: "SHA-256" },
+        },
+        false,
+        ["sign"],
+      );
+
+      return this.cryptoKey;
+    } catch (error) {
+      console.error("Failed to import private key:", error);
+      throw new Error("Failed to initialize crypto key");
     }
+  }
 
-    const base64 = (data: unknown) =>
-      Buffer.from(JSON.stringify(data)).toString("base64").replace(/=+$/, "");
+  private async generateJWT(): Promise<string> {
+    const now = Math.floor(Date.now() / 1000);
+    if (this.jwt && this.jwtExpiry > now + 300) return this.jwt;
 
-    const header = base64({
-      alg: "RS256",
+    const header = base64UrlEncode({
       typ: "JWT",
+      alg: "RS256",
       kid: this.clientId,
     });
 
-    const payload = base64({
+    const payload = base64UrlEncode({
       iss: "enablebanking.com",
       aud: "api.enablebanking.com",
       iat: now,
@@ -53,9 +91,21 @@ export class EnableBankingClient {
     });
 
     const signatureInput = `${header}.${payload}`;
-    const signer = createSign("RSA-SHA256");
-    signer.update(signatureInput);
-    const signature = signer.sign(this.privateKey, "base64url");
+    const data = new TextEncoder().encode(signatureInput);
+    const key = await this.getCryptoKey();
+    const signatureBuffer = await crypto.subtle.sign(
+      { name: "RSASSA-PKCS1-v1_5" },
+      key,
+      data,
+    );
+
+    // Convert the signature to base64url format
+    const signatureBytes = new Uint8Array(signatureBuffer);
+    const signatureBase64 = Buffer.from(signatureBytes).toString("base64");
+    const signature = signatureBase64
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
 
     this.jwt = `${header}.${payload}.${signature}`;
     this.jwtExpiry = now + 3600;
