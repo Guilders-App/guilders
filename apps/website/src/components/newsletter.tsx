@@ -6,7 +6,7 @@ import NewsletterForm from "./newsletter-form";
 
 export const Newsletter = () => {
   return (
-    <Card className="max-w-2xl mx-auto border-none shadow-none py-10 px-4">
+    <Card className="max-w-2xl min-h-[500px] border-none shadow-none py-10 px-4">
       <CardHeader className="space-y-0 flex flex-col items-center">
         <Image
           alt="Decorative bird graphic"
