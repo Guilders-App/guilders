@@ -20,15 +20,22 @@ function pemToArrayBuffer(pem: string): ArrayBuffer {
 
 import type {
   ASPSP,
+  AccountBalance,
+  AccountResource,
+  AccountTransactions,
   AuthorizeSessionResponse,
+  GetSessionResponse,
   StartAuthorizationRequest,
   StartAuthorizationResponse,
+  Transaction,
+  TransactionStatus,
+  TransactionsFetchStrategy,
 } from "./types";
 
 type RequestOptions = {
   method?: "GET" | "POST" | "PUT" | "DELETE";
   body?: Record<string, unknown>;
-  searchParams?: Record<string, string>;
+  searchParams?: Record<string, string | undefined>;
 };
 
 type RequestConfig = {
@@ -122,7 +129,9 @@ export class EnableBankingClient {
 
     if (searchParams) {
       for (const [key, value] of Object.entries(searchParams)) {
-        url.searchParams.append(key, value);
+        if (value) {
+          url.searchParams.append(key, value);
+        }
       }
     }
 
@@ -136,6 +145,7 @@ export class EnableBankingClient {
     });
 
     if (!response.ok) {
+      console.log(await response.text());
       throw new Error(
         `EnableBanking API error: ${response.status} ${response.statusText}`,
       );
@@ -203,6 +213,80 @@ export class EnableBankingClient {
           code: params.code,
         },
       },
+    });
+  }
+
+  async getSession(params: {
+    sessionId: string;
+  }) {
+    return this.request<GetSessionResponse>({
+      endpoint: `/sessions/${params.sessionId}`,
+      returnType: "single",
+    });
+  }
+
+  async deleteSession(params: {
+    sessionId: string;
+  }) {
+    return this.request<void>({
+      endpoint: `/sessions/${params.sessionId}`,
+      returnType: "single",
+      options: {
+        method: "DELETE",
+      },
+    });
+  }
+
+  async getAccountDetails(params: {
+    accountId: string;
+  }) {
+    return this.request<AccountResource>({
+      endpoint: `/accounts/${params.accountId}/details`,
+      returnType: "single",
+    });
+  }
+
+  async getAccountBalances(params: {
+    accountId: string;
+  }) {
+    return this.request<AccountBalance[]>({
+      endpoint: `/accounts/${params.accountId}/balances`,
+      returnType: "array",
+      dataField: "balances",
+    });
+  }
+
+  async getAccountTransactions(params: {
+    accountId: string;
+    from?: string;
+    to?: string;
+    page?: string;
+    transactionStatus?: TransactionStatus;
+    strategy?: TransactionsFetchStrategy;
+  }) {
+    return this.request<AccountTransactions>({
+      endpoint: `/accounts/${params.accountId}/transactions`,
+      returnType: "array",
+      dataField: "transactions",
+      options: {
+        searchParams: {
+          date_from: params.from,
+          date_to: params.to,
+          continuation_key: params.page,
+          transaction_status: params.transactionStatus,
+          strategy: params.strategy,
+        },
+      },
+    });
+  }
+
+  async getTransactionDetails(params: {
+    accountId: string;
+    transactionId: string;
+  }) {
+    return this.request<Transaction>({
+      endpoint: `/accounts/${params.accountId}/transactions/${params.transactionId}`,
+      returnType: "single",
     });
   }
 }

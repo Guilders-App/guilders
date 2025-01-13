@@ -385,6 +385,380 @@ const AuthorizeSessionResponseSchema = z.object({
   ),
 });
 
+const SessionStatusSchema = z.enum([
+  "AUTHORIZED",
+  "CANCELLED",
+  "CLOSED",
+  "EXPIRED",
+  "INVALID",
+  "PENDING_AUTHORIZATION",
+  "RETURNED_FROM_BANK",
+  "REVOKED",
+]);
+
+const SessionAccountSchema = z.object({
+  uid: z.string().uuid().describe("Account identificator within the session"),
+  identification_hash: z
+    .string()
+    .describe("Global account identification hash"),
+  identification_hashes: z
+    .array(z.string())
+    .describe(
+      "List of possible account identification hashes. Identification hash is based on the account number. Some accounts may have multiple account numbers (e.g. IBAN and BBAN). This field contains all possible hashes.",
+    ),
+});
+
+const GetSessionResponseSchema = z.object({
+  status: SessionStatusSchema.describe("Session status"),
+  accounts: z
+    .array(z.string())
+    .describe("List of account ids available in the session"),
+  accounts_data: z
+    .array(SessionAccountSchema)
+    .describe("List of account data available in the session"),
+  aspsp: ASPSPSchema.describe("ASPSP used with the session"),
+  psu_type: PsuTypeSchema.describe("PSU type used with the session"),
+  psu_id_hash: z
+    .string()
+    .describe(
+      "Hashed unique identification of a PSU used by the client application. In case PSU ID is not passed by the client application, the hash is calculated based on a random value. The hash also inherits the application ID, so different hashes will be calculated when using the same PSU ID with different applications.",
+    ),
+  access: AccessSchema.describe(
+    "Scope of access requested from ASPSP and confirmed by PSU",
+  ),
+  created: z
+    .string()
+    .datetime()
+    .describe("Date and time when the session was created"),
+  authorized: z
+    .string()
+    .datetime()
+    .optional()
+    .describe("Date and time when the session was authorized"),
+  closed: z
+    .string()
+    .datetime()
+    .optional()
+    .describe("Date and time when the session was closed"),
+});
+
+const BalanceStatusSchema = z.enum([
+  "CLAV", // (ISO20022 Closing Available) Closing available balance
+  "CLBD", // (ISO20022 ClosingBooked) Accounting Balance
+  "FWAV", // (ISO20022 ForwardAvailable) Balance that is at the disposal of account holders on the date specified
+  "INFO", // (ISO20022 Information) Balance for informational purposes
+  "ITAV", // (ISO20022 InterimAvailable) Available balance calculated in the course of the day
+  "ITBD", // (ISO20022 InterimBooked) Booked balance calculated in the course of the day
+  "OPAV", // (ISO20022 OpeningAvailable) Opening balance that is at the disposal of account holders at the beginning of the date specified
+  "OPBD", // (ISO20022 OpeningBooked) Book balance of the account at the beginning of the account reporting period. It always equals the closing book balance from the previous report
+  "OTHR", // (ISO20022 Other) Balance of the account that is not covered by other balance types
+  "PRCD", // (ISO20022 PreviouslyClosedBooked) Balance of the account at the end of the previous reporting period
+  "VALU", // (ISO20022 Valuation) Balance of the account at the valuation date
+  "XPCD", // (ISO20022 Expected) Instant Balance
+]);
+
+const BalanceResourceSchema = z.object({
+  name: z.string().describe("Label of the balance"),
+  balance_amount: AmountTypeSchema.describe(
+    "Structure aiming to embed the amount and the currency to be used",
+  ),
+  balance_type: BalanceStatusSchema.describe("Available balance type values"),
+  last_change_date_time: z
+    .string()
+    .datetime()
+    .optional()
+    .describe("Timestamp of the last change of the balance amount"),
+  reference_date: z
+    .string()
+    .datetime()
+    .optional()
+    .describe("Reference date for the balance"),
+  last_committed_transaction: z
+    .string()
+    .datetime()
+    .optional()
+    .describe(
+      "Entry reference of the last transaction contributing to the balance value",
+    ),
+});
+
+// Noted as "HalBalances" in the API
+const AccountBalanceSchema = z.object({
+  balances: z.array(BalanceResourceSchema).describe("List of balances"),
+});
+
+const TransactionStatusSchema = z.enum([
+  "BOOK", // Accounted transaction (ISO20022 Closing Booked)
+  "CNCL", // Cancelled transaction
+  "HOLD", // Account hold
+  "OTHR", // Transaction with unknown status or not fitting the other options
+  "PDNG", // Instant Balance Transaction (ISO20022 Expected)
+  "RJCT", // Rejected transaction
+  "SCHD", // Scheduled transaction
+]);
+
+const TransactionsFetchStrategySchema = z.enum([
+  "default", // Fetches transactions as requested by the user by passing the date_from and date_to parameters to an ASPSP. If not date_from or date_to is passed, then meaningful defaults are used.
+  "longest", // Tries to find the longest possible period of transactions and fetches transactions for that period. Passed date_from is also taken into account. This strategy may use extra ASPSP calls. date_to is ignored in this strategy.
+]);
+
+const AddressTypeSchema = z.enum([
+  "Business",
+  "Correspondence",
+  "DeliveryTo",
+  "MailTo",
+  "POBox",
+  "Postal",
+  "Residential",
+  "Statement",
+]);
+
+const PostalAddressSchema = z.object({
+  address_type: AddressTypeSchema.optional().describe(
+    "Available address type values",
+  ),
+  department: z
+    .string()
+    .optional()
+    .describe(
+      "Identification of a division of a large organisation or building.",
+    ),
+  sub_department: z
+    .string()
+    .optional()
+    .describe(
+      "Identification of a sub-division of a large organisation or building.",
+    ),
+  street_name: z
+    .string()
+    .optional()
+    .describe("Name of a street or thoroughfare."),
+  building_number: z
+    .string()
+    .optional()
+    .describe("Number that identifies the position of a building on a street."),
+  post_code: z
+    .string()
+    .optional()
+    .describe(
+      "Identifier consisting of a group of letters and/or numbers that is added to a postal address to assist the sorting of mail.",
+    ),
+  town_name: z
+    .string()
+    .optional()
+    .describe(
+      "Name of a built-up area, with defined boundaries, and a local government.",
+    ),
+  country_sub_division: z
+    .string()
+    .optional()
+    .describe(
+      "Identifies a subdivision of a country such as state, region, county.",
+    ),
+  country: z
+    .string()
+    .optional()
+    .describe(
+      "Two-letter ISO 3166 code of the country in which a person resides (the place of a person's home). In the case of a company, it is the country from which the affairs of that company are directed.",
+    ),
+  address_line: z
+    .array(z.string())
+    .optional()
+    .describe(
+      "Unstructured address. The two lines must embed zip code and town name",
+    ),
+});
+
+const ContactDetailsSchema = z.object({
+  email_address: z.string().optional().describe("Email address of a person"),
+  phone_number: z.string().optional().describe("Phone number of a person"),
+});
+
+const PartyIdentificationSchema = z.object({
+  name: z
+    .string()
+    .optional()
+    .describe(
+      "Name by which a party is known and which is usually used to identify that party.",
+    ),
+  postal_address: PostalAddressSchema.optional().describe(
+    "Address of the creditor",
+  ),
+  organisation_id: GenericIdentificationSchema.optional().describe(
+    "Unique identification of an account, a person or an organisation, as assigned by an issuer",
+  ),
+  private_id: GenericIdentificationSchema.optional().describe(
+    "Unique identification of an account, a person or an organisation, as assigned by an issuer",
+  ),
+  contact_details: ContactDetailsSchema.optional().describe(
+    "Specifies the contact details associated with a person or an organisation",
+  ),
+});
+
+const BankTransactionCodeSchema = z.object({
+  description: z
+    .string()
+    .optional()
+    .describe("Arbitrary transaction categorization description"),
+  code: z
+    .string()
+    .describe("Specifies the family of a transaction within the domain"),
+  sub_code: z
+    .string()
+    .optional()
+    .describe(
+      "Specifies the sub-product family of a transaction within a specific family",
+    ),
+});
+
+const CreditDebitIndicatorSchema = z.enum([
+  "CRDT", // Credit
+  "DBIT", // Debit
+]);
+
+const CurrencyCodeSchema = z
+  .string()
+  .length(3)
+  .describe("ISO 4217 currency code");
+
+const RateTypeSchema = z.enum([
+  "AGRD", // Exchange rate applied is the rate agreed between the parties
+  "SALE", // Exchange rate applied is the market rate at the time of the sale.
+  "SPOT", // Exchange rate applied is the spot rate.
+]);
+
+const ExchangeRateSchema = z.object({
+  unit_currency: CurrencyCodeSchema.optional().describe(
+    "ISO 4217 code of the currency, in which the rate of exchange is expressed in a currency exchange. In the example 1GBP = xxxCUR, the unit currency is GBP.",
+  ),
+  exchange_rate: z
+    .string()
+    .optional()
+    .describe(
+      "The factor used for conversion of an amount from one currency to another. This reflects the price at which one currency was bought with another currency.",
+    ),
+  rate_type: RateTypeSchema.optional().describe(
+    "Specifies the type of exchange rate applied to the transaction",
+  ),
+  contract_identification: z
+    .string()
+    .optional()
+    .describe(
+      "Unique and unambiguous reference to the foreign exchange contract agreed between the initiating party/creditor and the debtor agent.",
+    ),
+  instructed_amount: AmountTypeSchema.optional().describe(
+    "Original amount, in which transaction was initiated. In particular, for cross-currency card transactions, the value represents original value of a purchase or a withdrawal in a currency different from the card's native or default currency.",
+  ),
+});
+
+const TransactionSchema = z.object({
+  entry_reference: z
+    .string()
+    .optional()
+    .describe(
+      "Unique transaction identifier provided by ASPSP. This identifier is both unique and immutable for accounts with the same identification hashes and can be used for matching transactions across multiple PSU authentication sessions. Usually the same identifier is available for transactions in ASPSP's online/mobile interface and is called archive ID or similarly. Please note that this identifier is not globally unique and same entry references are likely to occur for transactions belonging to different accounts.",
+    ),
+  merchant_category_code: z
+    .string()
+    .optional()
+    .describe(
+      "Category code conform to ISO 18245, related to the type of services or goods the merchant provides for the transaction",
+    ),
+  transaction_amount: AmountTypeSchema.describe(
+    "Monetary sum of the transaction",
+  ),
+  creditor: PartyIdentificationSchema.optional().describe(
+    "Identification of the party receiving funds in the transaction",
+  ),
+  creditor_account: AccountIdentificationSchema.optional().describe(
+    "Identification of the account on which the transaction is credited",
+  ),
+  creditor_agent: FinancialInstitutionIdentificationSchema.optional().describe(
+    "Identification of the creditor agent",
+  ),
+  debtor: PartyIdentificationSchema.optional().describe(
+    "Identification of the party sending funds in the transaction",
+  ),
+  debtor_account: AccountIdentificationSchema.optional().describe(
+    "Identification of the account on which the transaction is debited",
+  ),
+  debtor_agent: FinancialInstitutionIdentificationSchema.optional().describe(
+    "Identification of the debtor agent",
+  ),
+  bank_transaction_code: BankTransactionCodeSchema.optional().describe(
+    "Allows the account servicer to correctly report a transaction, which in its turn will help account holders to perform their cash management and reconciliation operations.",
+  ),
+  credit_debit_indicator: CreditDebitIndicatorSchema.describe(
+    "Accounting flow of the transaction",
+  ),
+  status: TransactionStatusSchema.describe(
+    "Available transaction status values",
+  ),
+  booking_date: z
+    .string()
+    .datetime()
+    .describe(
+      "Booking date of the transaction on the account, i.e. the date at which the transaction has been recorded on books",
+    ),
+  value_date: z
+    .string()
+    .datetime()
+    .describe(
+      "Value date of the transaction on the account, i.e. the date at which funds become available to the account holder (in case of a credit transaction), or cease to be available to the account holder (in case of a debit transaction)",
+    ),
+  transaction_date: z
+    .string()
+    .datetime()
+    .describe(
+      "Date used for specific purposes:\n- for card transaction: date of the transaction\n- for credit transfer: acquiring date of the transaction\n- for direct debit: receiving date of the transaction",
+    ),
+  balance_after_transaction: AmountTypeSchema.optional().describe(
+    "Funds on the account after execution of the transaction",
+  ),
+  reference_number: z
+    .string()
+    .optional()
+    .describe(
+      "Credit transfer reference number (also known as the creditor reference or the structured creditor reference). The value is set when it is known that the transaction data contains a reference number (in either ISO 11649 or a local format).",
+    ),
+  remittance_information: z
+    .array(z.string())
+    .optional()
+    .describe(
+      "Payment details. For credit transfers may contain free text, reference number or both at the same time (in case Extended Remittance Information is supported). When it is known that remittance information contains a reference number (either based on ISO 11649 or a local scheme), the reference number is also available via the reference_number field.",
+    ),
+  debtor_account_additional_identification: z
+    .array(GenericIdentificationSchema)
+    .optional()
+    .describe("All other debtor account identifiers provided by ASPSPs"),
+  creditor_account_additional_identification: z
+    .array(GenericIdentificationSchema)
+    .optional()
+    .describe("All other creditor account identifiers provided by ASPSPs"),
+  exchange_rate: ExchangeRateSchema.optional().describe(
+    "Provides details on the currency exchange rate and contract.",
+  ),
+  note: z.string().optional().describe("The internal note made by PSU"),
+  transaction_id: z
+    .string()
+    .optional()
+    .nullable()
+    .describe(
+      "Identification used for fetching transaction details.This value can not be used to uniquely identify transactions and may change if the list of transactions is retrieved again. Null if fetching transaction details is not supported.",
+    ),
+});
+
+const AccountTransactionsSchema = z.object({
+  transactions: z.array(TransactionSchema).describe("List of transactions"),
+  continuation_key: z
+    .string()
+    .optional()
+    .nullable()
+    .describe(
+      "Value to retrieve next page of transactions. Null if there are no more pages. Only valid in current session.",
+    ),
+});
+
 export type ASPSP = z.infer<typeof ASPSPSchema>;
 export type StartAuthorizationRequest = z.infer<
   typeof StartAuthorizationRequestSchema
@@ -398,7 +772,15 @@ export type AuthorizeSessionRequest = z.infer<
 export type AuthorizeSessionResponse = z.infer<
   typeof AuthorizeSessionResponseSchema
 >;
-
+export type GetSessionResponse = z.infer<typeof GetSessionResponseSchema>;
+export type AccountResource = z.infer<typeof AccountResourceSchema>;
+export type AccountBalance = z.infer<typeof AccountBalanceSchema>;
+export type TransactionStatus = z.infer<typeof TransactionStatusSchema>;
+export type TransactionsFetchStrategy = z.infer<
+  typeof TransactionsFetchStrategySchema
+>;
+export type Transaction = z.infer<typeof TransactionSchema>;
+export type AccountTransactions = z.infer<typeof AccountTransactionsSchema>;
 export type ConnectionState = {
   userId: string;
   institutionId: string;

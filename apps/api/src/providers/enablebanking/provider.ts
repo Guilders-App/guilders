@@ -74,7 +74,6 @@ export class EnableBankingProvider implements IProvider {
   }
 
   async connect(params: ConnectionParams): Promise<ConnectResult> {
-    console.log("params", params);
     if (!params.institutionId) {
       throw new Error("Institution ID is required");
     }
