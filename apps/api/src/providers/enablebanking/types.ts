@@ -775,6 +775,7 @@ export type AuthorizeSessionResponse = z.infer<
 export type GetSessionResponse = z.infer<typeof GetSessionResponseSchema>;
 export type AccountResource = z.infer<typeof AccountResourceSchema>;
 export type AccountBalance = z.infer<typeof AccountBalanceSchema>;
+export type Balance = z.infer<typeof BalanceResourceSchema>;
 export type TransactionStatus = z.infer<typeof TransactionStatusSchema>;
 export type TransactionsFetchStrategy = z.infer<
   typeof TransactionsFetchStrategySchema

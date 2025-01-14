@@ -70,22 +70,81 @@ const app = new Hono<{ Bindings: Bindings }>().get("/", async (c) => {
     code,
   });
 
-  const { error: connectionError } = await supabase
+  const { data: connection, error: connectionError } = await supabase
     .from("institution_connection")
     .insert({
       institution_id: Number(stateObj.institutionId),
       provider_connection_id: providerConnection.id,
       connection_id: session.session_id,
-    });
+    })
+    .select("id")
+    .single();
 
   if (connectionError) {
     console.error(connectionError);
     return c.json({ error: "Failed to create institution connection" }, 500);
   }
 
-  return c.json({
-    message: "Hello World",
+  const sessionData = await enablebankingClient.getSession({
+    sessionId: session.session_id,
   });
+
+  const accountIdMapping: Record<string, number> = {};
+
+  for (const account of sessionData.accounts ?? []) {
+    const balances = await enablebankingClient.getAccountBalances({
+      accountId: account,
+    });
+
+    for (const balance of balances) {
+      const { data: accountData, error: accountError } = await supabase
+        .from("account")
+        .insert({
+          type: "asset",
+          subtype: "depository",
+          user_id: stateObj.userId,
+          name: "Bank Account",
+          value: Number(balance.balance_amount.amount),
+          currency: balance.balance_amount.currency,
+          institution_connection_id: connection.id,
+          provider_account_id: account,
+        })
+        .select("id")
+        .single();
+
+      if (accountError) {
+        console.error(accountError);
+        return c.json({ error: "Failed to create account" }, 500);
+      }
+
+      accountIdMapping[account] = accountData.id;
+    }
+
+    const transactions = await enablebankingClient.getAccountTransactions({
+      accountId: account,
+    });
+
+    for (const transaction of transactions) {
+      const { error: transactionError } = await supabase
+        .from("transaction")
+        .insert({
+          date: transaction.booking_date,
+          amount: Number(transaction.transaction_amount.amount),
+          currency: transaction.transaction_amount.currency,
+          description: transaction.remittance_information?.join(", ") ?? "",
+          category: "Uncategorized",
+          account_id: Number(accountIdMapping[account]),
+          provider_transaction_id: transaction.transaction_id,
+        });
+
+      if (transactionError) {
+        console.error(transactionError);
+        return c.json({ error: "Failed to create transaction" }, 500);
+      }
+    }
+  }
+
+  return c.text("You can close this window now");
 });
 
 export default app;

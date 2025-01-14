@@ -20,10 +20,9 @@ function pemToArrayBuffer(pem: string): ArrayBuffer {
 
 import type {
   ASPSP,
-  AccountBalance,
   AccountResource,
-  AccountTransactions,
   AuthorizeSessionResponse,
+  Balance,
   GetSessionResponse,
   StartAuthorizationRequest,
   StartAuthorizationResponse,
@@ -249,7 +248,7 @@ export class EnableBankingClient {
   async getAccountBalances(params: {
     accountId: string;
   }) {
-    return this.request<AccountBalance[]>({
+    return this.request<Balance[]>({
       endpoint: `/accounts/${params.accountId}/balances`,
       returnType: "array",
       dataField: "balances",
@@ -264,7 +263,7 @@ export class EnableBankingClient {
     transactionStatus?: TransactionStatus;
     strategy?: TransactionsFetchStrategy;
   }) {
-    return this.request<AccountTransactions>({
+    return this.request<Transaction[]>({
       endpoint: `/accounts/${params.accountId}/transactions`,
       returnType: "array",
       dataField: "transactions",
