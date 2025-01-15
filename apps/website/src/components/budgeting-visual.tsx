@@ -8,29 +8,29 @@ const categories = [
   {
     name: "Housing",
     icon: Home,
-    spent: 1200,
-    budget: 1500,
+    spent: 1000,
+    budget: 1300,
     color: "from-blue-500 to-blue-600",
   },
   {
     name: "Shopping",
     icon: ShoppingBag,
-    spent: 450,
-    budget: 500,
+    spent: 380,
+    budget: 450,
     color: "from-purple-500 to-purple-600",
   },
   {
     name: "Travel",
     icon: Plane,
-    spent: 300,
-    budget: 400,
+    spent: 250,
+    budget: 350,
     color: "from-green-500 to-green-600",
   },
   {
     name: "Food",
     icon: Coffee,
-    spent: 280,
-    budget: 350,
+    spent: 240,
+    budget: 300,
     color: "from-orange-500 to-orange-600",
   },
 ];
@@ -59,7 +59,7 @@ export function BudgetingVisual({ className }: { className?: string }) {
                   <span>{category.name}</span>
                 </div>
                 <span className="text-muted-foreground">
-                  ${category.spent} / ${category.budget}
+                  €{category.spent} / €{category.budget}
                 </span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-muted/30">

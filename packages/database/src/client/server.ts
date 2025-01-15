@@ -33,36 +33,38 @@ console.log = (...args) => {
 };
 
 type CreateClientOptions = {
+  url: string;
+  key: string;
   admin?: boolean;
-  url?: string;
-  key?: string;
   ssr?: boolean;
+  authHeader?: string;
 };
 
-export const createClient = async (options?: CreateClientOptions) => {
-  const { admin = false, url, key, ssr = true } = options ?? {};
+export const createClient = async (options: CreateClientOptions) => {
+  const { url, key, admin = false, ssr = true, authHeader } = options;
 
-  const supabaseUrl = url ?? process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!supabaseUrl) {
-    throw new Error(
-      "Supabase URL is required. Provide it via options or NEXT_PUBLIC_SUPABASE_URL environment variable.",
-    );
+  if (!url) {
+    throw new Error("Supabase URL is required. Provide it via options.");
   }
 
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  const supabaseKey = key ?? (admin ? serviceRoleKey : anonKey);
-  if (!supabaseKey) {
-    throw new Error(
-      `Supabase key is required. Provide it via options or ${
-        admin ? "SUPABASE_SERVICE_ROLE_KEY" : "NEXT_PUBLIC_SUPABASE_ANON_KEY"
-      } environment variable.`,
-    );
+  if (!key) {
+    throw new Error("Supabase key is required. Provide it via options");
   }
 
   if (!ssr) {
-    return createClientAdmin<Database>(supabaseUrl, supabaseKey);
+    return createClientAdmin<Database>(
+      url,
+      key,
+      authHeader
+        ? {
+            global: {
+              headers: {
+                Authorization: authHeader,
+              },
+            },
+          }
+        : {},
+    );
   }
 
   const cookieStore = await cookies();
@@ -74,7 +76,7 @@ export const createClient = async (options?: CreateClientOptions) => {
       }
     : {};
 
-  return createServerClient<Database>(supabaseUrl, supabaseKey, {
+  return createServerClient<Database>(url, key, {
     cookies: {
       getAll() {
         return cookieStore.getAll();

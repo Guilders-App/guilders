@@ -70,6 +70,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       // Find the base currency rate
       const baseRate = rates.find((r) => r.currency_code === base)?.rate;
       if (!baseRate) {
+        console.error("Base currency not found", base);
         return c.json(
           { data: null, error: `Base currency ${base} not found` },
           400,

@@ -1,10 +1,14 @@
+import { env } from "@/lib/env";
 import { updateSession } from "@guilders/database/middleware";
 import { createClient } from "@guilders/database/server";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
   const response = await updateSession(request);
-  const supabase = await createClient();
+  const supabase = await createClient({
+    url: env.NEXT_PUBLIC_SUPABASE_URL,
+    key: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  });
 
   const {
     data: { user },

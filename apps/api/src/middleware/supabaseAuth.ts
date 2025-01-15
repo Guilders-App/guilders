@@ -1,7 +1,6 @@
 import type { Bindings, Variables } from "@/common/variables";
 import { getEnv } from "@/env";
-import type { Database } from "@guilders/database/types";
-import { createClient } from "@supabase/supabase-js";
+import { createClient } from "@guilders/database/server";
 import type { MiddlewareHandler } from "hono";
 import { HTTPException } from "hono/http-exception";
 
@@ -34,11 +33,7 @@ export function supabaseAuth(
       });
     }
 
-    const supabase = createClient<Database>(url, key, {
-      global: {
-        headers: { Authorization: authHeader },
-      },
-    });
+    const supabase = await createClient({ url, key, ssr: false, authHeader });
 
     const { data, error } = await supabase.auth.getUser();
 

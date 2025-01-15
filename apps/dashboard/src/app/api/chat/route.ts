@@ -59,7 +59,10 @@ interface FinancialSummary {
  *         description: Successfully streamed chat response
  */
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
+  const supabase = await createClient({
+    url: env.NEXT_PUBLIC_SUPABASE_URL,
+    key: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  });
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -133,7 +136,10 @@ export async function POST(request: NextRequest) {
 }
 
 const getAccountsContext = async (userId: string) => {
-  const supabase = await createClient();
+  const supabase = await createClient({
+    url: env.NEXT_PUBLIC_SUPABASE_URL,
+    key: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  });
 
   const { data: allAccounts, error: allAccountsError } = await supabase
     .from("account")

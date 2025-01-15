@@ -2,6 +2,7 @@ import type { Bindings } from "@/common/variables";
 import { getEnv } from "@/env";
 import { getSnaptrade } from "@/providers/snaptrade/client";
 import { createClient } from "@guilders/database/server";
+import type { DatabaseClient } from "@guilders/database/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { type Context, Hono } from "hono";
 import type { Position } from "snaptrade-typescript-sdk";
@@ -37,7 +38,6 @@ const app = new Hono<{ Bindings: Bindings }>().post("/", async (c) => {
   const supabase = await createClient({
     url: env.SUPABASE_URL,
     key: env.SUPABASE_SERVICE_ROLE_KEY,
-    admin: true,
     ssr: false,
   });
 
@@ -76,7 +76,7 @@ const app = new Hono<{ Bindings: Bindings }>().post("/", async (c) => {
 async function handleConnectionAdded(
   c: Context,
   body: ConnectionAddedWebhook,
-  supabase: SupabaseClient,
+  supabase: DatabaseClient,
 ) {
   const { data: provider } = await supabase
     .from("provider")

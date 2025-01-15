@@ -1,9 +1,8 @@
-import type { Database } from "@guilders/database/types";
-import type { SupabaseClient, User } from "@supabase/supabase-js";
+import type { DatabaseClient, DatabaseUser } from "@guilders/database/types";
 
 export type Variables = {
-  supabase: SupabaseClient<Database>;
-  user: User;
+  supabase: DatabaseClient;
+  user: DatabaseUser;
 };
 
 export type Bindings = {

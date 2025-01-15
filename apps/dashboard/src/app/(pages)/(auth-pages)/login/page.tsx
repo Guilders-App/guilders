@@ -2,6 +2,7 @@
 
 import { signInAction } from "@/app/actions";
 import { FormMessage, type Message } from "@/components/common/form-message";
+import { env } from "@/lib/env";
 import { createClient } from "@guilders/database/client";
 import { Button } from "@guilders/ui/button";
 import { Input } from "@guilders/ui/input";
@@ -28,7 +29,10 @@ function LoginForm() {
   const [verifyCode, setVerifyCode] = useState("");
   const [factorId, setFactorId] = useState<string | null>(null);
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
-  const supabase = createClient();
+  const supabase = createClient({
+    url: env.NEXT_PUBLIC_SUPABASE_URL,
+    key: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  });
 
   const message: Message = {
     message: searchParams.has("message")

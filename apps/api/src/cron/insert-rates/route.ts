@@ -6,7 +6,6 @@ export async function insertRates(env: Bindings) {
   const currencyBeacon = getCurrencyBeacon(env);
   const rates = await currencyBeacon.getLatestRates("USD");
   const supabase = await createClient({
-    admin: true,
     url: env.SUPABASE_URL,
     key: env.SUPABASE_SERVICE_ROLE_KEY,
     ssr: false,

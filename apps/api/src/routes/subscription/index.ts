@@ -49,7 +49,6 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
         const supabaseAdmin = await createClient({
           url: env.SUPABASE_URL,
           key: env.SUPABASE_SERVICE_ROLE_KEY,
-          admin: true,
           ssr: false,
         });
         const stripe = getStripe(env);
