@@ -22,6 +22,7 @@
     "./alert-dialog": "./src/components/alert-dialog.tsx",
     "./animated-beam": "./src/components/animated-beam.tsx",
     "./animated-list": "./src/components/animated-list.tsx",
+    "./aurora-background": "./src/components/aurora-background.tsx",
     "./avatar": "./src/components/avatar.tsx",
     "./badge": "./src/components/badge.tsx",
     "./bento-grid": "./src/components/bento-grid.tsx",

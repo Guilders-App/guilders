@@ -1,3 +1,4 @@
+import { env } from "@/env";
 import {
   Accordion,
   AccordionContent,
@@ -7,6 +8,7 @@ import {
 import { Badge } from "@guilders/ui/badge";
 import { Button } from "@guilders/ui/button";
 import { PhoneCall } from "lucide-react";
+import Link from "next/link";
 
 const questions = [
   {
@@ -66,9 +68,11 @@ export const FAQ = () => (
               </h4>
             </div>
             <div className="">
-              <Button className="gap-4" variant="outline">
-                Any questions? Reach out <PhoneCall className="w-4 h-4" />
-              </Button>
+              <Link href={`${env.NEXT_PUBLIC_CAL_URL}`}>
+                <Button className="gap-4" variant="outline">
+                  Any questions? Reach out <PhoneCall className="w-4 h-4" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

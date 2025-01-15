@@ -1,3 +1,4 @@
+import { env } from "@/lib/env";
 import { createClient } from "@guilders/database/client";
 import { create } from "zustand";
 
@@ -13,7 +14,10 @@ export const useSecurityStore = create<SecurityStore>((set, get) => ({
   isLoadingMFA: true,
 
   checkMFAStatus: async () => {
-    const supabase = createClient();
+    const supabase = createClient({
+      url: env.NEXT_PUBLIC_SUPABASE_URL,
+      key: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    });
     try {
       set({ isLoadingMFA: true });
       const { data, error } = await supabase.auth.mfa.listFactors();
@@ -39,7 +43,10 @@ export const useSecurityStore = create<SecurityStore>((set, get) => ({
   },
 
   unenrollMFA: async () => {
-    const supabase = createClient();
+    const supabase = createClient({
+      url: env.NEXT_PUBLIC_SUPABASE_URL,
+      key: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    });
     try {
       set({ isLoadingMFA: true });
       const { data } = await supabase.auth.mfa.listFactors();

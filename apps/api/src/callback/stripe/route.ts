@@ -32,7 +32,6 @@ const app = new Hono<{ Bindings: Bindings }>().post("/", async (c) => {
   const supabase = await createClient({
     url: env.SUPABASE_URL,
     key: env.SUPABASE_SERVICE_ROLE_KEY,
-    admin: true,
     ssr: false,
   });
 

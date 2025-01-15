@@ -1,5 +1,6 @@
 "use client";
 
+import { env } from "@/lib/env";
 import { useUpdateUserSettings } from "@/lib/queries/useUser";
 import { createClient } from "@guilders/database/client";
 import { Button } from "@guilders/ui/button";
@@ -49,7 +50,10 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     const checkSession = async () => {
-      const supabase = createClient();
+      const supabase = createClient({
+        url: env.NEXT_PUBLIC_SUPABASE_URL,
+        key: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      });
       const {
         data: { user },
       } = await supabase.auth.getUser();

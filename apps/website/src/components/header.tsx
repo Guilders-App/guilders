@@ -57,7 +57,7 @@ export const Header = () => {
         "w-full z-40 fixed top-0 left-0 transition-all duration-200",
         isScrolled
           ? "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 shadow-sm"
-          : "bg-background/40",
+          : "bg-background/0",
       )}
     >
       <div className="container relative mx-auto min-h-16 flex gap-4 flex-row items-center justify-between">
@@ -73,14 +73,13 @@ export const Header = () => {
           </Link>
         </div>
         <div className="flex justify-end gap-4">
-          <Link href={env.NEXT_PUBLIC_CAL_URL} aria-label="Book a demo call">
-            <Button variant="ghost" className="hidden md:inline">
-              Book a demo
-            </Button>
-          </Link>
-          <div className="border-r hidden md:inline" />
           <Link href={`${env.NEXT_PUBLIC_DASHBOARD_URL}/login`}>
-            <Button variant="outline">Sign in</Button>
+            <Button
+              variant="ghost"
+              className="hover:bg-background/40 backdrop-blur-sm"
+            >
+              Sign in
+            </Button>
           </Link>
           {/* <Link href="/sign-up">
             <Button>Get started</Button>

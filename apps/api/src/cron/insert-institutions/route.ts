@@ -8,7 +8,6 @@ export async function insertInstitutions(env: Bindings) {
   const supabase = await createClient({
     url: env.SUPABASE_URL,
     key: env.SUPABASE_SERVICE_ROLE_KEY,
-    admin: true,
     ssr: false,
   });
   const providers: Providers[] = ["SnapTrade", "EnableBanking"];

@@ -9,11 +9,11 @@ export const metadata: Metadata = defaultMetadata;
 
 export default function Index() {
   return (
-    <main className="flex flex-col items-center bg-background text-foreground">
+    <div className="flex flex-col items-center bg-background text-foreground w-full">
       <Hero />
       <Features />
       <FAQ />
       <Newsletter />
-    </main>
+    </div>
   );
 }

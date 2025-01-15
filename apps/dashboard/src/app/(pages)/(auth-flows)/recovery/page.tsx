@@ -1,5 +1,6 @@
 "use client";
 
+import { env } from "@/lib/env";
 import { createClient } from "@guilders/database/client";
 import { Button } from "@guilders/ui/button";
 import { Input } from "@guilders/ui/input";
@@ -56,7 +57,10 @@ export default function RecoveryPage() {
   const onSubmit = async (data: PasswordForm) => {
     try {
       setIsLoading(true);
-      const supabase = createClient();
+      const supabase = createClient({
+        url: env.NEXT_PUBLIC_SUPABASE_URL,
+        key: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      });
 
       // Check if user has MFA enabled
       const { data: factors } = await supabase.auth.mfa.listFactors();
@@ -96,7 +100,10 @@ export default function RecoveryPage() {
 
     try {
       setIsLoading(true);
-      const supabase = createClient();
+      const supabase = createClient({
+        url: env.NEXT_PUBLIC_SUPABASE_URL,
+        key: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      });
 
       const { data, error } = await supabase.auth.mfa.challenge({ factorId });
       if (error) throw error;
@@ -132,7 +139,10 @@ export default function RecoveryPage() {
 
   useEffect(() => {
     const checkSession = async () => {
-      const supabase = createClient();
+      const supabase = createClient({
+        url: env.NEXT_PUBLIC_SUPABASE_URL,
+        key: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      });
       const {
         data: { user },
       } = await supabase.auth.getUser();

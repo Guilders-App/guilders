@@ -1,5 +1,6 @@
 "use client";
 
+import { env } from "@/lib/env";
 import { useDialog } from "@/lib/hooks/useDialog";
 import { useSecurityStore } from "@/lib/store/securityStore";
 import { createClient } from "@guilders/database/client";
@@ -29,7 +30,10 @@ export function MFADialog() {
   const [qrCode, setQrCode] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const supabase = createClient();
+  const supabase = createClient({
+    url: env.NEXT_PUBLIC_SUPABASE_URL,
+    key: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  });
   const checkMFAStatus = useSecurityStore((state) => state.checkMFAStatus);
 
   useEffect(() => {

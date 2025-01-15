@@ -1,5 +1,6 @@
 "use server";
 
+import { env } from "@/lib/env";
 import { encodedRedirect } from "@/lib/utils";
 import { createClient } from "@guilders/database/server";
 import { redirect } from "next/navigation";
@@ -7,7 +8,10 @@ import { redirect } from "next/navigation";
 export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
-  const supabase = await createClient();
+  const supabase = await createClient({
+    url: env.NEXT_PUBLIC_SUPABASE_URL,
+    key: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  });
 
   if (!email || !password) {
     return encodedRedirect(
@@ -44,7 +48,10 @@ export async function signInAction(formData: FormData) {
   const password = formData.get("password") as string;
   const redirectUrl = formData.get("redirect") as string;
 
-  const supabase = await createClient();
+  const supabase = await createClient({
+    url: env.NEXT_PUBLIC_SUPABASE_URL,
+    key: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  });
   const { error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -78,7 +85,10 @@ export async function signInAction(formData: FormData) {
 
 export const forgotPasswordAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
-  const supabase = await createClient();
+  const supabase = await createClient({
+    url: env.NEXT_PUBLIC_SUPABASE_URL,
+    key: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  });
   const callbackUrl = formData.get("callbackUrl")?.toString();
 
   if (!email) {
@@ -108,7 +118,10 @@ export const forgotPasswordAction = async (formData: FormData) => {
 };
 
 export const resetPasswordAction = async (formData: FormData) => {
-  const supabase = await createClient();
+  const supabase = await createClient({
+    url: env.NEXT_PUBLIC_SUPABASE_URL,
+    key: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  });
 
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
@@ -137,7 +150,10 @@ export const resetPasswordAction = async (formData: FormData) => {
 };
 
 export const signOutAction = async () => {
-  const supabase = await createClient();
+  const supabase = await createClient({
+    url: env.NEXT_PUBLIC_SUPABASE_URL,
+    key: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  });
   await supabase.auth.signOut();
   return redirect("/login");
 };

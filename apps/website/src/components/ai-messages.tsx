@@ -86,7 +86,7 @@ export function AIMessages({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "relative flex h-[500px] w-full flex-col p-6 overflow-hidden rounded-lg border bg-background md:shadow-xl",
+        "relative flex h-[500px] w-full flex-col p-6 overflow-hidden",
         className,
       )}
     >
@@ -96,6 +96,7 @@ export function AIMessages({ className }: { className?: string }) {
           <Message {...message} key={idx} />
         ))}
       </AnimatedList>
+      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
     </div>
   );
 }
