@@ -120,12 +120,61 @@ export class SnapTradeProvider implements IProvider {
   }
 
   async connect(params: ConnectionParams): Promise<ConnectResult> {
+    if (!params.institutionId) {
+      return {
+        success: false,
+        error: "Institution ID is required",
+      };
+    }
+
     try {
-      if (!params.userSecret || !params.institutionId) {
+      const { data: provider, error: providerError } = await this.supabase
+        .from("provider")
+        .select("*")
+        .eq("name", this.name)
+        .single();
+
+      if (providerError || !provider) {
         return {
           success: false,
-          error: "User secret and institution ID are required",
+          error: "Provider not found",
         };
+      }
+
+      const { data: providerConnection } = await this.supabase
+        .from("provider_connection")
+        .select("*")
+        .eq("provider_id", provider.id)
+        .eq("user_id", params.userId)
+        .single();
+
+      let userSecret = providerConnection?.secret;
+
+      if (!userSecret) {
+        const registerResult = await this.registerUser(params.userId);
+        if (!registerResult.success || !registerResult.data?.userSecret) {
+          return {
+            success: false,
+            error: "Failed to register user with provider",
+          };
+        }
+
+        const { error: insertError } = await this.supabase
+          .from("provider_connection")
+          .insert({
+            provider_id: provider.id,
+            user_id: params.userId,
+            secret: registerResult.data.userSecret,
+          });
+
+        if (insertError) {
+          return {
+            success: false,
+            error: "Failed to save provider connection",
+          };
+        }
+
+        userSecret = registerResult.data.userSecret;
       }
 
       const { data: institution, error: institutionError } = await this.supabase
@@ -155,7 +204,7 @@ export class SnapTradeProvider implements IProvider {
 
       const response = await this.client.authentication.loginSnapTradeUser({
         userId: params.userId,
-        userSecret: params.userSecret,
+        userSecret,
         broker: brokerage?.slug,
         reconnect: params.connectionId,
       });

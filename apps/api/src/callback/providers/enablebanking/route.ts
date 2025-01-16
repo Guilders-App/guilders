@@ -5,19 +5,22 @@ import { EnableBankingClient } from "@/providers/enablebanking/client";
 import type { ConnectionState } from "@/providers/enablebanking/types";
 import { createClient } from "@guilders/database/server";
 import { Hono } from "hono";
+import { errorResponse, successResponse } from "./template";
 
 const app = new Hono<{ Bindings: Bindings }>().get("/", async (c) => {
   const env = getEnv(c.env);
   const { code, state } = await c.req.query();
 
   if (!code || !state) {
-    return c.json({ error: "Code and state are required" }, 400);
+    console.error("Missing required parameters: code or state");
+    return errorResponse("Missing required parameters. Please try again.");
   }
 
   const stateObj: ConnectionState = JSON.parse(state);
 
   if (!stateObj.userId || !stateObj.institutionId) {
-    return c.json({ error: "User ID and institution ID are required" }, 400);
+    console.error("Missing required state parameters: userId or institutionId");
+    return errorResponse("Invalid connection state. Please try again.");
   }
 
   const supabase = await createClient({
@@ -36,8 +39,10 @@ const app = new Hono<{ Bindings: Bindings }>().get("/", async (c) => {
     .single();
 
   if (providerDbError) {
-    console.error(providerDbError);
-    return c.json({ error: "Provider not found" }, 500);
+    console.error("Provider not found:", providerDbError);
+    return errorResponse(
+      "Provider configuration error. Please try again later.",
+    );
   }
 
   const { data: providerConnection, error: providerConnectionError } =
@@ -57,81 +62,90 @@ const app = new Hono<{ Bindings: Bindings }>().get("/", async (c) => {
       .single();
 
   if (providerConnectionError) {
-    console.error(providerConnectionError);
-    return c.json({ error: "Failed to create provider connection" }, 500);
+    console.error(
+      "Failed to create provider connection:",
+      providerConnectionError,
+    );
+    return errorResponse("Failed to establish connection. Please try again.");
   }
 
-  const enablebankingClient = new EnableBankingClient(
-    env.ENABLEBANKING_CLIENT_ID,
-    env.ENABLEBANKING_CLIENT_PRIVATE_KEY,
-  );
-
-  const session = await enablebankingClient.authorizeSession({
-    code,
-  });
-
-  const { data: connection, error: connectionError } = await supabase
-    .from("institution_connection")
-    .insert({
-      institution_id: Number(stateObj.institutionId),
-      provider_connection_id: providerConnection.id,
-      connection_id: session.session_id,
-    })
-    .select("id")
-    .single();
-
-  if (connectionError) {
-    console.error(connectionError);
-    return c.json({ error: "Failed to create institution connection" }, 500);
-  }
-
-  const accounts = await provider.getAccounts({
-    userId: stateObj.userId,
-    connectionId: connection.id,
-  });
-
-  console.log("Accounts", accounts);
-
-  const { data: accountsInsert, error: accountsInsertError } = await supabase
-    .from("account")
-    .insert(accounts)
-    .select();
-
-  console.log("Accounts Inserted", accountsInsert);
-
-  if (accountsInsertError) {
-    console.error(accountsInsertError);
-    return c.json({ error: "Failed to create accounts" }, 500);
-  }
-
-  for (const account of accountsInsert) {
-    if (!account.provider_account_id) {
-      throw new Error("Recently created account has no provider account id");
-    }
-
-    const transactions = await provider.getTransactions({
-      userId: stateObj.userId,
-      accountId: account.provider_account_id,
-    });
-
-    console.log(
-      "Transactions for account",
-      account.provider_account_id,
-      transactions,
+  try {
+    const enablebankingClient = new EnableBankingClient(
+      env.ENABLEBANKING_CLIENT_ID,
+      env.ENABLEBANKING_CLIENT_PRIVATE_KEY,
     );
 
-    const { data: transactionsInsert, error: transactionsInsertError } =
-      await supabase.from("transaction").insert(transactions).select();
+    const session = await enablebankingClient.authorizeSession({
+      code,
+    });
 
-    console.log("Transactions Inserted", transactionsInsert);
+    const { data: connection, error: connectionError } = await supabase
+      .from("institution_connection")
+      .insert({
+        institution_id: Number(stateObj.institutionId),
+        provider_connection_id: providerConnection.id,
+        connection_id: session.session_id,
+      })
+      .select("id")
+      .single();
 
-    if (transactionsInsertError) {
-      console.error(transactionsInsertError);
-      return c.json({ error: "Failed to create transactions" }, 500);
+    if (connectionError) {
+      console.error(
+        "Failed to create institution connection:",
+        connectionError,
+      );
+      return errorResponse(
+        "Failed to establish bank connection. Please try again.",
+      );
     }
-  }
 
-  return c.text("You can close this window now");
+    const accounts = await provider.getAccounts({
+      userId: stateObj.userId,
+      connectionId: connection.id,
+    });
+
+    const { error: accountsInsertError } = await supabase
+      .from("account")
+      .insert(accounts)
+      .select();
+
+    if (accountsInsertError) {
+      console.error("Failed to create accounts:", accountsInsertError);
+      return errorResponse("Failed to import accounts. Please try again.");
+    }
+
+    for (const account of accounts) {
+      if (!account.provider_account_id) {
+        console.error("Account missing provider_account_id:", account);
+        continue;
+      }
+
+      const transactions = await provider.getTransactions({
+        userId: stateObj.userId,
+        accountId: account.provider_account_id,
+      });
+
+      const { error: transactionsInsertError } = await supabase
+        .from("transaction")
+        .insert(transactions)
+        .select();
+
+      if (transactionsInsertError) {
+        console.error(
+          "Failed to create transactions for account:",
+          account.provider_account_id,
+          transactionsInsertError,
+        );
+      }
+    }
+
+    return successResponse("Successfully connected your bank account!");
+  } catch (error) {
+    console.error("Unexpected error during connection process:", error);
+    return errorResponse(
+      "An unexpected error occurred. Please try again later.",
+    );
+  }
 });
 
 export default app;

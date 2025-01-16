@@ -80,42 +80,6 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
           env,
         );
 
-        const { data: providerConnection } = await supabase
-          .from("provider_connection")
-          .select("*")
-          .eq("provider_id", providerDb.id)
-          .eq("user_id", user.id)
-          .single();
-
-        let userSecret = providerConnection?.secret;
-
-        if (!userSecret) {
-          const registerResult = await providerInstance.registerUser(user.id);
-          if (!registerResult.success || !registerResult.data?.userSecret) {
-            return c.json(
-              { data: null, error: "Failed to register user with provider" },
-              500,
-            );
-          }
-
-          const { error: insertError } = await supabase
-            .from("provider_connection")
-            .insert({
-              provider_id: providerDb.id,
-              user_id: user.id,
-              secret: registerResult.data.userSecret,
-            });
-
-          if (insertError) {
-            return c.json(
-              { data: null, error: "Failed to save provider connection" },
-              500,
-            );
-          }
-
-          userSecret = registerResult.data.userSecret;
-        }
-
         const { data: institution } = await supabase
           .from("institution")
           .select("*")
@@ -128,9 +92,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
 
         const result = await providerInstance.connect({
           userId: user.id,
-          providerInstitutionId: institution.provider_institution_id,
-          userSecret,
-          institutionId: institution.id.toString(),
+          institutionId: institution.id,
         });
 
         if (!result.success || !result.data?.redirectURI) {
@@ -142,6 +104,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
 
         return c.json({ data: result.data, error: null }, 200);
       } catch (error) {
+        console.error("Error connecting to provider:", error);
         return c.json(
           { data: null, error: "Error connecting to provider" },
           500,
@@ -254,8 +217,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
 
         const result = await providerInstance.reconnect({
           userId: user.id,
-          providerInstitutionId: institution.provider_institution_id,
-          userSecret: providerConnection.secret,
+          institutionId: institution.id,
           connectionId: account.institution_connection.connection_id,
         });
 

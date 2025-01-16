@@ -52,7 +52,58 @@ export class EnableBankingProvider implements IProvider {
   }
 
   async deregisterUser(userId: string): Promise<DeregisterUserResult> {
-    throw new Error("Not implemented");
+    const { data: provider, error: providerError } = await this.supabase
+      .from("provider")
+      .select("id")
+      .eq("name", this.name)
+      .single();
+
+    if (providerError || !provider) {
+      throw new Error("Provider not found");
+    }
+
+    const { data: providerConnection, error: providerConnectionError } =
+      await this.supabase
+        .from("provider_connection")
+        .select()
+        .eq("user_id", userId)
+        .eq("provider_id", provider.id)
+        .single();
+
+    if (providerConnectionError || !providerConnection) {
+      throw new Error("Provider connection not found");
+    }
+
+    const { data: institutionConnections, error: institutionConnectionError } =
+      await this.supabase
+        .from("institution_connection")
+        .select()
+        .eq("provider_connection_id", providerConnection.id);
+
+    if (institutionConnectionError || !institutionConnections) {
+      throw new Error("Institution connections not found");
+    }
+
+    for (const institutionConnection of institutionConnections) {
+      if (institutionConnection.connection_id) {
+        await this.client.deleteSession({
+          sessionId: institutionConnection.connection_id,
+        });
+      }
+    }
+
+    const { error: deleteError } = await this.supabase
+      .from("provider_connection")
+      .delete()
+      .eq("id", providerConnection.id);
+
+    if (deleteError) {
+      throw new Error("Failed to delete provider connection");
+    }
+
+    return {
+      success: true,
+    };
   }
 
   private getInstitutionDetails(institutionId: string) {

@@ -784,5 +784,5 @@ export type Transaction = z.infer<typeof TransactionSchema>;
 export type AccountTransactions = z.infer<typeof AccountTransactionsSchema>;
 export type ConnectionState = {
   userId: string;
-  institutionId: string;
+  institutionId: number;
 };

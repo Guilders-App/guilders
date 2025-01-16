@@ -14,9 +14,8 @@ export type ProviderParams = {
 
 export type ConnectionParams = {
   userId: string;
-  institutionId: string;
+  institutionId: number;
   connectionId?: string; // Reconnect
-  userSecret?: string; // SnapTrade
 };
 
 export type AccountParams = {

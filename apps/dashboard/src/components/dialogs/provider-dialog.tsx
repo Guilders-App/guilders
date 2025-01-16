@@ -1,17 +1,22 @@
 "use client";
 
+import { env } from "@/lib/env";
 import { useDialog } from "@/lib/hooks/useDialog";
+import { queryKey as accountsQueryKey } from "@/lib/queries/useAccounts";
+import { queryKey as transactionsQueryKey } from "@/lib/queries/useTransactions";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
 } from "@guilders/ui/dialog";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 export function ProviderDialog() {
   const { isOpen, data, close } = useDialog("provider");
+  const queryClient = useQueryClient();
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const successToast = {
@@ -34,9 +39,6 @@ export function ProviderDialog() {
 
   useEffect(() => {
     const handleMessageEvent = (e: MessageEvent) => {
-      // Ignore messages from localhost
-      if (e.origin === "http://localhost:3000") return;
-
       if (e.origin === "https://app.snaptrade.com") {
         if (e.data) {
           const data = e.data;
@@ -60,24 +62,26 @@ export function ProviderDialog() {
             close();
           }
         }
-      } else if (e.origin === "https://www.saltedge.com") {
-        if (e.data === "cancel") {
-          close();
-        } else {
-          const { data: messageData } = JSON.parse(e.data);
-          if (!messageData) return;
+      } else if (
+        e.origin === env.NEXT_PUBLIC_API_URL ||
+        e.origin === env.NEXT_PUBLIC_NGROK_URL
+      ) {
+        const { stage } = e.data;
+        if (!stage) return;
 
-          if (messageData.stage === "success") {
-            close();
-            toast.success(successToast.title, {
-              description: successToast.description,
-            });
-          } else if (messageData.stage === "error") {
-            toast.error(errorToast.title, {
-              description: errorToast.description,
-            });
-            close();
-          }
+        close();
+        if (stage === "success") {
+          toast.success(successToast.title, {
+            description: successToast.description,
+          });
+
+          // Refresh both accounts and transactions data
+          queryClient.invalidateQueries({ queryKey: accountsQueryKey });
+          queryClient.invalidateQueries({ queryKey: transactionsQueryKey });
+        } else if (stage === "error") {
+          toast.error(errorToast.title, {
+            description: errorToast.description,
+          });
         }
       }
     };
@@ -85,7 +89,7 @@ export function ProviderDialog() {
     window.addEventListener("message", handleMessageEvent, false);
     return () =>
       window.removeEventListener("message", handleMessageEvent, false);
-  }, [close, toast, successToast, errorToast]);
+  }, [close, queryClient, toast, successToast, errorToast]);
 
   if (!isOpen || !data) return null;
 
