@@ -35,7 +35,7 @@ export function AppSidebar() {
         <div className="h-8 flex items-center justify-center mt-4">
           <Link href="/" className="flex items-center">
             <Image
-              src="/assets/logo/logo_greyscale.svg"
+              src="/assets/logo/logo.svg"
               alt="Guilders Logo"
               height={32}
               width={32}

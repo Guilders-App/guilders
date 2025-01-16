@@ -11,7 +11,7 @@ export const getProvider = (
 ): IProvider => {
   switch (provider) {
     case "SnapTrade":
-      return new SnapTradeProvider(env);
+      return new SnapTradeProvider(supabase, env);
     case "EnableBanking":
       return new EnableBankingProvider(supabase, env);
     default:

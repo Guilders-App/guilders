@@ -1,5 +1,5 @@
 import type { Bindings } from "@/common/variables";
-import type { Account } from "@/types";
+import type { TransactionInsert } from "@/types";
 import type { DatabaseClient } from "@guilders/database/types";
 import type {
   AccountParams,
@@ -7,11 +7,13 @@ import type {
   ConnectionParams,
   DeregisterUserResult,
   IProvider,
+  ProviderAccount,
   ProviderInstitution,
   Providers,
   ReconnectResult,
   RefreshConnectionResult,
   RegisterUserResult,
+  TransactionParams,
 } from "../types";
 import { EnableBankingClient } from "./client";
 import type { ConnectionState } from "./types";
@@ -78,8 +80,18 @@ export class EnableBankingProvider implements IProvider {
       throw new Error("Institution ID is required");
     }
 
+    const { data: institution, error: institutionError } = await this.supabase
+      .from("institution")
+      .select("*")
+      .eq("id", Number(params.institutionId))
+      .single();
+
+    if (institutionError || !institution) {
+      throw new Error("Institution not found");
+    }
+
     const { maximum_consent_validity, country, name } =
-      this.getInstitutionDetails(params.providerInstitutionId);
+      this.getInstitutionDetails(institution.provider_institution_id);
 
     if (!maximum_consent_validity || !country || !name) {
       throw new Error("Invalid institution ID format");
@@ -119,7 +131,96 @@ export class EnableBankingProvider implements IProvider {
     throw new Error("Not implemented");
   }
 
-  async getAccounts(params: AccountParams): Promise<Account[]> {
-    return [];
+  async getAccounts(params: AccountParams): Promise<ProviderAccount[]> {
+    const { data: connection, error: connectionError } = await this.supabase
+      .from("institution_connection")
+      .select("*")
+      .eq("id", Number(params.connectionId))
+      .single();
+
+    if (connectionError || !connection?.connection_id) {
+      throw new Error("Connection not found");
+    }
+
+    const session = await this.client.getSession({
+      sessionId: connection.connection_id,
+    });
+
+    if (!session) {
+      throw new Error("Session not found");
+    }
+
+    const accounts: ProviderAccount[] = [];
+    for (const account of session.accounts ?? []) {
+      const details = await this.client.getAccountDetails({
+        accountId: account,
+      });
+
+      if (!details) {
+        throw new Error("Account details not found");
+      }
+
+      const balances = await this.client.getAccountBalances({
+        accountId: account,
+      });
+
+      const balance = balances[0];
+
+      if (!balance) {
+        throw new Error("Balance not found");
+      }
+
+      const accountData: ProviderAccount = {
+        name: details.details ?? "Bank Account",
+        type: "asset",
+        subtype: "depository",
+        value: Number(balance.balance_amount.amount),
+        currency: details.currency,
+        user_id: params.userId,
+        institution_connection_id: Number(params.connectionId),
+        provider_account_id: account,
+      };
+
+      accounts.push(accountData);
+    }
+
+    return accounts;
+  }
+
+  async getTransactions(
+    params: TransactionParams,
+  ): Promise<TransactionInsert[]> {
+    if (!params.accountId || !params.userId) {
+      throw new Error("Account ID and User ID are required");
+    }
+
+    const transactions = await this.client.getAccountTransactions({
+      accountId: params.accountId,
+    });
+
+    const { data: accountId, error: accountError } = await this.supabase
+      .from("account")
+      .select("id")
+      .eq("provider_account_id", params.accountId)
+      .single();
+
+    if (accountError || !accountId) {
+      throw new Error("Account not found");
+    }
+
+    const transactionData: TransactionInsert[] = [];
+    for (const transaction of transactions) {
+      transactionData.push({
+        date: transaction.booking_date,
+        amount: Number(transaction.transaction_amount.amount),
+        currency: transaction.transaction_amount.currency,
+        description: transaction.remittance_information?.join(", ") ?? "",
+        category: "Uncategorized",
+        account_id: accountId.id,
+        provider_transaction_id: transaction.entry_reference,
+      });
+    }
+
+    return transactionData;
   }
 }

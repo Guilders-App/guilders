@@ -85,62 +85,49 @@ const app = new Hono<{ Bindings: Bindings }>().get("/", async (c) => {
     return c.json({ error: "Failed to create institution connection" }, 500);
   }
 
-  const sessionData = await enablebankingClient.getSession({
-    sessionId: session.session_id,
+  const accounts = await provider.getAccounts({
+    userId: stateObj.userId,
+    connectionId: connection.id,
   });
 
-  const accountIdMapping: Record<string, number> = {};
+  console.log("Accounts", accounts);
 
-  for (const account of sessionData.accounts ?? []) {
-    const balances = await enablebankingClient.getAccountBalances({
-      accountId: account,
-    });
+  const { data: accountsInsert, error: accountsInsertError } = await supabase
+    .from("account")
+    .insert(accounts)
+    .select();
 
-    for (const balance of balances) {
-      const { data: accountData, error: accountError } = await supabase
-        .from("account")
-        .insert({
-          type: "asset",
-          subtype: "depository",
-          user_id: stateObj.userId,
-          name: "Bank Account",
-          value: Number(balance.balance_amount.amount),
-          currency: balance.balance_amount.currency,
-          institution_connection_id: connection.id,
-          provider_account_id: account,
-        })
-        .select("id")
-        .single();
+  console.log("Accounts Inserted", accountsInsert);
 
-      if (accountError) {
-        console.error(accountError);
-        return c.json({ error: "Failed to create account" }, 500);
-      }
+  if (accountsInsertError) {
+    console.error(accountsInsertError);
+    return c.json({ error: "Failed to create accounts" }, 500);
+  }
 
-      accountIdMapping[account] = accountData.id;
+  for (const account of accountsInsert) {
+    if (!account.provider_account_id) {
+      throw new Error("Recently created account has no provider account id");
     }
 
-    const transactions = await enablebankingClient.getAccountTransactions({
-      accountId: account,
+    const transactions = await provider.getTransactions({
+      userId: stateObj.userId,
+      accountId: account.provider_account_id,
     });
 
-    for (const transaction of transactions) {
-      const { error: transactionError } = await supabase
-        .from("transaction")
-        .insert({
-          date: transaction.booking_date,
-          amount: Number(transaction.transaction_amount.amount),
-          currency: transaction.transaction_amount.currency,
-          description: transaction.remittance_information?.join(", ") ?? "",
-          category: "Uncategorized",
-          account_id: Number(accountIdMapping[account]),
-          provider_transaction_id: transaction.transaction_id,
-        });
+    console.log(
+      "Transactions for account",
+      account.provider_account_id,
+      transactions,
+    );
 
-      if (transactionError) {
-        console.error(transactionError);
-        return c.json({ error: "Failed to create transaction" }, 500);
-      }
+    const { data: transactionsInsert, error: transactionsInsertError } =
+      await supabase.from("transaction").insert(transactions).select();
+
+    console.log("Transactions Inserted", transactionsInsert);
+
+    if (transactionsInsertError) {
+      console.error(transactionsInsertError);
+      return c.json({ error: "Failed to create transactions" }, 500);
     }
   }
 

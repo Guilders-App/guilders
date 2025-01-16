@@ -1,5 +1,5 @@
 import type { Bindings } from "@/common/variables";
-import type { Account, Institution } from "@/types";
+import type { CreateAccount, Institution, TransactionInsert } from "@/types";
 import type { DatabaseClient } from "@guilders/database/types";
 
 export type Providers = "SnapTrade" | "EnableBanking";
@@ -14,15 +14,23 @@ export type ProviderParams = {
 
 export type ConnectionParams = {
   userId: string;
-  providerInstitutionId: string;
+  institutionId: string;
+  connectionId?: string; // Reconnect
   userSecret?: string; // SnapTrade
-  connectionId?: string; // SnapTrade
-  institutionId?: string; // EnableBanking
 };
 
 export type AccountParams = {
   userId: string;
-  connectionId: string;
+  connectionId: number;
+};
+
+export type TransactionParams = {
+  userId: string;
+  accountId: string;
+};
+
+export type ProviderAccount = CreateAccount & {
+  user_id: string;
 };
 
 export interface IProvider {
@@ -37,7 +45,8 @@ export interface IProvider {
     userSecret: string,
     connectionId: string,
   ) => Promise<RefreshConnectionResult>;
-  getAccounts: (params: AccountParams) => Promise<Account[]>;
+  getAccounts: (params: AccountParams) => Promise<ProviderAccount[]>;
+  getTransactions: (params: TransactionParams) => Promise<TransactionInsert[]>;
 }
 
 export type RegisterUserResult = {

@@ -1,5 +1,6 @@
 import type { Bindings } from "@/common/variables";
-import type { Account } from "@/types";
+import type { TransactionInsert } from "@/types";
+import type { DatabaseClient } from "@guilders/database/types";
 import { Snaptrade } from "snaptrade-typescript-sdk";
 import type {
   AccountParams,
@@ -7,18 +8,22 @@ import type {
   ConnectionParams,
   DeregisterUserResult,
   IProvider,
+  ProviderAccount,
   ProviderInstitution,
   Providers,
   ReconnectResult,
   RefreshConnectionResult,
   RegisterUserResult,
+  TransactionParams,
 } from "../types";
 
 export class SnapTradeProvider implements IProvider {
   readonly name: Providers = "SnapTrade";
   private readonly client: Snaptrade;
+  private readonly supabase: DatabaseClient;
 
-  constructor(env: Bindings) {
+  constructor(supabase: DatabaseClient, env: Bindings) {
+    this.supabase = supabase;
     this.client = new Snaptrade({
       clientId: env.SNAPTRADE_CLIENT_ID,
       consumerKey: env.SNAPTRADE_CLIENT_SECRET,
@@ -116,16 +121,29 @@ export class SnapTradeProvider implements IProvider {
 
   async connect(params: ConnectionParams): Promise<ConnectResult> {
     try {
-      if (!params.userSecret) {
+      if (!params.userSecret || !params.institutionId) {
         return {
           success: false,
-          error: "User secret is required",
+          error: "User secret and institution ID are required",
+        };
+      }
+
+      const { data: institution, error: institutionError } = await this.supabase
+        .from("institution")
+        .select("*")
+        .eq("id", Number(params.institutionId))
+        .single();
+
+      if (institutionError || !institution) {
+        return {
+          success: false,
+          error: "Institution not found",
         };
       }
 
       const brokerages = await this.client.referenceData.listAllBrokerages();
       const brokerage = brokerages.data?.find(
-        (brokerage) => brokerage.id === params.providerInstitutionId,
+        (brokerage) => brokerage.id === institution.provider_institution_id,
       );
 
       if (!brokerage) {
@@ -202,7 +220,13 @@ export class SnapTradeProvider implements IProvider {
     }
   }
 
-  async getAccounts(params: AccountParams): Promise<Account[]> {
+  async getAccounts(params: AccountParams): Promise<ProviderAccount[]> {
+    throw new Error("Not implemented");
+  }
+
+  async getTransactions(
+    params: TransactionParams,
+  ): Promise<TransactionInsert[]> {
     throw new Error("Not implemented");
   }
 }
