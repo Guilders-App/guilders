@@ -36,7 +36,7 @@ export function TransactionItem({ transaction }: TransactionItemProps) {
             {transaction.amount > 0 ? "↑" : transaction.amount < 0 ? "↓" : "→"}
           </span>
         </div>
-        <div>
+        <div className="max-w-[300px]">
           <p
             className={`font-medium font-mono ${
               transaction.amount > 0
@@ -54,7 +54,7 @@ export function TransactionItem({ transaction }: TransactionItemProps) {
               }}
             />
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
             {transaction.description}
           </p>
         </div>
