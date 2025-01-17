@@ -119,8 +119,16 @@ export class EnableBankingClient {
     return this.jwt;
   }
 
-  private async request<T>(config: RequestConfig): Promise<T> {
-    const { endpoint, returnType, dataField, options = {} } = config;
+  private async request<T>(
+    config: RequestConfig & { fetchAll?: boolean },
+  ): Promise<T> {
+    const {
+      endpoint,
+      returnType,
+      dataField,
+      options = {},
+      fetchAll = false,
+    } = config;
     const { method = "GET", body, searchParams } = options;
 
     const jwt = await this.generateJWT();
@@ -134,7 +142,7 @@ export class EnableBankingClient {
       }
     }
 
-    const response = await fetch(url.toString(), {
+    let response = await fetch(url.toString(), {
       method,
       headers: {
         Authorization: `Bearer ${jwt}`,
@@ -144,17 +152,64 @@ export class EnableBankingClient {
     });
 
     if (!response.ok) {
-      console.log(await response.text());
       throw new Error(
         `EnableBanking API error: ${response.status} ${response.statusText}`,
       );
     }
 
-    const data = await response.json();
+    let data = await response.json();
+    let resultData = dataField ? data[dataField] : data;
 
-    const resultData = dataField ? data[dataField] : data;
+    // Only paginate if fetchAll is true
+    if (fetchAll && returnType === "array" && data.continuation_key) {
+      let allResults = Array.isArray(resultData)
+        ? [...resultData]
+        : [resultData];
+      let continuationKey: string | undefined = data.continuation_key;
 
-    // Handle array vs single object responses
+      while (continuationKey) {
+        const paginatedUrl = new URL(endpoint, this.baseUrl);
+
+        // Add all original search params
+        if (searchParams) {
+          for (const [key, value] of Object.entries(searchParams)) {
+            if (value) {
+              paginatedUrl.searchParams.append(key, value);
+            }
+          }
+        }
+
+        // Add continuation key
+        paginatedUrl.searchParams.set("continuation_key", continuationKey);
+
+        response = await fetch(paginatedUrl.toString(), {
+          method,
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+            "Content-Type": "application/json",
+          },
+          body: body ? JSON.stringify(body) : undefined,
+        });
+
+        if (!response.ok) {
+          console.error(await response.text());
+          break;
+        }
+
+        data = await response.json();
+        resultData = dataField ? data[dataField] : data;
+
+        allResults = allResults.concat(
+          Array.isArray(resultData) ? resultData : [resultData],
+        );
+
+        continuationKey = data.continuation_key;
+      }
+
+      return allResults as T;
+    }
+
+    // Handle non-paginated responses
     if (returnType === "array" && !Array.isArray(resultData)) {
       return [resultData] as T;
     }
@@ -262,11 +317,13 @@ export class EnableBankingClient {
     page?: string;
     transactionStatus?: TransactionStatus;
     strategy?: TransactionsFetchStrategy;
+    fetchAll?: boolean;
   }) {
     return this.request<Transaction[]>({
       endpoint: `/accounts/${params.accountId}/transactions`,
       returnType: "array",
       dataField: "transactions",
+      fetchAll: params.fetchAll,
       options: {
         searchParams: {
           date_from: params.from,
