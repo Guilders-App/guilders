@@ -241,8 +241,8 @@ export class EnableBankingProvider implements IProvider {
   async getTransactions(
     params: TransactionParams,
   ): Promise<TransactionInsert[]> {
-    if (!params.accountId || !params.userId) {
-      throw new Error("Account ID and User ID are required");
+    if (!params.accountId) {
+      throw new Error("Account ID is required");
     }
 
     const transactions = await this.client.getAccountTransactions({
@@ -263,7 +263,9 @@ export class EnableBankingProvider implements IProvider {
     for (const transaction of transactions) {
       transactionData.push({
         date: transaction.booking_date,
-        amount: Number(transaction.transaction_amount.amount),
+        amount:
+          Number(transaction.transaction_amount.amount) *
+          (transaction.credit_debit_indicator === "DBIT" ? -1 : 1),
         currency: transaction.transaction_amount.currency,
         description: transaction.remittance_information?.join(", ") ?? "",
         category: "Uncategorized",

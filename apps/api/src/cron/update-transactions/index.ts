@@ -67,7 +67,6 @@ export async function updateTransactions(env: Bindings) {
       }
 
       const transactions = await provider.getTransactions({
-        userId: account.user_id,
         accountId: account.provider_account_id,
       });
 

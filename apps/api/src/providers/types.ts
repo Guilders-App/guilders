@@ -24,7 +24,6 @@ export type AccountParams = {
 };
 
 export type TransactionParams = {
-  userId: string;
   accountId: string;
 };
 

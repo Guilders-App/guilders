@@ -121,7 +121,6 @@ const app = new Hono<{ Bindings: Bindings }>().get("/", async (c) => {
       }
 
       const transactions = await provider.getTransactions({
-        userId: stateObj.userId,
         accountId: account.provider_account_id,
       });
 
