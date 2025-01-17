@@ -193,6 +193,16 @@ export class EnableBankingProvider implements IProvider {
       throw new Error("Connection not found");
     }
 
+    const { data: institution, error: institutionError } = await this.supabase
+      .from("institution")
+      .select("*")
+      .eq("id", Number(connection.institution_id))
+      .single();
+
+    if (institutionError || !institution) {
+      throw new Error("Institution not found");
+    }
+
     const session = await this.client.getSession({
       sessionId: connection.connection_id,
     });
@@ -230,6 +240,7 @@ export class EnableBankingProvider implements IProvider {
         user_id: params.userId,
         institution_connection_id: Number(params.connectionId),
         provider_account_id: account,
+        image: institution.logo_url,
       };
 
       accounts.push(accountData);
