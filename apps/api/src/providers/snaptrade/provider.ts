@@ -224,6 +224,7 @@ export class SnapTradeProvider implements IProvider {
         success: true,
         data: {
           redirectURI: response.data.redirectURI,
+          type: "popup",
         },
       };
     } catch (error) {

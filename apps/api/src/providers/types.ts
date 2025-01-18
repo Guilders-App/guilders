@@ -71,6 +71,7 @@ export type ConnectResult = {
   error?: string;
   data?: {
     redirectURI: string;
+    type: "redirect" | "popup";
   };
 };
 

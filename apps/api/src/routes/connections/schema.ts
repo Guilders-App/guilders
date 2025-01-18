@@ -36,6 +36,10 @@ export const ConnectionResponseSchema = z
       example: "https://connect.example.com/auth",
       description: "URI to redirect the user to complete connection",
     }),
+    type: z.enum(["redirect", "popup"]).openapi({
+      example: "redirect",
+      description: "Method to complete connection",
+    }),
   })
   .openapi("ConnectionResponse");
 

@@ -8,8 +8,8 @@ export function getTemplate({
   status,
   title = status === "success" ? "Connection Successful!" : "Connection Failed",
   message = status === "success"
-    ? "You can close this window now."
-    : "There was an error connecting to your bank. Please try again.",
+    ? "You can safely close this window and return to Guilders."
+    : "There was an error connecting to your bank. Please close this window and try again in Guilders.",
 }: TemplateOptions) {
   return `
 <!DOCTYPE html>
@@ -32,6 +32,8 @@ export function getTemplate({
             background-color: white;
             border-radius: 0.5rem;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 1rem;
         }
         .success {
             color: #059669;
@@ -39,12 +41,18 @@ export function getTemplate({
         .error {
             color: #dc2626;
         }
+        .note {
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
     </style>
 </head>
 <body>
     <div class="message">
         <h2 class="${status}">${title}</h2>
         <p>${message}</p>
+        <p class="note">You can safely close this window and return to Guilders.</p>
     </div>
     <script>
         window.onload = function() {

@@ -148,7 +148,7 @@ export function EditAccountDialog() {
       return;
     }
 
-    const { redirectURI } = await reconnectConnection({
+    const { redirectURI, type: redirectType } = await reconnectConnection({
       providerId: connection.provider_id.toString(),
       institutionId: institution.id.toString(),
       accountId: account.id.toString(),
@@ -159,6 +159,7 @@ export function EditAccountDialog() {
       openProviderDialog({
         redirectUri: redirectURI,
         operation: "reconnect",
+        redirectType,
       });
     } else {
       close();

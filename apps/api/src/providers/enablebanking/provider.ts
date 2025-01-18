@@ -166,6 +166,7 @@ export class EnableBankingProvider implements IProvider {
       success: true,
       data: {
         redirectURI: authorization.url,
+        type: "redirect",
       },
     };
   }
