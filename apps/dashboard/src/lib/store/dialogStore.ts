@@ -17,6 +17,7 @@ export type DialogState =
       type: "provider";
       redirectUri: string;
       operation: "connect" | "reconnect";
+      redirectType: "redirect" | "popup";
     }
   | {
       type: "editAccount";

@@ -5,6 +5,9 @@ import { z } from "zod";
 export const getEnv = (env: Bindings) =>
   createEnv({
     server: {
+      // Common
+      API_URL: z.string().url(),
+
       // Supabase (database)
       SUPABASE_URL: z.string().url(),
       SUPABASE_ANON_KEY: z.string().min(1),
@@ -22,8 +25,13 @@ export const getEnv = (env: Bindings) =>
       SNAPTRADE_CLIENT_ID: z.string().min(1),
       SNAPTRADE_CLIENT_SECRET: z.string().min(1),
       SNAPTRADE_WEBHOOK_SECRET: z.string().min(1),
+
+      // EnableBanking
+      ENABLEBANKING_CLIENT_ID: z.string().min(1),
+      ENABLEBANKING_CLIENT_PRIVATE_KEY: z.string().min(1),
     },
     runtimeEnv: {
+      API_URL: env.API_URL,
       SUPABASE_URL: env.SUPABASE_URL,
       SUPABASE_ANON_KEY: env.SUPABASE_ANON_KEY,
       SUPABASE_SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY,
@@ -34,6 +42,8 @@ export const getEnv = (env: Bindings) =>
       SNAPTRADE_CLIENT_ID: env.SNAPTRADE_CLIENT_ID,
       SNAPTRADE_CLIENT_SECRET: env.SNAPTRADE_CLIENT_SECRET,
       SNAPTRADE_WEBHOOK_SECRET: env.SNAPTRADE_WEBHOOK_SECRET,
+      ENABLEBANKING_CLIENT_ID: env.ENABLEBANKING_CLIENT_ID,
+      ENABLEBANKING_CLIENT_PRIVATE_KEY: env.ENABLEBANKING_CLIENT_PRIVATE_KEY,
     },
     emptyStringAsUndefined: true,
   });

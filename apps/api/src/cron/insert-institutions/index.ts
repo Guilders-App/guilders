@@ -10,11 +10,11 @@ export async function insertInstitutions(env: Bindings) {
     key: env.SUPABASE_SERVICE_ROLE_KEY,
     ssr: false,
   });
-  const providers: Providers[] = ["SnapTrade"];
+  const providers: Providers[] = ["SnapTrade", "EnableBanking"];
 
   for (const providerName of providers) {
     const providerDb = await getProviderDb(supabase, providerName);
-    const provider = getProvider(providerName, env);
+    const provider = getProvider(providerName, supabase, env);
 
     if (!providerDb) {
       console.error(`Failed to fetch providers for ${providerName}`);

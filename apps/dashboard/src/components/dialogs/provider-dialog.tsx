@@ -1,17 +1,22 @@
 "use client";
 
+import { env } from "@/lib/env";
 import { useDialog } from "@/lib/hooks/useDialog";
+import { queryKey as accountsQueryKey } from "@/lib/queries/useAccounts";
+import { queryKey as transactionsQueryKey } from "@/lib/queries/useTransactions";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogTitle,
 } from "@guilders/ui/dialog";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 export function ProviderDialog() {
   const { isOpen, data, close } = useDialog("provider");
+  const queryClient = useQueryClient();
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const successToast = {
@@ -33,59 +38,66 @@ export function ProviderDialog() {
   };
 
   useEffect(() => {
-    const handleMessageEvent = (e: MessageEvent) => {
-      // Ignore messages from localhost
-      if (e.origin === "http://localhost:3000") return;
+    if (!data) return;
 
-      if (e.origin === "https://app.snaptrade.com") {
-        if (e.data) {
-          const data = e.data;
-          if (data.status === "SUCCESS") {
-            close();
-            toast.success(successToast.title, {
-              description: successToast.description,
-            });
+    if (data.redirectType === "popup") {
+      const handleMessageEvent = (e: MessageEvent) => {
+        if (e.origin === "https://app.snaptrade.com") {
+          if (e.data) {
+            const data = e.data;
+            if (data.status === "SUCCESS") {
+              close();
+              toast.success(successToast.title, {
+                description: successToast.description,
+              });
+            }
+            if (data.status === "ERROR") {
+              toast.error(errorToast.title, {
+                description: errorToast.description,
+              });
+              close();
+            }
+            if (
+              data === "CLOSED" ||
+              data === "CLOSE_MODAL" ||
+              data === "ABANDONED"
+            ) {
+              close();
+            }
           }
-          if (data.status === "ERROR") {
-            toast.error(errorToast.title, {
-              description: errorToast.description,
-            });
-            close();
-          }
-          if (
-            data === "CLOSED" ||
-            data === "CLOSE_MODAL" ||
-            data === "ABANDONED"
-          ) {
-            close();
-          }
-        }
-      } else if (e.origin === "https://www.saltedge.com") {
-        if (e.data === "cancel") {
+        } else if (
+          e.origin === env.NEXT_PUBLIC_API_URL ||
+          e.origin === env.NEXT_PUBLIC_NGROK_URL
+        ) {
+          const { stage } = e.data;
+          if (!stage) return;
+
           close();
-        } else {
-          const { data: messageData } = JSON.parse(e.data);
-          if (!messageData) return;
-
-          if (messageData.stage === "success") {
-            close();
+          if (stage === "success") {
             toast.success(successToast.title, {
               description: successToast.description,
             });
-          } else if (messageData.stage === "error") {
+
+            // Refresh both accounts and transactions data
+            queryClient.invalidateQueries({ queryKey: accountsQueryKey });
+            queryClient.invalidateQueries({ queryKey: transactionsQueryKey });
+          } else if (stage === "error") {
             toast.error(errorToast.title, {
               description: errorToast.description,
             });
-            close();
           }
         }
-      }
-    };
+      };
 
-    window.addEventListener("message", handleMessageEvent, false);
-    return () =>
-      window.removeEventListener("message", handleMessageEvent, false);
-  }, [close, toast, successToast, errorToast]);
+      window.addEventListener("message", handleMessageEvent, false);
+      return () =>
+        window.removeEventListener("message", handleMessageEvent, false);
+    }
+
+    if (data.redirectType === "redirect") {
+      window.open(data.redirectUri, "_blank");
+    }
+  }, [close, queryClient, toast, successToast, errorToast, data]);
 
   if (!isOpen || !data) return null;
 
@@ -99,13 +111,26 @@ export function ProviderDialog() {
         <DialogDescription className="hidden">
           Provider Connection Dialog
         </DialogDescription>
-        <iframe
-          ref={iframeRef}
-          src={data.redirectUri}
-          title="Provider Connection Dialog"
-          className="w-full h-full border-none rounded-lg"
-          allow="clipboard-read *; clipboard-write *"
-        />
+        {data.redirectType === "popup" ? (
+          <iframe
+            ref={iframeRef}
+            src={data.redirectUri}
+            title="Provider Connection Dialog"
+            className="w-full h-full border-none rounded-lg"
+            allow="clipboard-read *; clipboard-write *"
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full p-6 space-y-4 text-center">
+            <h3 className="text-lg font-semibold">
+              Please Complete Authorization
+            </h3>
+            <p className="text-muted-foreground">
+              We've opened a new tab where you can complete the connection
+              process. Please return to this window once you're done. Feel free
+              to close this popup once you're done.
+            </p>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

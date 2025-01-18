@@ -74,43 +74,11 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
           return c.json({ data: null, error: "Provider not found" }, 404);
         }
 
-        const providerInstance = getProvider(providerDb.name as Providers, env);
-
-        const { data: providerConnection } = await supabase
-          .from("provider_connection")
-          .select("*")
-          .eq("provider_id", providerDb.id)
-          .eq("user_id", user.id)
-          .single();
-
-        let userSecret = providerConnection?.secret;
-
-        if (!userSecret) {
-          const registerResult = await providerInstance.registerUser(user.id);
-          if (!registerResult.success || !registerResult.data?.userSecret) {
-            return c.json(
-              { data: null, error: "Failed to register user with provider" },
-              500,
-            );
-          }
-
-          const { error: insertError } = await supabase
-            .from("provider_connection")
-            .insert({
-              provider_id: providerDb.id,
-              user_id: user.id,
-              secret: registerResult.data.userSecret,
-            });
-
-          if (insertError) {
-            return c.json(
-              { data: null, error: "Failed to save provider connection" },
-              500,
-            );
-          }
-
-          userSecret = registerResult.data.userSecret;
-        }
+        const providerInstance = getProvider(
+          providerDb.name as Providers,
+          supabase,
+          env,
+        );
 
         const { data: institution } = await supabase
           .from("institution")
@@ -122,11 +90,10 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
           return c.json({ data: null, error: "Institution not found" }, 404);
         }
 
-        const result = await providerInstance.connect(
-          user.id,
-          userSecret,
-          institution.provider_institution_id,
-        );
+        const result = await providerInstance.connect({
+          userId: user.id,
+          institutionId: institution.id,
+        });
 
         if (!result.success || !result.data?.redirectURI) {
           return c.json(
@@ -137,6 +104,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
 
         return c.json({ data: result.data, error: null }, 200);
       } catch (error) {
+        console.error("Error connecting to provider:", error);
         return c.json(
           { data: null, error: "Error connecting to provider" },
           500,
@@ -204,7 +172,11 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
           return c.json({ data: null, error: "Provider not found" }, 404);
         }
 
-        const providerInstance = getProvider(providerDb.name as Providers, env);
+        const providerInstance = getProvider(
+          providerDb.name as Providers,
+          supabase,
+          env,
+        );
 
         const { data: providerConnection } = await supabase
           .from("provider_connection")
@@ -243,12 +215,11 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
           return c.json({ data: null, error: "Institution not found" }, 404);
         }
 
-        const result = await providerInstance.reconnect(
-          user.id,
-          providerConnection.secret,
-          institution.provider_institution_id,
-          account.institution_connection.connection_id,
-        );
+        const result = await providerInstance.reconnect({
+          userId: user.id,
+          institutionId: institution.id,
+          connectionId: account.institution_connection.connection_id,
+        });
 
         if (!result.success || !result.data?.redirectURI) {
           return c.json(
@@ -326,7 +297,11 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
           return c.json({ data: null, error: "Provider not found" }, 404);
         }
 
-        const providerInstance = getProvider(providerDb.name as Providers, env);
+        const providerInstance = getProvider(
+          providerDb.name as Providers,
+          supabase,
+          env,
+        );
         const result = await providerInstance.registerUser(user.id);
 
         if (!result.success || !result.data?.userSecret) {
@@ -424,7 +399,11 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
           return c.json({ data: null, error: "Provider not found" }, 404);
         }
 
-        const providerInstance = getProvider(providerDb.name as Providers, env);
+        const providerInstance = getProvider(
+          providerDb.name as Providers,
+          supabase,
+          env,
+        );
 
         const { data: connection } = await supabase
           .from("provider_connection")
@@ -529,7 +508,11 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
           return c.json({ data: null, error: "Provider not found" }, 404);
         }
 
-        const providerInstance = getProvider(providerDb.name as Providers, env);
+        const providerInstance = getProvider(
+          providerDb.name as Providers,
+          supabase,
+          env,
+        );
 
         const { data: providerConnection } = await supabase
           .from("provider_connection")

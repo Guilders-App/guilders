@@ -1,7 +1,7 @@
 "use client";
 
-import { useCreateConnection } from "@/lib/queries/useConnections";
 import { useDialog } from "@/lib/hooks/useDialog";
+import { useCreateConnection } from "@/lib/queries/useConnections";
 import { useProviderById } from "@/lib/queries/useProviders";
 import { useUser } from "@/lib/queries/useUser";
 import { isPro } from "@/lib/utils";
@@ -37,7 +37,7 @@ export function AddLinkedAccountDialog() {
       return;
     }
 
-    const { redirectURI } = await createConnection({
+    const { redirectURI, type: redirectType } = await createConnection({
       providerId: provider.id.toString(),
       institutionId: institution.id.toString(),
     });
@@ -47,6 +47,7 @@ export function AddLinkedAccountDialog() {
       openProviderDialog({
         redirectUri: redirectURI,
         operation: "connect",
+        redirectType,
       });
     } else {
       close();

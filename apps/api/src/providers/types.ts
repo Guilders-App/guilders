@@ -1,36 +1,51 @@
 import type { Bindings } from "@/common/variables";
-import type { Institution } from "@/types";
+import type { CreateAccount, Institution, TransactionInsert } from "@/types";
+import type { DatabaseClient } from "@guilders/database/types";
 
-export type Providers = "SnapTrade";
+export type Providers = "SnapTrade" | "EnableBanking";
 
 export type ProviderInstitution = Omit<Institution, "id" | "provider_id">;
 
 export type ProviderParams = {
   provider: Providers;
+  supabase: DatabaseClient;
   env: Bindings;
+};
+
+export type ConnectionParams = {
+  userId: string;
+  institutionId: number;
+  connectionId?: string; // Reconnect
+};
+
+export type AccountParams = {
+  userId: string;
+  connectionId: number;
+};
+
+export type TransactionParams = {
+  accountId: string;
+};
+
+export type ProviderAccount = CreateAccount & {
+  user_id: string;
 };
 
 export interface IProvider {
   readonly name: Providers;
+  readonly enabled: boolean;
   getInstitutions: () => Promise<ProviderInstitution[]>;
   registerUser: (userId: string) => Promise<RegisterUserResult>;
   deregisterUser: (userId: string) => Promise<DeregisterUserResult>;
-  connect: (
-    userId: string,
-    userSecret: string,
-    institutionId: string,
-  ) => Promise<ConnectResult>;
-  reconnect: (
-    userId: string,
-    userSecret: string,
-    institutionId: string,
-    connectionId: string,
-  ) => Promise<ReconnectResult>;
+  connect: (params: ConnectionParams) => Promise<ConnectResult>;
+  reconnect: (params: ConnectionParams) => Promise<ReconnectResult>;
   refreshConnection: (
     userId: string,
     userSecret: string,
     connectionId: string,
   ) => Promise<RefreshConnectionResult>;
+  getAccounts: (params: AccountParams) => Promise<ProviderAccount[]>;
+  getTransactions: (params: TransactionParams) => Promise<TransactionInsert[]>;
 }
 
 export type RegisterUserResult = {
@@ -57,6 +72,7 @@ export type ConnectResult = {
   error?: string;
   data?: {
     redirectURI: string;
+    type: "redirect" | "popup";
   };
 };
 

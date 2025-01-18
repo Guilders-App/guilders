@@ -10,7 +10,6 @@ import { format } from "date-fns";
 import { Loader2, XCircle } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { toast } from "sonner";
 
 export default function ConnectionsPage() {
   const {
@@ -22,7 +21,7 @@ export default function ConnectionsPage() {
   const { mutate: deregisterConnection } = useDeregisterConnection();
   const [deregisteringId, setDeregisteringId] = useState<number | null>(null);
   const [removedIds, setRemovedIds] = useState<number[]>([]);
-  const { data: providers } = useProviders();
+  const { data: providers, isLoading: isProvidersLoading } = useProviders();
 
   return (
     <div className="space-y-6">
@@ -33,7 +32,7 @@ export default function ConnectionsPage() {
         </p>
       </div>
       <Separator />
-      {isLoading ? (
+      {isLoading || isProvidersLoading ? (
         <div className="space-y-4">
           {Array.from({ length: 2 }).map((_, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
@@ -80,17 +79,18 @@ export default function ConnectionsPage() {
                   <div className="flex items-center space-x-4">
                     <div className="relative h-8 w-24">
                       <Image
+                        // @ts-ignore
                         src={
                           providers?.find(
                             (provider) =>
                               provider.id === connection.provider_id,
-                          )?.logo_url ?? ""
+                          )?.logo_url ?? null
                         }
                         alt={`${
                           providers?.find(
                             (provider) =>
                               provider.id === connection.provider_id,
-                          )?.name ?? ""
+                          )?.name ?? "Provider"
                         } logo`}
                         fill
                         className="object-contain"

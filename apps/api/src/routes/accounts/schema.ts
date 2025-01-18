@@ -5,7 +5,18 @@ const BaseAccountSchema = z
     id: z.number().openapi({ example: 1 }),
     name: z.string().openapi({ example: "Checking Account" }),
     type: z.enum(["asset", "liability"]).openapi({ example: "asset" }),
-    subtype: z.string().openapi({ example: "checking" }),
+    subtype: z
+      .enum([
+        "depository",
+        "brokerage",
+        "crypto",
+        "property",
+        "vehicle",
+        "creditcard",
+        "loan",
+        "stock",
+      ])
+      .openapi({ example: "depository" }),
     value: z.number().openapi({ example: 1000.5 }),
     currency: z.string().length(3).openapi({ example: "USD" }),
     user_id: z.string().openapi({ example: "user_123" }),
@@ -58,13 +69,12 @@ export const AccountsSchema = z.array(AccountSchema);
 
 export const CreateAccountSchema = AccountSchema.omit({
   id: true,
-  user_id: true,
   documents: true,
   children: true,
   institution_connection: true,
-  institution_connection_id: true,
   created_at: true,
   updated_at: true,
+  user_id: true,
 })
   .partial({
     cost: true,
@@ -77,6 +87,7 @@ export const CreateAccountSchema = AccountSchema.omit({
     ticker: true,
     units: true,
     parent: true,
+    institution_connection_id: true,
   })
   .required({
     type: true,

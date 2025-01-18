@@ -1,8 +1,11 @@
+import enablebankingCallbackRoute from "@/callback/providers/enablebanking/route";
 import snaptradeCallbackRoute from "@/callback/providers/snaptrade/route";
 import stripeCallbackRoute from "@/callback/stripe/route";
 import type { Bindings } from "@/common/variables";
-import { insertInstitutions } from "@/cron/insert-institutions/route";
-import { insertRates } from "@/cron/insert-rates/route";
+import { insertInstitutions } from "@/cron/insert-institutions";
+import { insertRates } from "@/cron/insert-rates";
+import { updateAccounts } from "@/cron/update-accounts";
+import { updateTransactions } from "@/cron/update-transactions";
 import { supabaseAuth } from "@/middleware/supabaseAuth";
 import accountsRoute from "@/routes/accounts";
 import connectionsRoute from "@/routes/connections";
@@ -68,6 +71,7 @@ app.onError((err, c) => {
 // Mount callback routes
 app.route("/callback/stripe", stripeCallbackRoute);
 app.route("/callback/providers/snaptrade", snaptradeCallbackRoute);
+app.route("/callback/providers/enablebanking", enablebankingCallbackRoute);
 
 // Mount routes
 // Supabase Auth only applies to routes below
@@ -104,6 +108,9 @@ export default {
         break;
       case "0 0 * * *":
         await insertInstitutions(env);
+        break;
+      case "0 */6 * * *":
+        await Promise.all([updateAccounts(env), updateTransactions(env)]);
         break;
     }
   },

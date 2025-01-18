@@ -2,10 +2,9 @@ import type { Transaction, TransactionInsert } from "@guilders/api/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getApiClient } from "../api";
-import { queryKey as accountsQueryKey } from "./useAccounts";
 import { queryKey as accountQueryKey } from "./useAccounts";
 
-const queryKey = ["transactions"] as const;
+export const queryKey = ["transactions"] as const;
 
 export function useTransactions(accountId?: number) {
   return useQuery({

@@ -1,20 +1,30 @@
 import type { Bindings } from "@/common/variables";
+import type { TransactionInsert } from "@/types";
+import type { DatabaseClient } from "@guilders/database/types";
 import { Snaptrade } from "snaptrade-typescript-sdk";
 import type {
+  AccountParams,
   ConnectResult,
+  ConnectionParams,
   DeregisterUserResult,
   IProvider,
+  ProviderAccount,
   ProviderInstitution,
   Providers,
+  ReconnectResult,
   RefreshConnectionResult,
   RegisterUserResult,
+  TransactionParams,
 } from "../types";
 
 export class SnapTradeProvider implements IProvider {
   readonly name: Providers = "SnapTrade";
+  readonly enabled: boolean = true;
   private readonly client: Snaptrade;
+  private readonly supabase: DatabaseClient;
 
-  constructor(env: Bindings) {
+  constructor(supabase: DatabaseClient, env: Bindings) {
+    this.supabase = supabase;
     this.client = new Snaptrade({
       clientId: env.SNAPTRADE_CLIENT_ID,
       consumerKey: env.SNAPTRADE_CLIENT_SECRET,
@@ -45,7 +55,7 @@ export class SnapTradeProvider implements IProvider {
         provider_institution_id: institution.id,
         name: institution.name,
         logo_url: institution.aws_s3_square_logo_url,
-        enabled: institution.enabled,
+        enabled: institution.enabled && this.enabled,
         country: null,
       }));
 
@@ -110,16 +120,80 @@ export class SnapTradeProvider implements IProvider {
     }
   }
 
-  async connect(
-    userId: string,
-    userSecret: string,
-    institutionId: string,
-    connectionId?: string,
-  ): Promise<ConnectResult> {
+  async connect(params: ConnectionParams): Promise<ConnectResult> {
+    if (!params.institutionId) {
+      return {
+        success: false,
+        error: "Institution ID is required",
+      };
+    }
+
     try {
+      const { data: provider, error: providerError } = await this.supabase
+        .from("provider")
+        .select("*")
+        .eq("name", this.name)
+        .single();
+
+      if (providerError || !provider) {
+        return {
+          success: false,
+          error: "Provider not found",
+        };
+      }
+
+      const { data: providerConnection } = await this.supabase
+        .from("provider_connection")
+        .select("*")
+        .eq("provider_id", provider.id)
+        .eq("user_id", params.userId)
+        .single();
+
+      let userSecret = providerConnection?.secret;
+
+      if (!userSecret) {
+        const registerResult = await this.registerUser(params.userId);
+        if (!registerResult.success || !registerResult.data?.userSecret) {
+          return {
+            success: false,
+            error: "Failed to register user with provider",
+          };
+        }
+
+        const { error: insertError } = await this.supabase
+          .from("provider_connection")
+          .insert({
+            provider_id: provider.id,
+            user_id: params.userId,
+            secret: registerResult.data.userSecret,
+          });
+
+        if (insertError) {
+          return {
+            success: false,
+            error: "Failed to save provider connection",
+          };
+        }
+
+        userSecret = registerResult.data.userSecret;
+      }
+
+      const { data: institution, error: institutionError } = await this.supabase
+        .from("institution")
+        .select("*")
+        .eq("id", Number(params.institutionId))
+        .single();
+
+      if (institutionError || !institution) {
+        return {
+          success: false,
+          error: "Institution not found",
+        };
+      }
+
       const brokerages = await this.client.referenceData.listAllBrokerages();
       const brokerage = brokerages.data?.find(
-        (brokerage) => brokerage.id === institutionId,
+        (brokerage) => brokerage.id === institution.provider_institution_id,
       );
 
       if (!brokerage) {
@@ -130,10 +204,10 @@ export class SnapTradeProvider implements IProvider {
       }
 
       const response = await this.client.authentication.loginSnapTradeUser({
-        userId: userId,
-        userSecret: userSecret,
+        userId: params.userId,
+        userSecret,
         broker: brokerage?.slug,
-        reconnect: connectionId,
+        reconnect: params.connectionId,
       });
 
       if (
@@ -151,6 +225,7 @@ export class SnapTradeProvider implements IProvider {
         success: true,
         data: {
           redirectURI: response.data.redirectURI,
+          type: "popup",
         },
       };
     } catch (error) {
@@ -161,13 +236,8 @@ export class SnapTradeProvider implements IProvider {
     }
   }
 
-  async reconnect(
-    userId: string,
-    userSecret: string,
-    institutionId: string,
-    connectionId: string,
-  ): Promise<RefreshConnectionResult> {
-    return this.connect(userId, userSecret, institutionId, connectionId);
+  async reconnect(params: ConnectionParams): Promise<ReconnectResult> {
+    return this.connect(params);
   }
 
   async refreshConnection(
@@ -199,5 +269,15 @@ export class SnapTradeProvider implements IProvider {
         error: "Failed to refresh SnapTrade connection",
       };
     }
+  }
+
+  async getAccounts(params: AccountParams): Promise<ProviderAccount[]> {
+    throw new Error("Not implemented");
+  }
+
+  async getTransactions(
+    params: TransactionParams,
+  ): Promise<TransactionInsert[]> {
+    throw new Error("Not implemented");
   }
 }

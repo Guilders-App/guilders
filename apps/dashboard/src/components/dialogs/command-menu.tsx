@@ -92,14 +92,16 @@ export function CommandMenu() {
     return allInstitutions.filter((institution) => {
       if (!search) return true;
 
-      const searchLower = search.toLowerCase();
+      const searchTerms = search.toLowerCase().trim().split(/\s+/);
       const countryName = institution.country
         ? countriesMap?.[institution.country] || "Global"
         : "Global";
 
-      return (
-        institution.name.toLowerCase().includes(searchLower) ||
-        countryName.toLowerCase().includes(searchLower)
+      // Check if all search terms are found in either name or country
+      return searchTerms.every(
+        (term) =>
+          institution.name.toLowerCase().includes(term) ||
+          countryName.toLowerCase().includes(term),
       );
     });
   }, [search, allInstitutions, countriesMap]);

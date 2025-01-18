@@ -24,6 +24,10 @@ const nextConfig: NextConfig = {
       {
         hostname: "passiv-brokerage-logos.s3.ca-central-1.amazonaws.com",
       },
+      // EnableBanking
+      {
+        hostname: "enablebanking.com",
+      },
     ],
   },
 };

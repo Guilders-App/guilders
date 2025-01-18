@@ -260,7 +260,7 @@ export type Database = {
           created_at?: string;
           id?: number;
           institution_id: number;
-          provider_connection_id?: number;
+          provider_connection_id: number;
         };
         Update: {
           broken?: boolean;
