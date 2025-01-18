@@ -33,6 +33,7 @@ export type ProviderAccount = CreateAccount & {
 
 export interface IProvider {
   readonly name: Providers;
+  readonly enabled: boolean;
   getInstitutions: () => Promise<ProviderInstitution[]>;
   registerUser: (userId: string) => Promise<RegisterUserResult>;
   deregisterUser: (userId: string) => Promise<DeregisterUserResult>;

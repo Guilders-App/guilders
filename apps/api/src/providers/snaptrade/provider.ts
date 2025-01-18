@@ -19,6 +19,7 @@ import type {
 
 export class SnapTradeProvider implements IProvider {
   readonly name: Providers = "SnapTrade";
+  readonly enabled: boolean = true;
   private readonly client: Snaptrade;
   private readonly supabase: DatabaseClient;
 
@@ -54,7 +55,7 @@ export class SnapTradeProvider implements IProvider {
         provider_institution_id: institution.id,
         name: institution.name,
         logo_url: institution.aws_s3_square_logo_url,
-        enabled: institution.enabled,
+        enabled: institution.enabled && this.enabled,
         country: null,
       }));
 

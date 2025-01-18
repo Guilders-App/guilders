@@ -20,6 +20,7 @@ import type { ConnectionState } from "./types";
 
 export class EnableBankingProvider implements IProvider {
   readonly name: Providers = "EnableBanking";
+  readonly enabled: boolean = false;
   private readonly client: EnableBankingClient;
   private readonly supabase: DatabaseClient;
   private readonly apiUrl: string;
@@ -40,7 +41,7 @@ export class EnableBankingProvider implements IProvider {
       provider_institution_id: `${aspsp.name}-${aspsp.country}-${aspsp.maximum_consent_validity}`,
       name: aspsp.name,
       logo_url: aspsp.logo,
-      enabled: true,
+      enabled: this.enabled,
       country: aspsp.country,
     }));
 
