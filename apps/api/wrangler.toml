@@ -6,6 +6,7 @@ compatibility_flags = ["nodejs_compat"]
 routes = [
   { pattern = "api.guilders.app", custom_domain = true }
 ]
+assets = { directory = "public" }
 
 [dev]
 port = 3002
