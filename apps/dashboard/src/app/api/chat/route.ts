@@ -126,8 +126,7 @@ export async function POST(request: NextRequest) {
   ];
 
   const result = streamText({
-    model: anthropic("claude-3-5-sonnet-20240620"),
-    // model: google("gemini-2.0-flash-exp"),
+    model: anthropic("claude-3-7-sonnet-20250219"),
     system: accountsContext.text,
     messages: [...imageMessages, ...convertToCoreMessages(messages)],
   });

@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 const ChatAiIcons = [
   {
@@ -67,7 +68,9 @@ export default function AdvisorPage() {
       if (response) setIsGenerating(false);
     },
     onError(error) {
-      if (error) setIsGenerating(false);
+      console.error("Chat error:", error);
+      toast.error(error.message || "An error occurred. Please try again.");
+      setIsGenerating(false);
     },
   });
 
