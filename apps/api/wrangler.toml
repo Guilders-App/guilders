@@ -7,6 +7,7 @@ routes = [
   { pattern = "api.guilders.app", custom_domain = true }
 ]
 assets = { directory = "public" }
+upload_source_maps = true
 
 [dev]
 port = 3002
