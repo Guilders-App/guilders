@@ -15,14 +15,14 @@
     "dev": "bun run db:stop && bun run db:start"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.5.2",
-    "@supabase/supabase-js": "^2.47.14",
-    "@t3-oss/env-nextjs": "^0.11.1",
-    "supabase": "^2.1.1",
-    "zod": "^3.24.1"
+    "@supabase/ssr": "^0.6.1",
+    "@supabase/supabase-js": "^2.49.4",
+    "@t3-oss/env-nextjs": "^0.12.0",
+    "supabase": "^2.20.12",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
-    "typescript": "^5.7.2"
+    "typescript": "^5.8.3"
   },
   "exports": {
     "./server": "./src/client/server.ts",

@@ -57,8 +57,8 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
         .eq("account.user_id", user.id)
         .order("date", { ascending: false });
 
-      if (accountId) {
-        query = query.eq("account_id", accountId);
+      if (accountId && Number(accountId)) {
+        query = query.eq("account_id", Number(accountId));
       }
 
       const { data, error } = await query;

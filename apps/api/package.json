@@ -15,15 +15,15 @@
   },
   "dependencies": {
     "@guilders/database": "workspace:*",
-    "@hono/zod-openapi": "^0.18.3",
-    "@scalar/hono-api-reference": "^0.5.165",
-    "hono": "^4.6.16",
-    "snaptrade-typescript-sdk": "9.0.73",
-    "stripe": "^17.5.0",
-    "zod": "^3.24.1"
+    "@hono/zod-openapi": "^0.19.4",
+    "@scalar/hono-api-reference": "^0.8.0",
+    "hono": "^4.7.6",
+    "snaptrade-typescript-sdk": "9.0.94",
+    "stripe": "^18.0.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250109.0",
-    "wrangler": "^3.102.0"
+    "@cloudflare/workers-types": "^4.20250410.0",
+    "wrangler": "^4.9.1"
   }
 }

@@ -46,6 +46,11 @@ const app = new Hono<{ Bindings: Bindings }>().post("/", async (c) => {
           return c.json({ error: "Missing user_id in metadata" }, 400);
         }
 
+        if (!subscription.items.data[0]) {
+          console.log("Missing items in subscription");
+          return c.json({ error: "Missing items in subscription" }, 400);
+        }
+
         const { error } = await supabase.from("subscription").upsert(
           {
             user_id: subscription.metadata.user_id,
@@ -59,10 +64,10 @@ const app = new Hono<{ Bindings: Bindings }>().post("/", async (c) => {
               ? new Date(subscription.canceled_at * 1000).toISOString()
               : null,
             current_period_start: new Date(
-              subscription.current_period_start * 1000,
+              subscription.items.data[0].current_period_start * 1000,
             ).toISOString(),
             current_period_end: new Date(
-              subscription.current_period_end * 1000,
+              subscription.items.data[0].current_period_end * 1000,
             ).toISOString(),
             trial_start: subscription.trial_start
               ? new Date(subscription.trial_start * 1000).toISOString()

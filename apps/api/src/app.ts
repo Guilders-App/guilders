@@ -25,7 +25,7 @@ import type {
   ScheduledEvent,
 } from "@cloudflare/workers-types";
 import { OpenAPIHono } from "@hono/zod-openapi";
-import { apiReference } from "@scalar/hono-api-reference";
+import { Scalar } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
 import { prettyJSON } from "hono/pretty-json";
@@ -42,10 +42,8 @@ app.openAPIRegistry.registerComponent("securitySchemes", "Bearer", {
 
 app.get(
   "/swagger",
-  apiReference({
-    spec: {
-      url: "/swagger.json",
-    },
+  Scalar({
+    url: "/swagger.json",
   }),
 );
 
