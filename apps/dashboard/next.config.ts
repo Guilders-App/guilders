@@ -24,6 +24,11 @@ const nextConfig: NextConfig = {
       {
         hostname: "passiv-brokerage-logos.s3.ca-central-1.amazonaws.com",
       },
+      // SnapTrade Stock Logos
+      {
+        hostname: "storage.googleapis.com",
+        pathname: "/iexcloud-hl37opg/api/logos/**",
+      },
       // EnableBanking
       {
         hostname: "enablebanking.com",
