@@ -6,9 +6,6 @@ import "@/lib/env";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  devIndicators: {
-    appIsrStatus: false,
-  },
   typescript: {
     // Disabled typechecking because of Hono RPC cross-project references
     ignoreBuildErrors: true,
