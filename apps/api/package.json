@@ -14,9 +14,11 @@
     "./types": "./src/types.ts"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^1.2.9",
     "@guilders/database": "workspace:*",
     "@hono/zod-openapi": "^0.19.4",
     "@scalar/hono-api-reference": "^0.8.0",
+    "ai": "^4.3.4",
     "hono": "^4.7.6",
     "snaptrade-typescript-sdk": "9.0.94",
     "stripe": "^18.0.0",

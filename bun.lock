@@ -13,9 +13,11 @@
       "name": "@guilders/api",
       "version": "1.0.0",
       "dependencies": {
+        "@ai-sdk/anthropic": "^1.2.9",
         "@guilders/database": "workspace:*",
         "@hono/zod-openapi": "^0.19.4",
         "@scalar/hono-api-reference": "^0.8.0",
+        "ai": "^4.3.4",
         "hono": "^4.7.6",
         "snaptrade-typescript-sdk": "9.0.94",
         "stripe": "^18.0.0",
@@ -30,7 +32,7 @@
       "name": "@guilders/dashboard",
       "version": "1.0.0",
       "dependencies": {
-        "@ai-sdk/anthropic": "^1.2.9",
+        "@ai-sdk/react": "^1.2.8",
         "@guilders/api": "workspace:*",
         "@guilders/database": "workspace:*",
         "@guilders/ui": "workspace:*",
@@ -42,7 +44,6 @@
         "@t3-oss/env-nextjs": "^0.12.0",
         "@tanstack/react-query": "^5.72.2",
         "@tanstack/react-query-devtools": "^5.72.2",
-        "ai": "^4.3.4",
         "date-fns": "^4.1.0",
         "geist": "^1.2.1",
         "lucide-react": "^0.487.0",

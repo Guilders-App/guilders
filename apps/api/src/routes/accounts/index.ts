@@ -276,7 +276,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
             )
           )
         `)
-        .eq("id", id)
+        .eq("id", Number(id))
         .eq("user_id", user.id)
         .single();
 
@@ -301,7 +301,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
             )
           )
         `)
-        .eq("parent", id)
+        .eq("parent", Number(id))
         .eq("user_id", user.id);
 
       if (childrenError) {
@@ -402,7 +402,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       const { data: account, error } = await supabase
         .from("account")
         .update(updates)
-        .eq("id", id)
+        .eq("id", Number(id))
         .eq("user_id", user.id)
         .select(`
           *,
@@ -506,7 +506,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       const { error: findError } = await supabase
         .from("account")
         .select()
-        .eq("id", id)
+        .eq("id", Number(id))
         .eq("user_id", user.id)
         .single();
 
@@ -517,7 +517,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       const { error } = await supabase
         .from("account")
         .delete()
-        .eq("id", id)
+        .eq("id", Number(id))
         .eq("user_id", user.id);
 
       if (error) {

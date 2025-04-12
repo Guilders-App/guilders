@@ -1,8 +1,9 @@
 "use client";
 
 import { Markdown } from "@/components/common/markdown-component";
-import { useUser } from "@/lib/queries/useUser";
+import { useUser, useUserToken } from "@/lib/queries/useUser";
 import { isPro } from "@/lib/utils";
+import { useChat } from "@ai-sdk/react";
 import { Badge } from "@guilders/ui/badge";
 import { Button } from "@guilders/ui/button";
 import { Card } from "@guilders/ui/card";
@@ -14,7 +15,6 @@ import {
 } from "@guilders/ui/chat-bubble";
 import { ChatInput } from "@guilders/ui/chat-input";
 import { ChatMessageList } from "@guilders/ui/chat-message-list";
-import { useChat } from "ai/react";
 import {
   Check,
   CopyIcon,
@@ -52,9 +52,10 @@ const ExampleQuestions = [
 export default function AdvisorPage() {
   const router = useRouter();
   const { data: user, isLoading } = useUser();
+  const { data: token } = useUserToken();
   const isSubscribed = isPro(user);
-
   const [isGenerating, setIsGenerating] = useState(false);
+
   const {
     messages,
     input,
@@ -64,8 +65,13 @@ export default function AdvisorPage() {
     reload,
     append,
   } = useChat({
+    api: `${process.env.NEXT_PUBLIC_API_URL}/chat`,
     onResponse(response) {
+      console.log("response", response);
       if (response) setIsGenerating(false);
+    },
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
     onError(error) {
       console.error("Chat error:", error);

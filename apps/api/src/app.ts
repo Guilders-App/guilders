@@ -8,6 +8,7 @@ import { updateAccounts } from "@/cron/update-accounts";
 import { updateTransactions } from "@/cron/update-transactions";
 import { supabaseAuth } from "@/middleware/supabaseAuth";
 import accountsRoute from "@/routes/accounts";
+import chatRoute from "@/routes/chat";
 import connectionsRoute from "@/routes/connections";
 import countriesRoute from "@/routes/countries";
 import currenciesRoute from "@/routes/currencies";
@@ -87,7 +88,8 @@ const appRoutes = app
   .route("/accounts", accountsRoute)
   .route("/documents", documentsRoute)
   .route("/connections", connectionsRoute)
-  .route("/subscription", subscriptionRoute);
+  .route("/subscription", subscriptionRoute)
+  .route("/chat", chatRoute);
 
 export type AppType = typeof appRoutes;
 export default {

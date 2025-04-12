@@ -4,6 +4,10 @@ export type {
   UpdateAccount,
 } from "./routes/accounts/schema";
 export type {
+  ChatRequest,
+  Message,
+} from "./routes/chat/schema";
+export type {
   ConnectionResponse,
   CreateConnection,
   Reconnect,
@@ -30,12 +34,12 @@ export type {
 export type { Provider, Providers } from "./routes/providers/schema";
 export type { Rate, Rates } from "./routes/rates/schema";
 export type {
+  CheckoutResponse,
+  PortalResponse,
+} from "./routes/subscription/schema";
+export type {
   Transaction,
   TransactionInsert,
   Transactions,
 } from "./routes/transactions/schema";
 export type { UpdateUser, User } from "./routes/users/schema";
-export type {
-  CheckoutResponse,
-  PortalResponse,
-} from "./routes/subscription/schema";

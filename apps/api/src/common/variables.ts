@@ -8,6 +8,10 @@ export type Variables = {
 export type Bindings = {
   // Common
   API_URL: string;
+  ALLOW_PREMIUM_FEATURES: string;
+
+  // AI
+  ANTHROPIC_API_KEY: string;
 
   // Supabase
   SUPABASE_URL: string;
