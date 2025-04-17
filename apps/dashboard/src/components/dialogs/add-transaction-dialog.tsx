@@ -1,5 +1,7 @@
 "use client";
 
+import { useTransactionCategories } from "@/lib/queries/useTransactionCategories";
+import type { TransactionCategory } from "@/lib/types";
 import { Button } from "@guilders/ui/button";
 import {
   Dialog,
@@ -47,7 +49,7 @@ const formSchema = z.object({
     .regex(/^-?\d+(\.\d{1,2})?$/, "Invalid number format."),
   currency: z.string().min(1, "Currency is required."),
   description: z.string().min(1, "Description is required."),
-  category: z.string().min(1, "Category is required."),
+  categoryId: z.number({ required_error: "Please select a category." }),
   date: z.string().min(1, "Date is required."),
 });
 
@@ -59,6 +61,8 @@ export function AddTransactionDialog() {
   const { data: accounts } = useAccounts();
   const { data: currencies } = useCurrencies();
   const { data: user } = useUser();
+  const { data: categories, isLoading: isLoadingCategories } =
+    useTransactionCategories();
 
   const manualAccounts = accounts?.filter(
     (account) => !account.institution_connection_id,
@@ -71,7 +75,7 @@ export function AddTransactionDialog() {
       amount: "",
       currency: user?.settings.currency ?? "",
       description: "",
-      category: "",
+      categoryId: undefined,
       date: new Date().toISOString(),
     },
   });
@@ -117,7 +121,7 @@ export function AddTransactionDialog() {
       amount: Number.parseFloat(data.amount),
       currency: data.currency,
       description: data.description,
-      category: data.category,
+      category_id: data.categoryId,
       date: new Date(data.date).toISOString(),
     });
 
@@ -130,7 +134,7 @@ export function AddTransactionDialog() {
         <DialogHeader>
           <DialogTitle>Add Transaction</DialogTitle>
           <DialogDescription>
-            Add a new transaction to your account.
+            Add a new transaction to your selected account.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -145,7 +149,7 @@ export function AddTransactionDialog() {
                     onValueChange={(value) =>
                       field.onChange(Number.parseInt(value))
                     }
-                    defaultValue={field.value?.toString()}
+                    value={field.value?.toString() ?? ""}
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -226,13 +230,48 @@ export function AddTransactionDialog() {
 
             <FormField
               control={form.control}
-              name="category"
+              name="categoryId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter category" {...field} />
-                  </FormControl>
+                  <Select
+                    onValueChange={(value) =>
+                      field.onChange(Number.parseInt(value))
+                    }
+                    value={field.value?.toString() ?? ""}
+                    disabled={isLoadingCategories}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category">
+                          <span>
+                            {
+                              categories?.find((cat) => cat.id === field.value)
+                                ?.display_name
+                            }
+                          </span>
+                        </SelectValue>
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {isLoadingCategories ? (
+                        <SelectItem value="loading" disabled>
+                          <span className="text-muted-foreground">
+                            Loading categories...
+                          </span>
+                        </SelectItem>
+                      ) : (
+                        categories?.map((category: TransactionCategory) => (
+                          <SelectItem
+                            key={category.id}
+                            value={category.id.toString()}
+                          >
+                            {category.emoji} {category.display_name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -271,7 +310,11 @@ export function AddTransactionDialog() {
             />
 
             <DialogFooter>
-              <Button type="submit" disabled={isPending} className="w-full">
+              <Button
+                type="submit"
+                disabled={isPending || isLoadingCategories}
+                className="w-full"
+              >
                 {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -1,8 +1,8 @@
 import { ErrorSchema } from "@/common/types";
 import type { Bindings, Variables } from "@/common/variables";
+import { getTransactionCategories } from "@/lib/enrich";
 import type { Account, Document } from "@/types";
 import { createAnthropic } from "@ai-sdk/anthropic";
-import type { DatabaseClient } from "@guilders/database/types";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import {
   type CoreMessage,
@@ -10,6 +10,7 @@ import {
   convertToCoreMessages,
   streamText,
 } from "ai";
+import type { Context } from "hono";
 import { stream } from "hono/streaming";
 import { ChatRequestSchema, type FinancialSummary } from "./schema";
 
@@ -98,8 +99,7 @@ const app = new OpenAPIHono<{
 
     try {
       const { messages } = await c.req.json();
-
-      const accountsContext = await getAccountsContext(user.id, supabase);
+      const accountsContext = await getAccountsContext(c);
 
       const imageMessages: CoreMessage[] = [
         {
@@ -159,9 +159,12 @@ interface AccountsContext {
 }
 
 const getAccountsContext = async (
-  userId: string,
-  supabase: DatabaseClient,
+  c: Context<{ Bindings: Bindings; Variables: Variables }>,
 ): Promise<AccountsContext> => {
+  const supabase = c.get("supabase");
+  const user = c.get("user");
+  const userId = user.id;
+
   const { data: allAccounts, error: allAccountsError } = await supabase
     .from("account")
     .select(
@@ -258,7 +261,7 @@ const getAccountsContext = async (
     primaryCurrency: userSettings?.currency || "EUR",
   };
 
-  const prompt = generatePrompt(summary);
+  const prompt = await generatePrompt(c, summary);
 
   return {
     text: prompt,
@@ -266,7 +269,12 @@ const getAccountsContext = async (
   };
 };
 
-const generatePrompt = (summary: FinancialSummary): string => {
+const generatePrompt = async (
+  c: Context<{ Bindings: Bindings; Variables: Variables }>,
+  summary: FinancialSummary,
+): Promise<string> => {
+  const transactionCategories = await getTransactionCategories(c);
+
   return `Financial Overview:
 - Net Worth: ${summary.netWorth} ${summary.primaryCurrency}
 - Number of Accounts: ${summary.accounts.length}
@@ -291,7 +299,9 @@ Recent Transactions:${summary.transactions
     .map(
       (t) => `
 • Account ID ${t.account_id}:
-  - ${t.date}: ${t.amount} ${t.currency} (${t.category}) - ${t.description}${
+  - ${t.date}: ${t.amount} ${t.currency} (${
+    transactionCategories.find((c) => c.id === t.category_id)?.name
+  }) - ${t.description}${
     t.documents?.length
       ? `
     Documents: ${t.documents.join(", ")}`

@@ -47,3 +47,4 @@ package-lock.json
 
 # testing
 testClient.ts
+.trigger

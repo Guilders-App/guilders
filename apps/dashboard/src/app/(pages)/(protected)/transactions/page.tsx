@@ -5,10 +5,12 @@ import { TransactionsCard } from "@/components/dashboard/transactions/transactio
 import { TransactionsEmptyPlaceholder } from "@/components/dashboard/transactions/transactions-placeholder";
 import { TransactionsSankey } from "@/components/dashboard/transactions/transactions-sankey";
 import { useDialog } from "@/lib/hooks/useDialog";
+import { useTransactionCategories } from "@/lib/queries/useTransactionCategories";
 import { useTransactions } from "@/lib/queries/useTransactions";
 import { useUser } from "@/lib/queries/useUser";
 import { cn } from "@/lib/utils";
 import { convertToUserCurrency } from "@/lib/utils/financial";
+import type { TransactionCategory } from "@guilders/api/types";
 import { Button } from "@guilders/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@guilders/ui/card";
 import { Skeleton } from "@guilders/ui/skeleton";
@@ -18,6 +20,7 @@ import { useRef, useState } from "react";
 
 export default function TransactionsPage() {
   const { data: transactions, isLoading } = useTransactions();
+  const { data: transactionCategories } = useTransactionCategories();
   const { data: user, isLoading: isLoadingUser } = useUser();
   const { open: openAddTransaction } = useDialog("addTransaction");
   const [searchQuery, setSearchQuery] = useState("");
@@ -59,9 +62,14 @@ export default function TransactionsPage() {
 
   const filteredTransactions = transactions?.filter((transaction) => {
     const searchLower = searchQuery.toLowerCase();
+
+    const category = transactionCategories?.find(
+      (cat: TransactionCategory) => cat.id === transaction.category_id,
+    );
+
     return (
       transaction.description?.toLowerCase().includes(searchLower) ||
-      transaction.category?.toLowerCase().includes(searchLower) ||
+      category?.display_name?.toLowerCase().includes(searchLower) ||
       transaction.amount.toString().includes(searchLower) ||
       transaction.currency.toLowerCase().includes(searchLower)
     );

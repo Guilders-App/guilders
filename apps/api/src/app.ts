@@ -1,3 +1,4 @@
+import enrichmentCallbackRoute from "@/callback/enrichment/route";
 import enablebankingCallbackRoute from "@/callback/providers/enablebanking/route";
 import snaptradeCallbackRoute from "@/callback/providers/snaptrade/route";
 import stripeCallbackRoute from "@/callback/stripe/route";
@@ -70,6 +71,7 @@ app.onError((err, c) => {
 
 // Mount callback routes
 app.route("/callback/stripe", stripeCallbackRoute);
+app.route("/callback/enrichment", enrichmentCallbackRoute);
 app.route("/callback/providers/snaptrade", snaptradeCallbackRoute);
 app.route("/callback/providers/enablebanking", enablebankingCallbackRoute);
 

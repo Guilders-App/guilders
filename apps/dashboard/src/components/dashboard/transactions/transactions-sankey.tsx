@@ -1,5 +1,6 @@
 "use client";
 
+import { useTransactionCategories } from "@/lib/queries/useTransactionCategories";
 import { convertToUserCurrency } from "@/lib/utils/financial";
 import type { Transaction } from "@guilders/api/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@guilders/ui/card";
@@ -213,19 +214,37 @@ export function TransactionsSankey({
   isLoading,
   userCurrency,
 }: TransactionsSankeyProps) {
-  const sankeyData = useMemo<SankeyData>(() => {
-    if (!transactions) return { nodes: [], links: [] };
+  const {
+    data: transactionCategories,
+    isLoading: isLoadingTransactionCategories,
+  } = useTransactionCategories();
 
-    // Separate income and expense transactions
+  const sankeyData = useMemo<SankeyData>(() => {
+    if (
+      !transactions ||
+      !transactionCategories ||
+      isLoadingTransactionCategories
+    ) {
+      return { nodes: [], links: [] };
+    }
+
+    // Separate income and expense categories
     const incomeCategories = new Set<string>();
     const expenseCategories = new Set<string>();
 
     for (const t of transactions) {
-      if (t.amount > 0) {
-        incomeCategories.add(t.category);
-      } else {
-        expenseCategories.add(t.category);
+      const category = transactionCategories.find(
+        (cat) => cat.id === t.category_id,
+      );
+      if (category?.display_name) {
+        if (t.amount > 0) {
+          incomeCategories.add(category.display_name);
+        } else {
+          expenseCategories.add(category.display_name);
+        }
       }
+      // Optionally handle transactions with unknown categories here
+      // else { console.warn(`Category not found for transaction ID: ${t.id}`) }
     }
 
     // Convert sets to arrays for mapping
@@ -239,8 +258,14 @@ export function TransactionsSankey({
       const amount = Math.abs(
         convertToUserCurrency(t.amount, t.currency, [], userCurrency),
       );
-      const key = `${t.category} (${t.amount > 0 ? "Income" : "Expense"})`;
-      categoryTotals.set(key, (categoryTotals.get(key) || 0) + amount);
+      const category = transactionCategories.find(
+        (cat) => cat.id === t.category_id,
+      );
+      // Ensure category exists before creating the key
+      if (category?.display_name) {
+        const key = `${category.display_name} (${t.amount > 0 ? "Income" : "Expense"})`;
+        categoryTotals.set(key, (categoryTotals.get(key) || 0) + amount);
+      }
     }
 
     // Create nodes array: income categories -> Income node -> expense categories
@@ -275,7 +300,12 @@ export function TransactionsSankey({
     // First set of links: from income categories to central Income node
     for (const incomeCat of incomeArray) {
       const incomeForCategory = transactions
-        .filter((t) => t.amount > 0 && t.category === incomeCat)
+        .filter((t) => {
+          const category = transactionCategories.find(
+            (cat) => cat.id === t.category_id,
+          );
+          return t.amount > 0 && category?.display_name === incomeCat;
+        })
         .reduce(
           (sum, t) =>
             sum + convertToUserCurrency(t.amount, t.currency, [], userCurrency),
@@ -300,7 +330,12 @@ export function TransactionsSankey({
     for (const expenseCat of expenseArray) {
       const expenseForCategory = Math.abs(
         transactions
-          .filter((t) => t.amount < 0 && t.category === expenseCat)
+          .filter((t) => {
+            const category = transactionCategories.find(
+              (cat) => cat.id === t.category_id,
+            );
+            return t.amount < 0 && category?.display_name === expenseCat;
+          })
           .reduce(
             (sum, t) =>
               sum +
@@ -321,9 +356,14 @@ export function TransactionsSankey({
     }
 
     return { nodes, links };
-  }, [transactions, userCurrency]);
+  }, [
+    transactions,
+    userCurrency,
+    transactionCategories,
+    isLoadingTransactionCategories,
+  ]);
 
-  if (isLoading) {
+  if (isLoading || isLoadingTransactionCategories) {
     return (
       <Card>
         <CardHeader>

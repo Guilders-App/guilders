@@ -45,9 +45,9 @@ export const CreateTransactionInputSchema = z.object({
 });
 
 export const EntitySchema = z.object({
-  id: z.string().uuid(),
+  id: z.string().uuid().nullable(),
   type: z.string().optional(), // e.g., "organization" - could be enum if known types
-  name: z.string(),
+  name: z.string().nullable(),
   // Allow full URLs or domain names like 'example.com'
   website: z
     .string()

@@ -21,6 +21,10 @@ export type Bindings = {
   // Ntropy
   NTROPY_API_KEY: string;
 
+  // Trigger.dev
+  TRIGGER_PROJECT_REF: string;
+  TRIGGER_SECRET_KEY: string;
+
   // Supabase
   SUPABASE_URL: string;
   SUPABASE_ANON_KEY: string;

@@ -11,8 +11,8 @@ export const TransactionSchema = z
     amount: z.number().openapi({
       example: 100.5,
     }),
-    category: z.string().openapi({
-      example: "Food",
+    category_id: z.number().openapi({
+      example: 29,
     }),
     currency: z.string().openapi({
       example: "USD",

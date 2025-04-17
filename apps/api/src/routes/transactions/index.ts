@@ -1,6 +1,5 @@
 import { ErrorSchema, VoidSchema, createSuccessSchema } from "@/common/types";
 import type { Bindings, Variables } from "@/common/variables";
-import { enrichTransaction } from "@/lib/enrich";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import {
   CreateTransactionSchema,
@@ -67,19 +66,6 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       if (error) {
         return c.json({ data: null, error: error.message }, 500);
       }
-
-      // const enrichedData = await Promise.all(
-      //   data.map((transaction) => enrichTransactionWithLLM(c, transaction)),
-      // );
-      const lastTransactions = data.slice(0, 1);
-      if (!lastTransactions) {
-        return c.json({ data: null, error: "No transactions found" }, 500);
-      }
-      const enrichedTransactions = await Promise.all(
-        lastTransactions.map((transaction) =>
-          enrichTransaction(c, transaction, user.id),
-        ),
-      );
 
       return c.json({ data, error: null }, 200);
     },
