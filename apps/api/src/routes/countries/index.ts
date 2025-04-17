@@ -1,6 +1,7 @@
 import { ErrorSchema, createSuccessSchema } from "@/common/types";
 import type { Bindings, Variables } from "@/common/variables";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
+import { cache } from "hono/cache";
 import { CountriesSchema, CountrySchema } from "./schema";
 
 const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
@@ -114,5 +115,13 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       return c.json({ data: country, error: null }, 200);
     },
   );
+
+app.get(
+  "*",
+  cache({
+    cacheName: "guilders-api",
+    cacheControl: "max-age=3600",
+  }),
+);
 
 export default app;

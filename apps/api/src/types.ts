@@ -37,6 +37,7 @@ export type {
   CheckoutResponse,
   PortalResponse,
 } from "./routes/subscription/schema";
+export type { TransactionCategory } from "./routes/transaction-categories/schema";
 export type {
   Transaction,
   TransactionInsert,

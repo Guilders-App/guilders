@@ -1,6 +1,5 @@
 import { ErrorSchema, VoidSchema, createSuccessSchema } from "@/common/types";
 import type { Bindings, Variables } from "@/common/variables";
-import { getEnv } from "@/env";
 import { createClient } from "@guilders/database/server";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import { type UpdateUser, UpdateUserSchema, UserSchema } from "./schema";
@@ -139,11 +138,10 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
     async (c) => {
       const supabase = c.get("supabase");
       const user = c.get("user");
-      const env = getEnv(c.env);
       const { email, password, settings }: UpdateUser = await c.req.json();
       const supabaseAdmin = await createClient({
-        url: env.SUPABASE_URL,
-        key: env.SUPABASE_SERVICE_ROLE_KEY,
+        url: c.env.SUPABASE_URL,
+        key: c.env.SUPABASE_SERVICE_ROLE_KEY,
         ssr: false,
       });
 

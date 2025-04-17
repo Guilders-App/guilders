@@ -1,6 +1,5 @@
 import { ErrorSchema, VoidSchema, createSuccessSchema } from "@/common/types";
 import type { Bindings, Variables } from "@/common/variables";
-import { getEnv } from "@/env";
 import { getProvider } from "@/providers";
 import type { Providers } from "@/providers/types";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
@@ -61,7 +60,6 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       try {
         const supabase = c.get("supabase");
         const user = c.get("user");
-        const env = getEnv(c.env);
         const { provider_id, institution_id } = await c.req.json();
 
         const { data: providerDb, error: providerDbError } = await supabase
@@ -77,7 +75,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
         const providerInstance = getProvider(
           providerDb.name as Providers,
           supabase,
-          env,
+          c.env,
         );
 
         const { data: institution } = await supabase
@@ -159,7 +157,6 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       try {
         const supabase = c.get("supabase");
         const user = c.get("user");
-        const env = getEnv(c.env);
         const { provider_id, institution_id, account_id } = await c.req.json();
 
         const { data: providerDb, error: providerDbError } = await supabase
@@ -175,7 +172,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
         const providerInstance = getProvider(
           providerDb.name as Providers,
           supabase,
-          env,
+          c.env,
         );
 
         const { data: providerConnection } = await supabase
@@ -284,7 +281,6 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       try {
         const supabase = c.get("supabase");
         const user = c.get("user");
-        const env = getEnv(c.env);
         const { provider_id } = await c.req.json();
 
         const { data: providerDb, error: providerDbError } = await supabase
@@ -300,7 +296,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
         const providerInstance = getProvider(
           providerDb.name as Providers,
           supabase,
-          env,
+          c.env,
         );
         const result = await providerInstance.registerUser(user.id);
 
@@ -386,7 +382,6 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       try {
         const supabase = c.get("supabase");
         const user = c.get("user");
-        const env = getEnv(c.env);
         const { provider_id } = await c.req.json();
 
         const { data: providerDb, error: providerDbError } = await supabase
@@ -402,7 +397,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
         const providerInstance = getProvider(
           providerDb.name as Providers,
           supabase,
-          env,
+          c.env,
         );
 
         const { data: connection } = await supabase
@@ -495,7 +490,6 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       try {
         const supabase = c.get("supabase");
         const user = c.get("user");
-        const env = getEnv(c.env);
         const { provider_id, connection_id } = await c.req.json();
 
         const { data: providerDb, error: providerDbError } = await supabase
@@ -511,7 +505,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
         const providerInstance = getProvider(
           providerDb.name as Providers,
           supabase,
-          env,
+          c.env,
         );
 
         const { data: providerConnection } = await supabase

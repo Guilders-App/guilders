@@ -19,6 +19,7 @@ import providerConnectionsRoute from "@/routes/provider-connections";
 import providersRoute from "@/routes/providers";
 import ratesRoute from "@/routes/rates/index";
 import subscriptionRoute from "@/routes/subscription";
+import transactionCategoriesRoute from "@/routes/transaction-categories";
 import transactionsRoute from "@/routes/transactions";
 import usersRoute from "@/routes/users";
 import type {
@@ -84,6 +85,7 @@ const appRoutes = app
   .route("/provider-connections", providerConnectionsRoute)
   .route("/rates", ratesRoute)
   .route("/transactions", transactionsRoute)
+  .route("/transaction-categories", transactionCategoriesRoute)
   .route("/users", usersRoute)
   .route("/accounts", accountsRoute)
   .route("/documents", documentsRoute)
@@ -115,4 +117,5 @@ export default {
     }
   },
   fetch: app.fetch,
+  app,
 };

@@ -9,6 +9,11 @@ routes = [
 assets = { directory = "public" }
 upload_source_maps = true
 
+kv_namespaces = [
+  { binding = "KV", id = "75f194b1b1144673bd6e2cb72a6a90ba" },
+  { binding = "ENRICH_KV", id = "8454847e04d04933a2b8e0e01c4952de" }
+]
+
 [dev]
 port = 3002
 

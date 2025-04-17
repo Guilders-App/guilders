@@ -1,5 +1,4 @@
-import type { Bindings } from "@/common/variables";
-import { getEnv } from "@/env";
+import type { Bindings, Variables } from "@/common/variables";
 import { getSnaptrade } from "@/providers/snaptrade/client";
 import { createClient } from "@guilders/database/server";
 import type { DatabaseClient } from "@guilders/database/types";
@@ -20,58 +19,60 @@ import type {
 } from "./types";
 
 const providerName = "SnapTrade";
-const app = new Hono<{ Bindings: Bindings }>().post("/", async (c) => {
-  const body = (await c.req.json()) as SnapTradeWebhook;
-  const env = getEnv(c.env);
+const app = new Hono<{ Bindings: Bindings; Variables: Variables }>().post(
+  "/",
+  async (c) => {
+    const body = (await c.req.json()) as SnapTradeWebhook;
 
-  if (!body || !body.eventType) {
-    return c.json({ error: "Invalid webhook payload" }, 400);
-  }
-
-  if (
-    !body.webhookSecret ||
-    body.webhookSecret !== env.SNAPTRADE_WEBHOOK_SECRET
-  ) {
-    return c.json({ error: "Invalid webhook secret" }, 401);
-  }
-
-  const supabase = await createClient({
-    url: env.SUPABASE_URL,
-    key: env.SUPABASE_SERVICE_ROLE_KEY,
-    ssr: false,
-  });
-
-  try {
-    switch (body.eventType) {
-      case "CONNECTION_ADDED":
-        await handleConnectionAdded(c, body, supabase);
-        break;
-      case "CONNECTION_DELETED":
-        await handleConnectionDeleted(c, body, supabase);
-        break;
-      case "CONNECTION_BROKEN":
-        await handleConnectionBroken(c, body, supabase);
-        break;
-      case "CONNECTION_FIXED":
-        await handleConnectionFixed(c, body, supabase);
-        break;
-      case "NEW_ACCOUNT_AVAILABLE":
-      case "ACCOUNT_TRANSACTIONS_INITIAL_UPDATE":
-      case "ACCOUNT_TRANSACTIONS_UPDATED":
-      case "ACCOUNT_HOLDINGS_UPDATED":
-        await handleAccountUpdate(c, body, supabase);
-        break;
-      case "ACCOUNT_REMOVED":
-        await handleAccountRemoved(c, body, supabase);
-        break;
+    if (!body || !body.eventType) {
+      return c.json({ error: "Invalid webhook payload" }, 400);
     }
 
-    return c.json({ success: true });
-  } catch (error) {
-    console.error("Error processing webhook:", error);
-    return c.json({ error: "Error processing webhook" }, 500);
-  }
-});
+    if (
+      !body.webhookSecret ||
+      body.webhookSecret !== c.env.SNAPTRADE_WEBHOOK_SECRET
+    ) {
+      return c.json({ error: "Invalid webhook secret" }, 401);
+    }
+
+    const supabase = await createClient({
+      url: c.env.SUPABASE_URL,
+      key: c.env.SUPABASE_SERVICE_ROLE_KEY,
+      ssr: false,
+    });
+
+    try {
+      switch (body.eventType) {
+        case "CONNECTION_ADDED":
+          await handleConnectionAdded(c, body, supabase);
+          break;
+        case "CONNECTION_DELETED":
+          await handleConnectionDeleted(c, body, supabase);
+          break;
+        case "CONNECTION_BROKEN":
+          await handleConnectionBroken(c, body, supabase);
+          break;
+        case "CONNECTION_FIXED":
+          await handleConnectionFixed(c, body, supabase);
+          break;
+        case "NEW_ACCOUNT_AVAILABLE":
+        case "ACCOUNT_TRANSACTIONS_INITIAL_UPDATE":
+        case "ACCOUNT_TRANSACTIONS_UPDATED":
+        case "ACCOUNT_HOLDINGS_UPDATED":
+          await handleAccountUpdate(c, body, supabase);
+          break;
+        case "ACCOUNT_REMOVED":
+          await handleAccountRemoved(c, body, supabase);
+          break;
+      }
+
+      return c.json({ success: true });
+    } catch (error) {
+      console.error("Error processing webhook:", error);
+      return c.json({ error: "Error processing webhook" }, 500);
+    }
+  },
+);
 
 async function handleConnectionAdded(
   c: Context,

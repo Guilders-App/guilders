@@ -1,6 +1,7 @@
 import { ErrorSchema, createSuccessSchema } from "@/common/types";
 import type { Bindings, Variables } from "@/common/variables";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
+import { cache } from "hono/cache";
 import { CurrenciesSchema, CurrencySchema } from "./schema";
 
 const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
@@ -33,11 +34,21 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
     }),
     async (c) => {
       const supabase = c.get("supabase");
+
+      const cachedCurrencies = await c.env.KV.get("currencies");
+      if (cachedCurrencies) {
+        return c.json({ data: JSON.parse(cachedCurrencies), error: null }, 200);
+      }
+
       const { data, error } = await supabase.from("currency").select("*");
 
       if (error) {
         return c.json({ data: null, error: error.message }, 500);
       }
+
+      await c.env.KV.put("currencies", JSON.stringify(data), {
+        expirationTtl: 60 * 60 * 24 * 1, // 1 days
+      });
 
       return c.json(
         {
@@ -114,5 +125,13 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       return c.json({ data: currency, error: null }, 200);
     },
   );
+
+app.get(
+  "*",
+  cache({
+    cacheName: "guilders-api",
+    cacheControl: "max-age=3600",
+  }),
+);
 
 export default app;

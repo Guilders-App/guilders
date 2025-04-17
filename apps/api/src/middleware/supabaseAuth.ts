@@ -1,5 +1,4 @@
 import type { Bindings, Variables } from "@/common/variables";
-import { getEnv } from "@/env";
 import { createClient } from "@guilders/database/server";
 import type { MiddlewareHandler } from "hono";
 import { HTTPException } from "hono/http-exception";
@@ -13,9 +12,8 @@ export function supabaseAuth(
   supabaseAnonKey?: string,
 ): MiddlewareHandler<{ Bindings: Bindings; Variables: Variables }> {
   return async (c, next) => {
-    const env = getEnv(c.env);
-    const url = supabaseUrl ?? env.SUPABASE_URL;
-    const key = supabaseAnonKey ?? env.SUPABASE_ANON_KEY;
+    const url = supabaseUrl ?? c.env.SUPABASE_URL;
+    const key = supabaseAnonKey ?? c.env.SUPABASE_ANON_KEY;
 
     if (!url) {
       throw new HTTPException(500, { message: "SUPABASE_URL is not set" });

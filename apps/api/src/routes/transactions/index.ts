@@ -1,5 +1,6 @@
 import { ErrorSchema, VoidSchema, createSuccessSchema } from "@/common/types";
 import type { Bindings, Variables } from "@/common/variables";
+import { enrichTransaction } from "@/lib/enrich";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import {
   CreateTransactionSchema,
@@ -66,6 +67,19 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       if (error) {
         return c.json({ data: null, error: error.message }, 500);
       }
+
+      // const enrichedData = await Promise.all(
+      //   data.map((transaction) => enrichTransactionWithLLM(c, transaction)),
+      // );
+      const lastTransactions = data.slice(0, 1);
+      if (!lastTransactions) {
+        return c.json({ data: null, error: "No transactions found" }, 500);
+      }
+      const enrichedTransactions = await Promise.all(
+        lastTransactions.map((transaction) =>
+          enrichTransaction(c, transaction, user.id),
+        ),
+      );
 
       return c.json({ data, error: null }, 200);
     },
@@ -208,7 +222,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       const { data, error } = await supabase
         .from("transaction")
         .select("*, account:account_id(user_id)")
-        .eq("id", id)
+        .eq("id", Number(id))
         .eq("account.user_id", user.id)
         .single();
 
@@ -283,7 +297,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       const { data: existing, error: existingError } = await supabase
         .from("transaction")
         .select("*, account:account_id(user_id, value)")
-        .eq("id", id)
+        .eq("id", Number(id))
         .eq("account.user_id", user.id)
         .single();
 
@@ -299,7 +313,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
         await supabase
           .from("transaction")
           .update(updates)
-          .eq("id", id)
+          .eq("id", Number(id))
           .select()
           .single();
 
@@ -320,7 +334,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
         await supabase
           .from("transaction")
           .update({ amount: existing.amount })
-          .eq("id", id);
+          .eq("id", Number(id));
         return c.json(
           { data: null, error: "Error updating account balance" },
           500,
@@ -384,7 +398,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       const { data: existing, error: existingError } = await supabase
         .from("transaction")
         .select("*, account:account_id(user_id, value)")
-        .eq("id", id)
+        .eq("id", Number(id))
         .eq("account.user_id", user.id)
         .single();
 
@@ -396,7 +410,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       const { error: deleteError } = await supabase
         .from("transaction")
         .delete()
-        .eq("id", id);
+        .eq("id", Number(id));
 
       if (deleteError) {
         return c.json({ data: null, error: deleteError.message }, 500);

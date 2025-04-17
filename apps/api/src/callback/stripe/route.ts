@@ -1,5 +1,4 @@
 import type { Bindings } from "@/common/variables";
-import { getEnv } from "@/env";
 import { getStripe } from "@/lib/stripe";
 import { createClient } from "@guilders/database/server";
 import { Hono } from "hono";
@@ -8,10 +7,9 @@ import type Stripe from "stripe";
 const app = new Hono<{ Bindings: Bindings }>().post("/", async (c) => {
   const body = await c.req.text();
   const signature = c.req.header("stripe-signature");
-  const env = getEnv(c.env);
-  const stripe = getStripe(env);
+  const stripe = getStripe(c.env);
 
-  if (!signature || !env.STRIPE_WEBHOOK_SECRET) {
+  if (!signature || !c.env.STRIPE_WEBHOOK_SECRET) {
     console.log("Missing stripe signature");
     return c.json({ error: "Missing stripe signature" }, 400);
   }
@@ -22,7 +20,7 @@ const app = new Hono<{ Bindings: Bindings }>().post("/", async (c) => {
     event = await stripe.webhooks.constructEventAsync(
       body,
       signature,
-      env.STRIPE_WEBHOOK_SECRET,
+      c.env.STRIPE_WEBHOOK_SECRET,
     );
   } catch (err) {
     console.log("Webhook Error:", err);
@@ -30,8 +28,8 @@ const app = new Hono<{ Bindings: Bindings }>().post("/", async (c) => {
   }
 
   const supabase = await createClient({
-    url: env.SUPABASE_URL,
-    key: env.SUPABASE_SERVICE_ROLE_KEY,
+    url: c.env.SUPABASE_URL,
+    key: c.env.SUPABASE_SERVICE_ROLE_KEY,
     ssr: false,
   });
 

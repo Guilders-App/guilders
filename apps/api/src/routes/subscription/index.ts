@@ -1,6 +1,5 @@
 import { ErrorSchema, createSuccessSchema } from "@/common/types";
 import type { Bindings, Variables } from "@/common/variables";
-import { getEnv } from "@/env";
 import { getStripe } from "@/lib/stripe";
 import { createClient } from "@guilders/database/server";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
@@ -45,13 +44,12 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
       try {
         const supabase = c.get("supabase");
         const user = c.get("user");
-        const env = getEnv(c.env);
         const supabaseAdmin = await createClient({
-          url: env.SUPABASE_URL,
-          key: env.SUPABASE_SERVICE_ROLE_KEY,
+          url: c.env.SUPABASE_URL,
+          key: c.env.SUPABASE_SERVICE_ROLE_KEY,
           ssr: false,
         });
-        const stripe = getStripe(env);
+        const stripe = getStripe(c.env);
 
         // Check if user already has an active subscription
         const { data: subscription } = await supabase
@@ -122,7 +120,7 @@ const app = new OpenAPIHono<{ Variables: Variables; Bindings: Bindings }>()
           },
           line_items: [
             {
-              price: env.STRIPE_PRICE_ID,
+              price: c.env.STRIPE_PRICE_ID,
               quantity: 1,
             },
           ],

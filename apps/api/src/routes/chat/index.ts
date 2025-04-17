@@ -10,6 +10,7 @@ import {
   convertToCoreMessages,
   streamText,
 } from "ai";
+import { stream } from "hono/streaming";
 import { ChatRequestSchema, type FinancialSummary } from "./schema";
 
 const app = new OpenAPIHono<{
@@ -123,41 +124,19 @@ const app = new OpenAPIHono<{
         model: anthropic("claude-3-7-sonnet-20250219"),
         system: accountsContext.text,
         messages: [...imageMessages, ...convertToCoreMessages(messages)],
-      });
-
-      // Mark the response as a v1 data stream:
-      c.header("X-Vercel-AI-Data-Stream", "v1");
-      c.header("Content-Type", "text/plain; charset=utf-8");
-
-      return result.toDataStreamResponse({
-        headers: {
-          // add these headers to ensure that the
-          // response is chunked and streamed
-          "Content-Type": "text/x-unknown",
-          "content-encoding": "identity",
-          "transfer-encoding": "chunked",
+        onError(error) {
+          console.error(error);
         },
       });
 
-      // return result.toTextStreamResponse({
-      //   headers: {
-      //     "Content-Type": "text/plain; charset=utf-8",
-      //   },
-      // });
+      c.header("x-vercel-ai-data-stream", "v1");
+      c.header("content-type", "text/plain; charset=utf-8");
+      c.header("content-encoding", "identity");
+      c.header("transfer-encoding", "chunked");
 
-      // return stream(c, (stream) => stream.pipe(result.toDataStream()));
-
-      // Return the streaming response directly
-      // return result.toDataStreamResponse();
-      // return result.toTextStreamResponse({
-      //   headers: {
-      //     // add these headers to ensure that the
-      //     // response is chunked and streamed
-      //     "Content-Type": "text/x-unknown",
-      //     "content-encoding": "identity",
-      //     "transfer-encoding": "chunked",
-      //   },
-      // });
+      return stream(c, async (stream) => {
+        await stream.pipe(result.toDataStream());
+      });
     } catch (error) {
       console.error(error);
       return c.json(

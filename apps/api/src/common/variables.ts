@@ -1,3 +1,4 @@
+import type { KVNamespace } from "@cloudflare/workers-types";
 import type { DatabaseClient, DatabaseUser } from "@guilders/database/types";
 
 export type Variables = {
@@ -6,12 +7,19 @@ export type Variables = {
 };
 
 export type Bindings = {
+  // Cloudflare
+  KV: KVNamespace;
+  ENRICH_KV: KVNamespace;
+
   // Common
   API_URL: string;
   ALLOW_PREMIUM_FEATURES: string;
 
   // AI
   ANTHROPIC_API_KEY: string;
+
+  // Ntropy
+  NTROPY_API_KEY: string;
 
   // Supabase
   SUPABASE_URL: string;
