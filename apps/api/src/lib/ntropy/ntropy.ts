@@ -11,10 +11,11 @@ import {
   EnrichedTransactionSchema,
 } from "./schema";
 
-// Constants
 const NTROPY_BASE_URL = "https://api.ntropy.com/v3";
 
-// --- Ntropy API Client Class ---
+interface NtropyFetchOptions extends RequestInit {
+  returnUndefinedOnStatus?: number[];
+}
 
 export class NtropyClient {
   private readonly apiKey: string;
@@ -28,21 +29,23 @@ export class NtropyClient {
 
   private async ntropyFetch<T>(
     endpoint: string,
-    options: RequestInit = {},
+    options: NtropyFetchOptions = {},
     responseSchema?: z.ZodType<T>,
-  ): Promise<T> {
+  ): Promise<T | undefined> {
     const url = `${NTROPY_BASE_URL}${endpoint}`;
+    const { returnUndefinedOnStatus, ...fetchOptions } = options;
+
     const headers = {
       Accept: "application/json",
       "Content-Type": "application/json",
       "X-API-KEY": this.apiKey,
-      ...options.headers,
+      ...fetchOptions.headers,
     };
 
     let response: Response;
     try {
       response = await fetch(url, {
-        ...options,
+        ...fetchOptions,
         headers: headers as Record<string, string>,
       });
     } catch (error) {
@@ -53,6 +56,10 @@ export class NtropyClient {
     }
 
     if (!response.ok) {
+      if (returnUndefinedOnStatus?.includes(response.status)) {
+        return undefined;
+      }
+
       let errorBody: string | object = await response.text();
       try {
         errorBody = JSON.parse(errorBody);
@@ -74,11 +81,8 @@ export class NtropyClient {
         console.warn(
           `Ntropy API Warning (${endpoint}): Expected a response body but received none (Status 204 or Content-Length 0).`,
         );
-        // Depending on requirements, you might want to throw an error here
-        // or return a default value if the schema allows (e.g., z.undefined())
       }
-      // biome-ignore lint/suspicious/noExplicitAny: Need to cast for empty response
-      return undefined as any;
+      return undefined;
     }
 
     let responseData: unknown;
@@ -94,53 +98,52 @@ export class NtropyClient {
       );
     }
 
-    // If a response schema is provided, parse and validate
     if (responseSchema) {
       try {
-        return responseSchema.parse(responseData);
+        if (responseData !== undefined) {
+          return responseSchema.parse(responseData);
+        }
+        return undefined;
       } catch (error) {
         if (error instanceof ZodError) {
           console.error(
             `Ntropy API Response Validation Error (${endpoint}):`,
-            // Log the detailed Zod error with increased depth
-            inspect(error.format(), { depth: 10 }), // Adjust depth as needed
+            inspect(error.format(), { depth: 10 }),
             inspect(responseData, { depth: 10 }),
           );
-          // Optionally log the raw response data that failed validation
-          // console.error('Raw response data:', inspect(responseData, { depth: 5 }));
         } else {
           console.error(
             `Ntropy API - Unexpected error during response parsing (${endpoint}):`,
             error,
           );
         }
-        // Re-throw the original error or a more specific validation error
         throw new Error(
           `Ntropy API response validation failed: ${error instanceof Error ? error.message : "Unknown validation error"}`,
         );
       }
     }
 
-    // If no schema provided, return the raw JSON data
     return responseData as T;
   }
 
   /**
    * Creates a new account holder in Ntropy.
+   * Returns undefined if the API returns a 404 status.
    * @param data - The account holder data.
-   * @returns The created account holder.
+   * @returns The created account holder or undefined.
    * @see https://docs.ntropy.com/enrichment/introduction#enriching-your-first-transaction
    */
   async createAccountHolder(
     data: CreateAccountHolderInput,
-  ): Promise<AccountHolder> {
-    const validatedData = CreateAccountHolderInputSchema.parse(data);
+  ): Promise<AccountHolder | undefined> {
+    CreateAccountHolderInputSchema.parse(data);
 
     return this.ntropyFetch<AccountHolder>(
       "/account_holders",
       {
         method: "POST",
-        body: JSON.stringify(validatedData),
+        body: JSON.stringify(data),
+        returnUndefinedOnStatus: [404],
       },
       AccountHolderSchema,
     );
@@ -152,16 +155,17 @@ export class NtropyClient {
    * @returns The account holder details.
    * @see https://docs.ntropy.com/documentation/api/account-holders/get-account-holder
    */
-  async getAccountHolder(id: string): Promise<AccountHolder> {
-    // Basic validation for the ID format could be added here if desired,
-    // e.g., check if it's a non-empty string or matches a specific pattern.
+  async getAccountHolder(id: string): Promise<AccountHolder | undefined> {
     if (!id) {
       throw new Error("Account holder ID cannot be empty.");
     }
 
     return this.ntropyFetch<AccountHolder>(
       `/account_holders/${id}`,
-      { method: "GET" }, // Method is GET by default in ntropyFetch if options is empty or undefined
+      {
+        method: "GET",
+        returnUndefinedOnStatus: [404],
+      },
       AccountHolderSchema,
     );
   }
@@ -176,7 +180,7 @@ export class NtropyClient {
     data: CreateTransactionInput,
   ): Promise<EnrichedTransaction> {
     const validatedData = CreateTransactionInputSchema.parse(data);
-    return this.ntropyFetch<EnrichedTransaction>(
+    const result = await this.ntropyFetch<EnrichedTransaction>(
       "/transactions",
       {
         method: "POST",
@@ -184,6 +188,12 @@ export class NtropyClient {
       },
       EnrichedTransactionSchema,
     );
+    if (result === undefined) {
+      throw new Error(
+        "Ntropy API returned an unexpected undefined result for enrichTransaction.",
+      );
+    }
+    return result;
   }
 
   /**
@@ -192,18 +202,20 @@ export class NtropyClient {
    * @returns The enriched transaction details.
    * @see https://docs.ntropy.com/enrichment/introduction#fetching-the-previous-enriched-transaction
    */
-  async getTransaction(transactionId: string): Promise<EnrichedTransaction> {
+  async getTransaction(
+    transactionId: string,
+  ): Promise<EnrichedTransaction | undefined> {
     return this.ntropyFetch<EnrichedTransaction>(
       `/transactions/${transactionId}`,
-      {}, // No options needed for GET
-      EnrichedTransactionSchema, // Provide response schema
+      { returnUndefinedOnStatus: [404] },
+      EnrichedTransactionSchema,
     );
   }
 
   /**
    * Lists enriched transactions, optionally filtered by account holder ID.
    * @param params - Optional parameters for filtering and pagination.
-   * @returns An object containing a list of transactions.
+   * @returns An object containing a list of transactions, or undefined on specific errors.
    * @see https://docs.ntropy.com/enrichment/introduction#list-all-transactions
    */
   async listTransactions(params?: {
@@ -211,7 +223,6 @@ export class NtropyClient {
     limit?: number;
     startingAfter?: string;
   }): Promise<{ data: EnrichedTransaction[] }> {
-    // Assuming a common list structure
     const queryParams = new URLSearchParams();
     if (params?.accountHolderId)
       queryParams.set("account_holder_id", params.accountHolderId);
@@ -222,16 +233,23 @@ export class NtropyClient {
     const queryString = queryParams.toString();
     const endpoint = `/transactions${queryString ? `?${queryString}` : ""}`;
 
-    // Assuming the list endpoint returns an object like { data: [...] }
-    // Adjust the Zod schema and return type if the structure is different
     const ListResponseSchema = z.object({
       data: z.array(EnrichedTransactionSchema),
     });
-    return this.ntropyFetch<{ data: EnrichedTransaction[] }>(
+
+    const result = await this.ntropyFetch<{ data: EnrichedTransaction[] }>(
       endpoint,
       {},
-      ListResponseSchema, // Provide response schema
+      ListResponseSchema,
     );
+
+    if (result === undefined) {
+      throw new Error(
+        "Ntropy API returned an unexpected undefined result for listTransactions.",
+      );
+    }
+
+    return result;
   }
 
   /**
@@ -242,8 +260,8 @@ export class NtropyClient {
   async deleteTransaction(transactionId: string): Promise<void> {
     await this.ntropyFetch<void>(`/transactions/${transactionId}`, {
       method: "DELETE",
+      returnUndefinedOnStatus: [404],
     });
-    // No response body expected, so no schema needed. ntropyFetch handles 204.
   }
 
   /**
@@ -251,13 +269,13 @@ export class NtropyClient {
    * The old and new account holders must share the same set of categories.
    * @param transactionId - The unique ID of the transaction to reassign.
    * @param newAccountHolderId - The UUID of the new account holder.
-   * @returns The updated enriched transaction details.
+   * @returns The updated enriched transaction details, or undefined on specific errors.
    * @see https://docs.ntropy.com/enrichment/introduction#reassigning-the-account-holder
    */
   async reassignAccountHolder(
     transactionId: string,
     newAccountHolderId: string,
-  ): Promise<EnrichedTransaction> {
+  ): Promise<EnrichedTransaction | undefined> {
     if (!z.string().uuid().safeParse(newAccountHolderId).success) {
       throw new Error("Invalid UUID format for newAccountHolderId");
     }
@@ -267,6 +285,7 @@ export class NtropyClient {
       {
         method: "POST",
         body: JSON.stringify({ account_holder_id: newAccountHolderId }),
+        returnUndefinedOnStatus: [404],
       },
       EnrichedTransactionSchema,
     );

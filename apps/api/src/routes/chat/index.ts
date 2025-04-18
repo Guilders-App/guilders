@@ -1,6 +1,5 @@
 import { ErrorSchema } from "@/common/types";
 import type { Bindings, Variables } from "@/common/variables";
-import { getTransactionCategories } from "@/lib/enrich";
 import type { Account, Document } from "@/types";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
@@ -12,6 +11,7 @@ import {
 } from "ai";
 import type { Context } from "hono";
 import { stream } from "hono/streaming";
+import { getTransactionCategories } from "../transaction-categories/utils";
 import { ChatRequestSchema, type FinancialSummary } from "./schema";
 
 const app = new OpenAPIHono<{

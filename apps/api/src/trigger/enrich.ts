@@ -44,12 +44,15 @@ async function getAccountHolder(userId: string): Promise<AccountHolder> {
 
   const ntropy = new NtropyClient(process.env.NTROPY_API_KEY);
   const accountHolder = await ntropy.getAccountHolder(userId);
-
   if (!accountHolder) {
-    return ntropy.createAccountHolder({
+    const newAccountHolder = await ntropy.createAccountHolder({
       id: userId,
       type: "consumer",
     });
+    if (!newAccountHolder) {
+      throw new Error("Failed to create account holder");
+    }
+    return newAccountHolder;
   }
 
   return accountHolder;

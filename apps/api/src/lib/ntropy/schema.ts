@@ -11,7 +11,7 @@ export const AccountHolderTypeSchema = z.enum(["consumer", "business"]);
 export const CreateAccountHolderInputSchema = z.object({
   id: z.string(),
   type: AccountHolderTypeSchema,
-  name: z.string().optional(),
+  name: z.string().optional().nullable(),
 });
 
 export const AccountHolderSchema = CreateAccountHolderInputSchema.extend({
