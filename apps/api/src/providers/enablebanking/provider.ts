@@ -281,7 +281,7 @@ export class EnableBankingProvider implements IProvider {
           (transaction.credit_debit_indicator === "DBIT" ? -1 : 1),
         currency: transaction.transaction_amount.currency,
         description: transaction.remittance_information?.join(", ") ?? "",
-        category: "Uncategorized",
+        category_id: transaction.credit_debit_indicator === "DBIT" ? 30 : 9,
         account_id: accountId.id,
         provider_transaction_id: transaction.entry_reference,
       });

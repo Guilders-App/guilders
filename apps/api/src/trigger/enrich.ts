@@ -1,6 +1,9 @@
 import { NtropyClient } from "@/lib/ntropy/ntropy";
 import type { AccountHolder } from "@/lib/ntropy/schema";
-import { TransactionSchema } from "@/routes/transactions/schema";
+import {
+  TransactionSchema,
+  TransactionsSchema,
+} from "@/routes/transactions/schema";
 import type { Transaction, TransactionCategory } from "@/types";
 import { createClient } from "@guilders/database/server";
 import { task } from "@trigger.dev/sdk/v3";
@@ -118,6 +121,9 @@ async function enrichSingleTransaction(
 export const enrichTransactionTask = task({
   id: "enrich-transaction",
   maxDuration: 300,
+  queue: {
+    concurrencyLimit: 5,
+  },
   run: async (payload: { transaction: Transaction }) => {
     const supabase = await createClient({
       admin: true,
@@ -150,6 +156,62 @@ export const enrichTransactionTask = task({
       .from("transaction")
       .update(enrichedTransaction)
       .eq("id", parsedPayload.id)
+      .select();
+
+    if (enrichedTransactionError) {
+      console.error(enrichedTransactionError);
+      return { error: enrichedTransactionError.message };
+    }
+
+    return {
+      message: "Transaction enriched",
+    };
+  },
+});
+
+export const enrichTransactionsTask = task({
+  id: "enrich-transactions",
+  maxDuration: 300,
+  queue: {
+    concurrencyLimit: 5,
+  },
+  run: async (payload: { transactions: Transaction[] }) => {
+    const supabase = await createClient({
+      admin: true,
+      ssr: false,
+      // biome-ignore lint/style/noNonNullAssertion: <explanation>
+      url: process.env.SUPABASE_URL!,
+      // biome-ignore lint/style/noNonNullAssertion: <explanation>
+      key: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    });
+
+    const parsedPayload = TransactionsSchema.parse(payload.transactions);
+
+    if (parsedPayload.length === 0 || !parsedPayload[0]?.account_id) {
+      return {
+        message: "No transactions to enrich",
+      };
+    }
+
+    const { data: account, error: accountError } = await supabase
+      .from("account")
+      .select("user_id")
+      .eq("id", parsedPayload[0].account_id)
+      .single();
+
+    if (accountError) {
+      console.error(accountError);
+      return { error: accountError.message };
+    }
+
+    const enrichedTransactions = await enrichTransactions(
+      parsedPayload,
+      account.user_id,
+    );
+
+    const { error: enrichedTransactionError } = await supabase
+      .from("transaction")
+      .upsert(enrichedTransactions)
       .select();
 
     if (enrichedTransactionError) {
